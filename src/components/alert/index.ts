@@ -88,7 +88,7 @@ export class JellyAlert extends JellyElement {
 
     return `
       <div class="box" part="box" role="alert">
-        <span class="icon" aria-hidden="true">${jellyIcon(TONE_ICONS[tone] || TONE_ICONS.info)}</span>
+        <span class="icon" aria-hidden="true">${jellyIcon(TONE_ICONS[tone] ?? TONE_ICONS.info!)}</span>
         <div class="body"><slot></slot></div>
         <button class="close" part="close" aria-label="Dismiss">${jellyIcon('dismiss', { size: 14 })}</button>
       </div>`;

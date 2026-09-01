@@ -13,7 +13,7 @@ test('single mode closes siblings when one item opens', async () => {
     </jelly-accordion>`);
   await raf();
 
-  const [one, two] = host.querySelectorAll('jelly-collapsible') as NodeListOf<JellyCollapsible>;
+  const [one, two] = [...host.querySelectorAll('jelly-collapsible')] as [JellyCollapsible, JellyCollapsible];
 
   (two.shadowRoot!.querySelector('.head') as HTMLButtonElement).click();
 

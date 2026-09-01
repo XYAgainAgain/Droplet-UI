@@ -118,7 +118,7 @@ export class JellyElement extends HTMLElement implements JellyComponent {
   fill (): string {
     const custom = getComputedStyle(this).getPropertyValue('--jelly-fill').trim();
 
-    return custom || PALETTE['background-accent'];
+    return custom || PALETTE['background-accent']!;
   }
 
   // Called once after the shadow DOM and canvas exist. Wire events here.
@@ -510,7 +510,7 @@ export class JellyElement extends HTMLElement implements JellyComponent {
     if (dt > 0) {
       const k = 1 - Math.exp(-dt * 10);
 
-      for (let i = 0; i < 4; i++) {
+      for (const i of [0, 1, 2, 3] as const) {
         current[i] += (target[i] - current[i]) * k;
       }
     }
@@ -535,7 +535,7 @@ export class JellyElement extends HTMLElement implements JellyComponent {
       ? triple.map((channel) => Math.round(channel * 255))
       : triple;
 
-    return [rgb[0], rgb[1], rgb[2], alpha];
+    return [rgb[0] ?? 0, rgb[1] ?? 0, rgb[2] ?? 0, alpha];
   }
 
   // Backward-compatible RGB-only view for calculations that do not need alpha
@@ -545,7 +545,7 @@ export class JellyElement extends HTMLElement implements JellyComponent {
 
   // Serialize a tuple to a canvas-safe legacy color. Keep opaque colors as
   // rgb() for compactness; rgba() is required whenever transparency matters.
-  colorString ([r, g, b, a = 1]: number[], { forceAlpha = false }: { forceAlpha?: boolean } = {}): string {
+  colorString ([r = 0, g = 0, b = 0, a = 1]: number[], { forceAlpha = false }: { forceAlpha?: boolean } = {}): string {
     const red   = Math.round(r);
     const green = Math.round(g);
     const blue  = Math.round(b);
@@ -564,7 +564,7 @@ export class JellyElement extends HTMLElement implements JellyComponent {
     const start = this.rgbaTuple(from);
     const end   = this.rgbaTuple(to);
     const t     = Math.max(0, Math.min(1, amount));
-    const mixed = start.map((channel, index) => channel + (end[index] - channel) * t);
+    const mixed = start.map((channel, index) => channel + ((end[index] ?? channel) - channel) * t);
 
     return this.colorString(mixed);
   }

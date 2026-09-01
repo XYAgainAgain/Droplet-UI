@@ -42,9 +42,9 @@ test('variant="mint" paints the mint fill on the canvas', async () => {
   const pixel = canvas.getContext('2d')!.getImageData(canvas.width / 2, canvas.height / 2, 1, 1).data;
 
   // mint = #178746 = rgb(23, 135, 70)
-  expect(Math.abs(pixel[0] - 23)).toBeLessThan(8);
-  expect(Math.abs(pixel[1] - 135)).toBeLessThan(8);
-  expect(Math.abs(pixel[2] - 70)).toBeLessThan(8);
+  expect(Math.abs(pixel[0]! - 23)).toBeLessThan(8);
+  expect(Math.abs(pixel[1]! - 135)).toBeLessThan(8);
+  expect(Math.abs(pixel[2]! - 70)).toBeLessThan(8);
   expect(pixel[3]).toBe(255);
 
   host.remove();

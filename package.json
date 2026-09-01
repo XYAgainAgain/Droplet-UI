@@ -5,6 +5,11 @@
   "type": "module",
   "license": "MIT",
   "author": "Baldvin Mar Smarason <bmson@bmson.com>",
+  "packageManager": "npm@12.0.2",
+  "allowScripts": {
+    "esbuild": true,
+    "rs-module-lexer": true
+  },
   "keywords": [
     "web-components",
     "custom-elements",
@@ -33,7 +38,11 @@
     "build": "vite build",
     "build:site": "node scripts/build-site.mjs",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "npm run test:scripts && npm run test:chromium && npm run test:firefox && npm run test:webkit",
+    "test:scripts": "node --test scripts/docs-drift.test.mjs",
+    "test:chromium": "vitest run --browser.name=chromium",
+    "test:firefox": "vitest run --browser.name=firefox",
+    "test:webkit": "vitest run --browser.name=webkit",
     "test:watch": "vitest",
     "docs:manifest": "cem analyze",
     "docs:data": "node scripts/build-docs-data.mjs",
@@ -41,15 +50,19 @@
     "prepublishOnly": "npm run build && npm run docs:manifest"
   },
   "devDependencies": {
-    "@custom-elements-manifest/analyzer": "^0.10.3",
-    "@types/node": "^22.10.0",
-    "@vitest/browser": "^2.1.8",
+    "@custom-elements-manifest/analyzer": "^0.11.0",
+    "@microsoft/api-extractor": "^7.59.0",
+    "@types/node": "^26.4.0",
+    "@typescript/typescript6": "^6.0.2",
+    "@vitest/browser": "^4.1.11",
+    "@vitest/browser-playwright": "^4.1.11",
+    "esbuild": "^0.28.2",
     "lottie-web": "^5.13.0",
-    "playwright": "^1.49.0",
-    "typescript": "^5.7.2",
-    "vite": "^6.0.0",
-    "vite-plugin-dts": "^4.3.0",
-    "vitest": "^2.1.8"
+    "playwright": "^1.62.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.2",
+    "vite-plugin-dts": "^5.0.3",
+    "vitest": "^4.1.11"
   },
   "customElements": "custom-elements.json"
 }

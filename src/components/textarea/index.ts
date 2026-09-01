@@ -291,7 +291,7 @@ export class JellyTextarea extends JellyElement implements EventListenerObject {
     const dest   = s as unknown as Record<string, string>;
 
     for (const property of MIRRORED_STYLES) {
-      dest[property] = source[property];
+      dest[property] = source[property] ?? '';
     }
 
     div.textContent = ta.value.slice(0, caret);

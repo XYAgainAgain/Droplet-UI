@@ -1,19 +1,20 @@
 import { defineConfig } from 'vitest/config';
+import { playwright } from '@vitest/browser-playwright';
 
-/*
- * Component tests run in a real Chromium via Playwright, so canvas painting,
- * soft-body physics, layout and focus all execute for real - the same fidelity
- * as the manual browser smoke checks, but automated. Tests live next to their
- * component as `*.test.ts`.
- */
+// Package scripts select one configured browser instance at a time so failures
+// remain attributable to Chromium, Firefox, or WebKit.
 export default defineConfig({
   test: {
     include: ['src/**/*.test.ts'],
     browser: {
       enabled: true,
-      provider: 'playwright',
+      provider: playwright(),
       headless: true,
-      name: 'chromium',
+      instances: [
+        { browser: 'chromium' },
+        { browser: 'firefox' },
+        { browser: 'webkit' },
+      ],
     },
   },
 });

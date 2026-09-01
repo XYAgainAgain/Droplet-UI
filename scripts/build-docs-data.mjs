@@ -25,6 +25,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
 import { GROUP_ORDER, COMPONENTS } from '../docs/content/content.js';
+import { documentationWarningsFailBuild } from './docs-drift.mjs';
 
 const root         = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const manifestPath = resolve(root, 'custom-elements.json');
@@ -240,6 +241,11 @@ if (warnings.length) {
     console.warn(`  - ${warning}`);
   }
   console.warn('');
+}
+
+if (documentationWarningsFailBuild(warnings.length)) {
+  console.error('✗ Documentation build failed because four or more API drift warnings require correction.');
+  process.exitCode = 1;
 }
 
 console.log(`✓ Wrote docs/content/data.js — ${built.length} components from the manifest.`);

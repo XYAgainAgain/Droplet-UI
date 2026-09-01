@@ -474,7 +474,7 @@ export class JellySelect extends JellyElement {
     for (let step = 0; step < n; step++) {
       i = (i + delta + n) % n;
 
-      if (!this.options[i].disabled) {
+      if (!this.options[i]?.disabled) {
         break;
       }
     }
@@ -612,7 +612,7 @@ export class JellySelect extends JellyElement {
       const i   = (start + step) % n;
       const opt = this.options[i];
 
-      if (!opt.disabled && opt.label.toLowerCase().startsWith(this.typeaheadBuffer)) {
+      if (opt && !opt.disabled && opt.label.toLowerCase().startsWith(this.typeaheadBuffer)) {
         this.activeIndex = i;
         this.renderActive();
         return;
@@ -739,8 +739,14 @@ export class JellySelect extends JellyElement {
         const order = flipped ? rows.length - 1 - i : i;
         const p     = clamp((t - 0.12) * 1.7 - order * 0.05, 0, 1);
 
-        rows[i].style.opacity   = String(p);
-        rows[i].style.transform = `translateY(${(flipped ? -7 : 7) * (1 - p)}px)`;
+        const row = rows[i];
+
+        if (!row) {
+          continue;
+        }
+
+        row.style.opacity   = String(p);
+        row.style.transform = `translateY(${(flipped ? -7 : 7) * (1 - p)}px)`;
       }
     }
 

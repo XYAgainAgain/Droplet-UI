@@ -188,28 +188,31 @@ function createRoundedRectMembrane (width: number, height: number, radius: numbe
   let   perimeter = 0;
 
   for (let i = 0; i < dense.length; i++) {
-    const a = dense[i];
-    const b = dense[wrap(i + 1, dense.length)];
+    const a = dense[i]!;
+    const b = dense[wrap(i + 1, dense.length)]!;
 
     perimeter += Math.hypot(b.x - a.x, b.y - a.y);
     cumulative.push(perimeter);
   }
 
   const points: MembranePoint[] = [];
+  const sampleCount = Number.isFinite(targetSamples)
+    ? Math.max(4, Math.ceil(targetSamples))
+    : DEFAULT_CONFIG.samples;
 
-  for (let s = 0; s < targetSamples; s++) {
-    const targetDistance = (s / targetSamples) * perimeter;
+  for (let s = 0; s < sampleCount; s++) {
+    const targetDistance = (s / sampleCount) * perimeter;
 
     let segmentIndex = 0;
-    while (segmentIndex < dense.length - 1 && cumulative[segmentIndex + 1] < targetDistance) {
+    while (segmentIndex < dense.length - 1 && cumulative[segmentIndex + 1]! < targetDistance) {
       segmentIndex += 1;
     }
 
-    const a = dense[segmentIndex];
-    const b = dense[(segmentIndex + 1) % dense.length];
+    const a = dense[segmentIndex]!;
+    const b = dense[(segmentIndex + 1) % dense.length]!;
 
-    const segmentStart  = cumulative[segmentIndex];
-    const segmentEnd    = cumulative[segmentIndex + 1];
+    const segmentStart  = cumulative[segmentIndex]!;
+    const segmentEnd    = cumulative[segmentIndex + 1]!;
     const segmentLength = Math.max(segmentEnd - segmentStart, 0.0001);
     const t             = (targetDistance - segmentStart) / segmentLength;
 
@@ -233,8 +236,8 @@ function createRoundedRectMembrane (width: number, height: number, radius: numbe
 // Outward normal estimated from a point's ring neighbors
 function outwardNormalFromNeighbors (points: MembranePoint[], index: number): Normal {
   const length   = points.length;
-  const previous = points[wrap(index - 1, length)];
-  const next     = points[wrap(index + 1, length)];
+  const previous = points[wrap(index - 1, length)]!;
+  const next     = points[wrap(index + 1, length)]!;
 
   const tx           = next.x - previous.x;
   const ty           = next.y - previous.y;
@@ -251,8 +254,8 @@ function softenNormals (points: MembranePoint[]): void {
 
   for (let pass = 0; pass < DEFAULT_CONFIG.normalBlendPasses; pass++) {
     normals = normals.map((normal, index) => {
-      const previous = normals[wrap(index - 1, length)];
-      const next     = normals[wrap(index + 1, length)];
+      const previous = normals[wrap(index - 1, length)]!;
+      const next     = normals[wrap(index + 1, length)]!;
 
       const nx           = previous.nx * 0.22 + normal.nx * 0.56 + next.nx * 0.22;
       const ny           = previous.ny * 0.22 + normal.ny * 0.56 + next.ny * 0.22;
@@ -263,8 +266,8 @@ function softenNormals (points: MembranePoint[]): void {
   }
 
   for (let i = 0; i < length; i++) {
-    points[i].nx = normals[i].nx;
-    points[i].ny = normals[i].ny;
+    points[i]!.nx = normals[i]!.nx;
+    points[i]!.ny = normals[i]!.ny;
   }
 }
 
@@ -273,8 +276,8 @@ function polygonArea (points: readonly Point[]): number {
   let area = 0;
 
   for (let i = 0; i < points.length; i++) {
-    const a = points[i];
-    const b = points[wrap(i + 1, points.length)];
+    const a = points[i]!;
+    const b = points[wrap(i + 1, points.length)]!;
 
     area += a.x * b.y - b.x * a.y;
   }
@@ -290,13 +293,18 @@ export function traceSmoothPath (ctx: CanvasRenderingContext2D, points: readonly
   const length = points.length;
 
   ctx.beginPath();
-  ctx.moveTo(points[0].x, points[0].y);
+
+  if (!length) {
+    return;
+  }
+
+  ctx.moveTo(points[0]!.x, points[0]!.y);
 
   for (let i = 0; i < length; i++) {
-    const p0 = points[wrap(i - 1, length)];
-    const p1 = points[i];
-    const p2 = points[wrap(i + 1, length)];
-    const p3 = points[wrap(i + 2, length)];
+    const p0 = points[wrap(i - 1, length)]!;
+    const p1 = points[i]!;
+    const p2 = points[wrap(i + 1, length)]!;
+    const p3 = points[wrap(i + 2, length)]!;
 
     const cp1x = p1.x + ((p2.x - p0.x) * tension) / 6;
     const cp1y = p1.y + ((p2.y - p0.y) * tension) / 6;
@@ -397,7 +405,7 @@ export class JellyBody {
     let nearestDistance = Infinity;
 
     for (let i = 0; i < this.membrane.length; i++) {
-      const p        = this.membrane[i];
+      const p        = this.membrane[i]!;
       const dx       = x - p.x;
       const dy       = y - p.y;
       const distance = dx * dx + dy * dy;
@@ -417,7 +425,7 @@ export class JellyBody {
 
     for (let i = 0; i < length; i++) {
       const distance = ringDistance(i, index, length);
-      this.membrane[i].v += amount * gaussian(distance, width);
+      this.membrane[i]!.v += amount * gaussian(distance, width);
     }
   }
 
@@ -427,7 +435,7 @@ export class JellyBody {
 
     for (let i = 0; i < length; i++) {
       const distance = ringDistance(i, index, length);
-      this.membrane[i].zv += amount * gaussian(distance, width);
+      this.membrane[i]!.zv += amount * gaussian(distance, width);
     }
   }
 
@@ -435,7 +443,7 @@ export class JellyBody {
   addInsidePointImpulse (amount: number): void {
     for (let i = 0; i < this.membrane.length; i++) {
       const influence = this.insidePointInfluence(i);
-      this.membrane[i].v += amount * (influence.local - influence.halo * 0.18);
+      this.membrane[i]!.v += amount * (influence.local - influence.halo * 0.18);
     }
   }
 
@@ -443,18 +451,18 @@ export class JellyBody {
   smoothedMembraneValue (index: number, key: 'd' | 'z'): number {
     const length = this.membrane.length;
 
-    const p0 = this.membrane[wrap(index - 2, length)][key];
-    const p1 = this.membrane[wrap(index - 1, length)][key];
-    const p2 = this.membrane[index][key];
-    const p3 = this.membrane[wrap(index + 1, length)][key];
-    const p4 = this.membrane[wrap(index + 2, length)][key];
+    const p0 = this.membrane[wrap(index - 2, length)]![key];
+    const p1 = this.membrane[wrap(index - 1, length)]![key];
+    const p2 = this.membrane[index]![key];
+    const p3 = this.membrane[wrap(index + 1, length)]![key];
+    const p4 = this.membrane[wrap(index + 2, length)]![key];
 
     return p0 * 0.06 + p1 * 0.2 + p2 * 0.48 + p3 * 0.2 + p4 * 0.06;
   }
 
   // How strongly the pointer's held position affects one membrane point
   insidePointInfluence (index: number): { local: number; halo: number } {
-    const point = this.membrane[index];
+    const point = this.membrane[index]!;
 
     const dx                = point.x - this.state.pointerLocalX;
     const dy                = point.y - this.state.pointerLocalY;
@@ -499,11 +507,11 @@ export class JellyBody {
     const length = values.length;
 
     return (
-      values[wrap(index - 2, length)] * 0.06 +
-      values[wrap(index - 1, length)] * 0.2 +
-      values[index] * 0.48 +
-      values[wrap(index + 1, length)] * 0.2 +
-      values[wrap(index + 2, length)] * 0.06
+      values[wrap(index - 2, length)]! * 0.06 +
+      values[wrap(index - 1, length)]! * 0.2 +
+      values[index]! * 0.48 +
+      values[wrap(index + 1, length)]! * 0.2 +
+      values[wrap(index + 2, length)]! * 0.06
     );
   }
 
@@ -525,7 +533,7 @@ export class JellyBody {
     }
 
     for (let i = 0; i < length; i++) {
-      const p = this.membrane[i];
+      const p = this.membrane[i]!;
 
       const smoothedD = this.smoothArrayValue(totalD, i);
       const smoothedZ = this.smoothArrayValue(totalZ, i);
@@ -727,9 +735,9 @@ export class JellyBody {
     const depthAccel: number[]    = new Array(length);
 
     for (let i = 0; i < length; i++) {
-      const p    = this.membrane[i];
-      const prev = this.membrane[wrap(i - 1, length)];
-      const next = this.membrane[wrap(i + 1, length)];
+      const p    = this.membrane[i]!;
+      const prev = this.membrane[wrap(i - 1, length)]!;
+      const next = this.membrane[wrap(i + 1, length)]!;
 
       const membraneLap = prev.d + next.d - 2 * p.d;
       const depthLap    = prev.z + next.z - 2 * p.z;
@@ -750,17 +758,17 @@ export class JellyBody {
       for (let i = 0; i < length; i++) {
         const influence = this.insidePointInfluence(i);
 
-        membraneAccel[i] += c.insideLocalHoldBulgeForce * influence.local * this.state.pointerInsideWeight;
-        membraneAccel[i] -= c.insideLocalHoldBulgeForce * 0.18 * influence.halo * this.state.pointerInsideWeight;
+        membraneAccel[i]! += c.insideLocalHoldBulgeForce * influence.local * this.state.pointerInsideWeight;
+        membraneAccel[i]! -= c.insideLocalHoldBulgeForce * 0.18 * influence.halo * this.state.pointerInsideWeight;
       }
     }
 
     for (let i = 0; i < length; i++) {
-      const p = this.membrane[i];
+      const p = this.membrane[i]!;
 
-      p.v  += membraneAccel[i] * dt;
+      p.v  += membraneAccel[i]! * dt;
       p.d  += p.v * dt;
-      p.zv += depthAccel[i] * dt;
+      p.zv += depthAccel[i]! * dt;
       p.z  += p.zv * dt;
 
       p.d  = clamp(p.d, -c.maxDent, c.maxBulge);

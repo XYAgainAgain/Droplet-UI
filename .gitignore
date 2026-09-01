@@ -5,3 +5,4 @@ _site/
 *.log
 custom-elements.json
 docs/content/data.js
+.dev/

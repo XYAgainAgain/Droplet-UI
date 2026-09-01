@@ -288,6 +288,10 @@ export class JellyMenu extends HTMLElement {
 
     const item = this.items[Number(row.dataset.i)];
 
+    if (!item) {
+      return;
+    }
+
     emit(this, 'select', { value: item.value, item });
 
     this.close();
@@ -330,7 +334,7 @@ export class JellyMenu extends HTMLElement {
       case 'Enter':
       case ' ':
         event.preventDefault();
-        this.pick(rows[this.active]);
+        this.pick(rows[this.active] ?? null);
         break;
     }
   }
@@ -339,12 +343,16 @@ export class JellyMenu extends HTMLElement {
   step (delta: number, from = this.active): void {
     const rows = this.rows();
 
+    if (!rows.length) {
+      return;
+    }
+
     let i = from;
 
     for (let s = 0; s < rows.length; s++) {
       i = (i + delta + rows.length) % rows.length;
 
-      if (rows[i].getAttribute('aria-disabled') !== 'true') {
+      if (rows[i]?.getAttribute('aria-disabled') !== 'true') {
         break;
       }
     }

@@ -230,6 +230,10 @@ export class JellyRadio extends JellyElement {
 
     const target = group[next];
 
+    if (!target) {
+      return;
+    }
+
     target.control.focus();
     target.select(true);
   }

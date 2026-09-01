@@ -27,14 +27,14 @@ import { DARK_TOKENS }       from '../../theme/index.js';
 import type { ThemeMode }    from '../../theme/index.js';
 
 // Parse a resolved rgb()/color(srgb) CSS color into normalized RGBA channels
-function colorChannels (color: string): number[] {
+function colorChannels (color: string): [number, number, number, number] {
   const values = String(color).match(/[\d.]+/g)?.slice(0, 3).map(Number) || [0, 0, 0];
   const channels = color.startsWith('color(')
     ? values
     : values.map((channel) => channel / 255);
   const alpha = Number(String(color).match(/[\d.]+/g)?.[3] ?? 1);
 
-  return [...channels, Math.max(0, Math.min(1, alpha))];
+  return [channels[0] ?? 0, channels[1] ?? 0, channels[2] ?? 0, Math.max(0, Math.min(1, alpha))];
 }
 
 // Relative luminance for normalized sRGB channels
@@ -43,7 +43,7 @@ function luminance (channels: number[]): number {
     return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
   });
 
-  return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+  return 0.2126 * (linear[0] ?? 0) + 0.7152 * (linear[1] ?? 0) + 0.0722 * (linear[2] ?? 0);
 }
 
 // Pick whichever shared foreground has stronger contrast with a custom accent.
@@ -53,7 +53,7 @@ function readableOn (color: string, backdrop: string): string {
   const background = colorChannels(backdrop);
   const alpha      = foreground[3];
   const composite  = foreground.slice(0, 3).map((channel, index) => {
-    return channel * alpha + background[index] * (1 - alpha);
+    return channel * alpha + (background[index] ?? 0) * (1 - alpha);
   });
   const accent = luminance(composite);
   const dark   = luminance(colorChannels('rgb(30, 34, 42)'));
@@ -208,7 +208,7 @@ export class JellyTheme extends HTMLElement {
       if (valid) {
         const on = named
           ? tokens['foreground-on-emphasis']
-          : readableOn(this.resolveColor(hue), this.resolveColor(tokens['background-surface']));
+          : readableOn(this.resolveColor(hue), this.resolveColor(tokens['background-surface']!));
 
         decls.push(`--jelly-color-background-accent: ${hue};`);
         decls.push(`--jelly-color-foreground-on-accent: ${on};`);

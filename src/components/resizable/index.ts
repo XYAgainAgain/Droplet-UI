@@ -34,8 +34,8 @@ export class JellyResizable extends HTMLElement {
 
   built = false;
   grow: number[] = [];
-  colGrow: number[] = [1, 1];
-  rowGrow: number[] = [1, 1];
+  colGrow: [number, number] = [1, 1];
+  rowGrow: [number, number] = [1, 1];
   endDrag: (() => void) | null = null;
 
   // Populated in render()
@@ -188,7 +188,12 @@ export class JellyResizable extends HTMLElement {
         div.setAttribute('aria-valuenow', percent(grow[0], grow[1]));
       } else {
         const i = Number(div.dataset.i);
-        div.setAttribute('aria-valuenow', percent(this.grow[i], this.grow[i + 1]));
+        const before = this.grow[i];
+        const after = this.grow[i + 1];
+
+        if (before !== undefined && after !== undefined) {
+          div.setAttribute('aria-valuenow', percent(before, after));
+        }
       }
     }
   }
@@ -215,6 +220,11 @@ export class JellyResizable extends HTMLElement {
 
     const g0  = this.grow[i];
     const g1  = this.grow[i + 1];
+
+    if (g0 === undefined || g1 === undefined) {
+      return;
+    }
+
     const sum = g0 + g1;
 
     const move = (ev: PointerEvent): void => {
@@ -363,8 +373,15 @@ export class JellyResizable extends HTMLElement {
 
   // Grow one pane of a pair by d (single-axis layouts)
   nudge (i: number, d: number): void {
-    this.grow[i]     = Math.max(0.08, this.grow[i] + d);
-    this.grow[i + 1] = Math.max(0.08, this.grow[i + 1] - d);
+    const before = this.grow[i];
+    const after = this.grow[i + 1];
+
+    if (before === undefined || after === undefined) {
+      return;
+    }
+
+    this.grow[i]     = Math.max(0.08, before + d);
+    this.grow[i + 1] = Math.max(0.08, after - d);
 
     this.apply();
     emit(this, 'change', { sizes: this.sizes });

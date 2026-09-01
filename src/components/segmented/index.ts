@@ -357,7 +357,7 @@ export class JellySegmented extends JellyElement {
 
     let index = next;
 
-    for (let tries = 0; tries < count && this.segments[index].disabled; tries++) {
+    for (let tries = 0; tries < count && this.segments[index]?.disabled; tries++) {
       index = (index + step + count) % count;
     }
 

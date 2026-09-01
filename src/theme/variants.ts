@@ -61,8 +61,9 @@ export interface VariantColorProps {
  *   - `ring`  : optional second property that also takes the variant hue
  */
 export function variantColors ({ color, on = null, ring = null }: VariantColorProps = {}): string {
-  const decls = (name: string): string => {
-    const token = VARIANT_TOKENS[name];
+  const names = Object.keys(VARIANT_TOKENS) as (keyof typeof VARIANT_TOKENS)[];
+  const decls = (name: keyof typeof VARIANT_TOKENS): string => {
+    const token = VARIANT_TOKENS[name]!;
 
     return [
       color ? `${color}: var(--jelly-color-${token.fill}, ${PALETTE[token.fill]});` : '',
@@ -71,7 +72,7 @@ export function variantColors ({ color, on = null, ring = null }: VariantColorPr
     ].filter(Boolean).join(' ');
   };
 
-  return Object.keys(VARIANT_TOKENS)
+  return names
     .map((name) => `  :host([variant="${name}"]) { ${decls(name)} }`)
     .join('\n');
 }

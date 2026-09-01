@@ -7,7 +7,7 @@
   border-radius: var(--jelly-accordion-radius, 12px);
 }
 
-::slotted(jelly-collapsible + jelly-collapsible) {
+::slotted(jelly-collapsible:not(:first-child)) {
   border-top:    1px solid var(--jelly-color-border-default);
   border-radius: 0;
 }

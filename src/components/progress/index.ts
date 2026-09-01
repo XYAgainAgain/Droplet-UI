@@ -82,7 +82,7 @@ export class JellyProgress extends JellyElement {
 
   // Geometry for the current (canonicalized) size attribute
   get sizeConfig (): ProgressSize {
-    return PROGRESS_SIZES[this.getAttribute('size') ?? ''] || PROGRESS_SIZES.medium;
+    return PROGRESS_SIZES[this.getAttribute('size') ?? ''] ?? PROGRESS_SIZES.medium!;
   }
 
   // Called once after the shadow DOM and canvas exist. Wire ARIA here.
@@ -152,8 +152,8 @@ export class JellyProgress extends JellyElement {
     const tW     = this.trackW;
     const left   = this.cssW / 2 - tW / 2;
     const rtl    = isRTL(this);
-    const track  = getComputedStyle(this).getPropertyValue('--jelly-track').trim() || PALETTE['background-neutral'];
-    const accent = getComputedStyle(this).getPropertyValue('--jelly-accent').trim() || PALETTE['background-accent'];
+    const track  = getComputedStyle(this).getPropertyValue('--jelly-track').trim() || PALETTE['background-neutral']!;
+    const accent = getComputedStyle(this).getPropertyValue('--jelly-accent').trim() || PALETTE['background-accent']!;
 
     body.update(dt);
     this.clearCanvas();

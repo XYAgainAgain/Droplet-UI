@@ -12,7 +12,7 @@ test('upgrades with two role=slider knobs', async () => {
   await settle(3);
   const knobs = el.shadowRoot!.querySelectorAll('.knob');
   expect(knobs.length).toBe(2);
-  expect(knobs[0].getAttribute('role')).toBe('slider');
+  expect(knobs[0]!.getAttribute('role')).toBe('slider');
 
   host.remove();
 });
@@ -23,8 +23,8 @@ test('reflects low/high into aria-valuenow and the value getter', async () => {
 
   await settle(3);
   const knobs = el.shadowRoot!.querySelectorAll('.knob');
-  expect(knobs[0].getAttribute('aria-valuenow')).toBe('20');
-  expect(knobs[1].getAttribute('aria-valuenow')).toBe('70');
+  expect(knobs[0]!.getAttribute('aria-valuenow')).toBe('20');
+  expect(knobs[1]!.getAttribute('aria-valuenow')).toBe('70');
   expect(el.value).toBe('20,70');
 
   host.remove();
@@ -39,7 +39,7 @@ test('arrow key on a knob steps its bound and fires input', async () => {
   el.addEventListener('input', () => { inputs += 1; });
 
   const lowKnob = el.shadowRoot!.querySelectorAll('.knob')[0];
-  lowKnob.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+  lowKnob!.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
 
   expect(el.value).toBe('25,70');
   expect(inputs).toBeGreaterThan(0);

@@ -15,7 +15,7 @@ test('builds a tablist from panels and shows the active one', async () => {
   await settle(6);
 
   expect(el.shadowRoot!.querySelector('jelly-segmented')).toBeTruthy();
-  const [overview, activity] = host.querySelectorAll('jelly-tab-panel');
+  const [overview, activity] = [...host.querySelectorAll<HTMLElement>('jelly-tab-panel')] as [HTMLElement, HTMLElement];
   expect(overview.hidden).toBe(false);
   expect(activity.hidden).toBe(true);
 
@@ -43,7 +43,7 @@ test('switches panels when the markup is set through a connected innerHTML', asy
   el.value = 'activity';
   await settle(2);
 
-  const [overview, activity] = stage.querySelectorAll('jelly-tab-panel');
+  const [overview, activity] = [...stage.querySelectorAll<HTMLElement>('jelly-tab-panel')] as [HTMLElement, HTMLElement];
   expect(activity.hidden).toBe(false);
   expect(overview.hidden).toBe(true);
 
@@ -65,7 +65,7 @@ test('setting the value activates the matching panel and fires change', async ()
   el.value = 'two';
   await settle(2);
 
-  const [one, two] = host.querySelectorAll('jelly-tab-panel');
+  const [one, two] = [...host.querySelectorAll<HTMLElement>('jelly-tab-panel')] as [HTMLElement, HTMLElement];
   expect(two.hidden).toBe(false);
   expect(one.hidden).toBe(true);
   expect(changed).toBe('two');

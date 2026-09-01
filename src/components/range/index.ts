@@ -35,6 +35,8 @@ interface RangeSize {
   track: number;
 }
 
+type ThumbIndex = 0 | 1;
+
 // Host geometry per size: footprint, thumb diameter, track height
 const RANGE_SIZES: Record<Size, RangeSize> = {
   small:  { width: 220, height: 30, thumb: 24, track: 9 },
@@ -89,17 +91,17 @@ export class JellyRange extends JellyElement implements EventListenerObject {
   // Populated in onBuilt() / onShape()
   track!: HTMLElement;
   knobs!: HTMLElement[];
-  thumbs: JellyBody[] | null = null;
-  val: number[] = [];
+  thumbs: [JellyBody, JellyBody] | null = null;
+  val: [number, number] = [0, 100];
 
-  x = [0, 0];
-  xVelocity = [0, 0];
-  target = [0, 0];
-  pressScale = [1, 1];
-  pressScaleVelocity = [0, 0];
+  x: [number, number] = [0, 0];
+  xVelocity: [number, number] = [0, 0];
+  target: [number, number] = [0, 0];
+  pressScale: [number, number] = [1, 1];
+  pressScaleVelocity: [number, number] = [0, 0];
 
-  active = 1;
-  drag: number | null = null;
+  active: ThumbIndex = 1;
+  drag: ThumbIndex | null = null;
   pointerId: number | null = null;
   windowBound = false;
   trackW = 0;
@@ -220,10 +222,10 @@ export class JellyRange extends JellyElement implements EventListenerObject {
   }
 
   // The knob index an event was wired on, or null for the track / window
-  knobIndex (event: Event): number | null {
+  knobIndex (event: Event): ThumbIndex | null {
     const index = (event.currentTarget as HTMLElement | null)?.dataset?.k;
 
-    return index == null ? null : +index;
+    return index === '0' ? 0 : index === '1' ? 1 : null;
   }
 
   // Rebuild the two thumb bodies and settle them onto their targets
@@ -234,12 +236,15 @@ export class JellyRange extends JellyElement implements EventListenerObject {
     const size = this.sizeConfig.thumb;
 
     if (!this.thumbs) {
-      this.thumbs = [0, 1].map(() => new JellyBody({ width: size, height: size, radius: size / 2, config: THUMB_CONFIG }));
+      this.thumbs = [
+        new JellyBody({ width: size, height: size, radius: size / 2, config: THUMB_CONFIG }),
+        new JellyBody({ width: size, height: size, radius: size / 2, config: THUMB_CONFIG }),
+      ];
     } else {
       this.thumbs.forEach((thumb) => thumb.resize(size, size, size / 2));
     }
 
-    this.target    = this.val.map((v) => this.valToX(v));
+    this.target    = [this.valToX(this.val[0]), this.valToX(this.val[1])];
     this.x         = [...this.target];
     this.xVelocity = [0, 0];
 
@@ -302,7 +307,7 @@ export class JellyRange extends JellyElement implements EventListenerObject {
     this.normalizeValues();
 
     if (this.body) {
-      this.target = this.val.map((v) => this.valToX(v));
+      this.target = [this.valToX(this.val[0]), this.valToX(this.val[1])];
     }
 
     this.reflectKnobs();
@@ -312,7 +317,7 @@ export class JellyRange extends JellyElement implements EventListenerObject {
   }
 
   // Set one bound (0 = low, 1 = high), clamped against the other and reflect it
-  setVal (i: number, value: number, fromUser = false): void {
+  setVal (i: ThumbIndex, value: number, fromUser = false): void {
     if (!Number.isFinite(value)) {
       return;
     }
@@ -348,7 +353,13 @@ export class JellyRange extends JellyElement implements EventListenerObject {
     const thumb = this.sizeConfig.thumb;
 
     this.knobs.forEach((knob, i) => {
-      const center = this.trackW / 2 + this.logicalX(this.val[i]);
+      const value = this.val[i];
+
+      if (value === undefined) {
+        return;
+      }
+
+      const center = this.trackW / 2 + this.logicalX(value);
 
       knob.style.insetInlineStart = `${center - thumb / 2}px`;
     });
@@ -385,7 +396,7 @@ export class JellyRange extends JellyElement implements EventListenerObject {
   }
 
   // The knob index whose thumb sits closest to a physical canvas x
-  nearest (x: number): number {
+  nearest (x: number): ThumbIndex {
     return Math.abs(x - this.valToX(this.val[0])) <= Math.abs(x - this.valToX(this.val[1])) ? 0 : 1;
   }
 
@@ -416,7 +427,7 @@ export class JellyRange extends JellyElement implements EventListenerObject {
   }
 
   // Begin a drag: pick the pressed (or nearest) knob and jump it to the pointer
-  down (event: PointerEvent, forced: number | null): void {
+  down (event: PointerEvent, forced: ThumbIndex | null): void {
     if (this.hasAttribute('disabled')) {
       return;
     }
@@ -472,7 +483,7 @@ export class JellyRange extends JellyElement implements EventListenerObject {
   }
 
   // Keyboard stepping per knob: arrows follow reading direction, Shift ×10, Home / End
-  key (event: KeyboardEvent, i: number | null): void {
+  key (event: KeyboardEvent, i: ThumbIndex | null): void {
     if (i == null) {
       return;
     }
@@ -509,9 +520,14 @@ export class JellyRange extends JellyElement implements EventListenerObject {
   // A knob taking keyboard focus becomes the active thumb and shows the ring
   focusKnob (event: FocusEvent): void {
     const knob = event.currentTarget as HTMLElement;
+    const index = this.knobIndex(event);
+
+    if (index === null) {
+      return;
+    }
 
     this.focusVisible = knob.matches(':focus-visible');
-    this.active       = Number(knob.dataset.k);
+    this.active       = index;
 
     this.requestFrame();
   }
@@ -542,7 +558,7 @@ export class JellyRange extends JellyElement implements EventListenerObject {
 
     let settled = true;
 
-    for (let i = 0; i < 2; i++) {
+    for (const i of [0, 1] as const) {
       // Reduced motion snaps each knob straight to its value instead of gliding
       if (this.reducedMotion) {
         this.x[i]         = this.target[i];
@@ -583,7 +599,7 @@ export class JellyRange extends JellyElement implements EventListenerObject {
     ctx.fillRect(Math.min(xa, xb), cy - trackH / 2, Math.abs(xb - xa), trackH);
     ctx.restore();
 
-    for (let i = 0; i < 2; i++) {
+    for (const i of [0, 1] as const) {
       const speed       = Math.abs(this.xVelocity[i]);
       const drive       = this.reducedMotion ? 0 : Math.min(1, speed / 550);
       const pressTarget = this.drag === i && !this.reducedMotion ? 1.12 : 1;

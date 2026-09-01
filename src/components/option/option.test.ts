@@ -7,7 +7,7 @@ import type { JellyOption } from './index.js';
 
 test('derives value from the attribute or the text content', () => {
   const host = mount('<jelly-option value="pro">Pro plan</jelly-option><jelly-option>Basic</jelly-option>');
-  const [withValue, textOnly] = host.querySelectorAll('jelly-option') as NodeListOf<JellyOption>;
+  const [withValue, textOnly] = [...host.querySelectorAll('jelly-option')] as [JellyOption, JellyOption];
 
   expect(withValue.value).toBe('pro');
   expect(withValue.label).toBe('Pro plan');

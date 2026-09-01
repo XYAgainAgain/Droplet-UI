@@ -24,9 +24,9 @@ test('variant="mint" paints the mint fill', async () => {
   const canvas = el.shadowRoot!.querySelector('canvas') as HTMLCanvasElement;
   const pixel = canvas.getContext('2d')!.getImageData(canvas.width / 2, canvas.height / 2, 1, 1).data;
 
-  expect(Math.abs(pixel[0] - 23)).toBeLessThan(10);
-  expect(Math.abs(pixel[1] - 135)).toBeLessThan(10);
-  expect(Math.abs(pixel[2] - 70)).toBeLessThan(10);
+  expect(Math.abs(pixel[0]! - 23)).toBeLessThan(10);
+  expect(Math.abs(pixel[1]! - 135)).toBeLessThan(10);
+  expect(Math.abs(pixel[2]! - 70)).toBeLessThan(10);
 
   host.remove();
 });

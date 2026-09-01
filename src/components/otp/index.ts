@@ -139,7 +139,7 @@ export class JellyOtp extends HTMLElement {
       return;
     }
 
-    this.boxes[index].animate?.(
+    this.boxes[index]?.animate?.(
       [
         { opacity: 0, transform: 'translateY(6px)' },
         { opacity: 1, transform: 'translateY(0)' },
@@ -178,7 +178,7 @@ export class JellyOtp extends HTMLElement {
       this.reveal(index);
 
       if (index < this.boxes.length - 1) {
-        this.boxes[index + 1].focus();
+        this.boxes[index + 1]?.focus();
       }
     }
 
@@ -191,11 +191,11 @@ export class JellyOtp extends HTMLElement {
     const box = event.target as HTMLInputElement;
 
     if (event.key === 'Backspace' && !box.value && index > 0) {
-      this.boxes[index - 1].focus();
+      this.boxes[index - 1]?.focus();
     } else if (event.key === 'ArrowLeft' && index > 0) {
-      this.boxes[index - 1].focus();
+      this.boxes[index - 1]?.focus();
     } else if (event.key === 'ArrowRight' && index < this.boxes.length - 1) {
-      this.boxes[index + 1].focus();
+      this.boxes[index + 1]?.focus();
     }
   }
 
@@ -206,13 +206,20 @@ export class JellyOtp extends HTMLElement {
     const digits = (event.clipboardData?.getData('text') || '').replace(/\D/g, '').split('');
 
     for (let k = 0; k + index < this.boxes.length && k < digits.length; k++) {
-      this.boxes[index + k].value = digits[k];
+      const box = this.boxes[index + k];
+      const digit = digits[k];
+
+      if (!box || digit === undefined) {
+        break;
+      }
+
+      box.value = digit;
       this.reveal(index + k, k * 45);
     }
 
     const next = Math.min(this.boxes.length - 1, index + digits.length);
 
-    this.boxes[next].focus();
+    this.boxes[next]?.focus();
     this.announce();
   }
 

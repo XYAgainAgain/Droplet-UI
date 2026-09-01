@@ -53,9 +53,9 @@ test('on-state mint variant paints the mint track', async () => {
   // sample the left third of the track (the white thumb rests on the right when on)
   const pixel = canvas.getContext('2d')!.getImageData(Math.round(canvas.width * 0.32), Math.round(canvas.height * 0.5), 1, 1).data;
 
-  expect(Math.abs(pixel[0] - 23)).toBeLessThan(12);
-  expect(Math.abs(pixel[1] - 135)).toBeLessThan(12);
-  expect(Math.abs(pixel[2] - 70)).toBeLessThan(12);
+  expect(Math.abs(pixel[0]! - 23)).toBeLessThan(12);
+  expect(Math.abs(pixel[1]! - 135)).toBeLessThan(12);
+  expect(Math.abs(pixel[2]! - 70)).toBeLessThan(12);
 
   host.remove();
 });
