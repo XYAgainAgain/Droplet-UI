@@ -28,6 +28,9 @@ import baseStyles               from '../styles/base.css?inline';
 
 import { HTMLElementBase }       from './base.js';
 
+import { buildFrame }            from './painter.js';
+import type { PainterFrame }     from './painter.js';
+
 import type { RGBA }             from './types.js';
 import type { Shape }            from './types.js';
 import type { Ring }             from './types.js';
@@ -37,6 +40,7 @@ import type { WirePressOptions } from './types.js';
 
 // Re-export the shape / paint / wiring types so consumers import them from here
 export type { RGBA, Shape, Ring, Border, PaintOptions, WirePressOptions } from './types.js';
+export type { PainterFrame } from './painter.js';
 
 export class JellyElement extends HTMLElementBase implements JellyComponent {
 
@@ -52,9 +56,16 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
   // Per-instance physics overrides; subclasses may assign before build
   config: Partial<JellyConfig> | undefined = undefined;
 
-  // Populated in build()
+  // Populated in build(); ctx stays unset when getContext('2d') returns null
   canvas!: HTMLCanvasElement;
   ctx!: CanvasRenderingContext2D;
+
+  // Canvas is decoration: false means every paint path no-ops instead of throwing
+  hasContext = false;
+  contextLost = false;
+
+  painterFailed = false;
+  asyncPainterWarned = false;
 
   resizeObserver: ResizeObserver | null = null;
   attributeObserver: MutationObserver | null = null;
@@ -91,6 +102,22 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
   onMotionChange = (): void => this.requestFrame();
 
   onWindowResize = (): void => this.applyShape();
+
+  // Don't preventDefault: the browser only attempts a restore if the event
+  // goes unhandled. Painting stops and the CSS focus fallback takes over.
+  onContextLost = (): void => {
+    this.contextLost = true;
+    this.setAttribute('data-jelly-nocanvas', '');
+    engine.drop(this);
+  };
+
+  // The restored context comes back untransformed and with no cached paths
+  onContextRestored = (): void => {
+    this.contextLost = false;
+    this.removeAttribute('data-jelly-nocanvas');
+    this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    this.requestFrame();
+  };
 
   constructor () {
     super();
@@ -133,12 +160,21 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
     return this.defaultFrame(dt);
   }
 
+  // Paints the body surface with fillStyle already eased and globalAlpha set.
+  // paintTrack, paintFill and paintFocus are reserved for Phase 6 slots.
+  paintSurface (frame: PainterFrame): void {
+    frame.ctx.fill(frame.path);
+  }
+
   /* ---- Lifecycle --------------------------------------------------- */
 
   // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
     ensureThemeTokens(this.ownerDocument);
     canonicalizeSize(this);
+
+    // A painter disabled by a throw gets one more chance per reconnect
+    this.painterFailed = false;
 
     if (!this.built) {
       this.build();
@@ -189,6 +225,12 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
     }
   }
 
+  // False while there is no 2D context (or it is lost): every paint path
+  // no-ops so semantics and interaction survive without the canvas
+  get canPaint (): boolean {
+    return this.hasContext && !this.contextLost;
+  }
+
   // True when the user prefers reduced motion (checked live, not cached)
   get reducedMotion (): boolean {
     return prefersReducedMotion();
@@ -202,8 +244,19 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
       `<div class="jelly-content">${this.content()}</div>`;
 
     this.canvas = this.shadowRoot!.querySelector<HTMLCanvasElement>('.jelly-canvas')!;
-    this.ctx    = this.canvas.getContext('2d')!;
     this.built  = true;
+
+    const ctx = this.canvas.getContext('2d');
+
+    if (ctx) {
+      this.ctx        = ctx;
+      this.hasContext = true;
+
+      this.canvas.addEventListener('contextlost', this.onContextLost);
+      this.canvas.addEventListener('contextrestored', this.onContextRestored);
+    } else {
+      this.setAttribute('data-jelly-nocanvas', '');
+    }
 
     this.onBuilt();
   }
@@ -256,7 +309,7 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
 
   // Size the canvas for the current shape and (re)build the physics body
   applyShape (): void {
-    if (!this.built) {
+    if (!this.built || !this.canPaint) {
       return;
     }
 
@@ -348,6 +401,10 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
 
   // Wipe the canvas for the next paint
   clearCanvas (): void {
+    if (!this.canPaint) {
+      return;
+    }
+
     this.ctx.clearRect(0, 0, this.cssW, this.cssH);
   }
 
@@ -356,6 +413,10 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
    * Flat solid fill - no gradients or shading.
    */
   paintBody (body: JellyBody, options: PaintOptions = {}): void {
+    if (!this.canPaint) {
+      return;
+    }
+
     const {
       fill   = this.fill(),
       cx     = 0,
@@ -410,28 +471,69 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
       ctx.stroke();
     }
 
-    const points = body.getSurfacePoints().map(project);
+    const frame = buildFrame({
+      ctx,
+      points:  body.getSurfacePoints().map(project),
+      resting: body.isResting(),
+      dpr:     this.dpr,
+      width:   cssW,
+      height:  cssH,
+    });
 
-    traceSmoothPath(ctx, points);
     ctx.fillStyle = surface;
-    ctx.fill();
+
+    let painted = false;
+
+    if (!this.painterFailed) {
+      // A custom painter must not leak fill style, transforms, clips or filters
+      // into the border pass, another body, or the next frame
+      ctx.save();
+
+      try {
+        this.warnIfAsync(this.paintSurface(frame));
+        painted = true;
+      } catch (error) {
+        this.painterFailed = true;
+        console.error('Jelly UI painter error', error);
+      } finally {
+        ctx.restore();
+      }
+    }
+
+    // Fall back outside the save/restore so a half-applied clip or transform
+    // from the failed painter cannot distort the matte fill
+    if (!painted) {
+      ctx.fill(frame.path);
+    }
 
     if (border) {
-      traceSmoothPath(ctx, points);
       ctx.lineWidth   = border.width;
       ctx.strokeStyle = border.color;
       ctx.lineJoin    = 'round';
-      ctx.stroke();
+      ctx.stroke(frame.path);
     }
 
     ctx.restore();
+  }
+
+  /*
+   * Painting is synchronous; whatever a returned promise draws later lands on
+   * an already-cleared canvas. Warn once per element and ignore the value.
+   */
+  warnIfAsync (result: unknown): void {
+    if (this.asyncPainterWarned || !result || typeof (result as PromiseLike<unknown>).then !== 'function') {
+      return;
+    }
+
+    this.asyncPainterWarned = true;
+    console.warn('Jelly UI: paintSurface() is synchronous; the returned promise is ignored', this);
   }
 
   // The standard frame: advance physics, repaint, sleep when at rest
   defaultFrame (dt: number): boolean {
     const body = this.body;
 
-    if (!body) {
+    if (!body || !this.canPaint) {
       return false;
     }
 
@@ -650,6 +752,10 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
 
   // Ask the shared engine for animation frames until the body rests
   requestFrame (): void {
+    if (!this.canPaint) {
+      return;
+    }
+
     engine.wake(this);
   }
 

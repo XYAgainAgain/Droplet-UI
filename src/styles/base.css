@@ -29,3 +29,17 @@
   width:    100%;
   height:   100%;
 }
+
+/* Focus fallback: the canvas ring embellishes focus, it never owns it. */
+
+@media (forced-colors: active) {
+  :host(:focus-visible) {
+    outline:        2px solid Highlight;
+    outline-offset: 2px;
+  }
+}
+
+:host([data-jelly-nocanvas]:focus-visible) {
+  outline:        2px solid var(--jelly-color-border-focus);
+  outline-offset: 2px;
+}

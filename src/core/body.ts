@@ -296,10 +296,13 @@ function polygonArea (points: readonly Point[]): number {
  * Trace a closed Catmull-Rom spline (as cubic beziers) through the points.
  * The caller controls fill / stroke.
  */
-export function traceSmoothPath (ctx: CanvasRenderingContext2D, points: readonly Point[], tension = DEFAULT_CONFIG.curveTension): void {
+export function traceSmoothPath (ctx: CanvasRenderingContext2D | Path2D, points: readonly Point[], tension = DEFAULT_CONFIG.curveTension): void {
   const length = points.length;
 
-  ctx.beginPath();
+  // Path2D implements CanvasPath but not beginPath - a fresh one starts empty
+  if ('beginPath' in ctx) {
+    ctx.beginPath();
+  }
 
   if (!length) {
     return;
