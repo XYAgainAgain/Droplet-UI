@@ -26,6 +26,7 @@ function libEnvironment (name: string, entry: string, emptyOutDir: boolean): Env
 export default defineConfig({
   environments: {
     register: libEnvironment('register', 'src/register.ts', true),
+    core: libEnvironment('core', 'src/core/index.ts', false),
     jelly: libEnvironment('jelly', 'src/jelly.ts', false),
   },
   builder: {
@@ -40,6 +41,8 @@ export default defineConfig({
       // to package.json "types", so the register pass must yield dist/jelly.d.ts.
       await builder.build(builder.environments['register']!);
       await rename(resolve('dist/jelly.d.ts'), resolve('dist/register.d.ts'));
+      await builder.build(builder.environments['core']!);
+      await rename(resolve('dist/jelly.d.ts'), resolve('dist/core.d.ts'));
       await builder.build(builder.environments['jelly']!);
     },
   },

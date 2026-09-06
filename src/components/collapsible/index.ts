@@ -10,6 +10,8 @@ import { uniqueId }          from '../../utilities/index.js';
 
 import { ensureThemeTokens } from '../../theme/index.js';
 
+import { HTMLElementBase }   from '../../element/base.js';
+
 import collapsibleStyles     from './collapsible.css?inline';
 
 /**
@@ -27,7 +29,7 @@ import collapsibleStyles     from './collapsible.css?inline';
  *
  * @csspart header - The header button.
  */
-export class JellyCollapsible extends HTMLElement {
+export class JellyCollapsible extends HTMLElementBase {
 
   built = false;
 
@@ -41,7 +43,7 @@ export class JellyCollapsible extends HTMLElement {
 
   // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
-    ensureThemeTokens();
+    ensureThemeTokens(this.ownerDocument);
     canonicalizeSize(this);
 
     if (this.built) {
@@ -113,9 +115,6 @@ export class JellyCollapsible extends HTMLElement {
   }
 
 }
-
-// Register the custom element
-customElements.define('jelly-collapsible', JellyCollapsible);
 
 declare global {
   interface HTMLElementTagNameMap {

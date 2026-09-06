@@ -224,9 +224,6 @@ export class JellyButton extends JellyElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-button', JellyButton);
-
 declare global {
   interface HTMLElementTagNameMap {
     'jelly-button': JellyButton;

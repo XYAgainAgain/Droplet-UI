@@ -1,7 +1,7 @@
 /*
  * Theme runtime: build the document-level token sheet, install it once, switch
  * or read the document mode, and notify live canvases to repaint on a change.
- * Importing this (via the theme barrel) installs the token sheet as a side effect.
+ * Nothing here runs on import; components install per document on connect.
  */
 
 import type { ThemeMode }  from './tokens.js';
@@ -66,27 +66,67 @@ ${tokenDeclarations(DARK_TOKENS)}
 `;
 }
 
+// Documents already fitted with the sheet and the two theme observers
+const themedDocuments = new WeakSet<Document>();
+
 /*
- * Install the token sheet into the document exactly once. This module installs
- * it on import (see the bottom of the file), and JellyElement subclasses plus
- * the HTMLElement-based components re-ensure it in connectedCallback, so
- * importing any single component is enough to get a themed page.
+ * Watch the two signals that change computed tokens without resizing anything:
+ * the OS color scheme in auto mode, and the document's reading direction.
  */
-export function ensureThemeTokens (): void {
-  if (typeof document === 'undefined') {
+function installThemeWatchers (doc: Document): void {
+  const view = doc.defaultView;
+
+  if (!view) {
     return;
   }
 
-  if (document.querySelector('style[data-jelly-tokens]')) {
+  if (typeof view.matchMedia === 'function') {
+    view.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => notifyThemeChange());
+  }
+
+  if (typeof view.MutationObserver === 'function') {
+    const directionObserver = new view.MutationObserver(() => notifyThemeChange());
+
+    directionObserver.observe(doc.documentElement, { attributes: true, attributeFilter: ['dir'] });
+
+    let observed: HTMLElement | null = null;
+    const observeBody = (): void => {
+      if (doc.body && doc.body !== observed) {
+        observed = doc.body;
+        directionObserver.observe(doc.body, { attributes: true, attributeFilter: ['dir'] });
+      }
+    };
+
+    observeBody();
+
+    // The body may be missing at install time or replaced later, and an observer
+    // only watches nodes handed to it, so re-attach on documentElement's children.
+    new view.MutationObserver(observeBody).observe(doc.documentElement, { childList: true });
+  }
+}
+
+/*
+ * Install the token sheet and theme watchers into a document exactly once.
+ * Called from connectedCallback with the element's ownerDocument, so importing
+ * the library touches nothing and an adopted element is themed in its new home.
+ */
+export function ensureThemeTokens (doc: Document = globalThis.document): void {
+  if (!doc || themedDocuments.has(doc)) {
     return;
   }
 
-  const sheet = document.createElement('style');
+  themedDocuments.add(doc);
 
-  sheet.setAttribute('data-jelly-tokens', '');
-  sheet.textContent = themeTokenCSS();
+  if (!doc.querySelector('style[data-jelly-tokens]')) {
+    const sheet = doc.createElement('style');
 
-  document.head.appendChild(sheet);
+    sheet.setAttribute('data-jelly-tokens', '');
+    sheet.textContent = themeTokenCSS();
+
+    doc.head.appendChild(sheet);
+  }
+
+  installThemeWatchers(doc);
 }
 
 /*
@@ -139,12 +179,3 @@ export function onThemeChange (callback: () => void): () => void {
 
   return () => window.removeEventListener('jelly-theme-change', callback);
 }
-
-// The OS-level color scheme also changes the computed tokens in auto mode,
-// so mirror those flips into jelly-theme-change for canvas repaints
-if (typeof matchMedia === 'function') {
-  matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => notifyThemeChange());
-}
-
-// Importing the library is enough to theme the page - no element needed first
-ensureThemeTokens();

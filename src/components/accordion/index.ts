@@ -9,8 +9,8 @@ import { propagateSize }       from '../../utilities/index.js';
 
 import { ensureThemeTokens }   from '../../theme/index.js';
 
-import '../collapsible/index.js';
-import type { JellyCollapsible } from '../collapsible/index.js';
+import { defineElements, TAGS }  from '../../registry/index.js';
+import { JellyCollapsible }      from '../collapsible/index.js';
 
 import accordionStyles         from './accordion.css?inline';
 
@@ -116,6 +116,9 @@ export class JellyAccordion extends HTMLElement {
 }
 
 // Register the custom element
+// The collapsible pilot no longer defines itself, and this component's markup needs it
+defineElements([[TAGS.collapsible, JellyCollapsible]], { strict: false });
+
 customElements.define('jelly-accordion', JellyAccordion);
 
 declare global {

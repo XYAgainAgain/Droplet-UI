@@ -2,8 +2,10 @@ import { expect, test } from 'vitest';
 
 import { mount } from '../../testing/index.js';
 
-import './index.js';
+import { defineAll } from '../../register.js';
 import type { JellyCollapsible } from './index.js';
+
+defineAll({ strict: false });
 
 test('renders a header button reflecting the open state', () => {
   const host = mount('<jelly-collapsible open><span slot="header">Details</span>Body</jelly-collapsible>');

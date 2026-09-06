@@ -3,8 +3,10 @@ import { expect, test } from 'vitest';
 import { mount } from '../../testing/index.js';
 
 import './index.js';
-import '../button/index.js';
+import { defineAll } from '../../register.js';
 import type { JellyPopover } from './index.js';
+
+defineAll({ strict: false });
 
 function makePopover (): { host: HTMLDivElement; el: JellyPopover } {
   const host = mount(`

@@ -2,8 +2,10 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import './index.js';
+import { defineAll } from '../../register.js';
 import type { JellySlider } from './index.js';
+
+defineAll({ strict: false });
 
 test('upgrades with a native range input', async () => {
   const host = mount('<jelly-slider value="40"></jelly-slider>');

@@ -1,6 +1,9 @@
 import { expect, test } from 'vitest';
 
+import { defineAll } from '../../register.js';
 import { jellyToast, JellyToaster } from './index.js';
+
+defineAll({ strict: false });
 
 test('jellyToast creates a shared toaster and appends a toast', () => {
   document.querySelector('jelly-toaster')?.remove();

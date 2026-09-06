@@ -11,7 +11,8 @@ import { isRTL }             from '../../utilities/index.js';
 
 import { ensureThemeTokens } from '../../theme/index.js';
 
-import '../button/index.js';
+import { defineElements, TAGS } from '../../registry/index.js';
+import { JellyButton }          from '../button/index.js';
 
 import paginationStyles      from './pagination.css?inline';
 
@@ -202,6 +203,9 @@ export class JellyPagination extends HTMLElement {
 }
 
 // Register the custom element
+// The button pilot no longer defines itself, and this component's markup needs it
+defineElements([[TAGS.button, JellyButton]], { strict: false });
+
 customElements.define('jelly-pagination', JellyPagination);
 
 declare global {

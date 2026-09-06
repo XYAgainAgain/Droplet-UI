@@ -522,9 +522,6 @@ export class JellySlider extends JellyElement implements EventListenerObject {
 
 }
 
-// Register the custom element
-customElements.define('jelly-slider', JellySlider);
-
 declare global {
   interface HTMLElementTagNameMap {
     'jelly-slider': JellySlider;

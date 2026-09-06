@@ -13,6 +13,8 @@ import { toastOut }          from '../../anchor/index.js';
 import { jellyIcon }         from '../../icons/index.js';
 
 import { ensureThemeTokens } from '../../theme/index.js';
+
+import { HTMLElementBase }   from '../../element/base.js';
 import { PALETTE }           from '../../theme/index.js';
 
 import toastStyles           from './toast.css?inline';
@@ -45,13 +47,13 @@ const TONES: Record<ToastTone, { color: string; spoken: string }> = {
  * @csspart dot - The tone indicator dot.
  * @csspart close - The dismiss button.
  */
-export class JellyToaster extends HTMLElement {
+export class JellyToaster extends HTMLElementBase {
 
   built = false;
 
   // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
-    ensureThemeTokens();
+    ensureThemeTokens(this.ownerDocument);
 
     if (this.built) {
       return;
@@ -123,9 +125,6 @@ export class JellyToaster extends HTMLElement {
   }
 
 }
-
-// Register the custom element
-customElements.define('jelly-toaster', JellyToaster);
 
 // Show a toast, creating the shared toaster host on first use
 export function jellyToast (message: string, options?: ToastOptions): HTMLElement {

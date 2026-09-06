@@ -21,11 +21,12 @@ import { prefersReducedMotion } from '../utilities/index.js';
 import { triggerHaptic }        from '../utilities/index.js';
 
 import { ensureThemeTokens }    from '../theme/index.js';
-import { notifyThemeChange }    from '../theme/index.js';
 import { FOCUS_RING }           from '../theme/index.js';
 import { PALETTE }              from '../theme/index.js';
 
 import baseStyles               from '../styles/base.css?inline';
+
+import { HTMLElementBase }       from './base.js';
 
 import type { RGBA }             from './types.js';
 import type { Shape }            from './types.js';
@@ -37,7 +38,7 @@ import type { WirePressOptions } from './types.js';
 // Re-export the shape / paint / wiring types so consumers import them from here
 export type { RGBA, Shape, Ring, Border, PaintOptions, WirePressOptions } from './types.js';
 
-export class JellyElement extends HTMLElement implements JellyComponent {
+export class JellyElement extends HTMLElementBase implements JellyComponent {
 
   // Padding around the shape so the wobble can overflow without clipping
   static PAD = 48;
@@ -136,7 +137,7 @@ export class JellyElement extends HTMLElement implements JellyComponent {
 
   // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
-    ensureThemeTokens();
+    ensureThemeTokens(this.ownerDocument);
     canonicalizeSize(this);
 
     if (!this.built) {
@@ -162,6 +163,11 @@ export class JellyElement extends HTMLElement implements JellyComponent {
     window.addEventListener('resize', this.onWindowResize, { passive: true });
 
     this.requestFrame();
+  }
+
+  // Lifecycle method: Called automatically when the element moves to a new document
+  adoptedCallback (): void {
+    ensureThemeTokens(this.ownerDocument);
   }
 
   // Lifecycle method: Called automatically when the element leaves the DOM
@@ -804,20 +810,4 @@ export class JellyElement extends HTMLElement implements JellyComponent {
     });
   }
 
-}
-
-/*
- * Flipping the document's reading direction reflows every control the same
- * way a theme flip recolors them: internal boxes move without the host
- * resizing. Watch dir on <html> and <body> and reuse the theme-change
- * signal so live canvases reposition and repaint themselves.
- */
-if (typeof document !== 'undefined' && typeof MutationObserver === 'function') {
-  const directionObserver = new MutationObserver(() => notifyThemeChange());
-
-  directionObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['dir'] });
-
-  if (document.body) {
-    directionObserver.observe(document.body, { attributes: true, attributeFilter: ['dir'] });
-  }
 }
