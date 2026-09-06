@@ -148,7 +148,7 @@ function roundedRectSDF (x: number, y: number, halfW: number, halfH: number, rad
  * rectangle. radius == min(w, h) / 2 gives a capsule; a square with that
  * radius gives a circle.
  */
-function createRoundedRectMembrane (width: number, height: number, radius: number, targetSamples: number): MembranePoint[] {
+function createRoundedRectMembrane (width: number, height: number, radius: number, targetSamples: number, blendPasses: number): MembranePoint[] {
   const halfW = width / 2;
   const halfH = height / 2;
   const r     = Math.min(radius, halfW, halfH);
@@ -228,7 +228,7 @@ function createRoundedRectMembrane (width: number, height: number, radius: numbe
     });
   }
 
-  softenNormals(points);
+  softenNormals(points, blendPasses);
 
   return points;
 }
@@ -246,13 +246,20 @@ function outwardNormalFromNeighbors (points: MembranePoint[], index: number): No
   return { nx: ty / normalLength, ny: -tx / normalLength };
 }
 
+// Safety bound from the resolver contract: 0–6 whole passes, non-finite falls back
+function clampBlendPasses (passes: number): number {
+  return Number.isFinite(passes)
+    ? Math.round(clamp(passes, 0, 6))
+    : DEFAULT_CONFIG.normalBlendPasses;
+}
+
 // Blend each normal with its neighbors so corners deform smoothly
-function softenNormals (points: MembranePoint[]): void {
+function softenNormals (points: MembranePoint[], passes: number): void {
   const length = points.length;
 
   let normals: Normal[] = points.map((_, index) => outwardNormalFromNeighbors(points, index));
 
-  for (let pass = 0; pass < DEFAULT_CONFIG.normalBlendPasses; pass++) {
+  for (let pass = 0; pass < passes; pass++) {
     normals = normals.map((normal, index) => {
       const previous = normals[wrap(index - 1, length)]!;
       const next     = normals[wrap(index + 1, length)]!;
@@ -337,6 +344,7 @@ export class JellyBody {
     this.height = height;
     this.radius = radius ?? Math.min(width, height) / 2;
     this.config = { ...DEFAULT_CONFIG, ...(config ?? {}) };
+    this.config.normalBlendPasses = clampBlendPasses(this.config.normalBlendPasses);
 
     // Sustained sideways bias: lean in [-1, 1] shifts the body's "mass" to
     // one end (that side bulges out, the other tucks in). leanAmount is the
@@ -345,7 +353,7 @@ export class JellyBody {
     this.lean       = 0;
     this.leanAmount = 0;
 
-    this.membrane = createRoundedRectMembrane(width, height, this.radius, this.config.samples);
+    this.membrane = createRoundedRectMembrane(width, height, this.radius, this.config.samples, this.config.normalBlendPasses);
 
     this.state = {
       clickDepth:            0,
@@ -390,7 +398,10 @@ export class JellyBody {
     this.height = height;
     this.radius = radius ?? Math.min(width, height) / 2;
 
-    this.membrane = createRoundedRectMembrane(width, height, this.radius, this.config.samples);
+    // config is publicly mutable, so re-bound the pass count instead of trusting it
+    this.config.normalBlendPasses = clampBlendPasses(this.config.normalBlendPasses);
+
+    this.membrane = createRoundedRectMembrane(width, height, this.radius, this.config.samples, this.config.normalBlendPasses);
     this.baseArea = polygonArea(this.getSurfacePoints());
   }
 

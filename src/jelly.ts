@@ -69,3 +69,10 @@ import './components/popover/index.js';
 import './components/menu/index.js';
 import './components/dialog/index.js';
 import './components/drawer/index.js';
+
+// Imported last so the 36 unconverted components keep their existing
+// registration order; never breaks a page over a foreign tag, so not strict.
+import { defineAll } from './register.js';
+export { defineAll };
+
+defineAll({ strict: false });
