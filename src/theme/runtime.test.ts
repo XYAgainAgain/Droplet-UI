@@ -37,6 +37,18 @@ test('observes dir on a body that arrives after the tokens were installed', asyn
   expect(fired).toBe(1);
 });
 
+test('leaves a headless document unmarked so a later call still installs the sheet', () => {
+  const doc = document.implementation.createHTMLDocument('headless');
+
+  doc.head.remove();
+  ensureThemeTokens(doc);
+  expect(doc.querySelector('style[data-jelly-tokens]')).toBe(null);
+
+  doc.documentElement.prepend(doc.createElement('head'));
+  ensureThemeTokens(doc);
+  expect(doc.querySelector('style[data-jelly-tokens]')).not.toBe(null);
+});
+
 test('keeps observing dir on documentElement when there is no body', async () => {
   const frame = await bodylessFrame();
   const doc = frame.contentDocument!;

@@ -19,8 +19,13 @@ export function isConfigKey (key: string): key is keyof JellyConfig {
   return CONFIG_KEY_SET.has(key);
 }
 
+// The body rounds these when it stores them, so the resolved record has to carry
+// the rounded value or every comparison against body.config disagrees forever.
+const INTEGER_KEYS: ReadonlySet<string> = new Set<string>(['normalBlendPasses', 'samples']);
+
 export function clampToBounds (key: keyof JellyConfig, value: number): number {
+  const rounded = INTEGER_KEYS.has(key) ? Math.round(value) : value;
   const bound = SAFETY_BOUNDS[key];
-  if (!bound) return value;
-  return Math.min(Math.max(value, bound[0]), bound[1]);
+  if (!bound) return rounded;
+  return Math.min(Math.max(rounded, bound[0]), bound[1]);
 }

@@ -7,8 +7,19 @@
  * painted accent fill and the arrow keys all mirror like a native range input
  */
 
-import { JellyElement }     from '../../element/index.js';
-import type { Shape }       from '../../element/index.js';
+import { JellyElement }         from '../../element/index.js';
+import type { PainterFrame }    from '../../element/index.js';
+import type { Shape }           from '../../element/index.js';
+
+import { buildFrame }           from '../../element/painter.js';
+import { canonicalizeQualityAttribute } from '../../element/configure.js';
+
+import { defineElements }       from '../../registry/index.js';
+import { TAGS }                 from '../../registry/index.js';
+import type { DefineOptions }   from '../../registry/index.js';
+import type { DefineResult }    from '../../registry/index.js';
+
+import type { Resolved }        from '../../resolve/index.js';
 
 import { JellyBody }        from '../../core/index.js';
 import type { JellyConfig } from '../../core/index.js';
@@ -41,8 +52,9 @@ const SLIDER_SIZES: Record<Size, SliderSize> = {
   large:  { width: 300, height: 44, thumb: 34, track: 14 },
 };
 
-// Physics tuning for the thumb body - a small, tight drop that stays lively under drag
-const THUMB_CONFIG: Partial<JellyConfig> = {
+// The thumb body's component profile: a small, tight drop that stays lively
+// under drag. Resolved through the same feel / quality axes as the track.
+export const THUMB_CONFIG: Partial<JellyConfig> = {
   membraneSpring:          82,
   membraneDamping:         14,
   waveCoupling:            170,
@@ -66,6 +78,8 @@ const THUMB_CONFIG: Partial<JellyConfig> = {
  * @attr {boolean} disabled - Disable the control and remove it from the tab order.
  * @attr {"small"|"medium"|"large"} size - Control size.
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Accent fill hue.
+ * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
+ * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
  * @fires input - Continuously as the value changes (drag / arrow keys).
  * @fires change - When the value is committed.
@@ -82,6 +96,12 @@ export class JellySlider extends JellyElement implements EventListenerObject {
   // Participate in native form submission through ElementInternals
   static formAssociated = true;
 
+  // Opt in to the base class's feel / quality / resolver half
+  static override usesResolver = true;
+
+  // A value assigned before upgrade has to survive to the first build
+  static override REPLAYED: readonly string[] = ['value', 'feel', 'quality'];
+
   internals: ElementInternals;
 
   // Populated in onBuilt() / onShape()
@@ -89,11 +109,24 @@ export class JellySlider extends JellyElement implements EventListenerObject {
   track!: HTMLElement;
   thumbBody: JellyBody | null = null;
 
+  thumbRecord: Resolved | undefined = undefined;
+
+  // The value as last set, so a write before build is not lost (Sol M12)
+  storedValue: string | null = null;
+
+  // The value at the last committed change, so a no-op commit stays silent
+  committedValue: string | null = null;
+
   thumbX = 0;
   thumbXVelocity = 0;
   thumbTarget = 0;
   dragging = false;
   pointerId: number | null = null;
+  statePointerId: number | null = null;
+
+  // The track pass owns its own failure flag: a thrown paintSurface must not
+  // take the track down with it (painter.md isolation)
+  trackPainterFailed = false;
   pressScale = 1;
   pressScaleVelocity = 0;
   trackW = 0;
@@ -101,13 +134,42 @@ export class JellySlider extends JellyElement implements EventListenerObject {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['value', 'min', 'max', 'step', 'label', 'disabled', 'size'];
+    return ['value', 'min', 'max', 'step', 'label', 'disabled', 'size', 'feel', 'quality'];
   }
 
   constructor () {
     super();
 
+    // Once, in the constructor: attachInternals() throws on a second call
     this.internals = this.attachInternals();
+  }
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineSlider(options);
+  }
+
+  // The thumb's resolved physics record, on its own track from the main body
+  get thumbConfig (): Readonly<JellyConfig> {
+    return (this.thumbRecord ?? this.resolveThumb()).config;
+  }
+
+  // Both membranes re-resolve together, so a scope, attribute or config change
+  // can never leave the thumb on a stale record
+  override resolve (): Resolved {
+    const resolved = super.resolve();
+
+    this.resolveThumb();
+
+    return resolved;
+  }
+
+  resolveThumb (): Resolved {
+    const resolved = this.resolveFor(THUMB_CONFIG);
+
+    this.thumbRecord = resolved;
+    this.applyResolved(resolved, this.thumbBody);
+
+    return resolved;
   }
 
   // Component styles layered over the shared jelly base styles
@@ -151,7 +213,8 @@ export class JellySlider extends JellyElement implements EventListenerObject {
     this.input.min      = this.getAttribute('min') ?? '0';
     this.input.max      = this.getAttribute('max') ?? '100';
     this.input.step     = this.getAttribute('step') ?? '1';
-    this.input.value    = this.getAttribute('value') ?? '50';
+    this.input.value    = this.getAttribute('value') ?? this.storedValue ?? '50';
+    this.committedValue = this.input.value;
     this.input.disabled = this.hasAttribute('disabled');
 
     this.syncLabel();
@@ -161,24 +224,73 @@ export class JellySlider extends JellyElement implements EventListenerObject {
     this.trackFocus(this.input);
 
     this.input.addEventListener('input',   this);
+    this.input.addEventListener('change',  this);
     this.input.addEventListener('keydown', this);
 
     this.track.addEventListener('pointerdown',   this);
     this.track.addEventListener('pointermove',   this);
     this.track.addEventListener('pointerup',     this);
     this.track.addEventListener('pointercancel', this);
+
+    this.trackDraggingState();
   }
 
   // Route the inner-control events registered with `this` as the listener
   handleEvent (event: Event): void {
     switch (event.type) {
-      case 'input':         this.updateFromInput();              break;
+      case 'input':         this.onNativeInput(event);           break;
+      case 'change':        this.onNativeChange(event);          break;
       case 'keydown':       this.onKey(event as KeyboardEvent);  break;
       case 'pointerdown':   this.onDown(event as PointerEvent);  break;
       case 'pointermove':   this.onMove(event as PointerEvent);  break;
       case 'pointerup':
       case 'pointercancel': this.onUp(event as PointerEvent);    break;
     }
+  }
+
+  // The hidden input's own composed events would surface beside ours, so stop
+  // them at the boundary and re-emit one of each (state-and-reflection.md)
+  onNativeInput (event: Event): void {
+    event.stopPropagation();
+
+    this.updateFromInput();
+    emit(this, 'input');
+  }
+
+  // Firefox's range fires change for a Page key at a bound even though nothing
+  // moved; a commit that changed nothing is not a change (state-and-reflection.md)
+  onNativeChange (event: Event): void {
+    event.stopPropagation();
+
+    if (this.input.value === this.committedValue) {
+      return;
+    }
+
+    this.committedValue = this.input.value;
+    emit(this, 'change');
+  }
+
+  // Pointer capture retargets the rest of the drag, so the state clears from
+  // the host, where every ending path still arrives (state-and-reflection.md)
+  trackDraggingState (): void {
+    const clear = (event: PointerEvent): void => {
+      if (event.pointerId === this.statePointerId) {
+        this.clearDragging();
+      }
+    };
+
+    this.addEventListener('pointerup', clear);
+    this.addEventListener('pointercancel', clear);
+    this.addEventListener('lostpointercapture', clear);
+  }
+
+  // Every ending path lands here, including the ones with no pointerup at all,
+  // so the drag flags clear where the visual state does (state-and-reflection.md)
+  clearDragging (): void {
+    this.dragging       = false;
+    this.pointerId      = null;
+    this.statePointerId = null;
+    this.internals.states.delete('dragging');
   }
 
   // Rebuild the thumb body whenever the track shape (re)builds
@@ -189,7 +301,11 @@ export class JellySlider extends JellyElement implements EventListenerObject {
     const thumb = this.sizeConfig.thumb;
 
     if (!this.thumbBody) {
-      this.thumbBody = new JellyBody({ width: thumb, height: thumb, radius: thumb / 2, config: THUMB_CONFIG });
+      // Born with its resolved record, so the first shape never rebuilds it
+      const record = this.thumbRecord ?? this.resolveThumb();
+
+      this.thumbBody = new JellyBody({ width: thumb, height: thumb, radius: thumb / 2, config: { ...record.config } });
+      this.seedResolved(this.thumbBody, record);
     } else {
       this.thumbBody.resize(thumb, thumb, thumb / 2);
     }
@@ -315,12 +431,17 @@ export class JellySlider extends JellyElement implements EventListenerObject {
 
   // Begin a drag on the track: capture the pointer and jump to the press point
   onDown (event: PointerEvent): void {
-    if (this.hasAttribute('disabled')) {
+    // One pointer at a time, like the base class's press wiring: a second
+    // finger must not steal the membrane mid-drag
+    if (this.hasAttribute('disabled') || this.pointerId !== null) {
       return;
     }
 
-    this.dragging  = true;
-    this.pointerId = event.pointerId;
+    this.dragging       = true;
+    this.pointerId      = event.pointerId;
+    this.statePointerId = event.pointerId;
+
+    this.internals.states.add('dragging');
 
     try {
       this.track.setPointerCapture(event.pointerId);
@@ -352,8 +473,7 @@ export class JellySlider extends JellyElement implements EventListenerObject {
       return;
     }
 
-    this.dragging  = false;
-    this.pointerId = null;
+    this.clearDragging();
 
     try {
       this.track.releasePointerCapture(event.pointerId);
@@ -362,8 +482,8 @@ export class JellySlider extends JellyElement implements EventListenerObject {
     }
 
     this.thumbBody?.release();
-    emit(this, 'change');
     this.requestFrame();
+    emit(this, 'change');
   }
 
   // One animation step: advance the travel spring, repaint track, fill and thumb
@@ -406,34 +526,11 @@ export class JellySlider extends JellyElement implements EventListenerObject {
 
     thumb.update(dt);
 
-    // Resolve the theme tokens at paint time so a mode flip recolors live
-    const ctx    = this.ctx;
-    const cx     = this.cssW / 2;
-    const cy     = this.cssH / 2;
-    const tW     = this.trackW;
-    const trackH = this.trackH || this.sizeConfig.track;
-    const track  = this.resolveColor(`var(--jelly-track, ${PALETTE['background-neutral']})`);
+    // Resolve the theme token at paint time so a mode flip recolors live
     const accent = this.resolveColor(`var(--jelly-accent, ${PALETTE['background-accent']})`);
 
     this.clearCanvas();
-
-    // Track base, then the accent fill from the value origin to the thumb -
-    // the origin is the inline-start edge, which is the right edge in RTL
-    ctx.save();
-    ctx.beginPath();
-    ctx.roundRect(cx - tW / 2, cy - trackH / 2, tW, trackH, trackH / 2);
-    ctx.fillStyle = track;
-    ctx.fill();
-    ctx.clip();
-    ctx.fillStyle = accent;
-
-    if (isRTL(this)) {
-      ctx.fillRect(cx + this.thumbX, cy - trackH / 2, tW / 2 - this.thumbX, trackH);
-    } else {
-      ctx.fillRect(cx - tW / 2, cy - trackH / 2, this.thumbX + tW / 2, trackH);
-    }
-
-    ctx.restore();
+    this.paintTrackPass();
 
     // The focus ring is painted from the same deformed surface as the thumb,
     // so it wobbles and travels in perfect lockstep with it - the shared soft
@@ -456,8 +553,86 @@ export class JellySlider extends JellyElement implements EventListenerObject {
     return !settled || this.dragging;
   }
 
+  // Isolated exactly like paintSurface: a built frame, save/restore, and one
+  // console.error that disables a painter which would corrupt the thumb
+  paintTrackPass (ctx: CanvasRenderingContext2D = this.ctx): void {
+    const body = this.body;
+
+    if (!this.canPaint || !body || this.trackPainterFailed) {
+      return;
+    }
+
+    const cx = this.cssW / 2;
+    const cy = this.cssH / 2;
+
+    // The shipped paintTrack reads only width / height, so projecting and
+    // tracing every surface point is wasted work unless the slot is overridden
+    const custom = this.paintTrack !== JellySlider.prototype.paintTrack;
+
+    // Canvas-space points, so a painter drawing frame.path lands on the track
+    const points = custom ? body.getSurfacePoints().map((point) => {
+      const projected = body.projectPoint(point);
+
+      return { ...projected, x: projected.x + cx, y: projected.y + cy };
+    }) : [];
+
+    const frame = buildFrame({
+      ctx,
+      points,
+      resting: body.isResting(),
+      dpr:     this.dpr,
+      width:   this.cssW,
+      height:  this.cssH,
+    });
+
+    ctx.save();
+
+    try {
+      this.paintTrack(frame);
+    } catch (error) {
+      this.trackPainterFailed = true;
+      console.error('Jelly UI painter error', error);
+    } finally {
+      ctx.restore();
+    }
+  }
+
+  // Track base, then the accent fill from the value origin (the inline-start
+  // edge, so the right one in RTL). Phase 6 slot preview; ctx is canvas space.
+  paintTrack (frame: PainterFrame): void {
+    const ctx    = frame.ctx;
+    const cx     = frame.width / 2;
+    const cy     = frame.height / 2;
+    const tW     = this.trackW;
+    const trackH = this.trackH || this.sizeConfig.track;
+    const track  = this.resolveColor(`var(--jelly-track, ${PALETTE['background-neutral']})`);
+    const accent = this.resolveColor(`var(--jelly-accent, ${PALETTE['background-accent']})`);
+
+    ctx.beginPath();
+    ctx.roundRect(cx - tW / 2, cy - trackH / 2, tW, trackH, trackH / 2);
+    ctx.fillStyle = track;
+    ctx.fill();
+    ctx.clip();
+    ctx.fillStyle = accent;
+
+    if (isRTL(this)) {
+      ctx.fillRect(cx + this.thumbX, cy - trackH / 2, tW / 2 - this.thumbX, trackH);
+    } else {
+      ctx.fillRect(cx - tW / 2, cy - trackH / 2, this.thumbX + tW / 2, trackH);
+    }
+  }
+
   // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
+    if (name === 'feel' || name === 'quality') {
+      if (name === 'quality') {
+        canonicalizeQualityAttribute(this);
+      }
+
+      this.resolve();
+      return;
+    }
+
     if (name === 'size') {
       canonicalizeSize(this);
     }
@@ -471,7 +646,8 @@ export class JellySlider extends JellyElement implements EventListenerObject {
   sync (name: string, value: string | null): void {
     switch (name) {
       case 'value':
-        this.input.value = value ?? '50';
+        this.storedValue = value ?? '50';
+        this.input.value = this.storedValue;
         break;
 
       case 'min':
@@ -504,13 +680,16 @@ export class JellySlider extends JellyElement implements EventListenerObject {
 
   // The current value (read live from the inner control once built)
   get value (): string {
-    return this.input ? this.input.value : this.getAttribute('value') || '50';
+    return this.input ? this.input.value : this.getAttribute('value') || this.storedValue || '50';
   }
 
-  // Set the value and reflect it into the thumb, ARIA and the form
+  // Set the value and reflect it into the thumb, ARIA and the form. A write
+  // before build is kept and applied in onBuilt(), never dropped (Sol M12).
   set value (v: string) {
+    this.storedValue = String(v);
+
     if (this.input) {
-      this.input.value = v;
+      this.input.value = this.storedValue;
       this.updateFromInput();
     }
   }
@@ -520,6 +699,26 @@ export class JellySlider extends JellyElement implements EventListenerObject {
     this.input?.focus(options);
   }
 
+  // painter.md: a reconnect gives a disabled painter one more chance, and the
+  // base class only resets its own surface slot
+  override connectedCallback (): void {
+    this.trackPainterFailed = false;
+
+    super.connectedCallback();
+  }
+
+  override disconnectedCallback (): void {
+    super.disconnectedCallback();
+
+    this.clearDragging();
+  }
+
+}
+
+// Explicit helper, so strict is the default: a foreign jelly-slider throws
+// rather than being warned past (registration.md)
+export function defineSlider (options: DefineOptions = {}): DefineResult {
+  return defineElements([[TAGS.slider, JellySlider]], { ...options, strict: options.strict ?? true });
 }
 
 declare global {

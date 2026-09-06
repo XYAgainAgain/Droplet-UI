@@ -105,17 +105,14 @@ function installThemeWatchers (doc: Document): void {
   }
 }
 
-/*
- * Install the token sheet and theme watchers into a document exactly once.
- * Called from connectedCallback with the element's ownerDocument, so importing
- * the library touches nothing and an adopted element is themed in its new home.
- */
+// Installs once per document, from connectedCallback with ownerDocument, so the
+// module import stays pure and an adopted element is themed in its new document.
 export function ensureThemeTokens (doc: Document = globalThis.document): void {
-  if (!doc || themedDocuments.has(doc)) {
+  // A headless document is left unmarked so a later call, once it has a head,
+  // still installs the sheet instead of no-opping forever.
+  if (!doc?.head || themedDocuments.has(doc)) {
     return;
   }
-
-  themedDocuments.add(doc);
 
   if (!doc.querySelector('style[data-jelly-tokens]')) {
     const sheet = doc.createElement('style');
@@ -127,6 +124,8 @@ export function ensureThemeTokens (doc: Document = globalThis.document): void {
   }
 
   installThemeWatchers(doc);
+
+  themedDocuments.add(doc);
 }
 
 /*

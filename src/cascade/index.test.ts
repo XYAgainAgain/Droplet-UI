@@ -11,7 +11,14 @@ describe('cascade bridge', () => {
     host.remove();
   });
 
-  it('crosses a shadow root', async () => {
+  it('resolves a scope inserted together with its children, with no frame in between', () => {
+    installScopeBridge(document);
+    const host = mount(`<section data-droplet-feel="goo"><div id="t"></div></section>`);
+    expect(readScopedAxis(host.querySelector('#t')!, 'feel')).toBe('goo');
+    host.remove();
+  });
+
+  it('a light-DOM scope reaches a shadow descendant', async () => {
     installScopeBridge(document);
     const host = mount(`<section data-droplet-quality="low"><div id="h"></div></section>`);
     const inner = host.querySelector('#h')!.attachShadow({ mode: 'open' });

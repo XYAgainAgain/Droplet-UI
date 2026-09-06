@@ -93,6 +93,40 @@ describe('defineElements', () => {
     }
   });
 
+  it('treats the same tag twice in one batch as already defined', () => {
+    class A extends HTMLElement {}
+    const tag = uniq();
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const result = defineElements([[tag, A], [tag, A]]);
+    expect(result.defined).toEqual([tag]);
+    expect(result.alreadyDefined).toEqual([tag]);
+    expect(warn).not.toHaveBeenCalled();
+    expect(customElements.get(tag)).toBe(A);
+    warn.mockRestore();
+  });
+
+  it('reports a duplicate tag with a different constructor as a collision', () => {
+    class A extends HTMLElement {}
+    class B extends HTMLElement {}
+    const tag = uniq();
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const result = defineElements([[tag, A], [tag, B]]);
+    expect(result.defined).toEqual([tag]);
+    expect(result.collisions).toHaveLength(1);
+    expect(result.collisions[0]!.existing).toBe(A);
+    expect(result.collisions[0]!.requested).toBe(B);
+    expect(customElements.get(tag)).toBe(A);
+    warn.mockRestore();
+  });
+
+  it('throws before defining anything when one batch carries a conflicting duplicate', () => {
+    class A extends HTMLElement {}
+    class B extends HTMLElement {}
+    const tag = uniq();
+    expect(() => defineElements([[tag, A], [tag, B]], { strict: true })).toThrow(RegistrationError);
+    expect(customElements.get(tag)).toBeUndefined();
+  });
+
   it('accepts a scoped registry where the platform has one', () => {
     if (typeof CustomElementRegistry !== 'function') return;
     let registry: CustomElementRegistry;

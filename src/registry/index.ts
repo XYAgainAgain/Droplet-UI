@@ -55,10 +55,15 @@ export function defineElements (entries: ReadonlyArray<DefineEntry>, options: De
   if (!registry) return result;
 
   const pending: DefineEntry[] = [];
+  // A tag repeated inside one batch is classified against the earlier pending
+  // entry, or registry.define would throw NotSupportedError mid-batch.
+  const claimed = new Map<string, CustomElementConstructor>();
   for (const [tag, ctor] of entries) {
-    const existing = registry.get(tag);
-    if (!existing) pending.push([tag, ctor]);
-    else if (existing === ctor) result.alreadyDefined.push(tag);
+    const existing = claimed.get(tag) ?? registry.get(tag);
+    if (!existing) {
+      claimed.set(tag, ctor);
+      pending.push([tag, ctor]);
+    } else if (existing === ctor) result.alreadyDefined.push(tag);
     else result.collisions.push({ tag, existing, requested: ctor });
   }
 

@@ -42,11 +42,14 @@ function applyTree (root: Element): boolean {
   return touched;
 }
 
+// The custom property is the authority once the bridge has run; closest() covers
+// the first connect, where a scope inserted with its children is still unbridged.
 export function readScopedAxis (el: Element, axis: Axis): string | null {
   const view = el.ownerDocument.defaultView;
-  if (!view) return null;
-  const value = view.getComputedStyle(el).getPropertyValue(`--droplet-${axis}`).trim();
-  return value === '' ? null : value;
+  const value = view ? view.getComputedStyle(el).getPropertyValue(`--droplet-${axis}`).trim() : '';
+  if (value !== '') return value;
+  const authored = el.closest(`[data-droplet-${axis}]`)?.getAttribute(`data-droplet-${axis}`)?.trim();
+  return authored === undefined || authored === '' ? null : authored;
 }
 
 export function installScopeBridge (doc: Document): void {

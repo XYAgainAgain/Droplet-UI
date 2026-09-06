@@ -11,6 +11,13 @@
 import { JellyElement }   from '../../element/index.js';
 import type { Shape }      from '../../element/index.js';
 
+import { canonicalizeQualityAttribute } from '../../element/configure.js';
+
+import { defineElements }      from '../../registry/index.js';
+import { TAGS }                from '../../registry/index.js';
+import type { DefineOptions }  from '../../registry/index.js';
+import type { DefineResult }   from '../../registry/index.js';
+
 import buttonStyles        from './button.css?inline';
 import variantStyles       from '../../styles/variants.css?inline';
 
@@ -28,6 +35,8 @@ import variantStyles       from '../../styles/variants.css?inline';
  * @attr {boolean} block - Stretch the button to the full width of its container.
  * @attr {"small"|"medium"|"large"} size - Control size (sm / md / lg aliases accepted).
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Fill / label color pair.
+ * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
+ * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
  * @fires click - When the button is activated (native event, bubbles composed).
  *
@@ -41,19 +50,45 @@ import variantStyles       from '../../styles/variants.css?inline';
  */
 export class JellyButton extends JellyElement {
 
+  // Opt in to the base class's feel / quality / resolver half
+  static override usesResolver = true;
+
   // Populated in onBuilt()
   button!: HTMLButtonElement;
   activationPointerId: number | null = null;
   cancelPointerClick = false;
 
+  internals: ElementInternals;
+
+  statePointerId: number | null = null;
+
+  constructor () {
+    super();
+
+    // Once, in the constructor: attachInternals() throws on a second call
+    this.internals = this.attachInternals();
+  }
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineButton(options);
+  }
+
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return [
-      'disabled', 'label', 'type', 'shape',
+      'disabled', 'label', 'type', 'shape', 'feel', 'quality',
       // Global ARIA state forwarded to the inner focusable button, so the
       // roled/focusable element - not the roleless host - carries the state
       'aria-current', 'aria-expanded', 'aria-haspopup', 'aria-controls', 'aria-pressed',
     ];
+  }
+
+  // Lifecycle
+
+  override disconnectedCallback (): void {
+    super.disconnectedCallback();
+
+    this.clearPressed();
   }
 
   // Component styles layered over the shared jelly base styles
@@ -99,6 +134,7 @@ export class JellyButton extends JellyElement {
     this.useHostFocusTarget(this.button);
     this.trackFocus(this.button);
     this.preventReleaseOutsideActivation();
+    this.trackPressedState();
     this.wirePress(this.button);
 
     // Drive the closest light-DOM form for submit / reset buttons
@@ -146,8 +182,45 @@ export class JellyButton extends JellyElement {
     this.addEventListener('click', cancelOutsideRelease, { capture: true });
   }
 
+  // Tracked on the host because pointer capture retargets the rest of the press
+  // lifecycle to whatever element captured it (state-and-reflection.md)
+  trackPressedState (): void {
+    this.addEventListener('pointerdown', (event) => {
+      if (this.statePointerId !== null || this.hasAttribute('disabled')) {
+        return;
+      }
+
+      this.statePointerId = event.pointerId;
+      this.internals.states.add('pressed');
+    });
+
+    const clear = (event: PointerEvent): void => {
+      if (event.pointerId === this.statePointerId) {
+        this.clearPressed();
+      }
+    };
+
+    this.addEventListener('pointerup', clear);
+    this.addEventListener('pointercancel', clear);
+    this.addEventListener('lostpointercapture', clear);
+  }
+
+  clearPressed (): void {
+    this.statePointerId = null;
+    this.internals.states.delete('pressed');
+  }
+
   // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
+    if (name === 'feel' || name === 'quality') {
+      if (name === 'quality') {
+        canonicalizeQualityAttribute(this);
+      }
+
+      this.resolve();
+      return;
+    }
+
     if (this.button) {
       this.sync(name);
     }
@@ -222,6 +295,12 @@ export class JellyButton extends JellyElement {
     this.button?.focus(options);
   }
 
+}
+
+// Explicit helper, so strict is the default: a foreign jelly-button throws
+// rather than being warned past (registration.md)
+export function defineButton (options: DefineOptions = {}): DefineResult {
+  return defineElements([[TAGS.button, JellyButton]], { ...options, strict: options.strict ?? true });
 }
 
 declare global {

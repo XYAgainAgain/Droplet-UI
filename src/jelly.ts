@@ -14,7 +14,15 @@ export * from './anchor/index.js';
 export * from './theme/index.js';
 
 export { JellyElement } from './element/index.js';
+export type { PainterFrame } from './element/index.js';
 export { jellyToast }   from './components/toast/index.js';
+
+// Phase 1's authoring surface: presets, the resolver, and the scope cascade
+export { registerPreset, getPreset, listPresets, PresetError } from './presets/index.js';
+export { resolveConfig, parseQuality, SAFETY_BOUNDS } from './resolve/index.js';
+export type { Quality, Resolved, Source, ResolveInputs } from './resolve/index.js';
+export { installScopeBridge, readScopedAxis, onScopeChange, AXES } from './cascade/index.js';
+export type { Axis } from './cascade/index.js';
 
 export { ICONS }        from './icons/index.js';
 export { jellyIcon }    from './icons/index.js';

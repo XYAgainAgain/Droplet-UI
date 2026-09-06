@@ -3,14 +3,15 @@
 
 import { defineElements, TAGS } from './registry/index.js';
 import type { DefineOptions, DefineResult } from './registry/index.js';
-import { JellyButton } from './components/button/index.js';
-import { JellyCollapsible } from './components/collapsible/index.js';
-import { JellySlider } from './components/slider/index.js';
-import { JellyToaster } from './components/toast/index.js';
+import { JellyButton, defineButton } from './components/button/index.js';
+import { JellyCollapsible, defineCollapsible } from './components/collapsible/index.js';
+import { JellySlider, defineSlider } from './components/slider/index.js';
+import { JellyToaster, defineToaster } from './components/toast/index.js';
 
 export { defineElements, RegistrationError, TAG_PREFIX, TAGS } from './registry/index.js';
 export type { Collision, DefineEntry, DefineOptions, DefineResult, TagName } from './registry/index.js';
 export { JellyButton, JellyCollapsible, JellySlider, JellyToaster };
+export { defineButton, defineCollapsible, defineSlider, defineToaster };
 
 // One batch so preflight covers the whole pilot set; strict by default because
 // this is the explicit helper, unlike the root entry's warn-and-skip import.

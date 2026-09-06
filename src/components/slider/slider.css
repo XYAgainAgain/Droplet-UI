@@ -73,6 +73,18 @@ input {
   height:       max(100%, 24px);
 }
 
+/* With no 2D context the canvas can never show the value, so hand the control
+   back to the native range input (canvas-is-decoration.md) */
+:host([data-jelly-nocanvas]) .jelly-canvas,
+:host([data-jelly-nocanvas]) .track {
+  display: none;
+}
+
+:host([data-jelly-nocanvas]) input {
+  opacity:        1;
+  pointer-events: auto;
+}
+
 /* The painted canvas carries no forced-colors information, so hand the
    control back to the fully styleable native range input there */
 @media (forced-colors: active) {

@@ -26,7 +26,23 @@ import { PALETTE }              from '../theme/index.js';
 
 import baseStyles               from '../styles/base.css?inline';
 
+import { installScopeBridge }    from '../cascade/index.js';
+import { onScopeChange }         from '../cascade/index.js';
+import { readScopedAxis }        from '../cascade/index.js';
+
+import { isConfigKey }           from '../resolve/index.js';
+import { resolveConfig }         from '../resolve/index.js';
+import type { Quality }          from '../resolve/index.js';
+import type { Resolved }         from '../resolve/index.js';
+import type { ResolveInputs }    from '../resolve/index.js';
+
 import { HTMLElementBase }       from './base.js';
+
+import { canonicalizeQualityAttribute } from './configure.js';
+import { readQuality }                  from './configure.js';
+import { replayProperties }             from './configure.js';
+import { warnUnknownFeel }              from './configure.js';
+import { writeQuality }                 from './configure.js';
 
 import { buildFrame }            from './painter.js';
 import type { PainterFrame }     from './painter.js';
@@ -42,10 +58,21 @@ import type { WirePressOptions } from './types.js';
 export type { RGBA, Shape, Ring, Border, PaintOptions, WirePressOptions } from './types.js';
 export type { PainterFrame } from './painter.js';
 
+// Keyed by body rather than by element so a component with several bodies keeps
+// one applied record per membrane (the slider's thumb resolves separately)
+const appliedRecords = new WeakMap<JellyBody, Resolved>();
+
 export class JellyElement extends HTMLElementBase implements JellyComponent {
 
   // Padding around the shape so the wobble can overflow without clipping
   static PAD = 48;
+
+  // Opt-in for the resolver half of this class; unconverted components leave it
+  // false and keep exactly the connect path they had before the fork.
+  static usesResolver = false;
+
+  // Properties replayed through their setters on upgrade (state-and-reflection.md)
+  static REPLAYED: readonly string[] = ['feel', 'quality'];
 
   body: JellyBody | null = null;
   built = false;
@@ -53,8 +80,161 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
   cssW = 0;
   cssH = 0;
 
-  // Per-instance physics overrides; subclasses may assign before build
-  config: Partial<JellyConfig> | undefined = undefined;
+  // Per-instance physics overrides; subclasses may assign before build. An
+  // accessor, not a field, so a component can override it with a resolving setter.
+  rawConfig: Partial<JellyConfig> | undefined = undefined;
+
+  resolvedRecord: Resolved | undefined = undefined;
+  configWarned: Set<string> | undefined = undefined;
+  scopeUnsubscribe: (() => void) | null = null;
+
+  // The raw override layer, returned as the stored copy; the resolved record is
+  // read through resolvedConfig (resolver.md)
+  get config (): Partial<JellyConfig> | undefined {
+    return this.rawConfig;
+  }
+
+  set config (value: Partial<JellyConfig> | undefined) {
+    if (!this.usesResolver) {
+      this.rawConfig = value;
+      return;
+    }
+
+    this.rawConfig = value ? this.validateConfig(value) : undefined;
+    this.resolve();
+  }
+
+  get usesResolver (): boolean {
+    return (this.constructor as typeof JellyElement).usesResolver;
+  }
+
+  // The effective feel after the cascade and the unknown-name fallback, never
+  // the raw attribute (attribute-matrix.md)
+  get feel (): string {
+    return this.resolution().feel;
+  }
+
+  set feel (value: string | null) {
+    if (value === null || value === undefined) {
+      this.removeAttribute('feel');
+    } else {
+      this.setAttribute('feel', value);
+    }
+  }
+
+  get quality (): Quality {
+    return readQuality(this);
+  }
+
+  set quality (value: Quality | string | null) {
+    writeQuality(this, value);
+  }
+
+  get resolvedConfig (): Readonly<JellyConfig> {
+    return this.resolution().config;
+  }
+
+  // The component's own physics layer, below any feel preset (resolver.md)
+  profile (): Partial<JellyConfig> {
+    return {};
+  }
+
+  // Drop what the resolver would silently ignore, but tell the author why -
+  // once per element per key, so a bad value in a frame loop cannot spam
+  validateConfig (value: Partial<JellyConfig>): Partial<JellyConfig> {
+    const copy: Record<string, number> = {};
+
+    for (const [key, entry] of Object.entries(value)) {
+      if (isConfigKey(key) && typeof entry === 'number' && Number.isFinite(entry)) {
+        copy[key] = entry;
+        continue;
+      }
+
+      if (!this.configWarned) {
+        this.configWarned = new Set();
+      }
+
+      if (!this.configWarned.has(key)) {
+        this.configWarned.add(key);
+        console.warn(`[jelly] config.${key} is not a finite JellyConfig field; ignoring`, this);
+      }
+    }
+
+    return copy as Partial<JellyConfig>;
+  }
+
+  // Every input change recomputes the whole record from canonical inputs, so
+  // attribute order is unobservable (resolver.md)
+  resolve (): Resolved {
+    const inputs = this.axisInputs();
+    const next   = resolveConfig({ profile: this.profile(), ...inputs });
+
+    // A supplied name that resolved to something else is invalid, feel="" included
+    if (inputs.feel !== null && next.feel !== inputs.feel) {
+      warnUnknownFeel(inputs.feel, this.ownerDocument);
+    }
+
+    this.resolvedRecord = next;
+
+    // Reading feel on an unconverted component must stay side-effect free
+    if (this.usesResolver) {
+      this.applyResolved(next);
+    }
+
+    return next;
+  }
+
+  resolution (): Resolved {
+    return this.resolvedRecord ?? this.resolve();
+  }
+
+  // The canonical axis inputs every body of this element resolves from, so a
+  // multi-membrane component cannot drift between its bodies
+  axisInputs (): Omit<ResolveInputs, 'profile'> & { feel: string | null } {
+    return {
+      feel:     this.getAttribute('feel') ?? readScopedAxis(this, 'feel'),
+      raw:      this.rawConfig,
+      quality:  this.quality,
+      document: this.ownerDocument,
+    };
+  }
+
+  // A second membrane resolved through the same axis inputs but its own
+  // component profile; the slider's thumb is the Phase 1 case (resolver.md)
+  resolveFor (profile: Partial<JellyConfig>): Resolved {
+    return resolveConfig({ profile, ...this.axisInputs() });
+  }
+
+  // Record what a freshly built body was seeded from, so the next applyResolved
+  // compares against it instead of rebuilding a membrane that already matches
+  seedResolved (body: JellyBody, resolved: Resolved): void {
+    appliedRecords.set(body, resolved);
+  }
+
+  // Momentum-preserving resampling is Phase 6, so a membrane-shaping change
+  // rebuilds the ring from rest for now.
+  applyResolved (resolved: Resolved, body: JellyBody | null = this.body): void {
+    if (!body) {
+      return;
+    }
+
+    const next = resolved.config;
+    // Against the last record applied to this body, not body.config: the body
+    // rewrites some fields as it stores them, so that comparison never settles.
+    const previous = appliedRecords.get(body)?.config;
+    const rebuild  = !previous
+      || previous.samples !== next.samples
+      || previous.normalBlendPasses !== next.normalBlendPasses;
+
+    body.config = { ...next };
+    appliedRecords.set(body, resolved);
+
+    if (rebuild) {
+      body.resize(body.width, body.height, body.radius);
+    }
+
+    this.requestFrame();
+  }
 
   // Populated in build(); ctx stays unset when getContext('2d') returns null
   canvas!: HTMLCanvasElement;
@@ -116,7 +296,9 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
     this.contextLost = false;
     this.removeAttribute('data-jelly-nocanvas');
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    this.requestFrame();
+    // applyShape early-returns while the context is lost, so any resize that
+    // fired during the loss is only picked up here.
+    this.applyShape();
   };
 
   constructor () {
@@ -170,6 +352,10 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
 
   // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
+    if (this.usesResolver) {
+      this.connectResolver();
+    }
+
     ensureThemeTokens(this.ownerDocument);
     canonicalizeSize(this);
 
@@ -201,7 +387,20 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
     this.requestFrame();
   }
 
-  // Lifecycle method: Called automatically when the element moves to a new document
+  // Replay, canonicalize and resolve before the base connect path builds the
+  // body, so the first membrane is seeded from the record it will keep
+  connectResolver (): void {
+    installScopeBridge(this.ownerDocument);
+
+    replayProperties(this, (this.constructor as typeof JellyElement).REPLAYED);
+    canonicalizeQualityAttribute(this);
+    this.resolve();
+
+    if (!this.scopeUnsubscribe) {
+      this.scopeUnsubscribe = onScopeChange(this.ownerDocument, () => this.resolve());
+    }
+  }
+
   adoptedCallback (): void {
     ensureThemeTokens(this.ownerDocument);
   }
@@ -209,6 +408,9 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
   // Lifecycle method: Called automatically when the element leaves the DOM
   disconnectedCallback (): void {
     engine.drop(this);
+
+    this.scopeUnsubscribe?.();
+    this.scopeUnsubscribe = null;
 
     window.removeEventListener('jelly-theme-change', this.onThemeChange);
     window.removeEventListener('jelly-motion-change', this.onMotionChange);
@@ -282,11 +484,10 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
   jellyBox (): { width: number; height: number; offsetX: number; offsetY: number; screenX: number; screenY: number } {
     const hostRect = this.getBoundingClientRect();
 
-    // Divide out any ancestor CSS transform (e.g. a dialog's open-scale pop,
-    // which scales x and y by DIFFERENT amounts) per-axis, so the canvas is
-    // sized in the element's own layout units. Otherwise a jelly built
-    // mid-animation bakes in at the wrong size / aspect ratio and never
-    // corrects. (For an untransformed element sx / sy ≈ 1, so this is a no-op.)
+    // Divide out any ancestor CSS transform (e.g. a dialog's open-scale pop
+    // scales x/y by different amounts) so the canvas sizes in the element's
+    // own layout units — otherwise a jelly built mid-animation bakes in the
+    // wrong size/aspect ratio. Untransformed: sx/sy ≈ 1, a no-op.
     const sx   = this.offsetWidth > 0 ? hostRect.width / this.offsetWidth : 1;
     const sy   = this.offsetHeight > 0 ? hostRect.height / this.offsetHeight : 1;
     const invX = sx > 0.001 ? 1 / sx : 1;
@@ -350,12 +551,20 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     if (!this.body) {
+      // Seeding from the resolved record is what keeps the first build single:
+      // the membrane is born with its final sample count, not rebuilt after.
+      const resolved = this.usesResolver ? this.resolution() : null;
+
       this.body = new JellyBody({
         width:  shape.width,
         height: shape.height,
         radius: shape.radius,
-        config: this.config,
+        config: resolved ? { ...resolved.config } : this.config,
       });
+
+      if (resolved) {
+        appliedRecords.set(this.body, resolved);
+      }
     } else {
       this.body.resize(shape.width, shape.height, shape.radius);
     }

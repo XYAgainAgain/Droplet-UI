@@ -96,9 +96,7 @@ export interface JellyBodyOptions {
  */
 const MAX_STEP = 1 / 58;
 
-/* ------------------------------------------------------------------ *
- * Math helpers
- * ------------------------------------------------------------------ */
+// Math helpers
 
 // Hermite smoothstep: 0 below edge0, 1 above edge1, eased in between
 function smoothstep (edge0: number, edge1: number, value: number): number {
@@ -139,9 +137,7 @@ function roundedRectSDF (x: number, y: number, halfW: number, halfH: number, rad
   return outside + inside - r;
 }
 
-/* ------------------------------------------------------------------ *
- * Membrane construction
- * ------------------------------------------------------------------ */
+// Membrane construction
 
 /*
  * Build a uniformly-sampled ring of membrane points around a rounded
@@ -327,9 +323,7 @@ export function traceSmoothPath (ctx: CanvasRenderingContext2D | Path2D, points:
   ctx.closePath();
 }
 
-/* ------------------------------------------------------------------ *
- * JellyBody - one soft-body blob. Pure physics in local coordinates.
- * ------------------------------------------------------------------ */
+// JellyBody: one soft-body blob, pure physics in local coordinates.
 export class JellyBody {
 
   width: number;

@@ -1,9 +1,13 @@
-import { expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
+import { userEvent } from 'vitest/browser';
 
 import { mount, settle } from '../../testing/index.js';
 
+import { installScopeBridge } from '../../cascade/index.js';
+import { DEFAULT_CONFIG, JellyBody } from '../../core/index.js';
+import { registerPreset } from '../../presets/index.js';
 import { defineAll } from '../../register.js';
-import type { JellyButton } from './index.js';
+import { defineButton, JellyButton } from './index.js';
 
 defineAll({ strict: false });
 
@@ -87,4 +91,265 @@ test('does not activate when a pointer is released outside the button', async ()
   expect(onClick).not.toHaveBeenCalled();
 
   host.remove();
+});
+
+describe('jelly-button contracts', () => {
+
+  test('registers through the helper and is a no-op the second time', () => {
+    expect(defineButton().alreadyDefined).toEqual(['jelly-button']);
+  });
+
+  test('reads feel from the nearest scope and lets the element override it', async () => {
+    installScopeBridge(document);
+    registerPreset('feel', 'test-stiff', { pressure: 900 }, { override: true });
+
+    const host = mount('<div data-droplet-feel="test-stiff"><jelly-button>A</jelly-button><jelly-button feel="gel">B</jelly-button></div>');
+
+    // Read before any frame: the scope and its children were inserted together,
+    // so this is the case the bridge's observer has not seen yet
+    const first = host.querySelector('jelly-button') as JellyButton;
+    expect(first.feel).toBe('test-stiff');
+    expect(first.resolvedConfig.pressure).toBe(900);
+
+    await settle();
+
+    const [a, b] = host.querySelectorAll('jelly-button') as NodeListOf<JellyButton>;
+
+    expect(a!.feel).toBe('test-stiff');
+    expect(a!.resolvedConfig.pressure).toBe(900);
+    expect(b!.feel).toBe('gel');
+    expect(b!.resolvedConfig.pressure).toBe(DEFAULT_CONFIG.pressure);
+
+    host.remove();
+  });
+
+  test('a fractional pass count in a preset does not rebuild the membrane on every resolve', async () => {
+    registerPreset('feel', 'test-fractional', { normalBlendPasses: 2.5 }, { override: true });
+
+    const host = mount('<jelly-button feel="test-fractional">F</jelly-button>');
+    await settle();
+
+    const el = host.firstElementChild as JellyButton;
+
+    expect(el.resolvedConfig.normalBlendPasses).toBe(3);
+
+    const resize = vi.spyOn(el.body!, 'resize');
+
+    el.resolve();
+    el.resolve();
+
+    expect(resize).not.toHaveBeenCalled();
+
+    resize.mockRestore();
+    host.remove();
+  });
+
+  test('builds the membrane once on first shape, seeded from the resolved record', async () => {
+    registerPreset('feel', 'test-coarse', { samples: 96 }, { override: true });
+
+    const resize = vi.spyOn(JellyBody.prototype, 'resize');
+    const host   = mount('<jelly-button feel="test-coarse">S</jelly-button>');
+
+    await settle(6);
+
+    const el = host.firstElementChild as JellyButton;
+
+    expect(el.resolvedConfig.samples).toBe(96);
+    expect(el.body!.config.samples).toBe(96);
+    expect(resize).not.toHaveBeenCalled();
+
+    resize.mockRestore();
+    host.remove();
+  });
+
+  test('warns once per unknown feel name', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const host = mount('<jelly-button feel="no-such-feel">A</jelly-button><jelly-button feel="no-such-feel">B</jelly-button>');
+    await settle();
+
+    const [a] = host.querySelectorAll('jelly-button') as NodeListOf<JellyButton>;
+
+    expect(a!.feel).toBe('gel');
+    expect(a!.getAttribute('feel')).toBe('no-such-feel');
+    expect(warn).toHaveBeenCalledTimes(1);
+
+    warn.mockRestore();
+    host.remove();
+  });
+
+  test('warns and falls back to gel for an empty feel attribute', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const host = mount('<jelly-button feel="">E</jelly-button>');
+    await settle();
+
+    const el = host.firstElementChild as JellyButton;
+
+    expect(el.feel).toBe('gel');
+    expect(el.getAttribute('feel')).toBe('');
+    expect(warn).toHaveBeenCalledTimes(1);
+
+    warn.mockRestore();
+    host.remove();
+  });
+
+  test('warns once per unknown feel name in each document', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const host = mount('<jelly-button feel="ghost-feel">A</jelly-button>');
+    await settle();
+
+    expect(warn).toHaveBeenCalledTimes(1);
+
+    const elsewhere = document.implementation.createHTMLDocument('second page');
+    const framed = document.createElement('jelly-button') as JellyButton;
+
+    // Still this document's element, and its one warning is already spent
+    framed.setAttribute('feel', 'ghost-feel');
+    expect(warn).toHaveBeenCalledTimes(1);
+
+    elsewhere.adoptNode(framed);
+    framed.resolve();
+    framed.resolve();
+
+    expect(warn).toHaveBeenCalledTimes(2);
+
+    warn.mockRestore();
+    host.remove();
+  });
+
+  test('applies the quality cap and reflects the canonical alias', async () => {
+    const host = mount('<jelly-button quality="med">Q</jelly-button>');
+    await settle();
+
+    const el = host.firstElementChild as JellyButton;
+
+    expect(el.quality).toBe('medium');
+    expect(el.getAttribute('quality')).toBe('medium');
+    expect(el.resolvedConfig.samples).toBe(DEFAULT_CONFIG.samples);
+
+    el.quality = 'low';
+    await settle();
+
+    expect(el.getAttribute('quality')).toBe('low');
+    expect(el.resolvedConfig.samples).toBeLessThanOrEqual(120);
+    expect(el.body!.config.samples).toBe(el.resolvedConfig.samples);
+
+    host.remove();
+  });
+
+  test('leaves an unrecognized quality as written and resolves it as medium', async () => {
+    const host = mount('<jelly-button quality="potato">Q</jelly-button>');
+    await settle();
+
+    const el = host.firstElementChild as JellyButton;
+
+    expect(el.getAttribute('quality')).toBe('potato');
+    expect(el.quality).toBe('medium');
+
+    host.remove();
+  });
+
+  test('validates, copies and applies a raw config override', async () => {
+    const host = mount('<jelly-button>C</jelly-button>');
+    await settle();
+
+    const el = host.firstElementChild as JellyButton;
+    const raw = { pressure: 700, samples: 9999 };
+
+    el.config = raw;
+    await settle();
+
+    raw.pressure = 1;
+
+    expect(el.resolvedConfig.pressure).toBe(700);
+    expect(el.resolvedConfig.samples).toBe(480);
+    expect(el.body!.config.pressure).toBe(700);
+
+    host.remove();
+  });
+
+  test('replays a property set before upgrade', async () => {
+    const el = document.createElement('jelly-button-not-yet') as HTMLElement & { feel?: string };
+    el.feel = 'gel';
+    document.body.appendChild(el);
+
+    customElements.define('jelly-button-not-yet', class extends JellyButton {});
+    await settle();
+
+    expect((el as unknown as JellyButton).feel).toBe('gel');
+    expect(el.getAttribute('feel')).toBe('gel');
+
+    el.remove();
+  });
+
+  test('lets a markup attribute win over a pre-upgrade property', async () => {
+    const el = document.createElement('jelly-button-markup-wins') as HTMLElement & { quality?: string };
+    el.setAttribute('quality', 'high');
+    el.quality = 'low';
+    document.body.appendChild(el);
+
+    customElements.define('jelly-button-markup-wins', class extends JellyButton {});
+    await settle();
+
+    expect(el.getAttribute('quality')).toBe('high');
+    expect((el as unknown as JellyButton).quality).toBe('high');
+
+    el.remove();
+  });
+
+  test('exposes pressed state through :state() and clears it on pointer cancel', async () => {
+    const host = mount('<jelly-button>P</jelly-button>');
+    await settle();
+
+    const el = host.firstElementChild as JellyButton;
+
+    el.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true, pointerId: 1, isPrimary: true }));
+    await settle();
+    expect(el.matches(':state(pressed)')).toBe(true);
+
+    el.dispatchEvent(new PointerEvent('pointercancel', { bubbles: true, composed: true, pointerId: 1, isPrimary: true }));
+    await settle();
+    expect(el.matches(':state(pressed)')).toBe(false);
+
+    host.remove();
+  });
+
+  test('clears pressed state on disconnect', async () => {
+    const host = mount('<jelly-button>P</jelly-button>');
+    await settle();
+
+    const el = host.firstElementChild as JellyButton;
+
+    el.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true, pointerId: 2, isPrimary: true }));
+    await settle();
+    expect(el.matches(':state(pressed)')).toBe(true);
+
+    host.remove();
+    await settle();
+    expect(el.matches(':state(pressed)')).toBe(false);
+  });
+
+  // :host(:focus-visible) never matches under delegatesFocus in any of the three
+  // browsers, so the focus fallback has to land on the delegated control
+  test('shows a canvas-free focus indicator when the inner button is keyboard-focused', async () => {
+    const host = mount('<jelly-button data-jelly-nocanvas>F</jelly-button>');
+    await settle();
+
+    const el    = host.firstElementChild as JellyButton;
+    const inner = el.shadowRoot!.querySelector('button')!;
+
+    await userEvent.tab();
+
+    expect(el.shadowRoot!.activeElement).toBe(inner);
+    expect(el.matches(':focus')).toBe(true);
+    expect(el.matches(':focus-visible')).toBe(false);
+    expect(inner.matches(':focus-visible')).toBe(true);
+
+    const outline = getComputedStyle(inner);
+
+    expect(outline.outlineStyle).toBe('solid');
+    expect(outline.outlineWidth).toBe('2px');
+
+    host.remove();
+  });
+
 });

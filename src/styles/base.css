@@ -32,14 +32,19 @@
 
 /* Focus fallback: the canvas ring embellishes focus, it never owns it. */
 
+/* delegatesFocus does not propagate :focus-visible to the host in any engine
+   (Chromium, Firefox, WebKit), so the delegated control carries the fallback. */
+
 @media (forced-colors: active) {
-  :host(:focus-visible) {
+  :host(:focus-visible),
+  :host :focus-visible {
     outline:        2px solid Highlight;
     outline-offset: 2px;
   }
 }
 
-:host([data-jelly-nocanvas]:focus-visible) {
+:host([data-jelly-nocanvas]:focus-visible),
+:host([data-jelly-nocanvas]) :focus-visible {
   outline:        2px solid var(--jelly-color-border-focus);
   outline-offset: 2px;
 }

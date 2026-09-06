@@ -93,6 +93,18 @@ export const COMPONENTS = [
     "description": "The jelly membrane is painted on a canvas behind a shadow-DOM <button>, so activation, focus and ARIA semantics are fully native. Pointer presses dent the membrane under the finger and follow it; Enter/Space squish it from the center. click events bubble out composed and type=\"submit\"/\"reset\" drive the closest light-DOM <form> via requestSubmit()/reset().",
     "attributes": [
       {
+        "name": "feel",
+        "type": "string (a registered feel preset name; \"gel\" ships in Phase 1)",
+        "default": "gel, or the nearest data-droplet-feel scope",
+        "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
+      },
+      {
+        "name": "quality",
+        "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
+        "default": "medium, or the nearest data-droplet-quality scope",
+        "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
         "name": "variant",
         "type": "\"azure\" | \"white\" | \"rose\" | \"amber\" | \"mint\" | \"platinum\" | \"graphite\"",
         "default": "theme accent (azure when uncustomized)",
@@ -1811,6 +1823,18 @@ export const COMPONENTS = [
     "description": "A hidden native <input type=\"range\"> owns the value, keyboard semantics and form participation while the thumb — a soft physics body — squishes when grabbed, leans into its travel and carries a variant-colored focus ring. Direction-aware: in RTL layouts the value origin, painted accent fill and arrow keys mirror like a native range input. In forced-colors mode the component hands interaction back to the fully styleable native input.",
     "attributes": [
       {
+        "name": "feel",
+        "type": "string (a registered feel preset name; \"gel\" ships in Phase 1)",
+        "default": "gel, or the nearest data-droplet-feel scope",
+        "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
+      },
+      {
+        "name": "quality",
+        "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
+        "default": "medium, or the nearest data-droplet-quality scope",
+        "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
         "name": "value",
         "type": "number (string attribute)",
         "default": "50",
@@ -2689,6 +2713,12 @@ export const COMPONENTS = [
     "description": "jellyToast(message, { tone, duration }) creates a shared <jelly-toaster> on <body> automatically; place one yourself to control stacking. The rail is an aria-live region and every toast carries a spoken tone prefix, so tone is never color-only. Each toast has a keyboard-reachable dismiss button and also dismisses on click or after its duration.",
     "attributes": [
       {
+        "name": "quality",
+        "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
+        "default": "medium, or the nearest data-droplet-quality scope",
+        "description": "Rendering budget read from the element or the closest data-droplet-quality scope. Reported in Phase 1; nothing acts on it in this component yet."
+      },
+      {
         "name": "position",
         "type": "\"top\" | \"bottom\"",
         "default": "top",
@@ -3013,6 +3043,12 @@ export const COMPONENTS = [
     "summary": "A bouncy disclosure section: a header button springs its panel open and closed.",
     "description": "Proper disclosure semantics (aria-expanded, aria-controls, a named region) and exactly one `toggle` event per real state change. The chevron mirrors in RTL.",
     "attributes": [
+      {
+        "name": "quality",
+        "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
+        "default": "medium, or the nearest data-droplet-quality scope",
+        "description": "Rendering budget read from the element or the closest data-droplet-quality scope. Reported in Phase 1; nothing acts on it in this component yet."
+      },
       {
         "name": "open",
         "type": "boolean",

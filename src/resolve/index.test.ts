@@ -81,6 +81,13 @@ describe('resolveConfig', () => {
     expect(r.provenance.normalBlendPasses).toBe('quality');
   });
 
+  it('rounds the integer-valued fields so the body cannot store something else', () => {
+    const r = resolveConfig({ raw: { normalBlendPasses: 2.5, samples: 60.4 } });
+    expect(r.config.normalBlendPasses).toBe(3);
+    expect(r.config.samples).toBe(60);
+    expect(r.provenance.normalBlendPasses).toBe('raw');
+  });
+
   it('freezes the provenance record and reports the effective quality', () => {
     const r = resolveConfig({ quality: 'high' });
     expect(Object.isFrozen(r.provenance)).toBe(true);
