@@ -1,6 +1,7 @@
 /*
  * DOM helpers shared by every component: unique ARIA ids, composed event
- * dispatch, numeric attribute parsing, HTML escaping and reading direction.
+ * dispatch, idempotent attribute reflection, numeric attribute parsing, HTML
+ * escaping and reading direction.
  */
 
 // Global counter so every generated id on the page is unique
@@ -32,6 +33,15 @@ export function emit (
   });
 
   return element.dispatchEvent(event);
+}
+
+// Reflection must be idempotent (state-and-reflection.md): an unchanged value writes nothing
+export function reflectAttribute (element: Element, name: string, value: unknown): void {
+  const next = String(value);
+
+  if (element.getAttribute(name) !== next) {
+    element.setAttribute(name, next);
+  }
 }
 
 // Read a numeric attribute, falling back when missing or unparseable

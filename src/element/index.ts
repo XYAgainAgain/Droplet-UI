@@ -239,6 +239,7 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
   // Populated in build(); ctx stays unset when getContext('2d') returns null
   canvas!: HTMLCanvasElement;
   ctx!: CanvasRenderingContext2D;
+  overhang!: SVGForeignObjectElement;
 
   // Canvas is decoration: false means every paint path no-ops instead of throwing
   hasContext = false;
@@ -438,15 +439,19 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
     return prefersReducedMotion();
   }
 
-  // Render the shadow DOM once and let the subclass wire itself up
+  // The canvas sits in an SVG foreignObject because SVG overflow is ink overflow
+  // in every engine: the PAD overhang paints but never makes an ancestor scroll.
   build (): void {
     this.shadowRoot!.innerHTML =
       `<style>${baseStyles}${this.styles()}</style>` +
+      `<svg class="jelly-overhang" aria-hidden="true"><foreignObject>` +
       `<canvas class="jelly-canvas" part="jelly" aria-hidden="true"></canvas>` +
+      `</foreignObject></svg>` +
       `<div class="jelly-content">${this.content()}</div>`;
 
-    this.canvas = this.shadowRoot!.querySelector<HTMLCanvasElement>('.jelly-canvas')!;
-    this.built  = true;
+    this.canvas   = this.shadowRoot!.querySelector<HTMLCanvasElement>('.jelly-canvas')!;
+    this.overhang = this.shadowRoot!.querySelector<SVGForeignObjectElement>('.jelly-overhang > foreignObject')!;
+    this.built    = true;
 
     const ctx = this.canvas.getContext('2d');
 
@@ -528,25 +533,33 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
     const pxW   = Math.round(cssW * dpr);
     const pxH   = Math.round(cssH * dpr);
 
-    // Repositioning the canvas is cheap and never clears it - always do it
-    this.canvas.style.left = `${box.offsetX}px`;
-    this.canvas.style.top  = `${box.offsetY}px`;
+    // Resizing the canvas clears it (a visible flicker) and rebuilds the
+    // membrane. Only do that when the pixel size actually changes - a sub-pixel
+    // reflow (e.g. a tab's active label going bold) must not trigger it.
+    const resize = !this.body || this.canvas.width !== pxW || this.canvas.height !== pxH;
 
-    // But *resizing* the canvas clears it (a visible flicker) and rebuilds
-    // the membrane. Only do that when the pixel size actually changes - a
-    // sub-pixel reflow (e.g. a tab's active label going bold) must not trigger it.
-    if (this.body && this.canvas.width === pxW && this.canvas.height === pxH) {
+    if (resize) {
+      this.dpr  = dpr;
+      this.cssW = cssW;
+      this.cssH = cssH;
+
+      this.canvas.style.width  = `${this.cssW}px`;
+      this.canvas.style.height = `${this.cssH}px`;
+    }
+
+    // Repositioning never clears the canvas, so always do it. SVG user units are
+    // the host's CSS pixels, with the origin at its padding box.
+    this.overhang.setAttribute('x',      String(box.offsetX - this.cssW / 2));
+    this.overhang.setAttribute('y',      String(box.offsetY - this.cssH / 2));
+    this.overhang.setAttribute('width',  String(this.cssW));
+    this.overhang.setAttribute('height', String(this.cssH));
+
+    if (!resize) {
       return;
     }
 
-    this.dpr  = dpr;
-    this.cssW = cssW;
-    this.cssH = cssH;
-
-    this.canvas.style.width  = `${cssW}px`;
-    this.canvas.style.height = `${cssH}px`;
-    this.canvas.width        = pxW;
-    this.canvas.height       = pxH;
+    this.canvas.width  = pxW;
+    this.canvas.height = pxH;
 
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 

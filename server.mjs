@@ -21,16 +21,34 @@ import { fileURLToPath }  from 'node:url';
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 4173;
 
-// The content types the library and docs site actually serve
+// The content types the library, docs site and prototypes serve
 const TYPES = {
-  '.html': 'text/html; charset=utf-8',
-  '.js':   'text/javascript; charset=utf-8',
-  '.mjs':  'text/javascript; charset=utf-8',
-  '.css':  'text/css; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
-  '.map':  'application/json; charset=utf-8',
-  '.svg':  'image/svg+xml; charset=utf-8',
-  '.md':   'text/markdown; charset=utf-8',
+  '.html':  'text/html; charset=utf-8',
+  '.js':    'text/javascript; charset=utf-8',
+  '.mjs':   'text/javascript; charset=utf-8',
+  '.css':   'text/css; charset=utf-8',
+  '.json':  'application/json; charset=utf-8',
+  '.map':   'application/json; charset=utf-8',
+  '.svg':   'image/svg+xml; charset=utf-8',
+  '.md':    'text/markdown; charset=utf-8',
+  '.txt':   'text/plain; charset=utf-8',
+  '.png':   'image/png',
+  '.jpg':   'image/jpeg',
+  '.jpeg':  'image/jpeg',
+  '.gif':   'image/gif',
+  '.webp':  'image/webp',
+  '.avif':  'image/avif',
+  '.ico':   'image/x-icon',
+  '.woff':  'font/woff',
+  '.woff2': 'font/woff2',
+  '.ttf':   'font/ttf',
+  '.otf':   'font/otf',
+  '.mp4':   'video/mp4',
+  '.webm':  'video/webm',
+  '.mp3':   'audio/mpeg',
+  '.ogg':   'audio/ogg',
+  '.wav':   'audio/wav',
+  '.wasm':  'application/wasm',
 };
 
 // Resolve a request path to a file inside ROOT, or null when it escapes
@@ -78,7 +96,7 @@ createServer(async (request, response) => {
     const data = await readFile(filePath);
 
     response.writeHead(200, {
-      'Content-Type':  TYPES[extname(filePath)] || 'application/octet-stream',
+      'Content-Type':  TYPES[extname(filePath).toLowerCase()] || 'application/octet-stream',
       'Cache-Control': 'no-cache', // always fresh in dev
     });
 

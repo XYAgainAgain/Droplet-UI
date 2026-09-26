@@ -80,11 +80,16 @@ input {
     height 0.42s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* --jelly-motion mirrors data-jelly-motion on <html> (see src/theme/runtime.ts) */
 @media (prefers-reduced-motion: reduce) {
-  :host-context(html:not([data-jelly-motion="no-preference"])) .track { transition: none; }
+  @container not style(--jelly-motion: no-preference) {
+    .track { transition: none; }
+  }
 }
 
-:host-context([data-jelly-motion="reduce"]) .track { transition: none; }
+@container style(--jelly-motion: reduce) {
+  .track { transition: none; }
+}
 
 /* The focus ring is painted on the canvas so it follows the jiggle;
    this ::after is only for forced-colors mode, where canvas is ignored. */

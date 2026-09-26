@@ -33,3 +33,73 @@ test('squish cards become keyboard-activatable buttons', async () => {
 
   host.remove();
 });
+
+async function squishCard (html = '<jelly-card squish>Tap</jelly-card>'): Promise<{ host: HTMLDivElement; card: HTMLElement; clicks: () => number }> {
+  const host = mount(html);
+  const el = host.querySelector('jelly-card') as JellyCard;
+  let clicked = 0;
+
+  await settle(3);
+  el.addEventListener('click', () => { clicked += 1; });
+
+  return { host, card: el.shadowRoot!.querySelector('.card') as HTMLElement, clicks: () => clicked };
+}
+
+const key = (target: EventTarget, type: string, init: KeyboardEventInit): boolean =>
+  target.dispatchEvent(new KeyboardEvent(type, { bubbles: true, composed: true, cancelable: true, ...init }));
+
+test('Enter activates on keydown, once per press', async () => {
+  const { host, card, clicks } = await squishCard();
+
+  key(card, 'keydown', { key: 'Enter' });
+  expect(clicks()).toBe(1);
+
+  key(card, 'keydown', { key: 'Enter', repeat: true });
+  key(card, 'keyup', { key: 'Enter' });
+  expect(clicks()).toBe(1);
+
+  host.remove();
+});
+
+test('Space activates only on its own keyup and never scrolls', async () => {
+  const { host, card, clicks } = await squishCard();
+
+  expect(key(card, 'keydown', { key: ' ' })).toBe(false);
+  expect(key(card, 'keydown', { key: ' ', repeat: true })).toBe(false);
+  expect(clicks()).toBe(0);
+
+  key(card, 'keyup', { key: 'a' });
+  key(card, 'keyup', { key: 'Enter' });
+  expect(clicks()).toBe(0);
+
+  key(card, 'keyup', { key: ' ' });
+  expect(clicks()).toBe(1);
+
+  key(card, 'keyup', { key: ' ' });
+  expect(clicks()).toBe(1);
+
+  host.remove();
+});
+
+test('focus loss cancels a pending Space press', async () => {
+  const { host, card, clicks } = await squishCard();
+
+  key(card, 'keydown', { key: ' ' });
+  card.dispatchEvent(new FocusEvent('blur'));
+  key(card, 'keyup', { key: ' ' });
+  expect(clicks()).toBe(0);
+
+  host.remove();
+});
+
+test('keys from focusable slotted content do not activate the card', async () => {
+  const { host, clicks } = await squishCard('<jelly-card squish><button type="button">Inner</button></jelly-card>');
+  const inner = host.querySelector('button')!;
+
+  key(inner, 'keydown', { key: 'Enter' });
+  key(inner, 'keydown', { key: ' ' });
+  key(inner, 'keyup', { key: ' ' });
+  expect(clicks()).toBe(0);
+
+  host.remove();
+});

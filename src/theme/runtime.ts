@@ -25,6 +25,8 @@ function tokenDeclarations (tokens: TokenMap): string {
  *   - light tokens on :root
  *   - dark tokens when the OS prefers dark (unless mode is forced light)
  *   - dark tokens when the consumer forces data-jelly-mode="dark"
+ *   - --jelly-motion mirroring data-jelly-motion, which shadow styles read
+ *     through @container style() because :host-context() is Chromium-only
  *
  * Everything lives in @layer jelly, so an un-layered consumer rule such as
  * `:root { --jelly-color-background-accent: #4F46E5 }` always wins the cascade
@@ -62,6 +64,9 @@ ${tokenDeclarations(DARK_TOKENS)}
 ${tokenDeclarations(DARK_TOKENS)}
     }
   }
+
+  :root[data-jelly-motion="reduce"]        { --jelly-motion: reduce; }
+  :root[data-jelly-motion="no-preference"] { --jelly-motion: no-preference; }
 }
 `;
 }

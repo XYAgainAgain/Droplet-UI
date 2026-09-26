@@ -36,11 +36,16 @@
   75%      { transform: translateX(12px); }
 }
 
+/* --jelly-motion mirrors data-jelly-motion on <html> (see src/theme/runtime.ts) */
 @media (prefers-reduced-motion: reduce) {
-  :host-context(html:not([data-jelly-motion="no-preference"])) .rover { animation: none; }
+  @container not style(--jelly-motion: no-preference) {
+    .rover { animation: none; }
+  }
 }
 
-:host-context([data-jelly-motion="reduce"]) .rover { animation: none; }
+@container style(--jelly-motion: reduce) {
+  .rover { animation: none; }
+}
 
 @media (forced-colors: active) {
   .dots g { fill: CanvasText; }

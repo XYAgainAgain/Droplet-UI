@@ -19,7 +19,9 @@
   --jelly-button-radius: calc(var(--jelly-button-height) * 0.32);
 }
 
-:host([disabled]) {
+/* :disabled also covers a disabled ancestor fieldset (form-associated host) */
+:host([disabled]),
+:host(:disabled) {
   opacity:        0.55;
   pointer-events: none;
 }
@@ -85,11 +87,16 @@ button {
     border-radius 0.42s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* --jelly-motion mirrors data-jelly-motion on <html> (see src/theme/runtime.ts) */
 @media (prefers-reduced-motion: reduce) {
-  :host-context(html:not([data-jelly-motion="no-preference"])) button { transition: none; }
+  @container not style(--jelly-motion: no-preference) {
+    button { transition: none; }
+  }
 }
 
-:host-context([data-jelly-motion="reduce"]) button { transition: none; }
+@container style(--jelly-motion: reduce) {
+  button { transition: none; }
+}
 
 button:focus-visible {
   outline: none;

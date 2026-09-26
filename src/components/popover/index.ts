@@ -106,6 +106,7 @@ export class JellyPopover extends HTMLElement {
   disconnectedCallback (): void {
     if (this.isOpen) {
       this.isOpen = false;
+      this.reflectTrigger();
       this.untrack?.();
       this.untrack = null;
 
@@ -225,6 +226,7 @@ export class JellyPopover extends HTMLElement {
     }
 
     this.isOpen = false;
+    this.reflectTrigger();
 
     this.untrack?.();
     this.untrack = null;

@@ -3,19 +3,16 @@
  * content between a min and max height while the membrane follows along.
  * Each keystroke sends a ripple through the surface at the caret - wrap-
  * and RTL-aware, measured with a hidden layout mirror - and the field is
- * form-associated, so it submits with a `name` like any native control
+ * form-associated like a native control: it submits under `name`,
+ * validates, and resets with its form
  */
 
-import { JellyElement }     from '../../element/index.js';
+import { JellyFormField }   from '../../element/form-field.js';
+import { FIELD_ATTRIBUTES } from '../../element/form-field.js';
 import type { Shape }       from '../../element/index.js';
-import type { Border }      from '../../element/index.js';
 
-import { canonicalizeSize } from '../../utilities/index.js';
 import { clamp }            from '../../utilities/index.js';
-import { emit }             from '../../utilities/index.js';
 import { isRTL }            from '../../utilities/index.js';
-
-import { PALETTE }          from '../../theme/index.js';
 
 import textareaStyles       from './textarea.css?inline';
 
@@ -32,16 +29,37 @@ const MIRRORED_STYLES = [
  *
  * @element jelly-textarea
  *
- * @attr {string} value - The field value.
+ * @attr {string} value - The default value; the `value` property holds the live value.
  * @attr {string} placeholder - Placeholder text.
  * @attr {number} rows - Initial visible rows.
  * @attr {string} label - Accessible name for the field.
  * @attr {string} name - Form field name submitted with the value.
  * @attr {boolean} disabled - Disable the field and remove it from the tab order.
  * @attr {boolean} readonly - Make the field read-only.
+ * @attr {boolean} required - The field must have a value to submit.
+ * @attr {number} minlength - Minimum length of a user-entered value.
+ * @attr {number} maxlength - Maximum length of a user-entered value.
+ * @attr {string} inputmode - Virtual keyboard hint.
+ * @attr {string} enterkeyhint - Label hint for the virtual keyboard's Enter key.
  * @attr {string} autocomplete - Native autocomplete hint.
  * @attr {boolean} no-autofill - Opt out of browser and password-manager autofill.
  * @attr {"small"|"medium"|"large"} size - Control size.
+ *
+ * @prop {string} value - The live value; setting it marks the value dirty and fires no event.
+ * @prop {string} defaultValue - Reflects the `value` attribute.
+ * @prop {string} name - Reflects `name`.
+ * @prop {boolean} disabled - Reflects `disabled`.
+ * @prop {boolean} required - Reflects `required`.
+ * @prop {boolean} readOnly - Reflects `readonly`.
+ * @prop {string} placeholder - Reflects `placeholder`.
+ * @prop {number} minLength - Reflects `minlength` (-1 when absent).
+ * @prop {number} maxLength - Reflects `maxlength` (-1 when absent).
+ * @prop {string} autocomplete - Reflects `autocomplete`.
+ * @prop {HTMLFormElement | null} form - The form owner (read-only).
+ * @prop {NodeList} labels - The labels associated with the field (read-only).
+ * @prop {ValidityState} validity - Constraint validation state (read-only).
+ * @prop {string} validationMessage - The current validation message (read-only).
+ * @prop {boolean} willValidate - Whether the field takes part in constraint validation (read-only).
  *
  * @fires change - When the value is committed (native change).
  * @fires input - On every keystroke (native input, bubbles composed).
@@ -52,13 +70,7 @@ const MIRRORED_STYLES = [
  * @cssprop [--jelly-textarea-max-height=240px] - Cap for the auto-grow height.
  * @cssprop [--jelly-fill] - Resting surface fill.
  */
-export class JellyTextarea extends JellyElement implements EventListenerObject {
-
-  // Participate in native form submission through ElementInternals
-  static formAssociated = true;
-
-  internals: ElementInternals;
-  focused = false;
+export class JellyTextarea extends JellyFormField {
 
   // Populated in onBuilt() / lazily
   textarea!: HTMLTextAreaElement;
@@ -67,13 +79,7 @@ export class JellyTextarea extends JellyElement implements EventListenerObject {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['value', 'placeholder', 'rows', 'label', 'disabled', 'readonly', 'autocomplete', 'no-autofill', 'size'];
-  }
-
-  constructor () {
-    super();
-
-    this.internals = this.attachInternals();
+    return [...FIELD_ATTRIBUTES, ...JellyTextarea.CONSTRAINTS, 'rows'];
   }
 
   // Component styles layered over the shared jelly base styles
@@ -97,54 +103,16 @@ export class JellyTextarea extends JellyElement implements EventListenerObject {
     return { width: w, height: h, radius };
   }
 
-  // Resolve the surface color the canvas paints: neutral when disabled,
-  // the elevated surface while focused, the resting field fill otherwise
-  override fill (): string {
-    if (this.hasAttribute('disabled')) {
-      return this.resolveColor(`var(--jelly-color-background-neutral, ${PALETTE['background-neutral']})`);
-    }
-
-    if (this.focused) {
-      return this.resolveColor(`var(--jelly-color-background-surface, ${PALETTE['background-surface']})`);
-    }
-
-    const custom = getComputedStyle(this).getPropertyValue('--jelly-fill').trim();
-
-    return custom || this.resolveColor(`var(--jelly-color-background-muted, ${PALETTE['background-muted']})`);
-  }
-
-  // Hairline border on the jelly surface: accent while focused, neutral at rest
-  override surfaceBorder (): Border {
-    const color = this.focused
-      ? this.resolveColor(`var(--jelly-accent, var(--jelly-color-background-accent, ${PALETTE['background-accent']}))`)
-      : this.resolveColor(`var(--jelly-color-background-neutral, ${PALETTE['background-neutral']})`);
-
-    return { color, width: 1 };
-  }
-
   // Called once after the shadow DOM and canvas exist. Wire events here.
   override onBuilt (): void {
     this.textarea = this.shadowRoot!.querySelector('textarea')!;
 
-    this.sync('value');
-    this.sync('placeholder');
+    this.attachControl(this.textarea);
     this.sync('rows');
-    this.sync('label');
-    this.sync('readonly');
-    this.sync('disabled');
-    this.syncAutofill();
-
-    this.useHostFocusTarget(this.textarea);
-    this.autoSize();
 
     // Auto-sizing and CSS min/max-height changes both need the jelly to follow
     this.textareaResizeObserver = new ResizeObserver(() => this.applyShape());
     this.textareaResizeObserver.observe(this.textarea);
-
-    this.textarea.addEventListener('focus',  this);
-    this.textarea.addEventListener('blur',   this);
-    this.textarea.addEventListener('input',  this);
-    this.textarea.addEventListener('change', this);
   }
 
   // Lifecycle method: Called automatically when the element is appended to the DOM
@@ -168,36 +136,14 @@ export class JellyTextarea extends JellyElement implements EventListenerObject {
     }
   }
 
-  // Route the inner textarea's events (registered with `this` as the listener)
-  handleEvent (event: Event): void {
-    switch (event.type) {
-      case 'focus':  this.handleFocus();   break;
-      case 'blur':   this.handleBlur();    break;
-      case 'input':  this.handleInput();   break;
-      case 'change': emit(this, 'change'); break;
-    }
-  }
-
   // Focus lifts the surface: elevated fill, a soft center pop, a visible ring
-  handleFocus (): void {
-    this.focused      = true;
-    this.focusVisible = true;
-
+  override handleFocus (): void {
+    super.handleFocus();
     this.centerPop(0.6);
-    this.requestFrame();
   }
 
-  // Blur settles the surface back to its resting fill
-  handleBlur (): void {
-    this.focused      = false;
-    this.focusVisible = false;
-
-    this.requestFrame();
-  }
-
-  // Mirror the value into the form, grow to fit and ripple at the caret
-  handleInput (): void {
-    this.internals.setFormValue(this.textarea.value);
+  // Grow to fit and ripple at the caret
+  override handleInput (): void {
     this.autoSize();
 
     if (!this.reducedMotion && this.body) {
@@ -211,6 +157,11 @@ export class JellyTextarea extends JellyElement implements EventListenerObject {
     // listeners; re-emitting would double-fire 'input' per keystroke.
   }
 
+  // Every programmatic value change re-fits the height
+  override onValueApplied (): void {
+    this.autoSize();
+  }
+
   // Grow the control to fit its content (the CSS max-height caps it)
   autoSize (): void {
     if (!this.textarea) {
@@ -221,33 +172,6 @@ export class JellyTextarea extends JellyElement implements EventListenerObject {
     this.textarea.style.height = `${this.textarea.scrollHeight}px`;
 
     this.applyShape();
-  }
-
-  /*
-   * Apply the autofill posture: no-autofill turns off autocomplete,
-   * autocorrect, autocapitalize and spellcheck and sets the opt-out
-   * attributes the common password managers respect
-   */
-  syncAutofill (): void {
-    const off          = this.hasAttribute('no-autofill');
-    const autocomplete = this.getAttribute('autocomplete');
-
-    this.textarea.autocomplete = (off ? 'off' : autocomplete || '') as AutoFill;
-    this.textarea.toggleAttribute('data-lpignore', off);
-    this.textarea.toggleAttribute('data-1p-ignore', off);
-    this.textarea.toggleAttribute('data-bwignore', off);
-
-    if (off) {
-      this.textarea.setAttribute('data-form-type', 'other');
-      this.textarea.setAttribute('autocorrect', 'off');
-      this.textarea.setAttribute('autocapitalize', 'none');
-      this.textarea.spellcheck = false;
-    } else {
-      this.textarea.removeAttribute('data-form-type');
-      this.textarea.removeAttribute('autocorrect');
-      this.textarea.removeAttribute('autocapitalize');
-      this.textarea.removeAttribute('spellcheck');
-    }
   }
 
   /*
@@ -326,88 +250,21 @@ export class JellyTextarea extends JellyElement implements EventListenerObject {
     };
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
-  attributeChangedCallback (name: string): void {
-    if (this.textarea) {
-      this.sync(name);
-    }
-  }
-
   // Push one observed attribute into the inner native textarea
-  sync (name: string): void {
-    switch (name) {
-      case 'value':
-        this.textarea.value = this.getAttribute('value') ?? '';
-        this.internals.setFormValue(this.textarea.value);
-        this.autoSize();
-        break;
+  override sync (name: string): void {
+    if (name === 'rows' && this.textarea) {
+      const rows = this.getAttribute('rows');
 
-      case 'placeholder':
-        this.textarea.placeholder = this.getAttribute('placeholder') ?? '';
-        break;
-
-      case 'rows': {
-        const rows = this.getAttribute('rows');
-
-        if (rows == null) {
-          this.textarea.removeAttribute('rows');
-        } else {
-          this.textarea.rows = Number(rows) || 2;
-        }
-
-        this.autoSize();
-        break;
+      if (rows == null) {
+        this.textarea.removeAttribute('rows');
+      } else {
+        this.textarea.rows = Number(rows) || 2;
       }
 
-      case 'label': {
-        const label = this.getAttribute('label');
-
-        if (label) {
-          this.textarea.setAttribute('aria-label', label);
-        } else {
-          this.textarea.removeAttribute('aria-label');
-        }
-        break;
-      }
-
-      case 'disabled':
-        this.textarea.disabled = this.hasAttribute('disabled');
-        this.syncHostFocusTarget();
-        this.requestFrame();
-        break;
-
-      case 'readonly':
-        this.textarea.readOnly = this.hasAttribute('readonly');
-        break;
-
-      case 'autocomplete':
-      case 'no-autofill':
-        this.syncAutofill();
-        break;
-
-      case 'size':
-        canonicalizeSize(this);
-        break;
-    }
-  }
-
-  // The current text value (read live from the inner control once built)
-  get value (): string {
-    return this.textarea ? this.textarea.value : this.getAttribute('value') || '';
-  }
-
-  // Set the text value, mirror it into the form and re-fit the height
-  set value (v: string) {
-    if (this.textarea) {
-      this.textarea.value = v;
-      this.internals.setFormValue(v);
       this.autoSize();
     }
-  }
 
-  // Route programmatic host focus into the inner native textarea
-  override focus (options?: FocusOptions): void {
-    this.textarea?.focus(options);
+    super.sync(name);
   }
 
 }

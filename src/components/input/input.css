@@ -44,7 +44,9 @@
   height: 64px;
 }
 
-:host([disabled]) {
+/* :disabled also catches an ancestor <fieldset disabled> */
+:host([disabled]),
+:host(:disabled) {
   --jelly-fill: var(--jelly-color-background-neutral);
 
   opacity:        0.55;

@@ -6,3 +6,5 @@ _site/
 custom-elements.json
 docs/content/data.js
 .dev/
+.vitest-attachments/
+__screenshots__/

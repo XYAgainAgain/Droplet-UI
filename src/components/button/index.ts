@@ -2,24 +2,37 @@
  * A capsule-shaped jelly button. A real <button> lives in the shadow DOM
  * for keyboard and assistive-technology support while the soft body is
  * painted on the canvas behind it; click events bubble out composed, so
- * consumers use it like any native button and type="submit" / "reset"
- * drive the closest light-DOM <form>. shape="square" swaps the full pill
- * for a smaller, rounded-rectangle radius (same 0.32-of-height ratio as
- * jelly-icon-button's default square).
+ * consumers use it like any native button. The host is form-associated:
+ * a disabled <fieldset> disables it, form="id" picks its owner, and
+ * type="submit" / "reset" drive that owner form. shape="square" swaps the
+ * full pill for a smaller, rounded-rectangle radius (same 0.32-of-height
+ * ratio as jelly-icon-button's default square).
  */
 
 import { JellyElement }   from '../../element/index.js';
 import type { Shape }      from '../../element/index.js';
 
 import { canonicalizeQualityAttribute } from '../../element/configure.js';
+import { SUBMIT_BUTTON }                from '../../element/submitter.js';
 
 import { defineElements }      from '../../registry/index.js';
 import { TAGS }                from '../../registry/index.js';
 import type { DefineOptions }  from '../../registry/index.js';
 import type { DefineResult }   from '../../registry/index.js';
 
+import { AriaLink }            from '../../utilities/index.js';
+import { FORWARDED_ARIA }      from '../../utilities/index.js';
+import { forwardAria }         from '../../utilities/index.js';
+import { forwardAllAria }      from '../../utilities/index.js';
+import { reflectAttribute }    from '../../utilities/index.js';
+
 import buttonStyles        from './button.css?inline';
 import variantStyles       from '../../styles/variants.css?inline';
+
+export type ButtonType = 'button' | 'submit' | 'reset';
+
+// Copied onto the native stand-in submitter; the form* getters parse through it too
+const SUBMITTER_ATTRIBUTES = ['name', 'value', 'formaction', 'formenctype', 'formmethod', 'formnovalidate', 'formtarget'];
 
 /**
  * A capsule-shaped jelly button with soft-body physics.
@@ -28,15 +41,35 @@ import variantStyles       from '../../styles/variants.css?inline';
  *
  * @slot - The button's label content (text, icons).
  *
- * @attr {boolean} disabled - Disables the button and removes it from the tab order.
- * @attr {string} label - Accessible name used when the button has no text label.
- * @attr {"button"|"submit"|"reset"} type - Native button behavior; submit / reset drive the closest form.
+ * @attr {boolean} disabled - Disables the button and removes it from the tab order; a disabled ancestor fieldset does the same.
+ * @attr {string} label - Accessible name used when the button has no text label; wins over `aria-label`.
+ * @attr {"button"|"submit"|"reset"} type - Native button behavior (default `button`); submit / reset drive the owner form.
+ * @attr {string} form - Id of the owner form, when the button sits outside it.
+ * @attr {string} name - Submitted as `name=value` when this button submits the form.
+ * @attr {string} value - Submitted as `name=value` when this button submits the form.
+ * @attr {string} formaction - Overrides the form's `action` for a submission from this button.
+ * @attr {"get"|"post"|"dialog"} formmethod - Overrides the form's `method` for a submission from this button.
+ * @attr {string} formenctype - Overrides the form's `enctype` for a submission from this button.
+ * @attr {string} formtarget - Overrides the form's `target` for a submission from this button.
+ * @attr {boolean} formnovalidate - Skips constraint validation for a submission from this button.
  * @attr {"pill"|"square"} shape - Full pill (default) or rounded-square silhouette.
  * @attr {boolean} block - Stretch the button to the full width of its container.
  * @attr {"small"|"medium"|"large"} size - Control size (sm / md / lg aliases accepted).
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Fill / label color pair.
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
  * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
+ *
+ * @prop {boolean} disabled - Reflects the `disabled` attribute.
+ * @prop {string} name - Reflects the `name` attribute.
+ * @prop {string} value - Reflects the `value` attribute.
+ * @prop {"button"|"submit"|"reset"} type - Reflects `type`; a missing or unknown value reads as `button`.
+ * @prop {string} formAction - Reflects `formaction` as a resolved URL (the document URL when unset).
+ * @prop {string} formMethod - Reflects `formmethod`, limited to `get`, `post`, and `dialog`.
+ * @prop {string} formEnctype - Reflects `formenctype`, limited to the three submittable encodings.
+ * @prop {string} formTarget - Reflects `formtarget`.
+ * @prop {boolean} formNoValidate - Reflects `formnovalidate`.
+ * @prop {HTMLFormElement | null} form - The owner form (read-only).
+ * @prop {NodeList} labels - The `<label>` elements associated with the button (read-only).
  *
  * @fires click - When the button is activated (native event, bubbles composed).
  *
@@ -53,6 +86,15 @@ export class JellyButton extends JellyElement {
   // Opt in to the base class's feel / quality / resolver half
   static override usesResolver = true;
 
+  // :disabled, fieldset disabling, and form="id" ownership all come from the platform
+  static formAssociated = true;
+
+  static override REPLAYED: readonly string[] = [
+    ...JellyElement.REPLAYED,
+    'disabled', 'name', 'value', 'type',
+    'formAction', 'formMethod', 'formEnctype', 'formTarget', 'formNoValidate',
+  ];
+
   // Populated in onBuilt()
   button!: HTMLButtonElement;
   activationPointerId: number | null = null;
@@ -61,6 +103,11 @@ export class JellyButton extends JellyElement {
   internals: ElementInternals;
 
   statePointerId: number | null = null;
+
+  // Clicks already waiting to run activation behavior, so no click drives the form twice
+  activations = new WeakSet<Event>();
+
+  ariaLink = new AriaLink(this, () => this.forwardHostAria());
 
   constructor () {
     super();
@@ -77,18 +124,141 @@ export class JellyButton extends JellyElement {
   static get observedAttributes (): string[] {
     return [
       'disabled', 'label', 'type', 'shape', 'feel', 'quality',
-      // Global ARIA state forwarded to the inner focusable button, so the
-      // roled/focusable element - not the roleless host - carries the state
-      'aria-current', 'aria-expanded', 'aria-haspopup', 'aria-controls', 'aria-pressed',
+      // Forwarded to the inner button, because the roleless host is not what AT reads
+      ...FORWARDED_ARIA,
     ];
+  }
+
+  // Native IDL surface
+
+  get disabled (): boolean {
+    return this.hasAttribute('disabled');
+  }
+
+  set disabled (value: boolean) {
+    this.toggleAttribute('disabled', Boolean(value));
+  }
+
+  get name (): string {
+    return this.getAttribute('name') ?? '';
+  }
+
+  set name (value: string) {
+    reflectAttribute(this, 'name', value);
+  }
+
+  get value (): string {
+    return this.getAttribute('value') ?? '';
+  }
+
+  set value (value: string) {
+    reflectAttribute(this, 'value', value);
+  }
+
+  // Native parity except the default: a bare jelly-button stays type="button"
+  get type (): ButtonType {
+    const type = this.getAttribute('type')?.toLowerCase();
+
+    return type === 'submit' || type === 'reset' ? type : 'button';
+  }
+
+  set type (value: string) {
+    reflectAttribute(this, 'type', value);
+  }
+
+  get formAction (): string {
+    return this.nativeSubmitter().formAction;
+  }
+
+  set formAction (value: string) {
+    reflectAttribute(this, 'formaction', value);
+  }
+
+  get formMethod (): string {
+    return this.nativeSubmitter().formMethod;
+  }
+
+  set formMethod (value: string) {
+    reflectAttribute(this, 'formmethod', value);
+  }
+
+  get formEnctype (): string {
+    return this.nativeSubmitter().formEnctype;
+  }
+
+  set formEnctype (value: string) {
+    reflectAttribute(this, 'formenctype', value);
+  }
+
+  get formTarget (): string {
+    return this.getAttribute('formtarget') ?? '';
+  }
+
+  set formTarget (value: string) {
+    reflectAttribute(this, 'formtarget', value);
+  }
+
+  get formNoValidate (): boolean {
+    return this.hasAttribute('formnovalidate');
+  }
+
+  set formNoValidate (value: boolean) {
+    this.toggleAttribute('formnovalidate', Boolean(value));
+  }
+
+  get form (): HTMLFormElement | null {
+    return this.internals.form;
+  }
+
+  get labels (): NodeList {
+    return this.internals.labels;
+  }
+
+  get [SUBMIT_BUTTON] (): boolean {
+    return this.type === 'submit';
+  }
+
+  // The disabled attribute or a disabled ancestor fieldset; the attribute check
+  // keeps an engine without form-associated elements honest
+  get effectivelyDisabled (): boolean {
+    return this.hasAttribute('disabled') || this.matches(':disabled');
   }
 
   // Lifecycle
 
+  override connectedCallback (): void {
+    super.connectedCallback();
+
+    // A move can change the tree scope IDREFs resolve in
+    this.ariaLink.connect();
+  }
+
   override disconnectedCallback (): void {
     super.disconnectedCallback();
 
+    this.ariaLink.disconnect();
     this.clearPressed();
+  }
+
+  // Native HTMLButtonElement.click(): nothing while disabled, otherwise the inner
+  // button activates, so one composed click still drives the form
+  override click (): void {
+    if (this.effectivelyDisabled) {
+      return;
+    }
+
+    if (this.button) {
+      this.button.click();
+    } else {
+      super.click();
+    }
+  }
+
+  // Fieldset disabling reaches the inner control without touching the host attribute
+  formDisabledCallback (): void {
+    if (this.button) {
+      this.sync('disabled');
+    }
   }
 
   // Component styles layered over the shared jelly base styles
@@ -122,23 +292,64 @@ export class JellyButton extends JellyElement {
 
     this.sync('type');
     this.sync('disabled');
-    this.sync('label');
-
-    // Forward any ARIA state already present at build time
-    for (const attr of this.getAttributeNames()) {
-      if (attr.startsWith('aria-')) {
-        this.sync(attr);
-      }
-    }
+    this.forwardHostAria();
 
     this.useHostFocusTarget(this.button);
     this.trackFocus(this.button);
     this.preventReleaseOutsideActivation();
     this.trackPressedState();
-    this.wirePress(this.button);
+    this.wirePress(this.button, { disabled: () => this.effectivelyDisabled });
 
-    // Drive the closest light-DOM form for submit / reset buttons
-    this.button.addEventListener('click', () => this.driveForm());
+    this.button.addEventListener('click', (event) => this.activate(event));
+
+    // A <label for> activates the labelable host itself, and that click never reaches the inner button
+    this.addEventListener('click', (event) => {
+      if (event.composedPath()[0] === this) {
+        this.activate(event);
+      }
+    });
+  }
+
+  // Native activation behavior runs after dispatch and honors a canceled click. The window is a bubbling
+  // click's last stop; the macrotask covers stopPropagation() (which never cancels it) and windowless hosts.
+  activate (event: Event): void {
+    if (this.activations.has(event)) {
+      return;
+    }
+
+    this.activations.add(event);
+
+    const view = this.ownerDocument.defaultView;
+    let done   = false;
+    let timer  = 0;
+
+    const finish = (reached?: Event): void => {
+      // A nested click dispatched from a listener reaches the window first
+      if (done || (reached && reached !== event)) {
+        return;
+      }
+
+      done = true;
+      view?.removeEventListener('click', finish);
+      clearTimeout(timer);
+
+      if (!event.defaultPrevented) {
+        this.driveForm();
+      }
+    };
+
+    view?.addEventListener('click', finish);
+    timer = window.setTimeout(() => finish());
+  }
+
+  // Every forwarded aria-* the host carries, then the name so label keeps precedence
+  forwardHostAria (): void {
+    if (!this.button) {
+      return;
+    }
+
+    forwardAllAria(this, this.button);
+    this.sync('label');
   }
 
   // Pointer capture keeps a drag routed to the button after the pointer leaves
@@ -186,7 +397,7 @@ export class JellyButton extends JellyElement {
   // lifecycle to whatever element captured it (state-and-reflection.md)
   trackPressedState (): void {
     this.addEventListener('pointerdown', (event) => {
-      if (this.statePointerId !== null || this.hasAttribute('disabled')) {
+      if (this.statePointerId !== null || this.effectivelyDisabled) {
         return;
       }
 
@@ -228,37 +439,29 @@ export class JellyButton extends JellyElement {
 
   // Push one observed attribute into the inner native button
   sync (name: string): void {
-    // Global ARIA state mirrors onto the inner button verbatim
-    if (name.startsWith('aria-')) {
-      const value = this.getAttribute(name);
-
-      if (value === null) {
-        this.button.removeAttribute(name);
-      } else {
-        this.button.setAttribute(name, value);
-      }
+    if (name.startsWith('aria-') && name !== 'aria-label') {
+      forwardAria(this, this.button, name);
       return;
     }
 
     switch (name) {
       case 'disabled':
-        this.button.disabled = this.hasAttribute('disabled');
+        this.button.disabled = this.effectivelyDisabled;
         this.syncHostFocusTarget();
         break;
 
-      case 'type': {
-        const type = this.getAttribute('type');
-        this.button.type = type === 'submit' || type === 'reset' ? type : 'button';
+      case 'type':
+        this.button.type = this.type;
         break;
-      }
 
-      case 'label': {
+      case 'label':
+      case 'aria-label': {
         const label = this.getAttribute('label');
 
         if (label) {
-          this.button.setAttribute('aria-label', label);
+          reflectAttribute(this.button, 'aria-label', label);
         } else {
-          this.button.removeAttribute('aria-label');
+          forwardAria(this, this.button, 'aria-label');
         }
         break;
       }
@@ -269,24 +472,57 @@ export class JellyButton extends JellyElement {
     }
   }
 
-  // Submit or reset the closest light-DOM form when this is a submit / reset button
+  // The base class only sees the attribute; a disabled fieldset must leave the tab order too
+  override syncHostFocusTarget (): void {
+    super.syncHostFocusTarget();
+
+    if (this.hostFocusTarget && this.effectivelyDisabled) {
+      this.hostFocusTarget.tabIndex = -1;
+    }
+  }
+
+  // A detached native button carrying the host's submission attributes, so the
+  // form* getters and the submitter share the platform's own parsing
+  nativeSubmitter (): HTMLButtonElement {
+    const submitter = this.ownerDocument.createElement('button');
+
+    submitter.type   = 'submit';
+    submitter.hidden = true;
+
+    for (const name of SUBMITTER_ATTRIBUTES) {
+      const value = this.getAttribute(name);
+
+      if (value !== null) {
+        submitter.setAttribute(name, value);
+      }
+    }
+
+    return submitter;
+  }
+
+  // Submit or reset the owner form as the host stands now. A form-associated custom element
+  // cannot be a submitter, so a native stand-in joins the form for the one synchronous call.
   driveForm (): void {
-    const type = this.button.type;
+    const type = this.type;
+    const form = this.internals.form;
 
-    if (type !== 'submit' && type !== 'reset') {
+    if (type === 'button' || !form || this.effectivelyDisabled) {
       return;
     }
 
-    const form = this.closest('form');
-
-    if (!form) {
-      return;
-    }
-
-    if (type === 'submit') {
-      form.requestSubmit();
-    } else {
+    if (type === 'reset') {
       form.reset();
+      return;
+    }
+
+    const submitter = this.nativeSubmitter();
+
+    form.append(submitter);
+
+    try {
+      form.requestSubmit(submitter);
+    } finally {
+      submitter.remove();
     }
   }
 

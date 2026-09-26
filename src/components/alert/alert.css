@@ -112,11 +112,16 @@
   background: var(--jelly-alert-border);
 }
 
+/* --jelly-motion mirrors data-jelly-motion on <html> (see src/theme/runtime.ts) */
 @media (prefers-reduced-motion: reduce) {
-  :host-context(html:not([data-jelly-motion="no-preference"])) .close { transition: none; }
+  @container not style(--jelly-motion: no-preference) {
+    .close { transition: none; }
+  }
 }
 
-:host-context([data-jelly-motion="reduce"]) .close { transition: none; }
+@container style(--jelly-motion: reduce) {
+  .close { transition: none; }
+}
 
 .close:focus-visible {
   outline:        2px solid var(--jelly-ring-color);

@@ -14,13 +14,22 @@
   display: none;
 }
 
-.jelly-canvas {
+/* Host-sized with visible overflow: the canvas overhangs by PAD as ink overflow,
+   so it never widens a scroll container (see build() in element/index.ts). */
+.jelly-overhang {
   position:       absolute;
-  left:           50%;
-  top:            50%;
-  transform:      translate(-50%, -50%);
+  left:           0;
+  top:            0;
+  width:          100%;
+  height:         100%;
+  overflow:       visible;
   pointer-events: none;
   z-index:        0;
+}
+
+.jelly-canvas {
+  display:        block;
+  pointer-events: none;
 }
 
 .jelly-content {

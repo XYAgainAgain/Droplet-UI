@@ -90,7 +90,7 @@ export const COMPONENTS = [
     "tag": "jelly-button",
     "group": "Actions",
     "summary": "A capsule-shaped soft-body button with a real native <button> inside for keyboard and screen-reader support.",
-    "description": "The jelly membrane is painted on a canvas behind a shadow-DOM <button>, so activation, focus and ARIA semantics are fully native. Pointer presses dent the membrane under the finger and follow it; Enter/Space squish it from the center. click events bubble out composed and type=\"submit\"/\"reset\" drive the closest light-DOM <form> via requestSubmit()/reset().",
+    "description": "The jelly membrane is painted on a canvas behind a shadow-DOM <button>, so activation, focus and ARIA semantics are fully native. Pointer presses dent the membrane under the finger and follow it; Enter/Space squish it from the center. click events bubble out composed and type=\"submit\"/\"reset\" drive the owner <form> (the nearest ancestor, or the one named by form=), submitting with this button's name, value, and form* overrides. The host is form-associated, so :disabled matches it and a disabled <fieldset> disables it.",
     "attributes": [
       {
         "name": "feel",
@@ -125,7 +125,7 @@ export const COMPONENTS = [
         "name": "type",
         "type": "\"button\" | \"submit\" | \"reset\"",
         "default": "button",
-        "description": "Button behavior. submit/reset drive the closest light-DOM <form> (requestSubmit() / reset()). Observed live."
+        "description": "Button behavior. submit/reset drive the owner <form> (requestSubmit() with a native stand-in submitter / reset()). Observed live."
       },
       {
         "name": "label",
@@ -142,6 +142,46 @@ export const COMPONENTS = [
         "type": "\"pill\" | \"square\"",
         "default": "pill",
         "description": "Membrane silhouette. \"square\" swaps the pill for a smaller rounded-rectangle radius (0.32 × height, matching jelly-icon-button's default square); any other value (or none) keeps the full pill. Observed live — changing it reshapes the membrane in place."
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "description": "Submitted as name=value when this button submits its form. A native stand-in button carries it, so SubmitEvent.submitter and new FormData(form, event.submitter) include it (read the FormData synchronously inside the submit listener)."
+      },
+      {
+        "name": "value",
+        "type": "string",
+        "description": "Value paired with name in the submission."
+      },
+      {
+        "name": "form",
+        "type": "string",
+        "description": "ID of the owner <form> when the button sits outside it; without it the nearest ancestor form owns the button."
+      },
+      {
+        "name": "formaction",
+        "type": "string (URL)",
+        "description": "Per-submitter override of the form's action, as on a native submit button; applies only when this button submits."
+      },
+      {
+        "name": "formmethod",
+        "type": "\"get\" | \"post\" | \"dialog\"",
+        "description": "Per-submitter override of the form's method, as on a native submit button; applies only when this button submits."
+      },
+      {
+        "name": "formenctype",
+        "type": "string",
+        "description": "Per-submitter override of the form's enctype, as on a native submit button; applies only when this button submits."
+      },
+      {
+        "name": "formtarget",
+        "type": "string",
+        "description": "Per-submitter override of the form's target, as on a native submit button; applies only when this button submits."
+      },
+      {
+        "name": "formnovalidate",
+        "type": "boolean",
+        "description": "Submits without running constraint validation, as on a native submit button."
       }
     ],
     "events": [
@@ -285,6 +325,11 @@ export const COMPONENTS = [
         "name": "disabled",
         "type": "boolean",
         "description": "Disables the inner native button, removes it from the tab order, dims the host to 55% opacity and blocks pointer events."
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "description": "Form control name, reflected by the name property. An icon button is form-associated (so :disabled and disabled fieldsets work) but never submits a value."
       }
     ],
     "events": [
@@ -626,6 +671,51 @@ export const COMPONENTS = [
         "type": "\"small\" | \"medium\" | \"large\"",
         "default": "medium",
         "description": "Size scale (host 220x46 / 280x56 / 340x64). The sm/md/lg aliases are accepted and canonicalized in place, including on dynamic changes."
+      },
+      {
+        "name": "required",
+        "type": "boolean",
+        "description": "Forwarded to the inner native control and enforced through constraint validation (validity, checkValidity(), :invalid, :state(user-invalid)). An empty field is valueMissing."
+      },
+      {
+        "name": "minlength",
+        "type": "number",
+        "description": "Forwarded to the inner native control and enforced through constraint validation (validity, checkValidity(), :invalid, :state(user-invalid)). Shorter user-entered text is tooShort."
+      },
+      {
+        "name": "maxlength",
+        "type": "number",
+        "description": "Forwarded to the inner native control and enforced through constraint validation (validity, checkValidity(), :invalid, :state(user-invalid)). The inner input stops accepting text past this length."
+      },
+      {
+        "name": "pattern",
+        "type": "string (regular expression)",
+        "description": "Forwarded to the inner native control and enforced through constraint validation (validity, checkValidity(), :invalid, :state(user-invalid)). A value that does not match the whole pattern is patternMismatch."
+      },
+      {
+        "name": "min",
+        "type": "string",
+        "description": "Forwarded to the inner native control and enforced through constraint validation (validity, checkValidity(), :invalid, :state(user-invalid)). Lower bound for number, range, and date/time types."
+      },
+      {
+        "name": "max",
+        "type": "string",
+        "description": "Forwarded to the inner native control and enforced through constraint validation (validity, checkValidity(), :invalid, :state(user-invalid)). Upper bound for number, range, and date/time types."
+      },
+      {
+        "name": "step",
+        "type": "string",
+        "description": "Forwarded to the inner native control and enforced through constraint validation (validity, checkValidity(), :invalid, :state(user-invalid)). Step granularity for number, range, and date/time types."
+      },
+      {
+        "name": "inputmode",
+        "type": "string",
+        "description": "Virtual keyboard hint, forwarded to the inner input."
+      },
+      {
+        "name": "enterkeyhint",
+        "type": "string",
+        "description": "Label hint for the virtual keyboard Enter key, forwarded to the inner input."
       }
     ],
     "events": [
@@ -2219,6 +2309,31 @@ export const COMPONENTS = [
         "type": "\"small\" | \"medium\" | \"large\"",
         "default": "medium",
         "description": "Size scale (host width 280 / 320 / 380; min-height 76 / 96 / 124). The sm/md/lg aliases are accepted and canonicalized in place, including on dynamic changes."
+      },
+      {
+        "name": "required",
+        "type": "boolean",
+        "description": "Forwarded to the inner native control and enforced through constraint validation (validity, checkValidity(), :invalid, :state(user-invalid)). An empty field is valueMissing."
+      },
+      {
+        "name": "minlength",
+        "type": "number",
+        "description": "Forwarded to the inner native control and enforced through constraint validation (validity, checkValidity(), :invalid, :state(user-invalid)). Shorter user-entered text is tooShort."
+      },
+      {
+        "name": "maxlength",
+        "type": "number",
+        "description": "Forwarded to the inner native control and enforced through constraint validation (validity, checkValidity(), :invalid, :state(user-invalid)). The inner textarea stops accepting text past this length."
+      },
+      {
+        "name": "inputmode",
+        "type": "string",
+        "description": "Virtual keyboard hint, forwarded to the inner textarea."
+      },
+      {
+        "name": "enterkeyhint",
+        "type": "string",
+        "description": "Label hint for the virtual keyboard Enter key, forwarded to the inner textarea."
       }
     ],
     "events": [
@@ -3214,7 +3329,12 @@ export const COMPONENTS = [
       {
         "name": "key",
         "type": "key name",
-        "description": "Mirrors this physical key document-wide (e.g. key=\"k\", key=\"Meta\")."
+        "description": "Mirrors this physical key document-wide (e.g. key=\"k\", key=\"Meta\", key=\"Meta+k\"). Stays still while the visitor types in a field, with Ctrl, Alt, or Meta held that the value doesn't name, or inside data-droplet-shortcuts=\"off\"."
+      },
+      {
+        "name": "decorative",
+        "type": "boolean",
+        "description": "Display-only hint: no button role and no tab stop, so the cap can sit inside a real button whose accessible name keeps the key text."
       },
       {
         "name": "size",
@@ -3259,12 +3379,12 @@ export const COMPONENTS = [
       },
       {
         "keys": "(bound key)",
-        "description": "With key=\"…\", holding that key anywhere presses the cap."
+        "description": "With key=\"…\", holding that key anywhere presses the cap. Put data-droplet-shortcuts=\"off\" on any ancestor (the closest one wins) to silence it (WCAG 2.1.4)."
       }
     ],
     "examples": [
       {
-        "code": "<jelly-kbd key=\"Meta\">⌘</jelly-kbd><jelly-kbd key=\"k\">K</jelly-kbd>"
+        "code": "<jelly-kbd key=\"Meta\">⌘</jelly-kbd><jelly-kbd key=\"Meta+k\">K</jelly-kbd>"
       }
     ]
   },

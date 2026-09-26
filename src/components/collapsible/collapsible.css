@@ -123,15 +123,20 @@
   100% { transform: none; }
 }
 
+/* --jelly-motion mirrors data-jelly-motion on <html> (see src/theme/runtime.ts) */
 @media (prefers-reduced-motion: reduce) {
-  :host-context(html:not([data-jelly-motion="no-preference"])) :is(.wrap, .chevron, .content) { transition: none; }
-  :host([open]):host-context(html:not([data-jelly-motion="no-preference"])) .inner { animation: none; }
-  :host(:dir(rtl)):host-context(html:not([data-jelly-motion="no-preference"])) .chevron { transform: scaleX(-1); }
+  @container not style(--jelly-motion: no-preference) {
+    :is(.wrap, .chevron, .content) { transition: none; }
+    :host([open]) .inner { animation: none; }
+    :host(:dir(rtl)) .chevron { transform: scaleX(-1); }
+  }
 }
 
-:host-context([data-jelly-motion="reduce"]) :is(.wrap, .chevron, .content) { transition: none; }
-:host([open]):host-context([data-jelly-motion="reduce"]) .inner { animation: none; }
-:host(:dir(rtl)):host-context([data-jelly-motion="reduce"]) .chevron { transform: scaleX(-1); }
+@container style(--jelly-motion: reduce) {
+  :is(.wrap, .chevron, .content) { transition: none; }
+  :host([open]) .inner { animation: none; }
+  :host(:dir(rtl)) .chevron { transform: scaleX(-1); }
+}
 
 @media (forced-colors: active) {
   .head:focus-visible { outline: 2px solid Highlight; }

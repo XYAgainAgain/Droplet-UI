@@ -93,13 +93,16 @@
   opacity:   1;
 }
 
+/* --jelly-motion mirrors data-jelly-motion on <html> (see src/theme/runtime.ts) */
 @media (prefers-reduced-motion: reduce) {
-  :host-context(html:not([data-jelly-motion="no-preference"])) .dot {
-    transition: opacity 0.13s;
+  @container not style(--jelly-motion: no-preference) {
+    .dot { transition: opacity 0.13s; }
   }
 }
 
-:host-context([data-jelly-motion="reduce"]) .dot { transition: opacity 0.13s; }
+@container style(--jelly-motion: reduce) {
+  .dot { transition: opacity 0.13s; }
+}
 
 .label {
   color: var(--jelly-label);

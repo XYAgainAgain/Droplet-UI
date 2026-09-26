@@ -118,16 +118,21 @@ input {
   opacity:           1;
 }
 
+/* --jelly-motion mirrors data-jelly-motion on <html> (see src/theme/runtime.ts) */
 @media (prefers-reduced-motion: reduce) {
-  :host-context(html:not([data-jelly-motion="no-preference"])) .mark {
-    transition:        opacity 0.12s ease;
-    stroke-dashoffset: 0;
+  @container not style(--jelly-motion: no-preference) {
+    .mark {
+      transition:        opacity 0.12s ease;
+      stroke-dashoffset: 0;
+    }
   }
 }
 
-:host-context([data-jelly-motion="reduce"]) .mark {
-  transition:        opacity 0.12s ease;
-  stroke-dashoffset: 0;
+@container style(--jelly-motion: reduce) {
+  .mark {
+    transition:        opacity 0.12s ease;
+    stroke-dashoffset: 0;
+  }
 }
 
 .label {

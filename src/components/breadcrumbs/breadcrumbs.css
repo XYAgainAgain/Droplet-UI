@@ -78,12 +78,17 @@ a:focus-visible {
   transform: scaleX(-1);
 }
 
+/* --jelly-motion mirrors data-jelly-motion on <html> (see src/theme/runtime.ts) */
 @media (prefers-reduced-motion: reduce) {
-  :host-context(html:not([data-jelly-motion="no-preference"])) a { transition: none; }
-  :host-context(html:not([data-jelly-motion="no-preference"])) a:hover,
-  :host-context(html:not([data-jelly-motion="no-preference"])) a:active { transform: none; }
+  @container not style(--jelly-motion: no-preference) {
+    a { transition: none; }
+    a:hover,
+    a:active { transform: none; }
+  }
 }
 
-:host-context([data-jelly-motion="reduce"]) a { transition: none; }
-:host-context([data-jelly-motion="reduce"]) a:hover,
-:host-context([data-jelly-motion="reduce"]) a:active { transform: none; }
+@container style(--jelly-motion: reduce) {
+  a { transition: none; }
+  a:hover,
+  a:active { transform: none; }
+}

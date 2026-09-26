@@ -25,7 +25,7 @@ import cardStyles        from './card.css?inline';
  * @attr {boolean} squish - Make the card pressable (acts as a button).
  * @attr {"small"|"medium"|"large"} size - Padding / radius scale.
  *
- * @fires click - When a squish card is activated by keyboard.
+ * @fires click - When a squish card is activated by keyboard: Enter on keydown, Space on keyup.
  *
  * @csspart card - The padded content surface.
  *
@@ -38,7 +38,8 @@ export class JellyCard extends JellyElement {
   card!: HTMLElement;
   pressing = false;
   squishWired = false;
-  kb = false;
+  enterHeld = false;
+  spaceArmed = false;
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
@@ -104,6 +105,8 @@ export class JellyCard extends JellyElement {
       this.card.removeAttribute('tabindex');
       this.card.removeAttribute('role');
       this.pressing = false;
+      this.enterHeld = false;
+      this.spaceArmed = false;
       this.releaseBody();
     }
 
@@ -148,27 +151,55 @@ export class JellyCard extends JellyElement {
     this.card.addEventListener('pointerup', endPress);
     this.card.addEventListener('pointercancel', endPress);
 
+    // Native button timing: Enter clicks on keydown, Space on its own keyup. The target
+    // check skips keys bubbling up from focusable slotted content.
     this.card.addEventListener('keydown', (event) => {
-      if (!this.hasAttribute('squish')) {
+      if (!this.hasAttribute('squish') || event.target !== this.card || (event.key !== 'Enter' && event.key !== ' ')) {
         return;
       }
 
-      if ((event.key === 'Enter' || event.key === ' ') && !this.kb) {
-        event.preventDefault();
-        this.kb = true;
+      event.preventDefault();
+
+      if (event.repeat) {
+        return;
+      }
+
+      if (event.key === 'Enter') {
+        this.enterHeld = true;
+        this.centerPulse();
+        emit(this, 'click');
+      } else if (!this.spaceArmed) {
+        this.spaceArmed = true;
         this.centerPulse();
       }
     });
 
-    // Keyboard activation completes on keyup with a synthetic composed click,
-    // matching how a native button behaves
-    this.card.addEventListener('keyup', () => {
-      if (this.kb) {
-        this.kb = false;
-        this.releaseBody();
+    this.card.addEventListener('keyup', (event) => {
+      if (event.key === 'Enter' && this.enterHeld) {
+        this.enterHeld = false;
+        this.settleKeyPress();
+      } else if (event.key === ' ' && this.spaceArmed) {
+        this.spaceArmed = false;
+        this.settleKeyPress();
         emit(this, 'click');
       }
     });
+
+    // A Space press interrupted by focus loss is cancelled, as on a native button
+    this.card.addEventListener('blur', () => {
+      if (this.enterHeld || this.spaceArmed) {
+        this.enterHeld = false;
+        this.spaceArmed = false;
+        this.settleKeyPress();
+      }
+    });
+  }
+
+  // Let the surface spring back once no key or pointer is still holding it down
+  settleKeyPress (): void {
+    if (!this.enterHeld && !this.spaceArmed && !this.pressing) {
+      this.releaseBody();
+    }
   }
 
   // Lifecycle method: Fires when observed HTML attributes change dynamically
