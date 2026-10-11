@@ -23,7 +23,6 @@
   opacity: 1;
 }
 
-/* A floating sheet: inset from every edge, fully rounded, with a lift */
 .sheet {
   position:      absolute;
   background:    var(--jelly-color-background-surface, var(--droplet-color-background-surface));
@@ -37,7 +36,7 @@
   will-change:   transform;
 }
 
-/* A quiet close affordance in the top-inner corner, matching droplet-dialog */
+/* Matches droplet-dialog's close button */
 .close {
   position:         absolute;
   top:              16px;
@@ -75,7 +74,7 @@
   outline-offset: 1px;
 }
 
-/* Side placement - logical values follow the reading direction */
+/* Side placement: logical values follow the reading direction */
 :host([side="end"]) .sheet,
 :host([side="right"]) .sheet,
 :host([side="left"]) .sheet,

@@ -42,7 +42,7 @@ no longer exposes (or miss a new one), so the reference can't silently drift.
    `docs/showcase/playgrounds.js`, keyed by tag:
 
    ```js
-   'jelly-thing': {
+   'droplet-thing': {
      slot: 'Label text',                        // or `inner` for child markup
      attrs: { label: 'Accessible demo name' },  // optional static attributes
      controls: [variant(), size(), bool('disabled')],

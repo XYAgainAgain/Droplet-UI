@@ -1,10 +1,7 @@
 /*
- * A multi-line text field on a soft jelly surface that grows with its
- * content between a min and max height while the membrane follows along.
- * Each keystroke sends a ripple through the surface at the caret - wrap-
- * and RTL-aware, measured with a hidden layout mirror - and the field is
- * form-associated like a native control: it submits under `name`,
- * validates, and resets with its form
+ * A multi-line text field on a soft-body surface that grows with its content
+ * between a min and max height. Keystrokes ripple the surface at the caret
+ * (wrap- and RTL-aware), and the field is form-associated like a native control
  */
 
 import { DropletFormField }   from '../../element/form-field.js';
@@ -81,22 +78,19 @@ export class DropletTextarea extends DropletFormField {
     return defineTextarea(options);
   }
 
-  // Populated in onBuilt() / lazily
+  // Populated in onBuilt() or lazily
   textarea!: HTMLTextAreaElement;
   textareaResizeObserver: ResizeObserver | null = null;
   mirror: HTMLDivElement | null = null;
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return [...FIELD_ATTRIBUTES, ...DropletTextarea.CONSTRAINTS, 'rows'];
   }
 
-  // Component styles layered over the shared jelly base styles
   override styles (): string {
     return textareaStyles;
   }
 
-  // The interactive markup that sits above the canvas
   override content (): string {
     return `<textarea part="textarea"></textarea><div class="ring" part="ring" aria-hidden="true"></div>`;
   }
@@ -112,19 +106,17 @@ export class DropletTextarea extends DropletFormField {
     return { width: w, height: h, radius };
   }
 
-  // Called once after the shadow DOM and canvas exist. Wire events here.
   override onBuilt (): void {
     this.textarea = this.shadowRoot!.querySelector('textarea')!;
 
     this.attachControl(this.textarea);
     this.sync('rows');
 
-    // Auto-sizing and CSS min/max-height changes both need the jelly to follow
+    // Auto-sizing and CSS min/max-height changes both need the membrane to follow
     this.textareaResizeObserver = new ResizeObserver(() => this.applyShape());
     this.textareaResizeObserver.observe(this.textarea);
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   override connectedCallback (): void {
     super.connectedCallback();
 
@@ -135,7 +127,6 @@ export class DropletTextarea extends DropletFormField {
     }
   }
 
-  // Lifecycle method: Called automatically when the element leaves the DOM
   override disconnectedCallback (): void {
     super.disconnectedCallback();
 
@@ -151,7 +142,6 @@ export class DropletTextarea extends DropletFormField {
     this.centerPop(0.6);
   }
 
-  // Grow to fit and ripple at the caret
   override handleInput (): void {
     this.autoSize();
 
@@ -184,10 +174,9 @@ export class DropletTextarea extends DropletFormField {
   }
 
   /*
-   * The caret's {x, y} in the body's local frame (0,0 = shape center). A
-   * hidden "mirror" div replicates the textarea's layout - font, width,
-   * padding, wrap and direction - so a marker span at the caret reports
-   * its real physical position, wrapping and RTL layout included.
+   * The caret's position in the body's local frame (0,0 = shape center). A
+   * hidden mirror div copies the textarea's layout so a marker span at the
+   * caret reports its real position, wrapping and RTL included.
    */
   caretLocalPoint (): { x: number; y: number } {
     const ta = this.textarea;
@@ -259,7 +248,6 @@ export class DropletTextarea extends DropletFormField {
     };
   }
 
-  // Push one observed attribute into the inner native textarea
   override sync (name: string): void {
     if (name === 'rows' && this.textarea) {
       const rows = this.getAttribute('rows');

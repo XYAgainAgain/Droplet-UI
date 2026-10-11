@@ -1,26 +1,13 @@
-/*
- * Anchored positioning for floating overlays (tooltip / popover / menu):
- * resolve logical placements against reading direction, place a fixed float
- * beside its anchor with viewport-aware flipping, and keep it pinned while the
- * page scrolls or resizes.
- */
-
 import { isRTL } from '../utilities/index.js';
 
-// A logical or physical placement for an anchored float
 export type Placement = 'top' | 'bottom' | 'left' | 'right' | 'start' | 'end';
 
-// A resolved, physical placement (logical start / end mapped to left / right)
+// Placement after start/end have been mapped to left/right
 export type PhysicalPlacement = 'top' | 'bottom' | 'left' | 'right';
 
-// Minimum distance an overlay keeps from the viewport edge
 const VIEWPORT_MARGIN = 8;
 
-/*
- * Resolve a logical placement to a physical one for the anchor's reading
- * direction: 'start' and 'end' become 'left' or 'right' as appropriate,
- * physical placements pass through untouched.
- */
+// 'start' and 'end' follow the anchor's reading direction; physical placements pass through
 export function resolvePlacement (placement: Placement, anchorEl: HTMLElement): PhysicalPlacement {
   if (placement !== 'start' && placement !== 'end') {
     return placement;
@@ -36,10 +23,8 @@ export function resolvePlacement (placement: Placement, anchorEl: HTMLElement): 
 }
 
 /*
- * Position a `position: fixed` float element relative to an anchor.
- * Accepts top / bottom / left / right plus the logical start / end, flips
- * to the opposite side when the preferred side would clip and finally
- * clamps inside the viewport.
+ * Position a `position: fixed` float beside its anchor. Flips to the opposite side
+ * when the preferred side would clip, then clamps inside the viewport.
  */
 export function placeAnchored (
   anchorEl: HTMLElement,
@@ -84,10 +69,9 @@ export function placeAnchored (
   floatEl.style.left = `${Math.round(left)}px`;
   floatEl.style.top  = `${Math.round(top)}px`;
 
-  // A position:fixed element is offset by its containing block whenever an
-  // ancestor has a transform / filter / will-change (e.g. a card lifting on
-  // hover). Measure where it actually landed and add the difference back, so
-  // it stays pinned to the trigger regardless of transformed ancestors.
+  // A transform, filter, or will-change on an ancestor becomes the containing block
+  // for position:fixed (a card lifting on hover). Measure where the float landed and
+  // add the difference back so it stays pinned to the trigger.
   const landed = floatEl.getBoundingClientRect();
   const dx     = left - landed.left;
   const dy     = top - landed.top;
@@ -101,11 +85,9 @@ export function placeAnchored (
 }
 
 /*
- * Keep a fixed float pinned to its anchor while the page scrolls or
- * resizes, so an open dropdown doesn't drift away from its trigger. When
- * `onHidden` is given, it fires once the anchor has scrolled fully out of the
- * viewport, so an overlay can dismiss itself instead of floating over an
- * anchor the reader can no longer see. Returns a cleanup function.
+ * Keep a fixed float pinned to its anchor on scroll and resize. `onHidden` fires once
+ * the anchor has scrolled fully out of view so the overlay can dismiss itself.
+ * Returns a cleanup function.
  */
 export function trackAnchor (
   anchorEl: HTMLElement,

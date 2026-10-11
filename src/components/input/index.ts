@@ -1,13 +1,3 @@
-/*
- * A single-line text field resting on a soft jelly surface. A real <input>
- * is overlaid on the canvas; focusing it lifts the fill onto the elevated
- * surface color, pops the membrane and paints a colored ring and every
- * keystroke sends a small ripple through the surface at the caret - RTL-
- * aware, so the ripple lands under the caret in either direction. Form-
- * associated like a native field: it submits under `name`, validates,
- * resets, and Enter submits its form
- */
-
 import { DropletFormField }   from '../../element/form-field.js';
 import { FIELD_ATTRIBUTES } from '../../element/form-field.js';
 import { FIELD_REPLAYED }   from '../../element/form-field.js';
@@ -38,7 +28,7 @@ function fieldType (value: string | null): string {
 }
 
 /**
- * A single-line text field on a soft jelly surface.
+ * A single-line text field on a soft-body surface.
  *
  * @element droplet-input
  *
@@ -105,11 +95,9 @@ export class DropletInput extends DropletFormField {
     'required', 'minlength', 'maxlength', 'pattern', 'min', 'max', 'step', 'inputmode', 'enterkeyhint',
   ];
 
-  // Populated in onBuilt() / lazily
   input!: HTMLInputElement;
   measure: CanvasRenderingContext2D | null = null;
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return [...FIELD_ATTRIBUTES, ...DropletInput.CONSTRAINTS, 'type', 'name'];
   }
@@ -118,12 +106,10 @@ export class DropletInput extends DropletFormField {
     return [...FIELD_REPLAYED, 'type', 'pattern', 'min', 'max', 'step'];
   }
 
-  // Component styles layered over the shared jelly base styles
   override styles (): string {
     return inputStyles;
   }
 
-  // The interactive markup that sits above the canvas
   override content (): string {
     return `<input part="input" /><div class="ring" part="ring" aria-hidden="true"></div>`;
   }
@@ -139,7 +125,6 @@ export class DropletInput extends DropletFormField {
     return { width: w, height: h, radius };
   }
 
-  // Called once after the shadow DOM and canvas exist. Wire events here.
   override onBuilt (): void {
     this.input = this.shadowRoot!.querySelector('input')!;
 
@@ -158,13 +143,11 @@ export class DropletInput extends DropletFormField {
     }
   }
 
-  // Focus lifts the surface: elevated fill, a soft center pop, a visible ring
   override handleFocus (): void {
     super.handleFocus();
     this.centerPop(0.7);
   }
 
-  // Ripple the membrane at the caret
   override handleInput (): void {
     if (!this.reducedMotion && this.body) {
       const x = this.caretLocalX();
@@ -175,9 +158,8 @@ export class DropletInput extends DropletFormField {
       this.requestFrame();
     }
 
-    // The native <input>'s own input event is composed, so it already crosses
-    // the shadow boundary and reaches host listeners - re-emitting would make
-    // consumers see two 'input' events per keystroke.
+    // The native input's composed event already crosses the shadow boundary;
+    // re-emitting would give consumers two 'input' events per keystroke
   }
 
   // Enter submits after the keydown dispatch ends, so a host listener can still
@@ -200,13 +182,8 @@ export class DropletInput extends DropletFormField {
     return BLOCKING_TYPES.has(this.type);
   }
 
-  /*
-   * The caret's x in the body's local frame (0 = shape center, +x = right).
-   * Measures the text advance up to the caret in the input's own font,
-   * offsets it by the inline-start padding and the direction-aware scroll,
-   * then mirrors the result in RTL - where the inline start is the right
-   * edge - so the ripple lands under the caret in either direction.
-   */
+  // The caret's x in the body's local frame (0 = shape center, +x = right), mirrored
+  // in RTL so the ripple lands under the caret in either direction
   caretLocalX (): number {
     const input = this.input;
     let caret: number | null;
@@ -254,7 +231,6 @@ export class DropletInput extends DropletFormField {
     return clamp(localX, -half + 6, half - 6);
   }
 
-  // Push one observed attribute into the inner native input
   override sync (name: string): void {
     if (name === 'type' && this.input) {
       const wasFile = this.input.type === 'file';

@@ -15,12 +15,12 @@ test('upgrades as a separator with a plain rule', () => {
   host.remove();
 });
 
-test('renders a labelled rule from slotted text', () => {
+test('renders a labeled rule from slotted text', () => {
   const host = mount('<droplet-divider>or</droplet-divider>');
   const el = host.querySelector('droplet-divider') as DropletDivider;
 
-  const labelled = el.shadowRoot!.querySelector('.labelled .label');
-  expect(labelled?.textContent).toBe('or');
+  const labeled = el.shadowRoot!.querySelector('.labeled .label');
+  expect(labeled?.textContent).toBe('or');
 
   host.remove();
 });

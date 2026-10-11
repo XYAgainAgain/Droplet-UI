@@ -1,8 +1,6 @@
 /*
- * A floating slide-in sheet with a springy overshoot. `side` accepts the
- * logical end (default) / start - which follow the reading direction -
- * plus physical right / left / bottom. The sheet sits inset from the
- * edges (so it reads as a floating panel) and wobbles into place.
+ * `end` (the default) and `start` follow the reading direction; right, left,
+ * and bottom are physical.
  *
  *   <droplet-drawer id="d" side="end"><nav>…</nav></droplet-drawer>
  *   document.getElementById('d').open = true;
@@ -24,7 +22,6 @@ import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import drawerStyles             from './drawer.css?inline';
 
-// Off-screen / overshoot / rest transforms for a physical side
 interface SlideFrames {
   off: string;
   over: string;
@@ -62,7 +59,6 @@ export class DropletDrawer extends HTMLElementBase {
   closing = false;
   modalActive = false;
 
-  // Populated in connectedCallback()
   sheet!: HTMLElement;
 
   prevFocus: Element | null = null;
@@ -77,12 +73,10 @@ export class DropletDrawer extends HTMLElementBase {
     }
   };
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['open', 'label'];
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
     ensureThemeTokens();
 
@@ -96,7 +90,6 @@ export class DropletDrawer extends HTMLElementBase {
       this.setAttribute('side', 'end');
     }
 
-    // Encapsulate styles and markup inside a Shadow DOM so they don't leak out
     this.attachShadow({ mode: 'open', delegatesFocus: true });
 
     this.shadowRoot!.innerHTML = `
@@ -121,7 +114,6 @@ export class DropletDrawer extends HTMLElementBase {
     });
   }
 
-  // Lifecycle method: Called automatically when the element leaves the DOM
   disconnectedCallback (): void {
     // Portaling to <body> disconnects and reconnects synchronously, so only
     // clean up when the drawer is truly gone from the document while open
@@ -132,7 +124,6 @@ export class DropletDrawer extends HTMLElementBase {
     });
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string, was: string | null, now: string | null): void {
     if (!this.sheet || was === now) {
       return;
@@ -150,7 +141,6 @@ export class DropletDrawer extends HTMLElementBase {
     }
   }
 
-  // The accessible name: explicit label attribute, else the first heading
   syncLabel (): void {
     const label   = this.getAttribute('label');
     const heading = this.querySelector('h1, h2, h3, [data-drawer-title]');
@@ -162,7 +152,6 @@ export class DropletDrawer extends HTMLElementBase {
     }
   }
 
-  // Everything that happens when the open attribute arrives
   afterOpen (): void {
     this.closing = false;
 
@@ -178,7 +167,6 @@ export class DropletDrawer extends HTMLElementBase {
 
     document.addEventListener('keydown', this.onDocumentKey);
 
-    // Trap focus + freeze the page behind the sheet
     lockScroll();
     this.restoreInert = inertOutside(this);
 
@@ -190,14 +178,13 @@ export class DropletDrawer extends HTMLElementBase {
     emit(this, 'open');
   }
 
-  // Everything that happens when the open attribute drops
   afterClose (): void {
     if (this.closing) {
       return;
     }
 
     this.teardownModal();
-    (this.prevFocus as HTMLElement | null)?.focus?.(); // return focus to whatever opened it
+    (this.prevFocus as HTMLElement | null)?.focus?.();
 
     emit(this, 'close');
   }
@@ -221,7 +208,6 @@ export class DropletDrawer extends HTMLElementBase {
     this.restorePortal = null;
   }
 
-  // The side attribute with start / end resolved against reading direction
   get resolvedSide (): 'right' | 'left' | 'bottom' {
     const side = this.getAttribute('side') || 'end';
     const rtl  = isRTL(this);
@@ -237,7 +223,6 @@ export class DropletDrawer extends HTMLElementBase {
     return side === 'left' || side === 'bottom' ? side : 'right';
   }
 
-  // Off-screen / overshoot transforms for the resolved physical side
   frames (): SlideFrames {
     const map: Record<'right' | 'left' | 'bottom', SlideFrames> = {
       right:  { off: 'translateX(115%)',  over: 'translateX(-1%)', rest: 'translateX(0)' },
@@ -248,7 +233,6 @@ export class DropletDrawer extends HTMLElementBase {
     return map[this.resolvedSide] || map.right;
   }
 
-  // Glide in and decelerate into place with a barely-there overshoot
   slideIn (): void {
     const sheet = this.sheet;
 
@@ -268,12 +252,10 @@ export class DropletDrawer extends HTMLElementBase {
     );
   }
 
-  // Route programmatic host focus onto the sheet
   override focus (options?: FocusOptions): void {
     this.sheet?.focus(options);
   }
 
-  // The open state as a property
   get open (): boolean {
     return this.hasAttribute('open');
   }

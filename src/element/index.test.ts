@@ -9,8 +9,8 @@ import { mount, settle } from '../testing/index.js';
 import { DropletElement } from './index.js';
 import type { PainterFrame } from './index.js';
 
-// A stand-in for the 36 components that have not been converted: no opt-in, no
-// attachInternals(), nothing but the pre-fork base class.
+// A subclass that never opts into the resolver: no attachInternals(), nothing but
+// the pre-fork base class.
 class PlainJelly extends DropletElement {}
 
 customElements.define('jelly-plain-unconverted', PlainJelly);

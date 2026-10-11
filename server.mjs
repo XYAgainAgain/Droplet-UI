@@ -1,9 +1,6 @@
 /*
- * The Droplet UI dev server - a tiny, dependency-free static file server
- * for local preview. ES modules need an HTTP origin, so file:// won't do.
- *
- *   node server.mjs              serve on http://localhost:4173
- *   PORT=3000 node server.mjs    serve on another port
+ * Dependency-free static server for local preview: ES modules need an HTTP origin,
+ * so file:// won't do. Serves on port 4173 unless PORT=n says otherwise.
  */
 
 import { createServer }   from 'node:http';
@@ -17,11 +14,9 @@ import { sep }            from 'node:path';
 
 import { fileURLToPath }  from 'node:url';
 
-// Serve the repository this file lives in
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 4173;
 
-// The content types the library, docs site and prototypes serve
 const TYPES = {
   '.html':  'text/html; charset=utf-8',
   '.js':    'text/javascript; charset=utf-8',
@@ -55,13 +50,8 @@ const TYPES = {
 function resolvePath (url) {
   let path = decodeURIComponent(url.split('?')[0]);
 
-  // Mirror the site layout the deploy build (scripts/build-site.mjs) produces,
-  // served straight from the source tree so docs edits are live:
-  //   /                                 → the showcase page
-  //   /api, /api/                       → the API reference (served at /api)
-  //   /migration, /migration/           → the Jelly UI migration guide
-  //   /docs/lottie/lottie_light.min.js  → the lottie-web dependency's player
-  //                                        (the build copies this file into _site)
+  // Mirror the layout scripts/build-site.mjs deploys, straight from the source tree so docs
+  // edits are live; the lottie player comes from node_modules, which the build copies into _site
   if (path === '/') {
     return join(ROOT, 'docs', 'showcase', 'index.html');
   }

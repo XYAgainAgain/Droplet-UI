@@ -1,9 +1,7 @@
 /*
- * Tabbed views. The tab bar is a <droplet-segmented> in tablist mode (a
- * sliding jelly pill with real tab semantics); switching bounces the new
- * panel in. Panels are light-DOM <droplet-tab-panel> children and the active
- * one can be driven by a `value` attribute (like droplet-segmented's) as well
- * as by the panels' own `active` flags
+ * Tabbed views. The bar is a <droplet-segmented> in tablist mode (a sliding
+ * soft-body pill with real tab semantics) over light-DOM <droplet-tab-panel>
+ * children; the active panel comes from `value` or a panel's `active` flag
  */
 
 import { emit }                 from '../../utilities/index.js';
@@ -21,7 +19,7 @@ import { DropletSegmented }       from '../segmented/index.js';
 
 import tabsStyles               from './tabs.css?inline';
 
-// The tab-bar surface tabs drives - droplet-segmented satisfies this structurally
+// The tab-bar surface tabs drives; droplet-segmented satisfies this structurally
 interface TabBar extends HTMLElement {
   value: string;
 }
@@ -43,7 +41,6 @@ export class DropletTabPanel extends HTMLElementBase {
     return defineTabPanel(options);
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
     ensureThemeTokens();
     this.setAttribute('role', 'tabpanel');
@@ -59,7 +56,6 @@ export class DropletTabPanel extends HTMLElementBase {
     }
   }
 
-  // The tab label shown in the tab bar
   get label (): string {
     return this.getAttribute('label') || '';
   }
@@ -67,7 +63,7 @@ export class DropletTabPanel extends HTMLElementBase {
 }
 
 /**
- * A tabbed view whose bar is a sliding jelly segmented control.
+ * A tabbed view whose bar is a sliding soft-body segmented control.
  *
  * @element droplet-tabs
  *
@@ -92,12 +88,10 @@ export class DropletTabs extends HTMLElementBase {
   segmented: TabBar | null = null;
   current: string | null = null;
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['size', 'value'];
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
     ensureThemeTokens();
 
@@ -114,7 +108,6 @@ export class DropletTabs extends HTMLElementBase {
     const activePanel = panels[activeIndex];
     const activeValue = this.getAttribute('value') ?? (activePanel ? this.panelValue(activePanel, activeIndex) : '0');
 
-    // Encapsulate styles and markup inside a Shadow DOM so they don't leak out
     this.attachShadow({ mode: 'open', delegatesFocus: true });
 
     this.shadowRoot!.innerHTML = `
@@ -146,7 +139,6 @@ export class DropletTabs extends HTMLElementBase {
     this.activate(activeValue, false);
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     if (name === 'size') {
       this.syncSize();
@@ -170,7 +162,6 @@ export class DropletTabs extends HTMLElementBase {
     this.activate(value, true);
   }
 
-  // Pass the host's size down to the tab bar
   syncSize (): void {
     if (!this.segmented) {
       return;
@@ -185,16 +176,13 @@ export class DropletTabs extends HTMLElementBase {
     }
   }
 
-  // A panel's value: its explicit `value` attribute, else its index. Derived
-  // on demand rather than cached on the panel - a panel that upgrades after
-  // this controller (as happens when the tabs markup is set through a
-  // connected element's innerHTML, the parent connecting before its children
-  // upgrade) would have any stamped field reset to its class default.
+  // A panel's `value` attribute, else its index. Derived rather than cached: a panel
+  // that upgrades after this controller (innerHTML set on a connected element) would
+  // reset any stamped field to its class default.
   panelValue (panel: DropletTabPanel, index: number): string {
     return panel.getAttribute('value') || String(index);
   }
 
-  // The visible label for one panel's tab
   panelLabel (panel: DropletTabPanel, index: number): string {
     const label = panel.getAttribute('label');
 
@@ -207,7 +195,6 @@ export class DropletTabs extends HTMLElementBase {
     return text || `Tab ${index + 1}`;
   }
 
-  // Show the panel for `value`, hide the rest and announce real changes
   activate (value: string, animate: boolean): void {
     const panels = [...this.querySelectorAll<DropletTabPanel>(anyTag('tabPanel'))];
 
@@ -231,7 +218,7 @@ export class DropletTabs extends HTMLElementBase {
       }
     });
 
-    // change fires only when the active tab actually changes - the initial
+    // change fires only when the active tab actually changes; the initial
     // mount selection is state, not an event
     const previous = this.current;
 
@@ -248,7 +235,6 @@ export class DropletTabs extends HTMLElementBase {
     }
   }
 
-  // The active panel's value as a property
   get value (): string | undefined {
     return this.segmented?.value;
   }

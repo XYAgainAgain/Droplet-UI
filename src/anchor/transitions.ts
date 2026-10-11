@@ -1,16 +1,9 @@
-/*
- * Entrance / exit motion for overlays and toasts: a soft jello grow-in and
- * fade-out, plus the inline-end toast slide (mirrored under RTL).
- */
-
 import { isRTL }                from '../utilities/index.js';
 import { prefersReducedMotion } from '../utilities/index.js';
 
 /*
- * A soft grow-in: it eases up from near full size with a gentle settle,
- * rather than snapping from tiny with a hard bounce. `origin` sets
- * transform-origin so it grows out of the right spot (a menu from its
- * trigger, a tooltip from its anchor, …).
+ * Soft grow-in from near full size with a gentle settle. `origin` sets transform-origin
+ * so it grows out of its trigger or anchor.
  */
 export function springIn (el: HTMLElement, origin = 'center'): void {
   el.style.transformOrigin = origin;
@@ -30,7 +23,7 @@ export function springIn (el: HTMLElement, origin = 'center'): void {
   );
 }
 
-// Fade / scale out, then run `done` (for removal)
+// Fade and scale out, then call `done`, which usually removes the element
 export function springOut (el: HTMLElement, done: () => void): void {
   if (prefersReducedMotion() || !el.animate) {
     done();
@@ -49,11 +42,7 @@ export function springOut (el: HTMLElement, done: () => void): void {
   animation.oncancel = done;
 }
 
-/*
- * Toast entrance: eases in from the inline-end (the right in LTR, the left
- * in RTL) while fading and scaling up, settling gently - a soft arrival
- * rather than a hard slide.
- */
+// Toast entrance: eases in from the inline-end edge (right in LTR, left in RTL), fading and scaling up
 export function toastIn (el: HTMLElement): void {
   const rtl  = isRTL(el);
   const from = rtl ? '-35%' : '35%';
@@ -75,7 +64,7 @@ export function toastIn (el: HTMLElement): void {
   );
 }
 
-// Toast exit: fades and eases out toward the inline-end, then removes
+// Toast exit: fades and eases out toward the inline-end, then calls `done`
 export function toastOut (el: HTMLElement, done: () => void): void {
   const rtl = isRTL(el);
   const to  = rtl ? '-30%' : '30%';

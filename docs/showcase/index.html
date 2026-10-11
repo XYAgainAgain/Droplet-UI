@@ -23,14 +23,12 @@
       }
     </script>
 
-    <!-- Page styles: shared chrome + showcase-specific (see docs/README.md) -->
+    <!-- Page styles: shared chrome and showcase-specific (see docs/README.md) -->
     <link rel="stylesheet" href="./docs/shared/site.css" />
     <link rel="stylesheet" href="./docs/showcase/showcase.css" />
 
-    <!-- OPTIONAL performance hint, not an import: the page loads ./package.js
-         (via docs/showcase/index.js), which re-exports the built bundle. Preloading
-         the bundle here fetches it in parallel so the components register
-         sooner. Deleting these lines changes nothing except first-load speed. -->
+    <!-- Performance hint, not an import: fetching package.js and the bundle it re-exports
+         in parallel registers the components sooner. Removing it only slows first load. -->
     <link rel="modulepreload" href="./package.js" />
     <link rel="modulepreload" href="./dist/droplet.js" />
   </head>
@@ -42,7 +40,6 @@
 
     <main id="top">
       <section class="hero">
-        <!-- Depth layers: drifting light blobs + film grain, all decorative -->
         <div class="hero-backdrop" aria-hidden="true">
           <i class="glow g1"></i>
           <i class="glow g2"></i>
@@ -93,17 +90,16 @@
           </div>
         </div>
 
-        <!-- Big decorative Lottie illustration seated at the bottom of the blue;
-             loaded lazily by docs/lottie/index.js. Presentational, so hidden from AT. -->
+        <!-- Decorative Lottie illustration, lazy-loaded by docs/lottie/index.js and
+             hidden from assistive tech -->
         <div class="hero-anim" aria-hidden="true">
           <div id="heroLottie" class="hero-lottie"></div>
         </div>
       </section>
 
-      <!-- The shared top bar (styles in site.css): sits just below the hero
-          and sticks to the top while scrolling the showcase -->
+      <!-- The shared top bar (styles in site.css); sticks once it reaches the top -->
       <nav class="subnav" aria-label="Site">
-        <a class="subnav-brand" href="#top">Droplet UI <span class="subnav-ver">v1.1</span></a>
+        <a class="subnav-brand" href="#top">Droplet UI <span class="subnav-ver">v0.1</span></a>
 
         <div class="subnav-links">
           <droplet-button size="small" variant="azure" shape="square" data-subnav-showcase aria-current="page">Showcase</droplet-button>
@@ -121,7 +117,6 @@
       <div id="panels"><!-- generated from docs/content/data.js --></div>
 
       <footer class="outro">
-        <!-- A celebratory send-off, lazy-loaded like the hero illustration -->
         <div class="outro-anim" aria-hidden="true">
           <div id="footerLottie" class="footer-lottie"></div>
         </div>

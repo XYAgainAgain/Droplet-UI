@@ -109,8 +109,6 @@ function assertJsonSafe (value: unknown, path: string, seen: Set<object>): void 
   seen.delete(object);
 }
 
-// Phases 5 and 6 give material, palette, and substance their schemas; until then
-// any JSON-safe record is accepted on those axes.
 function validateFeel (record: object): void {
   for (const [key, value] of Object.entries(record)) {
     if (!isConfigKey(key)) throw new PresetError(`feel preset key "${key}" is not a physics config key`);
@@ -136,6 +134,8 @@ export function registerPreset (axis: PresetAxis, name: string, record: object, 
     throw new PresetError(`preset "${name}" must be a plain object`);
   }
   assertJsonSafe(record, name, new Set<object>());
+  // Phases 5 and 6 give material, palette, and substance their schemas; until then
+  // any JSON-safe record is accepted on those axes.
   if (axis === 'feel') validateFeel(record);
 
   const target = scopeFor(options.document, true)!;

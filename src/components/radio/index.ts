@@ -1,9 +1,7 @@
 /*
- * A jelly radio button. Radios that share a `name` under the same root
- * (the document or any shadow root) form one group; because each radio's
- * control lives in its own shadow tree - where native grouping cannot see
- * it - selection, roving tabindex and direction-aware arrow-key
- * navigation are coordinated here
+ * Native grouping can't see controls in separate shadow trees, so radios
+ * sharing a `name` under one root (document or shadow root) coordinate their
+ * selection, roving tabindex, and direction-aware arrow keys here.
  */
 
 import { DropletElement }     from '../../element/index.js';
@@ -25,7 +23,7 @@ import type { DefineOptions, DefineResult } from '../../registry/index.js';
 import radioStyles          from './radio.css?inline';
 
 /**
- * A jelly radio button. Radios sharing a `name` under one root form a group
+ * A soft-body radio button. Radios sharing a `name` under one root form a group
  * with roving-tabindex and arrow-key navigation.
  *
  * @element droplet-radio
@@ -72,7 +70,6 @@ export class DropletRadio extends DropletElement {
   scale = 1;
   scaleVelocity = 0;
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['checked', 'disabled', 'label', 'size', 'value', ...DropletElement.AXIS_ATTRIBUTES];
   }
@@ -83,12 +80,10 @@ export class DropletRadio extends DropletElement {
     this.internals = this.attachInternals();
   }
 
-  // Component styles layered over the shared jelly base styles
   override styles (): string {
     return radioStyles + variantColors({ color: '--droplet-on', on: '--droplet-radio-dot-color' });
   }
 
-  // The interactive markup that sits above the canvas
   override content (): string {
     const labelId = uniqueId('droplet-radio-label');
 
@@ -102,21 +97,19 @@ export class DropletRadio extends DropletElement {
       </label>`;
   }
 
-  // The circle the physics body takes - the control region, not the label
+  // The physics body is the control circle, not the label
   override shape (width: number, height: number): Shape {
     const size = Math.min(width, height);
 
     return { width: size, height: size, radius: size / 2 };
   }
 
-  // Resolve the control fill for the current state through the live theme tokens
   override fill (): string {
     return this.checked
       ? this.resolveColor(`var(--jelly-on, var(--droplet-on, ${PALETTE['background-accent']}))`)
       : this.resolveColor(`var(--jelly-fill, var(--droplet-fill, ${PALETTE['background-neutral']}))`);
   }
 
-  // Called once after the shadow DOM and canvas exist. Wire events here.
   override onBuilt (): void {
     this.control = this.shadowRoot!.querySelector('.control')!;
     this.wrap    = this.shadowRoot!.querySelector('.wrap')!;
@@ -125,7 +118,6 @@ export class DropletRadio extends DropletElement {
     this.sync('label');
     this.trackFocus(this.control);
 
-    // The whole row - control and label text - selects on click
     this.wrap.addEventListener('click', () => this.select(true));
     this.control.addEventListener('keydown', (event) => this.onKeydown(event));
 
@@ -142,7 +134,6 @@ export class DropletRadio extends DropletElement {
     this.requestFrame();
   }
 
-  // One animation step: advance the scale spring and repaint. True keeps animating.
   override frame (dt: number): boolean {
     const body = this.body;
 
@@ -150,7 +141,6 @@ export class DropletRadio extends DropletElement {
       return false;
     }
 
-    // One uniform scale spring - the control expands / collapses, never wiggles
     [this.scale, this.scaleVelocity] = integrateSpring(this.scale, this.scaleVelocity, 1, 260, 17, dt);
 
     this.clearCanvas();
@@ -187,7 +177,6 @@ export class DropletRadio extends DropletElement {
     }
   }
 
-  // Select this radio, deselecting the rest of its group
   select (fromUser = false): void {
     if (this.hasAttribute('disabled')) {
       return;
@@ -199,7 +188,7 @@ export class DropletRadio extends DropletElement {
       }
 
       if (fromUser && radio.checked && radio.pop) {
-        radio.pop(-2.5); // the deselected control collapses
+        radio.pop(-2.5);
       }
 
       radio.checked = false;
@@ -208,13 +197,12 @@ export class DropletRadio extends DropletElement {
     this.checked = true;
 
     if (fromUser) {
-      this.pop(4); // the selected control expands
+      this.pop(4);
       triggerHaptic();
       emit(this, 'change');
     }
   }
 
-  // Keyboard: Space / Enter select; arrows and Home / End move the selection
   onKeydown (event: KeyboardEvent): void {
     if (event.key === ' ' || event.key === 'Enter') {
       event.preventDefault();
@@ -248,7 +236,6 @@ export class DropletRadio extends DropletElement {
     target.select(true);
   }
 
-  // Mirror state into ARIA, the roving tabindex and the submitted form value
   reflect (): void {
     const checked  = this.checked;
     const disabled = this.hasAttribute('disabled');
@@ -261,7 +248,6 @@ export class DropletRadio extends DropletElement {
     this.internals.setFormValue(checked ? this.value : null);
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     if (this.axisAttributeChanged(name)) {
       return;
@@ -272,7 +258,6 @@ export class DropletRadio extends DropletElement {
     }
   }
 
-  // Push one observed attribute into the inner control
   sync (name: string): void {
     switch (name) {
       case 'checked':
@@ -305,7 +290,6 @@ export class DropletRadio extends DropletElement {
     }
   }
 
-  // Whether this radio is currently selected (reflects the attribute)
   get checked (): boolean {
     return this.hasAttribute('checked');
   }
@@ -323,7 +307,6 @@ export class DropletRadio extends DropletElement {
     this.setAttribute('value', String(value));
   }
 
-  // Route programmatic host focus into the inner control
   override focus (options?: FocusOptions): void {
     this.control?.focus(options);
   }

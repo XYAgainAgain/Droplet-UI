@@ -711,7 +711,7 @@ describe('droplet-button as a native button', () => {
   });
 
   test('exposes its labels through ElementInternals', async () => {
-    const host = mount('<label for="jb-labelled">Caption</label><droplet-button id="jb-labelled">L</droplet-button>');
+    const host = mount('<label for="jb-labeled">Caption</label><droplet-button id="jb-labeled">L</droplet-button>');
     await settle(2);
 
     const el = host.querySelector('droplet-button') as DropletButton;

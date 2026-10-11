@@ -1,10 +1,6 @@
-/*
- * API-reference-only styles (/api): the sidebar layout, the aligned
- * reference tables and the example blocks. Shared page chrome (tokens,
- * header, code blocks, placeholders) lives in docs/site.css.
- */
+/* API-reference-only styles (/api); shared page chrome lives in docs/shared/site.css */
 
-/* The reference renders from docs/data.js; hold space so nothing leaps */
+/* The reference renders from docs/content/data.js; hold space so nothing leaps */
 #sections:empty { min-height: 100vh; }
 #nav:empty      { min-height: 50vh; }
 
@@ -15,7 +11,7 @@ body { font-size: 15.5px; }
 /* The sidebar toggle (a droplet-button) only exists on narrow screens */
 #navToggle { display: none; }
 
-/* ============================ Layout ============================ */
+/* Layout */
 .layout {
   display:               grid;
   grid-template-columns: 240px minmax(0, 1fr);
@@ -52,7 +48,7 @@ body { font-size: 15.5px; }
 .nav-group a:hover  { color: var(--text); background: var(--field); }
 .nav-group a.active { color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
 
-/* ============================ Sections ============================ */
+/* Sections */
 main { min-width: 0; }
 
 .intro {
@@ -64,7 +60,7 @@ main { min-width: 0; }
   font:   680 clamp(30px, 4vw, 44px)/1.1 var(--display);
   letter-spacing: -0.02em;
 }
-.intro p { max-width: 64ch; color: var(--muted); margin: 12px 0 0; }
+.intro p { color: var(--muted); margin: 12px 0 0; }
 .intro a { color: var(--accent); }
 
 .component {
@@ -84,8 +80,8 @@ main { min-width: 0; }
   font:   650 clamp(24px, 2.6vw, 32px)/1.1 var(--display);
   letter-spacing: -0.02em;
 }
-.component-head .summary     { margin: 10px 0 0; max-width: 68ch; color: var(--muted); }
-.component-head .description { margin: 8px 0 0; max-width: 72ch; color: var(--muted); font-size: 14px; }
+.component-head .summary     { margin: 10px 0 0; color: var(--muted); }
+.component-head .description { margin: 8px 0 0; color: var(--muted); font-size: 14px; }
 .showcase-link {
   display:         inline-block;
   margin-top:      10px;
@@ -104,8 +100,8 @@ main { min-width: 0; }
   color:          var(--muted);
 }
 
-/* Aligned reference tables: fixed layout + shared column widths (set in
-   docs/api/index.js) so every table on the page sits on one vertical grid */
+/* Fixed layout plus the shared column widths set in docs/api/index.js keep every
+   table on the page on one vertical grid */
 .table-scroll {
   overflow-x:    auto;
   border:        1px solid var(--line);
@@ -144,7 +140,7 @@ footer {
   padding: 40px clamp(20px, 4vw, 56px) 70px;
 }
 
-/* ============================ Mobile ============================ */
+/* Mobile */
 @media (max-width: 900px) {
   .layout { grid-template-columns: 1fr; }
 

@@ -41,18 +41,15 @@ export class DropletOtp extends HTMLElementBase {
     return defineOtp(options);
   }
 
-  // Participate in forms via ElementInternals
   static formAssociated = true;
 
   internals?: ElementInternals;
   boxes: HTMLInputElement[] = [];
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['length', 'size', 'variant', 'disabled', 'label'];
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
     ensureThemeTokens();
     canonicalizeSize(this);
@@ -60,14 +57,12 @@ export class DropletOtp extends HTMLElementBase {
     if (!this.shadowRoot) {
       this.internals = this.attachInternals?.();
 
-      // Encapsulate styles and markup inside a Shadow DOM so they don't leak out
       this.attachShadow({ mode: 'open', delegatesFocus: true });
     }
 
     this.render();
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     if (!this.shadowRoot) {
       return;
@@ -124,7 +119,6 @@ export class DropletOtp extends HTMLElementBase {
     this.internals?.setFormValue('');
   }
 
-  // Mirror the disabled attribute onto every box (observed live)
   syncDisabled (): void {
     const disabled = this.hasAttribute('disabled');
 
@@ -133,7 +127,6 @@ export class DropletOtp extends HTMLElementBase {
     }
   }
 
-  // Map the label attribute onto the group's accessible name
   syncLabel (): void {
     const row = this.shadowRoot!.querySelector('.row');
 
@@ -170,7 +163,6 @@ export class DropletOtp extends HTMLElementBase {
     );
   }
 
-  // Accept one digit, reveal it and hop to the next box
   onInput (event: Event, index: number): void {
     // The box's native input event is composed and would retarget to the host
     // on its own; stop it so announce()'s single custom 'input' is the only one
@@ -248,7 +240,6 @@ export class DropletOtp extends HTMLElementBase {
     }
   }
 
-  // The joined code across all boxes
   get value (): string {
     return this.boxes.map((box) => box.value).join('');
   }
@@ -263,7 +254,6 @@ export class DropletOtp extends HTMLElementBase {
     this.internals?.setFormValue(this.value);
   }
 
-  // Route programmatic host focus onto the first box
   override focus (options?: FocusOptions): void {
     this.boxes?.[0]?.focus(options);
   }

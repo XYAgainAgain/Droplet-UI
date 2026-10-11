@@ -1,23 +1,12 @@
-/*
- * Variant -> fill/label token mapping. One table (VARIANT_TOKENS) drives both
- * the whole-surface fill map (VARIANT_CSS) and the accent-only map
- * (variantColors), so a variant can never appear in one and drop out of the other.
- */
-
 import { PALETTE } from './tokens.js';
 
-// One fill/label token pair per named variant
 interface VariantToken {
   fill: string;
   on: string;
 }
 
-/*
- * Variant -> { fill token, on-fill token }. One table drives both the
- * whole-surface fill map (VARIANT_CSS) and the accent-only map
- * (variantColors), so a variant can never appear in one and silently drop out
- * of the other.
- */
+// One table drives both VARIANT_CSS (whole-surface fill) and variantColors (accent-only),
+// so a variant can never appear in one and silently drop out of the other
 const VARIANT_TOKENS: Record<string, VariantToken> = {
   white:    { fill: 'background-white',            on: 'foreground-on-white' },
   rose:     { fill: 'background-rose',             on: 'foreground-on-emphasis' },
@@ -28,12 +17,7 @@ const VARIANT_TOKENS: Record<string, VariantToken> = {
   graphite: { fill: 'background-neutral-emphasis', on: 'foreground-on-emphasis' },
 };
 
-/*
- * Variant -> fill/label mapping shared by every fillable component. A variant
- * resolves through the theme tokens, so the same markup adapts when the theme
- * flips to dark. The default (no variant) fills with the accent.
- */
-// A theme color: a legacy --jelly-* override in scope wins, then the canonical token
+// A theme color: a legacy --jelly-* override in scope wins, then the canonical token, then the light palette
 function themeColor (token: string): string {
   return `var(--jelly-color-${token}, var(--droplet-color-${token}, ${PALETTE[token]}))`;
 }
@@ -56,16 +40,6 @@ export interface VariantColorProps {
   ring?: string | null;
 }
 
-/*
- * Variant -> custom-property mapping for the components that don't fill their
- * whole surface (checkbox, radio, switch, slider, range, select, otp,
- * progress, chip). They color an accent instead of --droplet-fill and each uses
- * its own property names, so this generates the full table for whichever
- * properties a component passes:
- *   - `color` : the property that takes the variant fill hue (required)
- *   - `on`    : optional property that takes the on-fill contrast colour
- *   - `ring`  : optional second property that also takes the variant hue
- */
 // A library property also points its legacy name at itself, as every component
 // token does; a consumer's own property is written as given
 function declare (property: string, value: string): string {
@@ -74,6 +48,8 @@ function declare (property: string, value: string): string {
     : `${property}: ${value};`;
 }
 
+// Accent-only variant map for components that color an accent instead of filling their
+// surface; each passes its own property names
 export function variantColors ({ color, on = null, ring = null }: VariantColorProps = {}): string {
   const names = Object.keys(VARIANT_TOKENS) as (keyof typeof VARIANT_TOKENS)[];
   const decls = (name: keyof typeof VARIANT_TOKENS): string => {

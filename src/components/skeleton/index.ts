@@ -1,7 +1,6 @@
 /*
- * A loading placeholder that gently breathes - a soft jelly wobble
- * instead of a shimmer, since the library is gradient-free. Size it with
- * width/height (or the shape presets); shape="circle" for avatars
+ * A loading placeholder that gently breathes: a soft-body wobble instead of a
+ * shimmer, since the library is gradient-free
  */
 
 import { DropletElement } from '../../element/index.js';
@@ -30,25 +29,21 @@ export class DropletSkeleton extends DropletElement {
 
   static override usesResolver = true;
 
-  // Randomised per instance so a page full of skeletons never pulses in
-  // lock-step - each sweeps at its own phase, speed and breath interval
+  // Randomized per instance so a page full of skeletons never pulses in lock-step
   phase = Math.random() * 1.5;
   timeAccumulator = Math.random() * 0.08;
   breath = Math.random() * 1.2;
   sweepSpeed = 0.7 + Math.random() * 0.35;
   breathEvery = 1.0 + Math.random() * 0.7;
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['shape', ...DropletElement.AXIS_ATTRIBUTES];
   }
 
-  // Component styles layered over the shared jelly base styles
   override styles (): string {
     return skeletonStyles;
   }
 
-  // No interactive content - the placeholder is pure canvas
   override content (): string {
     return '';
   }
@@ -64,10 +59,8 @@ export class DropletSkeleton extends DropletElement {
     };
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically.
-  // A shape swap usually resizes the host (the ResizeObserver rebuilds then);
-  // reshape the membrane directly for same-size swaps (inline width/height),
-  // where a radius-only change would otherwise be dropped.
+  // A shape swap usually resizes the host and the ResizeObserver rebuilds; reshape
+  // here for same-size swaps (inline width/height), or a radius-only change is lost
   attributeChangedCallback (name: string): void {
     if (this.axisAttributeChanged(name)) {
       return;
@@ -78,7 +71,6 @@ export class DropletSkeleton extends DropletElement {
     }
   }
 
-  // Called once after the shadow DOM and canvas exist. Wire ARIA here.
   override onBuilt (): void {
     this.setAttribute('role', 'status');
     this.setAttribute('aria-busy', 'true');
@@ -88,7 +80,6 @@ export class DropletSkeleton extends DropletElement {
     }
   }
 
-  // One animation step: a sweeping ripple plus an occasional soft breath
   override frame (dt: number): boolean {
     const body = this.body;
 
@@ -105,8 +96,7 @@ export class DropletSkeleton extends DropletElement {
     const w = body.width;
     const h = body.height;
 
-    // A soft ripple sweeps across - a jelly take on a loading shimmer -
-    // then rests briefly before the next sweep
+    // A ripple sweeps across in place of a shimmer, then rests before the next sweep
     this.phase           = (this.phase + dt * this.sweepSpeed) % 1.5;
     this.timeAccumulator += dt;
 

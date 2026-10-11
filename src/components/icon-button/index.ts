@@ -1,12 +1,3 @@
-/*
- * A compact square or round jelly button sized for a single icon. A real
- * <button> lives in the shadow DOM for keyboard and assistive-technology
- * support, the label attribute (or aria-label) gives the icon an accessible
- * name and the shape attribute picks the silhouette: "square" (the default,
- * a rounded square - the same word droplet-button and droplet-badge use) or
- * "circle". The host is form-associated, so a disabled <fieldset> disables it.
- */
-
 import { DropletElement }      from '../../element/index.js';
 import type { Shape }        from '../../element/index.js';
 
@@ -46,7 +37,7 @@ import variantStyles         from '../../styles/variants.css?inline';
  *
  * @csspart button - The inner native <button>.
  *
- * @cssprop [--droplet-icon-button-size=48px] - Button diameter / side.
+ * @cssprop [--droplet-icon-button-size=48px] - Button diameter or side length.
  * @cssprop [--droplet-icon-button-radius=16px] - Corner radius for the square shape.
  */
 export class DropletIconButton extends DropletElement {
@@ -62,7 +53,6 @@ export class DropletIconButton extends DropletElement {
   // :disabled and fieldset disabling come from the platform; it never submits
   static formAssociated = true;
 
-  // Populated in onBuilt()
   button!: HTMLButtonElement;
   activationPointerId: number | null = null;
   cancelPointerClick = false;
@@ -77,7 +67,6 @@ export class DropletIconButton extends DropletElement {
     this.internals = this.attachInternals();
   }
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['disabled', 'label', 'shape', ...FORWARDED_ARIA, ...DropletElement.AXIS_ATTRIBUTES];
   }
@@ -98,7 +87,6 @@ export class DropletIconButton extends DropletElement {
     reflectAttribute(this, 'name', value);
   }
 
-  // The disabled attribute or a disabled ancestor fieldset (see droplet-button)
   get effectivelyDisabled (): boolean {
     return this.hasAttribute('disabled') || this.matches(':disabled');
   }
@@ -136,18 +124,15 @@ export class DropletIconButton extends DropletElement {
     }
   }
 
-  // Component styles layered over the shared jelly base styles
   override styles (): string {
     return variantStyles + iconButtonStyles;
   }
 
-  // The interactive markup that sits above the canvas
   override content (): string {
     return `<button part="button"><slot></slot></button>`;
   }
 
-  // The rounded square (default / shape="square") or circle (shape="circle")
-  // the physics body takes, inset so the wobble stays inside
+  // Inset so the wobble stays inside the host
   override shape (width: number, height: number): Shape {
     const size   = Math.min(width, height) - 6;
     const circle = this.getAttribute('shape') === 'circle';
@@ -160,7 +145,6 @@ export class DropletIconButton extends DropletElement {
     return { width: size, height: size, radius };
   }
 
-  // Called once after the shadow DOM and canvas exist. Wire events here.
   override onBuilt (): void {
     this.button = this.shadowRoot!.querySelector('button')!;
 
@@ -227,7 +211,6 @@ export class DropletIconButton extends DropletElement {
     this.addEventListener('click', cancelOutsideRelease, { capture: true });
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     if (this.axisAttributeChanged(name)) {
       return;
@@ -238,7 +221,6 @@ export class DropletIconButton extends DropletElement {
     }
   }
 
-  // Push one observed attribute into the inner native button or the membrane
   sync (name: string): void {
     if (name.startsWith('aria-') && name !== 'aria-label') {
       forwardAria(this, this.button, name);
@@ -278,7 +260,6 @@ export class DropletIconButton extends DropletElement {
     }
   }
 
-  // Route programmatic host focus into the inner native button
   override focus (options?: FocusOptions): void {
     this.button?.focus(options);
   }

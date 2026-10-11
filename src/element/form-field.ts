@@ -1,8 +1,7 @@
 /*
- * The native-form half shared by the text controls (droplet-input, droplet-textarea):
- * a form-associated host whose inner shadow control owns the editing, while the
- * host answers the form - value and default value, constraint validation mirrored
- * from the inner control, reset/disable/restore callbacks, ARIA and label linking.
+ * The native-form half shared by droplet-input and droplet-textarea: the inner shadow
+ * control owns the editing, while the form-associated host answers the form (value,
+ * validity mirrored from the control, reset/disable/restore, ARIA, and labels).
  */
 
 import { DropletElement }     from './index.js';
@@ -196,7 +195,6 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     this.updateValidity();
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   override connectedCallback (): void {
     replayProperties(this, (this.constructor as typeof DropletFormField).fieldReplayed());
 
@@ -210,7 +208,6 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     }
   }
 
-  // Lifecycle method: Called automatically when the element leaves the DOM
   override disconnectedCallback (): void {
     super.disconnectedCallback();
 
@@ -222,7 +219,6 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     return FIELD_REPLAYED;
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   // Each explicit ARIA element set rewrites the same "" attribute, so aria-* syncs even when unchanged
   attributeChangedCallback (name: string, oldValue: string | null, newValue: string | null): void {
     if (this.axisAttributeChanged(name)) {
@@ -346,11 +342,8 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     }
   }
 
-  /*
-   * Apply the autofill posture: no-autofill turns off autocomplete,
-   * autocorrect, autocapitalize and spellcheck and sets the opt-out
-   * attributes the common password managers respect
-   */
+  // no-autofill turns off autocomplete, autocorrect, autocapitalize, and spellcheck, and
+  // sets the opt-out attributes the common password managers respect
   syncAutofill (): void {
     const control      = this.control!;
     const off          = this.hasAttribute('no-autofill');
@@ -462,8 +455,6 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     return false;
   }
 
-  // Resolve the surface color the canvas paints: neutral when disabled,
-  // the elevated surface while focused, the resting field fill otherwise
   override fill (): string {
     if (this.fieldDisabled) {
       return this.resolveColor(`var(--jelly-color-background-neutral, var(--droplet-color-background-neutral, ${PALETTE['background-neutral']}))`);
@@ -478,7 +469,6 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     return custom || this.resolveColor(`var(--jelly-color-background-muted, var(--droplet-color-background-muted, ${PALETTE['background-muted']}))`);
   }
 
-  // Hairline border on the jelly surface: danger while invalid, accent while focused, neutral at rest
   override surfaceBorder (): Border {
     let color: string;
 
@@ -528,7 +518,6 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     }
   }
 
-  // Focus lifts the surface: elevated fill, a soft center pop, a visible ring
   handleFocus (): void {
     this.focused      = true;
     this.focusVisible = true;
@@ -536,7 +525,6 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     this.requestFrame();
   }
 
-  // Blur settles the surface back to its resting fill
   handleBlur (): void {
     this.focused      = false;
     this.focusVisible = false;

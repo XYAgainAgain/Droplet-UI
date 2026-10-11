@@ -1,10 +1,7 @@
 /*
- * A dual-thumb range slider for picking a low / high interval. Two
- * role="slider" knobs carry keyboard focus and all the ARIA while each
- * jelly thumb squishes when grabbed and leans into its travel; the accent
- * fill spans the selected interval. Form-associated - it submits its value
- * as "low,high". Direction-aware: in RTL layouts the painting, the knob
- * placement and the arrow keys all mirror like native sliders
+ * Two role="slider" knobs carry focus and all the ARIA while the painted
+ * thumbs squish and lean. It submits "low,high", and in RTL the painting,
+ * knob placement, and arrow keys all mirror like native sliders.
  */
 
 import { DropletElement }     from '../../element/index.js';
@@ -46,7 +43,7 @@ const RANGE_SIZES: Record<Size, RangeSize> = {
   large:  { width: 320, height: 44, thumb: 34, track: 14 },
 };
 
-// Physics tuning for the thumb bodies - small, tight drops that stay lively under drag
+// Thumb physics: small, tight drops that stay lively under drag
 const THUMB_CONFIG: Partial<DropletConfig> = {
   membraneSpring:          82,
   membraneDamping:         14,
@@ -58,7 +55,7 @@ const THUMB_CONFIG: Partial<DropletConfig> = {
 };
 
 /**
- * A dual-thumb range slider that picks a low / high interval.
+ * A dual-thumb range slider that picks a low/high interval.
  *
  * @element droplet-range
  *
@@ -98,7 +95,7 @@ export class DropletRange extends DropletElement implements EventListenerObject 
 
   internals: ElementInternals;
 
-  // Populated in onBuilt() / onShape()
+  // Populated in onBuilt()/onShape()
   track!: HTMLElement;
   knobs!: HTMLElement[];
   thumbs: [DropletBody, DropletBody] | null = null;
@@ -117,7 +114,6 @@ export class DropletRange extends DropletElement implements EventListenerObject 
   trackW = 0;
   trackH = 0;
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['min', 'max', 'step', 'low', 'high', 'label', 'disabled', 'size', ...DropletElement.AXIS_ATTRIBUTES];
   }
@@ -128,12 +124,10 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     this.internals = this.attachInternals();
   }
 
-  // Component styles layered over the shared jelly base styles
   override styles (): string {
     return rangeStyles + variantColors({ color: '--droplet-accent' });
   }
 
-  // The interactive markup that sits above the canvas
   override content (): string {
     return `
       <div class="wrap" part="wrap">
@@ -143,31 +137,27 @@ export class DropletRange extends DropletElement implements EventListenerObject 
       </div>`;
   }
 
-  // The base jelly body is the track capsule; the thumbs ride on top
+  // The base body is the track capsule; the thumbs ride on top
   override shape (width: number, height: number): Shape {
     const trackH = height || this.sizeConfig.track;
 
     return { width, height: trackH, radius: trackH / 2 };
   }
 
-  // The canonical size name, defaulting to medium
   get sizeKey (): Size {
     const size = (this.getAttribute('size') || 'medium').toLowerCase();
 
     return size === 'small' || size === 'large' ? size : 'medium';
   }
 
-  // The geometry record for the current size
   get sizeConfig (): RangeSize {
     return RANGE_SIZES[this.sizeKey];
   }
 
-  // The numeric lower bound of the whole range
   get min (): number {
     return numberAttribute(this, 'min', 0);
   }
 
-  // The numeric upper bound of the whole range
   get max (): number {
     return numberAttribute(this, 'max', 100);
   }
@@ -184,7 +174,6 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     return Math.max(0, this.trackW - this.sizeConfig.thumb);
   }
 
-  // Called once after the shadow DOM and canvas exist. Wire events here.
   override onBuilt (): void {
     this.track = this.shadowRoot!.querySelector('.track')!;
     this.knobs = [...this.shadowRoot!.querySelectorAll<HTMLElement>('.knob')];
@@ -208,7 +197,6 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     this.syncFormValue();
   }
 
-  // Lifecycle method: Called automatically when the element leaves the DOM
   override disconnectedCallback (): void {
     super.disconnectedCallback();
 
@@ -218,7 +206,7 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     this.pointerId = null;
   }
 
-  // Route knob-, track- and window-level events registered with `this`
+  // Route knob-, track-, and window-level events registered with `this`
   handleEvent (event: Event): void {
     switch (event.type) {
       case 'pointerdown':   this.down(event as PointerEvent, this.knobIndex(event)); break;
@@ -231,7 +219,7 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     }
   }
 
-  // The knob index an event was wired on, or null for the track / window
+  // The knob index an event was wired on, or null for the track/window
   knobIndex (event: Event): ThumbIndex | null {
     const index = (event.currentTarget as HTMLElement | null)?.dataset?.k;
 
@@ -263,7 +251,7 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     this.requestFrame();
   }
 
-  // A value as a 0..1 fraction of the min → max span
+  // A value as a 0–1 fraction of the min → max span
   fraction (value: number): number {
     return (value - this.min) / ((this.max - this.min) || 1);
   }
@@ -273,7 +261,7 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     return -this.travel / 2 + this.fraction(value) * this.travel;
   }
 
-  // A value's physical canvas x - mirrored in RTL, where values grow leftward
+  // A value's physical canvas x, mirrored in RTL where values grow leftward
   valToX (value: number): number {
     const x = this.logicalX(value);
 
@@ -308,7 +296,7 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     ];
   }
 
-  // Re-derive targets, knob placement, ARIA and the form value after a bound change
+  // Re-derive targets, knob placement, ARIA, and the form value after a bound change
   syncValueState (): void {
     if (!this.val) {
       return;
@@ -375,7 +363,7 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     });
   }
 
-  // Mirror state onto the two role=slider knobs - they carry all the ARIA
+  // Mirror state onto the two role=slider knobs, which carry all the ARIA
   syncA11y (): void {
     if (!this.knobs) {
       return;
@@ -410,7 +398,6 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     return Math.abs(x - this.valToX(this.val[0])) <= Math.abs(x - this.valToX(this.val[1])) ? 0 : 1;
   }
 
-  // Attach the window-level drag listeners for the duration of one drag
   bindWindow (): void {
     if (this.windowBound) {
       return;
@@ -423,7 +410,6 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     window.addEventListener('pointercancel', this);
   }
 
-  // Detach the window-level drag listeners once the drag ends
   unbindWindow (): void {
     if (!this.windowBound) {
       return;
@@ -461,7 +447,6 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     triggerHaptic();
   }
 
-  // Follow the pointer while a drag is active
   move (event: PointerEvent): void {
     const drag = this.drag;
 
@@ -474,7 +459,6 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     this.setVal(drag, this.xToVal(local.x), true);
   }
 
-  // End the drag: release the thumb, detach window listeners, commit the change
   up (event: PointerEvent): void {
     const drag = this.drag;
 
@@ -492,7 +476,7 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     this.requestFrame();
   }
 
-  // Keyboard stepping per knob: arrows follow reading direction, Shift ×10, Home / End
+  // Keyboard stepping per knob: arrows follow reading direction, Shift ×10, Home/End
   key (event: KeyboardEvent, i: ThumbIndex | null): void {
     if (i == null) {
       return;
@@ -542,14 +526,12 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     this.requestFrame();
   }
 
-  // Hide the focus ring when the knob loses focus
   blurKnob (): void {
     this.focusVisible = false;
 
     this.requestFrame();
   }
 
-  // One animation step: advance both thumb springs, repaint track, fill, thumbs
   override frame (dt: number): boolean {
     const thumbs = this.thumbs;
 
@@ -593,8 +575,8 @@ export class DropletRange extends DropletElement implements EventListenerObject 
 
     this.clearCanvas();
 
-    // Track base, then the accent fill spanning the selected interval -
-    // computed from both physical thumb positions, so RTL mirrors for free
+    // The accent fill spans the interval between both physical thumb
+    // positions, so RTL mirrors for free
     ctx.save();
     ctx.beginPath();
     ctx.roundRect(cx - tW / 2, cy - trackH / 2, tW, trackH, trackH / 2);
@@ -622,9 +604,8 @@ export class DropletRange extends DropletElement implements EventListenerObject 
       const stretchX       = travelStretchX * this.pressScale[i];
       const stretchY       = (1 / Math.sqrt(travelStretchX)) * this.pressScale[i];
 
-      // The focused thumb shows the shared soft accent focus ring, painted from
-      // its own deformed surface so it stays in lockstep with the thumb's
-      // wobble and travel - the same treatment every other component gets.
+      // The focus ring is painted from the thumb's own deformed surface so it
+      // stays in lockstep with the wobble and travel
       this.paintBody(thumbs[i], {
         fill:    accent,
         cx:      this.x[i],
@@ -642,7 +623,6 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     return !settled || this.drag != null;
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     if (this.axisAttributeChanged(name)) {
       return;
@@ -657,7 +637,6 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     }
   }
 
-  // Re-derive state from one observed attribute change
   sync (name: string): void {
     switch (name) {
       case 'low':
@@ -687,7 +666,6 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     }
   }
 
-  // The current interval, serialized as "low,high"
   get value (): string {
     return this.val.join(',');
   }

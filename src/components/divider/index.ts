@@ -1,8 +1,3 @@
-/*
- * A hairline separator. Horizontal by default; use direction="vertical"
- * for a column rule, or put text inside for a labelled divider
- */
-
 import { canonicalizeSize }  from '../../utilities/index.js';
 import { escapeHTML }        from '../../utilities/index.js';
 
@@ -14,7 +9,7 @@ import type { DefineOptions, DefineResult } from '../../registry/index.js';
 import dividerStyles         from './divider.css?inline';
 
 /**
- * A hairline separator, optionally labelled.
+ * A hairline separator, optionally labeled.
  *
  * @element droplet-divider
  *
@@ -34,12 +29,10 @@ export class DropletDivider extends HTMLElementBase {
 
   built = false;
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['direction', 'content', 'size'];
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
     ensureThemeTokens();
     canonicalizeSize(this);
@@ -52,13 +45,11 @@ export class DropletDivider extends HTMLElementBase {
 
     this.setAttribute('role', 'separator');
 
-    // Encapsulate styles and markup inside a Shadow DOM so they don't leak out
     this.attachShadow({ mode: 'open' });
 
     this.render();
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     if (name === 'size') {
       canonicalizeSize(this);
@@ -69,9 +60,8 @@ export class DropletDivider extends HTMLElementBase {
     }
   }
 
-  // The optional visible text: the content attribute, falling back to slotted
-  // text. Exposed as `content` (matching the attribute); `label` stays as an
-  // alias, though across the rest of the library `label` means the aria-label.
+  // The content attribute, else slotted text. `label` stays as an alias, though
+  // across the rest of the library `label` means the aria-label.
   get content (): string {
     return this.getAttribute('content') ?? (this.textContent ?? '').trim();
   }
@@ -80,7 +70,6 @@ export class DropletDivider extends HTMLElementBase {
     return this.content;
   }
 
-  // Rebuild the line (or labelled line) for the current attributes
   render (): void {
     const vertical = this.getAttribute('direction') === 'vertical';
     const label    = this.label;
@@ -95,7 +84,7 @@ export class DropletDivider extends HTMLElementBase {
       <style>${dividerStyles}</style>
 
       ${label
-        ? `<div class="labelled${vertical ? ' vertical' : ''}"><span class="label">${escapeHTML(label)}</span></div>`
+        ? `<div class="labeled${vertical ? ' vertical' : ''}"><span class="label">${escapeHTML(label)}</span></div>`
         : `<div class="line"></div>`}
     `;
   }

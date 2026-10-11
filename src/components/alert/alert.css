@@ -12,9 +12,8 @@
 
   --tone: var(--jelly-color-background-azure, var(--droplet-color-background-azure));
 
-  /* Filled, not outlined: the surface carries a soft wash of the tone,
-     with a slightly stronger tone edge - both track --tone, so every
-     tone (and dark mode) tints automatically. */
+  /* Filled rather than outlined: a soft wash of the tone with a slightly stronger edge.
+     Both track --tone, so every tone and dark mode tints automatically. */
   --droplet-fill: color-mix(in srgb, var(--tone) 15%, var(--jelly-color-background-surface, var(--droplet-color-background-surface))); --jelly-fill: var(--droplet-fill);
   --droplet-alert-border: color-mix(in srgb, var(--tone) 34%, var(--jelly-color-background-surface, var(--droplet-color-background-surface))); --jelly-alert-border: var(--droplet-alert-border);
 
@@ -56,8 +55,8 @@
   padding-inline: var(--jelly-alert-padding-inline, var(--droplet-alert-padding-inline));
 }
 
-/* The tone icon (Fluent) renders directly in the tone colour - the
-   glyphs carry their own circle / triangle outline */
+/* The Fluent tone icon renders in the tone color; the glyphs carry their own
+   circle or triangle outline */
 .icon {
   flex:            0 0 auto;
   width:           var(--jelly-alert-icon, var(--droplet-alert-icon));

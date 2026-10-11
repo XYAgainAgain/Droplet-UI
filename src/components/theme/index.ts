@@ -1,8 +1,7 @@
 /*
- * A theme provider that scopes Droplet UI design tokens to its subtree,
- * so consumers can force light or dark mode, follow the operating system,
- * or re-tint the accent for a section of the page - without touching the
- * rest of the document
+ * A theme provider that scopes Droplet UI design tokens to its subtree: force
+ * light or dark, follow the operating system, or re-tint the accent for one
+ * section of the page without touching the rest of the document
  *
  * <droplet-theme mode="dark">
  *   <droplet-button>I render on dark tokens</droplet-button>
@@ -12,10 +11,8 @@
  *   <droplet-slider></droplet-slider>
  * </droplet-theme>
  *
- * The provider is display: contents, so it never affects layout. Any
- * individual token can also be overridden inline - the resolved token set
- * is applied through the shadow :host rule, so a consumer's inline style
- * wins over it:
+ * The provider is display: contents, so it never affects layout. Tokens apply
+ * through the shadow :host rule, so a consumer's inline override still wins:
  *
  * <droplet-theme style="--droplet-color-background-azure: #4F46E5">…</droplet-theme>
  */
@@ -29,13 +26,13 @@ import { HTMLElementBase }   from '../../element/base.js';
 import { defineStrict, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
-// Parse a resolved rgb()/color(srgb) CSS color into normalized RGBA channels
 // Both names are declared here, the legacy one pointing at the canonical value,
 // so an outer override under either name stops at this boundary
 function scoped (name: string, value: string): string {
   return `--droplet-color-${name}: ${value}; --jelly-color-${name}: var(--droplet-color-${name});`;
 }
 
+// Parse a resolved rgb()/color(srgb) CSS color into normalized RGBA channels
 function colorChannels (color: string): [number, number, number, number] {
   const values = String(color).match(/[\d.]+/g)?.slice(0, 3).map(Number) || [0, 0, 0];
   const channels = color.startsWith('color(')
@@ -95,7 +92,6 @@ export class DropletTheme extends HTMLElementBase {
   tokenStyle: HTMLStyleElement | null = null;
   colorProbe: HTMLSpanElement | null = null;
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['mode', 'accent'];
   }
@@ -108,7 +104,6 @@ export class DropletTheme extends HTMLElementBase {
     this.onSchemeChange = () => this.sync();
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
     ensureThemeTokens();
 
@@ -130,12 +125,10 @@ export class DropletTheme extends HTMLElementBase {
     this.sync();
   }
 
-  // Lifecycle method: Called automatically when the element leaves the DOM
   disconnectedCallback (): void {
     this.schemeQuery?.removeEventListener?.('change', this.onSchemeChange);
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (): void {
     if (this.isConnected) {
       this.sync();
@@ -193,11 +186,9 @@ export class DropletTheme extends HTMLElementBase {
   }
 
   /*
-   * Apply the resolved token set through the shadow :host rule, so the whole
-   * subtree - including canvas-painted components that read computed tokens -
-   * picks up the theme through normal CSS inheritance. Writing it as a :host
-   * selector rule (rather than inline styles on the host) means a consumer's
-   * own inline `style="--droplet-color-…"` (or `--droplet-color-…`) still wins.
+   * The token set lands in the shadow :host rule, so the whole subtree (canvas
+   * painters reading computed tokens included) inherits it, and a rule rather
+   * than inline host styles lets a consumer's own inline tokens still win.
    */
   sync (): void {
     if (!this.tokenStyle) {

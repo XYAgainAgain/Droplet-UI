@@ -1,4 +1,4 @@
-/* Styles shared by every Droplet canvas host (imported by element.ts as a string). */
+/* Styles shared by every Droplet canvas host (imported as a string by src/element/index.ts). */
 
 :host {
   display:                     inline-block;

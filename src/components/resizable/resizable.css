@@ -29,12 +29,10 @@
     minmax(0, var(--droplet-resizable-row-b, 1fr));
 }
 
-/* In the 2×2 grid the slots must generate real boxes: a slot's default
-   display is "contents", which produces no box at all - the grid-area
-   placements would be ignored and the panes would auto-place into the
-   wrong tracks and overflow the host. Each slot becomes a flex box
-   pinned to its cell that its pane fills, clipped to the cell so a
-   fully collapsed track never spills its content outside the bounds. */
+/* A slot defaults to display: contents, which makes no box, so the 2×2
+   grid-area placements would be ignored and panes would auto-place into the
+   wrong tracks. Each slot becomes a flex box pinned to its cell, clipped so
+   a fully collapsed track never spills its content. */
 :host([direction="both"]) slot {
   display:    flex;
   min-width:  0;
@@ -61,9 +59,8 @@
   border-radius:   999px;
 }
 
-/* A hairline seam runs the full length of every divider so the panes
-   read as separated even at rest - the grabber pill sits on top of it.
-   Default (vertical divider between a row of panes): a full-height rule. */
+/* A full-length hairline seam keeps the panes visibly separated at rest,
+   under the grabber pill. The default vertical divider gets a full-height rule. */
 .divider::before {
   content:    "";
   position:   absolute;

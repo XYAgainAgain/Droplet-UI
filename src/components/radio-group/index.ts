@@ -1,9 +1,6 @@
 /*
- * A labeled container for <droplet-radio> items. The radios still group by
- * their shared `name`; this adds the radiogroup semantics, a legend linked
- * as the group's accessible name, the flow layout and size propagation to
- * the child radios. direction="vertical" stacks the items (the default is
- * horizontal)
+ * The radios still group by their own shared `name`; this container only adds
+ * the radiogroup role, the legend as its accessible name, layout, and sizing.
  */
 
 import { canonicalizeSize }  from '../../utilities/index.js';
@@ -19,14 +16,14 @@ import { DropletRadio }        from '../radio/index.js';
 import radioGroupStyles      from './radio-group.css?inline';
 
 /**
- * A labelled container that gives its `<droplet-radio>` children radiogroup
- * semantics, a legend and shared sizing.
+ * A labeled container that gives its `<droplet-radio>` children radiogroup
+ * semantics, a legend, and shared sizing.
  *
  * @element droplet-radio-group
  *
  * @slot - The `<droplet-radio>` items.
  *
- * @attr {string} label - The group's legend / accessible name.
+ * @attr {string} label - The group's legend and accessible name.
  * @attr {"horizontal"|"vertical"} direction - Item flow direction.
  * @attr {"small"|"medium"|"large"} size - Size propagated to the radios.
  *
@@ -47,12 +44,10 @@ export class DropletRadioGroup extends HTMLElementBase {
   items!: HTMLElement;
   slotEl!: HTMLSlotElement;
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['label', 'direction', 'size'];
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
     ensureThemeTokens();
     canonicalizeSize(this);
@@ -65,7 +60,6 @@ export class DropletRadioGroup extends HTMLElementBase {
     propagateSize(this, anyTag('radio'));
   }
 
-  // Render the shadow DOM once
   build (): void {
     this.built    = true;
     this.legendId = uniqueId('droplet-radio-group-legend');
@@ -85,7 +79,6 @@ export class DropletRadioGroup extends HTMLElementBase {
     this.slotEl.addEventListener('slotchange', () => propagateSize(this, anyTag('radio')));
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     if (!this.built) {
       return;
@@ -99,7 +92,6 @@ export class DropletRadioGroup extends HTMLElementBase {
     }
   }
 
-  // Show the legend text and link it to the group as its accessible name
   syncLabel (): void {
     const label = this.getAttribute('label') || '';
 

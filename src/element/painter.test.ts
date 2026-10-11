@@ -76,7 +76,6 @@ function pixel (el: DropletElement, x: number, y: number): Uint8ClampedArray {
   return el.ctx.getImageData(x, y, 1, 1).data;
 }
 
-// True when the pixel at the canvas center is not fully transparent
 function centerPainted (el: DropletElement): boolean {
   const data = pixel(el, Math.round(el.canvas.width / 2), Math.round(el.canvas.height / 2));
 

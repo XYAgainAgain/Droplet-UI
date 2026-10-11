@@ -1,13 +1,13 @@
 /*
  * The shared animation engine: one requestAnimationFrame loop drives every
- * live component (anything with frame(dt) -> boolean), parking itself when they
+ * live component (anything with frame(dt) → boolean), parking itself when they
  * all report done and waking on demand.
  */
 
 import { clamp } from '../utilities/index.js';
 import { LOG_PREFIX } from '../registry/tags.js';
 
-// The surface the engine drives - DropletElement satisfies this structurally
+// The surface the engine drives; DropletElement satisfies this structurally
 export interface DropletComponent {
   frame(dt: number): boolean;
   frameDt?: number;
@@ -24,7 +24,6 @@ class DropletEngine {
     this.loop = this.loop.bind(this);
   }
 
-  // Add a component to the loop and start it if it was parked
   wake (component: DropletComponent): void {
     this.active.add(component);
 
@@ -35,7 +34,6 @@ class DropletEngine {
     }
   }
 
-  // Remove a component from the loop (used on disconnect)
   drop (component: DropletComponent): void {
     this.active.delete(component);
   }
@@ -50,9 +48,8 @@ class DropletEngine {
     for (const component of this.active) {
       let keep = false;
 
-      // Expose the frame delta to paintBody's colour easing and reset the
-      // per-frame "still easing" flag the base class raises while a fill is
-      // crossfading - so a component stays awake until its colours settle.
+      // paintBody's color easing reads frameDt and re-raises colorEasing on every
+      // frame a fill is still crossfading, so a component stays awake until it settles
       component.frameDt     = dt;
       component.colorEasing = false;
 

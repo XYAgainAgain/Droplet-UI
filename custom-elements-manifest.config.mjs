@@ -1,8 +1,6 @@
 /*
- * Custom Elements Manifest analyzer config. Reads the component TypeScript
- * sources + their JSDoc and emits custom-elements.json (attributes, properties,
- * methods, events, slots, CSS parts and CSS custom properties). That manifest
- * is the single source of truth the docs site is generated from.
+ * Custom Elements Manifest analyzer config: reads the component sources and their
+ * JSDoc and emits custom-elements.json, which the docs data build reconciles against.
  */
 
 // Each canonical element records its permanent Jelly UI tag as metadata, so tools

@@ -1,10 +1,6 @@
 /*
- * The API reference renderer (/api)
- *
- * Pure reference: every component from docs/data.js becomes a section of
- * aligned tables - attributes, properties, methods, events, slots, parts,
- * CSS custom properties, keyboard - plus its code examples as text. No
- * live previews; the showcase (index.html) handles those.
+ * API reference renderer (/api): each component in docs/content/data.js becomes a section
+ * of aligned tables plus its examples as text. Live previews belong to the showcase.
  */
 
 import '../../package.js';
@@ -20,8 +16,8 @@ import { GROUP_ORDER }      from '../content/data.js';
 wireMotionToggle(document.getElementById('motionToggle'));
 wireThemeToggle(document.getElementById('themeToggle'));
 
-// The shared top bar's page links are droplet-buttons, not anchors - wire their
-// navigation (the same handlers the showcase page installs for its bar)
+// The top bar's page links are droplet-buttons, not anchors, so their navigation
+// is wired here (the showcase installs the same handlers)
 document.querySelector('[data-subnav-showcase]')?.addEventListener('click', () => {
   window.location.href = '../';
 });
@@ -32,15 +28,10 @@ document.querySelector('[data-subnav-migration]')?.addEventListener('click', () 
   window.location.href = '../migration/';
 });
 
-/* ---- Rendering --------------------------------------------------------- */
+// Rendering
 
-/*
- * Column layouts per column count. Every layout starts its name column on
- * the same 20% share and ends its description column on the same 44%, so
- * ALL the tables on the page sit on one vertical grid - the eye can scan
- * the descriptions (or names) straight down a section. The tables use
- * table-layout: fixed, so these widths are exact, not hints.
- */
+// Every layout starts the name column at 20% and ends the description column at 44%, so all
+// tables share one vertical grid; table-layout: fixed makes these widths exact, not hints
 const COLUMN_WIDTHS = {
   2: ['56%', '44%'],
   3: ['20%', '36%', '44%'],
@@ -92,7 +83,6 @@ function exampleBlock (example, index, tag) {
     </div>`;
 }
 
-// The full reference section for one component
 function componentSection (item) {
   const events = (item.events || []).map((e) => ({ ...e, detail: e.detail || '-' }));
 
@@ -148,7 +138,7 @@ function componentSection (item) {
     </section>`;
 }
 
-/* ---- Build the page ----------------------------------------------------- */
+// Build the page
 
 const groups = GROUP_ORDER.filter((group) => COMPONENTS.some((c) => c.group === group));
 
@@ -165,7 +155,7 @@ document.getElementById('sections').innerHTML = groups.map((group) =>
   COMPONENTS.filter((c) => c.group === group).map(componentSection).join(''),
 ).join('');
 
-/* ---- Page behavior ------------------------------------------------------ */
+// Page behavior
 
 // Copy buttons
 document.addEventListener('click', (event) => {
@@ -198,11 +188,8 @@ const sectionObserver = new IntersectionObserver((entries) => {
 document.querySelectorAll('.component').forEach((section) => sectionObserver.observe(section));
 
 /*
- * Scroll a section under the sticky header. The sections use
- * content-visibility: auto, so off-screen ones are only size-estimated - a
- * plain anchor jump to a far section lands off, then the sections near the
- * landing render their real height and shift the target. Re-pin the target
- * across a few frames until its position stops moving, so one click lands it.
+ * Sections use content-visibility: auto, so off-screen ones are only size-estimated and a
+ * plain anchor jump lands off once neighbors render. Re-pin until the target stops moving.
  */
 function scrollToSection (id) {
   const target = document.getElementById(id);
@@ -225,8 +212,7 @@ function scrollToSection (id) {
     window.scrollTo({ top: Math.max(0, top), left: 0, behavior: 'instant' });
     tries += 1;
 
-    // Re-pin until the target stops moving (late font / layout settling can
-    // shift it a frame or two after the first jump), then stop.
+    // Late font or layout settling can shift the target a frame or two after the jump
     if (Math.abs(top - prev) > 1 && tries < 30) {
       prev = top;
       requestAnimationFrame(pin);

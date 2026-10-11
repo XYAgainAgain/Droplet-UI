@@ -1,8 +1,4 @@
-/*
- * Shared helpers for overlay components (tooltip / popover / menu / dialog /
- * drawer / toast), split by concern into placement / scroll / modal /
- * transitions. This barrel re-exports the whole surface.
- */
+// Shared helpers for overlay components: tooltip, popover, menu, dialog, drawer, and toast
 
 export * from './placement.js';
 export * from './scroll.js';

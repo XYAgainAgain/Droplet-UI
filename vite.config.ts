@@ -33,6 +33,10 @@ async function writeLegacyStub (): Promise<void> {
   await writeFile(resolve('dist/jelly.d.ts'), stub);
 }
 
+// Watch mode only feeds the docs site, and the declaration pass writes into dist/src,
+// which retriggers the watcher forever; npm run build still emits the types
+const watching = process.argv.includes('--watch') || process.argv.includes('-w');
+
 export default defineConfig({
   environments: {
     droplet: libEnvironment('droplet', 'src/droplet.ts'),
@@ -47,7 +51,7 @@ export default defineConfig({
       await writeLegacyStub();
     },
   },
-  plugins: [
+  plugins: watching ? [] : [
     dts({
       bundleTypes: {
         invokeOptions: {

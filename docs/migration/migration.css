@@ -1,8 +1,4 @@
-/*
- * Migration-page-only styles (/migration): a single prose column with the
- * generated name tables. Shared chrome (tokens, header, code blocks) lives
- * in docs/shared/site.css.
- */
+/* Migration-page-only styles (/migration); shared page chrome lives in docs/shared/site.css */
 
 /* The tables render from data; hold space so the footer does not leap */
 #tokenGroups:empty { min-block-size: 60vh; }
@@ -36,7 +32,6 @@ body { font-size: 15.5px; }
 }
 
 .lede {
-  max-inline-size: 64ch;
   margin:          14px 0 0;
   color:           var(--muted);
   text-wrap:       pretty;
@@ -82,7 +77,6 @@ body { font-size: 15.5px; }
 .block h3 code { font-size: 0.9em; }
 
 .block p {
-  max-inline-size: 70ch;
   margin:          0 0 14px;
   color:           var(--muted);
   text-wrap:       pretty;
@@ -110,7 +104,7 @@ body { font-size: 15.5px; }
   padding: 0 0 0 1.2em;
   color:   var(--muted);
 }
-.keeps li { margin-block-end: 10px; max-inline-size: 70ch; text-wrap: pretty; }
+.keeps li { margin-block-end: 10px; text-wrap: pretty; }
 .keeps strong { color: var(--text); font-weight: 620; }
 
 .features {

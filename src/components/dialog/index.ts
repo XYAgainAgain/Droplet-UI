@@ -1,6 +1,6 @@
 /*
  * A modal dialog that springs in with a jello pop. While open it locks
- * the page scroll, inerts everything behind it and returns focus where
+ * the page scroll, inerts everything behind it, and returns focus where
  * it came from on close. Portaled to <body> so no ancestor can clip it.
  *
  *   <droplet-dialog id="d" label="Confirm"><h2>Title</h2><p>…</p></droplet-dialog>
@@ -24,7 +24,7 @@ import type { DefineOptions, DefineResult } from '../../registry/index.js';
 import dialogStyles             from './dialog.css?inline';
 
 /**
- * A modal dialog with scroll lock, focus trapping and a spring-in entrance.
+ * A modal dialog with scroll lock, focus trapping, and a spring-in entrance.
  *
  * @element droplet-dialog
  *
@@ -62,19 +62,17 @@ export class DropletDialog extends HTMLElementBase {
   restoreInert: (() => void) | null = null;
 
   onDocumentKey = (event: KeyboardEvent): void => {
-    // An inner overlay (select / menu / popover) that handled Escape first
+    // An inner overlay (select, menu, or popover) that handled Escape first
     // marks it defaultPrevented; don't tear the dialog down in the same press
     if (event.key === 'Escape' && !event.defaultPrevented) {
       this.open = false;
     }
   };
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['open', 'label'];
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
     ensureThemeTokens();
 
@@ -84,7 +82,6 @@ export class DropletDialog extends HTMLElementBase {
 
     this.built = true;
 
-    // Encapsulate styles and markup inside a Shadow DOM so they don't leak out
     this.attachShadow({ mode: 'open', delegatesFocus: true });
 
     this.shadowRoot!.innerHTML = `
@@ -115,7 +112,6 @@ export class DropletDialog extends HTMLElementBase {
     });
   }
 
-  // Lifecycle method: Called automatically when the element leaves the DOM
   disconnectedCallback (): void {
     // Portaling to <body> disconnects and reconnects synchronously, so only
     // clean up when the dialog is truly gone from the document while open
@@ -126,7 +122,6 @@ export class DropletDialog extends HTMLElementBase {
     });
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string, was: string | null, now: string | null): void {
     if (was === now || !this.dialog) {
       return;
@@ -144,11 +139,8 @@ export class DropletDialog extends HTMLElementBase {
     }
   }
 
-  /*
-   * The dialog's accessible name: an explicit label attribute wins,
-   * else the first heading's text is mirrored onto aria-label (idrefs
-   * can't cross the shadow boundary to slotted content).
-   */
+  // An explicit label attribute wins; otherwise the first heading's text is mirrored
+  // onto aria-label, since IDREFs can't cross the shadow boundary to slotted content
   syncLabel (): void {
     const label   = this.getAttribute('label');
     const heading = this.querySelector('h1, h2, h3, [data-dialog-title]');
@@ -184,8 +176,7 @@ export class DropletDialog extends HTMLElementBase {
     this.syncLabel();
 
     if (!prefersReducedMotion() && this.dialog.animate) {
-      // Rise up gently while fading in, with a barely-there settle - smooth
-      // and organic, not a hard pop from tiny
+      // Rise gently while fading in, with a barely-there settle instead of a hard pop from tiny
       this.dialog.animate(
         [
           { opacity: 0, transform: 'translateY(12px) scale(0.97)' },
@@ -238,12 +229,10 @@ export class DropletDialog extends HTMLElementBase {
     this.open = true;
   }
 
-  // Route programmatic host focus onto the dialog surface
   override focus (options?: FocusOptions): void {
     this.dialog?.focus(options);
   }
 
-  // The open state as a property
   get open (): boolean {
     return this.hasAttribute('open');
   }

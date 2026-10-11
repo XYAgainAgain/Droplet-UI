@@ -17,8 +17,8 @@
 :host([size="small"]) { height: 30px; font-size: 12.5px; }
 :host([size="large"]) { height: 42px; font-size: 15.5px; }
 
-/* A smaller, rounded-rectangle radius instead of the full pill - the same
-   shape="square" vocabulary droplet-button and droplet-badge use */
+/* A smaller rounded-rectangle radius instead of the full pill, matching
+   shape="square" on droplet-button and droplet-badge */
 :host([shape="square"]) { --droplet-chip-radius: 11px; --jelly-chip-radius: var(--droplet-chip-radius); }
 :host([shape="square"][size="small"]) { --droplet-chip-radius: 9px; --jelly-chip-radius: var(--droplet-chip-radius); }
 :host([shape="square"][size="large"]) { --droplet-chip-radius: 13px; --jelly-chip-radius: var(--droplet-chip-radius); }
@@ -32,8 +32,8 @@
   pointer-events: none;
 }
 
-/* Removal collapses width + margin (set from JS) so neighbours slide in,
-   rather than snapping shut the instant the chip leaves the DOM */
+/* Removal collapses width and margin (set from JS) so neighbors slide in
+   instead of snapping shut the instant the chip leaves the DOM */
 :host {
   transition:
     transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),

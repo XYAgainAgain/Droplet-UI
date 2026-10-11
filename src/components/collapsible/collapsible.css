@@ -91,9 +91,8 @@
   grid-template-rows: 1fr;
 }
 
-/* Hidden content leaves the tab order and the accessibility tree while
-   collapsed (visibility: hidden does both); the delay keeps it visible
-   through the closing animation, then flips it off once fully closed. */
+/* visibility: hidden drops collapsed content from the tab order and accessibility
+   tree; the delay keeps it visible through the closing animation. */
 .content {
   overflow:   hidden;
   visibility: hidden;

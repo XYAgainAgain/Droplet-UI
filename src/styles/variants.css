@@ -1,9 +1,5 @@
-/*
- * The shared variant fill/label map for every fillable component (button,
- * icon-button, badge, …). Static because the token sheet always defines the
- * --droplet-color-* custom properties, so no JS fallback is needed. Imported as
- * a string and prepended to a component's own styles.
- */
+/* Variant fill/label map for every fillable component, prepended to its own styles.
+   Static because the token sheet always defines --droplet-color-*, so no JS fallback is needed. */
 
 :host {
   --droplet-fill: var(--jelly-color-background-accent, var(--droplet-color-background-accent)); --jelly-fill: var(--droplet-fill);

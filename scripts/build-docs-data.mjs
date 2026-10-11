@@ -1,23 +1,8 @@
 /*
  * Build docs/content/data.js from the hand-authored docs/content/content.js, reconciled
- * against custom-elements.json (the Custom Elements Manifest emitted by
- * `cem analyze` from the component TypeScript + JSDoc).
- *
- * The manifest is the source of truth for which attributes, events, slots,
- * CSS parts and CSS custom properties a component actually exposes, plus their
- * types. The content file supplies the curated prose. This script merges them:
- *
- *   - Types for attributes come from the manifest (falling back to any type
- *     the content already specifies) so they can't drift from the source.
- *   - Descriptions, defaults, examples, keyboard maps, methods and properties
- *     come from the content file.
- *   - Every manifest member that isn't documented in content, and every
- *     documented member the manifest no longer has, is reported as a warning
- *     so the docs stay honest. `internal` ARIA-forwarding attributes
- *     (aria-*) are ignored - they are implementation detail, not public API.
- *
- * Run via `npm run docs` (which runs `cem analyze` first) or directly with
- * `node scripts/build-docs-data.mjs`.
+ * against custom-elements.json (the manifest `cem analyze` emits). The manifest decides which
+ * members exist and their types; content.js supplies the prose, defaults, and examples. Drift
+ * either way becomes a warning. Run via `npm run docs`, which runs `cem analyze` first.
  */
 
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -31,7 +16,7 @@ const root         = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const manifestPath = resolve(root, 'custom-elements.json');
 const outputPath   = resolve(root, 'docs/content/data.js');
 
-// ---- Load the manifest, indexed by tag name --------------------------------
+// Load the manifest, indexed by tag name
 
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 
@@ -45,27 +30,23 @@ for (const module of manifest.modules ?? []) {
   }
 }
 
-// ---- Reconcile one list against the manifest -------------------------------
+// Reconcile one list against the manifest
 
 const warnings = [];
 
-// Attributes whose names begin with a reserved prefix are host-forwarding
-// implementation detail, never part of the documented public surface.
+// aria-* and role are host-forwarding implementation detail, not public API
 const isInternalAttribute = (name) => name.startsWith('aria-') || name === 'role';
 
-// CSS parts provided by the DropletElement base class (the canvas answers to both
-// names), so a canvas component may document them without repeating the JSDoc.
-const BASE_PARTS = new Set(['droplet', 'jelly']);
+// CSS parts provided by the DropletElement base class, so a canvas component may
+// document them without repeating the JSDoc.
+const BASE_PARTS = new Set(['droplet']);
+
+// The canvas also answers to ::part(jelly), a legacy alias documented only on /migration/
+const LEGACY_PARTS = new Set(['jelly']);
 
 // The manifest names the default slot ""; the docs label it "(default)".
 const normalizeSlot = (name) => (name === '' ? '(default)' : name);
 
-/*
- * Merge a curated list with the manifest's view of the same surface. `manItems`
- * is the manifest array; `contentItems` the curated array; both key on `name`.
- * The manifest defines membership and order; content supplies the prose. Types
- * are taken from the manifest when present. Drift is collected as warnings.
- */
 function reconcile (tag, kind, manItems, contentItems, { includeType = false } = {}) {
   const key     = kind === 'slot' ? normalizeSlot : (name) => name;
   const content = new Map((contentItems ?? []).map((item) => [key(item.name), item]));
@@ -74,6 +55,10 @@ function reconcile (tag, kind, manItems, contentItems, { includeType = false } =
 
   for (const manItem of manItems ?? []) {
     if (kind === 'attribute' && isInternalAttribute(manItem.name)) {
+      continue;
+    }
+
+    if (kind === 'part' && LEGACY_PARTS.has(manItem.name)) {
       continue;
     }
 
@@ -89,7 +74,6 @@ function reconcile (tag, kind, manItems, contentItems, { includeType = false } =
     const entry = { name };
 
     if (includeType) {
-      // Prefer the source's type; fall back to any prose type the content set
       entry.type = manItem.type?.text ?? curated?.type;
       if (entry.type === undefined) delete entry.type;
     }
@@ -103,8 +87,8 @@ function reconcile (tag, kind, manItems, contentItems, { includeType = false } =
     merged.push(entry);
   }
 
-  // Anything documented that the manifest no longer exposes is stale - unless
-  // it is a base-class part every canvas component inherits.
+  // Documented but missing from the manifest means stale, except the base-class
+  // parts every canvas component inherits
   for (const item of contentItems ?? []) {
     const name = key(item.name);
 
@@ -129,11 +113,9 @@ function reconcile (tag, kind, manItems, contentItems, { includeType = false } =
 }
 
 /*
- * CSS custom properties are content-authoritative: the tokens live in the
- * component's .css file (their default values with them), and the curated
- * theming API + prose live here - so we don't force a redundant `@cssprop`
- * for each. We still surface any `@cssprop` the source DOES declare that the
- * content forgot, so a newly-documented token can't slip through undocumented.
+ * CSS custom properties are content-authoritative (tokens and defaults live in the
+ * component .css), so no `@cssprop` is required. Any `@cssprop` the source does
+ * declare that content.js forgot is still reported.
  */
 function reconcileCssProperties (tag, manProps, contentProps) {
   const documented = new Set((contentProps ?? []).map((prop) => prop.name));
@@ -181,7 +163,7 @@ function reconcileEvents (tag, manEvents, contentEvents) {
   return merged;
 }
 
-// ---- Build each component descriptor ---------------------------------------
+// Build each component descriptor
 
 const built = COMPONENTS.map((component) => {
   const element = elements.get(component.tag);
@@ -215,7 +197,7 @@ for (const tag of elements.keys()) {
   }
 }
 
-// ---- Emit docs/content/data.js -----------------------------------------------------
+// Emit docs/content/data.js
 
 const header = `/*
  * GENERATED FILE — do not edit by hand.
@@ -232,7 +214,7 @@ export const COMPONENTS = ${JSON.stringify(built, null, 2)};
 
 writeFileSync(outputPath, header);
 
-// ---- Report ----------------------------------------------------------------
+// Report
 
 if (warnings.length) {
   console.warn(`\n⚠ ${warnings.length} documentation drift warning(s):`);

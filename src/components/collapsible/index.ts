@@ -1,7 +1,7 @@
 /*
- * A bouncy disclosure section: a header button that springs its panel
- * open and closed, with proper expand/collapse semantics for assistive
- * technology and exactly one toggle event per state change
+ * A bouncy disclosure section: a header button springs its panel open and
+ * closed, with expand/collapse semantics for assistive technology and
+ * exactly one toggle event per change.
  */
 
 import { canonicalizeSize }  from '../../utilities/index.js';
@@ -29,7 +29,7 @@ import collapsibleStyles     from './collapsible.css?inline';
 const REPLAYED = ['open', 'quality', 'palette', 'material'] as const;
 
 /**
- * A bouncy disclosure section with a springy expand / collapse.
+ * A bouncy disclosure section with a springy expand/collapse.
  *
  * @element droplet-collapsible
  *
@@ -37,7 +37,7 @@ const REPLAYED = ['open', 'quality', 'palette', 'material'] as const;
  * @slot - The collapsible panel content.
  *
  * @attr {boolean} open - Whether the panel is expanded.
- * @attr {"small"|"medium"|"large"} size - Padding / typography scale.
+ * @attr {"small"|"medium"|"large"} size - Padding and typography scale.
  * @attr {"low"|"medium"|"high"} quality - Rendering budget; inherited from `data-droplet-quality`.
  *
  * @fires toggle - Every time the panel actually opens or closes.
@@ -63,7 +63,6 @@ export class DropletCollapsible extends HTMLElementBase {
     this.#upgradedOpen = this.hasAttribute('open');
   }
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['open', 'size', 'quality'];
   }
@@ -72,7 +71,6 @@ export class DropletCollapsible extends HTMLElementBase {
     return defineCollapsible(options);
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
     replayProperties(this, REPLAYED);
 
@@ -129,7 +127,6 @@ export class DropletCollapsible extends HTMLElementBase {
     this.toggleAttribute('open', force ?? !this.open);
   }
 
-  // The open state as a property
   get open (): boolean {
     return this.hasAttribute('open');
   }
@@ -139,7 +136,7 @@ export class DropletCollapsible extends HTMLElementBase {
   }
 
   // The effective rendering budget: the element attribute beats any ancestor
-  // scope. Phase 1 only reports it; nothing acts on it yet.
+  // scope. Only reported; nothing acts on it yet.
   get quality (): Quality {
     return readQuality(this);
   }
@@ -165,7 +162,6 @@ export class DropletCollapsible extends HTMLElementBase {
     writeNamedAxis(this, 'material', value);
   }
 
-  // Route programmatic host focus onto the header button
   override focus (options?: FocusOptions): void {
     this.head?.focus(options);
   }
@@ -173,7 +169,6 @@ export class DropletCollapsible extends HTMLElementBase {
   #build (): void {
     const id = uniqueId('droplet-collapsible');
 
-    // Encapsulate styles and markup inside a Shadow DOM so they don't leak out
     this.attachShadow({ mode: 'open', delegatesFocus: true });
 
     this.shadowRoot!.innerHTML = `

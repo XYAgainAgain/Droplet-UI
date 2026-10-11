@@ -1,11 +1,6 @@
 /*
- * Shared page chrome for both docs pages (the showcase and the API
- * reference): design tokens, the pre-upgrade placeholders that stop load
- * flicker, the sticky header and the code blocks. Page-specific styles
- * live in docs/showcase/showcase.css and docs/api/reference.css.
- *
- * Colors resolve through the Droplet theme tokens once the library loads;
- * light-dark() fallbacks keep the first paint correct.
+ * Page chrome shared by every docs page. Colors resolve through the Droplet theme
+ * tokens once the library loads; light-dark() fallbacks keep the first paint correct.
  */
 
 :root {
@@ -35,16 +30,9 @@
 
 * { box-sizing: border-box; }
 
-/* ============ Pre-upgrade placeholders (no load flicker) ============
-   Custom elements are plain inline boxes until the module registers them,
-   so the first paint would jitter as each one snaps to its real size.
-   Reserve the upgraded footprint of everything above the fold and hide its
-   raw content - the layout is already final when they pop in. Each
-   placeholder mirrors its component's upgraded box exactly: the switch
-   reserves its 62px track + 12px gap and matches the label font, the chip
-   its capsule padding + label font - so the light-DOM text inside lays out
-   at the same width it will have after upgrade.
-   (`:not(:defined)` matches only un-upgraded custom elements.) */
+/* Pre-upgrade placeholders: undefined custom elements are plain inline boxes, so each
+   reserves its upgraded box (padding and label font included, so light-DOM text keeps
+   its final width) and hides its raw content until the module registers it. */
 :not(:defined) { visibility: hidden; }
 
 droplet-button:not(:defined)      { display: inline-block; min-width: 168px; height: 62px; }
@@ -94,13 +82,7 @@ code { font-family: var(--mono); font-size: 0.92em; }
 
 :root[data-droplet-motion="reduce"] .skip { transition: none; }
 
-/* ============================ Top bar ============================
-   One slim full-width bar shared by both pages: the brand on the left, real
-   droplet-buttons (square shape) for the page links plus the preference toggles
-   on the right. It is sticky, so the hero can run to the very top of the
-   showcase before the bar pins; on the reference it simply pins from the
-   start. The vertical air above/below the 42px buttons equals the 8px gap
-   between them. */
+/* Top bar: sticky, so the showcase hero can run to the very top before it pins */
 .subnav {
   position:        sticky;
   top:             0;
@@ -146,10 +128,7 @@ code { font-family: var(--mono); font-size: 0.92em; }
   .subnav-links > :is([data-subnav-showcase], [data-subnav-api]) { display: none; }
 }
 
-/* ============================ Code blocks ============================
-   Every copyable snippet shares this block: a slim toolbar holds the copy
-   button ABOVE the code, so the button can never sit on top of (and hide)
-   the code itself. */
+/* Code blocks: the copy button sits in a toolbar above the code so it can never cover it */
 .code {
   border:        1px solid var(--line);
   border-radius: 12px;

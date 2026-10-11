@@ -1,17 +1,7 @@
-/*
- * Keyboard math for list-like controls: horizontal-arrow direction that
- * respects reading direction, and full roving-list navigation with
- * Home / End jumps and wrap-around.
- */
-
 import { clamp } from './motion.js';
 
-/*
- * Map a horizontal arrow key onto a logical step that respects reading
- * direction: +1 advances (toward the inline end), -1 goes back, 0 means
- * the key was not a horizontal arrow. In RTL the arrows swap, matching
- * how native controls behave.
- */
+// Logical step for a horizontal arrow: +1 toward the inline end, -1 back, 0 for any other key.
+// In RTL the arrows swap, as native controls do.
 export function horizontalStep (key: string, rtl = false): number {
   if (key === 'ArrowRight') {
     return rtl ? -1 : +1;
@@ -24,7 +14,6 @@ export function horizontalStep (key: string, rtl = false): number {
   return 0;
 }
 
-// Options accepted by listNavigate
 export interface ListNavigateOptions {
   rtl?: boolean;
   wrap?: boolean;
@@ -32,12 +21,8 @@ export interface ListNavigateOptions {
   vertical?: boolean;
 }
 
-/*
- * Move through a list of items from a keyboard event, with Home / End
- * jumps and wrap-around. Returns the next index, or -1 when the key does
- * not navigate. Vertical arrows always mean previous / next; horizontal
- * arrows respect reading direction.
- */
+// The next index for a key, or -1 when it doesn't navigate. Vertical arrows always mean
+// previous/next; horizontal arrows respect reading direction.
 export function listNavigate (
   key: string,
   index: number,

@@ -44,7 +44,7 @@ test('removable chips fire a cancelable remove event', async () => {
   (el.shadowRoot!.querySelector('.remove') as HTMLButtonElement).click();
 
   expect(removed).toBe(1);
-  expect(el.isConnected).toBe(true); // preventDefault cancelled the removal
+  expect(el.isConnected).toBe(true); // preventDefault canceled the removal
 
   host.remove();
 });

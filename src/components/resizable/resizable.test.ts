@@ -10,9 +10,7 @@ test('lays out panes with a divider between each pair', () => {
   const el = host.querySelector('droplet-resizable') as DropletResizable;
 
   expect(el.shadowRoot!.querySelector('.container')).toBeTruthy();
-  // three panes → two dividers
   expect(el.shadowRoot!.querySelectorAll('.divider').length).toBe(2);
-  // panes are assigned to slots
   expect((el.children[0] as HTMLElement).slot).toBe('p0');
 
   host.remove();

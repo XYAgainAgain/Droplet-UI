@@ -1,12 +1,7 @@
 /*
- * A capsule-shaped jelly button. A real <button> lives in the shadow DOM
- * for keyboard and assistive-technology support while the soft body is
- * painted on the canvas behind it; click events bubble out composed, so
- * consumers use it like any native button. The host is form-associated:
- * a disabled <fieldset> disables it, form="id" picks its owner, and
- * type="submit" / "reset" drive that owner form. shape="square" swaps the
- * full pill for a smaller, rounded-rectangle radius (same 0.32-of-height
- * ratio as droplet-icon-button's default square).
+ * A real <button> lives in the shadow DOM for keyboard and assistive-technology
+ * support while the soft body is painted on the canvas behind it; its click
+ * bubbles out composed, so consumers use it like any native button.
  */
 
 import { DropletElement }   from '../../element/index.js';
@@ -35,7 +30,7 @@ export type ButtonType = 'button' | 'submit' | 'reset';
 const SUBMITTER_ATTRIBUTES = ['name', 'value', 'formaction', 'formenctype', 'formmethod', 'formnovalidate', 'formtarget'];
 
 /**
- * A capsule-shaped jelly button with soft-body physics.
+ * A capsule-shaped soft-body button.
  *
  * @element droplet-button
  *
@@ -43,7 +38,7 @@ const SUBMITTER_ATTRIBUTES = ['name', 'value', 'formaction', 'formenctype', 'for
  *
  * @attr {boolean} disabled - Disables the button and removes it from the tab order; a disabled ancestor fieldset does the same.
  * @attr {string} label - Accessible name used when the button has no text label; wins over `aria-label`.
- * @attr {"button"|"submit"|"reset"} type - Native button behavior (default `button`); submit / reset drive the owner form.
+ * @attr {"button"|"submit"|"reset"} type - Native button behavior (default `button`); submit/reset drive the owner form.
  * @attr {string} form - Id of the owner form, when the button sits outside it.
  * @attr {string} name - Submitted as `name=value` when this button submits the form.
  * @attr {string} value - Submitted as `name=value` when this button submits the form.
@@ -54,8 +49,8 @@ const SUBMITTER_ATTRIBUTES = ['name', 'value', 'formaction', 'formenctype', 'for
  * @attr {boolean} formnovalidate - Skips constraint validation for a submission from this button.
  * @attr {"pill"|"square"} shape - Full pill (default) or rounded-square silhouette.
  * @attr {boolean} block - Stretch the button to the full width of its container.
- * @attr {"small"|"medium"|"large"} size - Control size (sm / md / lg aliases accepted).
- * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Fill / label color pair.
+ * @attr {"small"|"medium"|"large"} size - Control size (sm/md/lg aliases accepted).
+ * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Fill/label color pair.
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
  * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
@@ -120,7 +115,6 @@ export class DropletButton extends DropletElement {
     return defineButton(options);
   }
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return [
       'disabled', 'label', 'type', 'shape', ...DropletElement.AXIS_ATTRIBUTES,
@@ -261,12 +255,10 @@ export class DropletButton extends DropletElement {
     }
   }
 
-  // Component styles layered over the shared jelly base styles
   override styles (): string {
     return variantStyles + buttonStyles;
   }
 
-  // The interactive markup that sits above the canvas
   override content (): string {
     return `<button part="button"><slot></slot></button>`;
   }
@@ -286,7 +278,6 @@ export class DropletButton extends DropletElement {
     return { width: w, height: h, radius };
   }
 
-  // Called once after the shadow DOM and canvas exist. Wire events here.
   override onBuilt (): void {
     this.button = this.shadowRoot!.querySelector('button')!;
 
@@ -352,9 +343,8 @@ export class DropletButton extends DropletElement {
     this.sync('label');
   }
 
-  // Pointer capture keeps a drag routed to the button after the pointer leaves
-  // it. Only let the resulting native click through when it is released back
-  // inside the button; keyboard activation stays unchanged.
+  // Pointer capture keeps routing a drag to the button after the pointer leaves it,
+  // so only let the native click through when released inside; keyboard is unchanged.
   preventReleaseOutsideActivation (): void {
     this.button.addEventListener('pointerdown', (event) => {
       this.activationPointerId = event.pointerId;
@@ -421,7 +411,6 @@ export class DropletButton extends DropletElement {
     this.internals.states.delete('pressed');
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     if (this.axisAttributeChanged(name)) {
       return;
@@ -521,7 +510,6 @@ export class DropletButton extends DropletElement {
     }
   }
 
-  // Route programmatic host focus into the inner native button
   override focus (options?: FocusOptions): void {
     this.button?.focus(options);
   }

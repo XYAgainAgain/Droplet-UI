@@ -1,14 +1,12 @@
 /*
- * Inline icon set - Fluent System Icons (Microsoft, MIT license)
+ * Inline icon set: Fluent System Icons (Microsoft, MIT license)
  *
  * A small, dependency-free subset of Microsoft's Fluent UI System Icons
- * (https://github.com/microsoft/fluentui-system-icons). Each glyph lives in
- * its own standalone 24×24 file under ./icons/*.svg and is imported as a raw
- * string, so the SVG data stays out of the TypeScript and nothing is fetched
- * at runtime. The paths carry no colour of their own - they render with
- * `currentColor`, so an icon inherits the text colour of wherever it sits.
+ * (https://github.com/microsoft/fluentui-system-icons). Each glyph is a standalone
+ * 24×24 SVG beside this file, imported as a raw string so nothing is fetched at
+ * runtime. The paths render with `currentColor`, so an icon inherits the text color.
  *
- *   import { dropletIcon } from './droplet.js';
+ *   import { dropletIcon } from 'droplet-ui';
  *
  *   button.innerHTML = dropletIcon('heart', { size: 18 });
  *   alertIcon        = dropletIcon('warning', { label: 'Warning' });
@@ -55,17 +53,14 @@ export const ICONS = {
 // The name of any icon in the set (autocompletes at call sites)
 export type IconName = keyof typeof ICONS;
 
-// Options for rendering an icon
 export interface IconOptions {
   size?: number;
   label?: string | null;
 }
 
 /*
- * Render one icon as an inline SVG string. Decorative by default
- * (aria-hidden); pass a label to make it meaningful to assistive tech. The
- * stored SVG is a full 24×24 glyph - this only stamps the requested pixel
- * size and the ARIA role onto its opening tag.
+ * Render one icon as an inline SVG string, decorative (aria-hidden) unless a label is
+ * given. Only the size and ARIA attributes are stamped onto the stored glyph's opening tag.
  */
 export function dropletIcon (name: IconName, { size = 20, label = null }: IconOptions = {}): string {
   const svg = ICONS[name];

@@ -4,7 +4,7 @@
  * without moving the pointer (WCAG 1.4.13).
  *
  *   <droplet-tooltip text="Copy link" placement="top">
- *     <droplet-icon-button label="Copy">🔗</droplet-icon-button>
+ *     <droplet-icon-button label="Copy"><svg>…</svg></droplet-icon-button>
  *   </droplet-tooltip>
  */
 
@@ -56,12 +56,10 @@ export class DropletTooltip extends HTMLElementBase {
     }
   };
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['text', 'size'];
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
     ensureThemeTokens();
     canonicalizeSize(this);
@@ -74,7 +72,6 @@ export class DropletTooltip extends HTMLElementBase {
 
     const id = uniqueId('droplet-tooltip');
 
-    // Encapsulate styles and markup inside a Shadow DOM so they don't leak out
     this.attachShadow({ mode: 'open' });
 
     this.shadowRoot!.innerHTML = `
@@ -102,12 +99,10 @@ export class DropletTooltip extends HTMLElementBase {
     this.syncDescription();
   }
 
-  // Lifecycle method: Called automatically when the element leaves the DOM
   disconnectedCallback (): void {
     this.hide();
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     switch (name) {
       case 'size':
@@ -123,16 +118,14 @@ export class DropletTooltip extends HTMLElementBase {
     }
   }
 
-  // Copy the text attribute into the bubble's content slot
   syncText (): void {
     if (this.contentSlot) {
       this.contentSlot.textContent = this.getAttribute('text') || '';
     }
   }
 
-  // Content and size changes alter the bubble's dimensions. Re-anchor an
-  // already-visible tooltip immediately instead of waiting for the next
-  // pointer movement, scroll, or resize event.
+  // Content and size changes resize the bubble, so re-anchor a visible one now
+  // rather than waiting for the next pointer movement, scroll, or resize event
   reposition (): void {
     if (!this.bubble?.hasAttribute('data-show')) {
       return;
@@ -157,7 +150,6 @@ export class DropletTooltip extends HTMLElementBase {
     }
   }
 
-  // Position the bubble over the trigger and fade it in
   show (): void {
     const placement = (this.getAttribute('placement') as Placement | null) || 'top';
     const bubble    = this.bubble;
@@ -167,14 +159,13 @@ export class DropletTooltip extends HTMLElementBase {
     placeAnchored(this, bubble, placement, 8);
 
     this.untrack?.();
-    this.untrack = trackAnchor(this, bubble, placement, 8); // follow the trigger on scroll
+    this.untrack = trackAnchor(this, bubble, placement, 8);
 
     document.addEventListener('keydown', this.onDocumentKey);
 
     springIn(bubble, 'center');
   }
 
-  // Hide the bubble and stop tracking the trigger
   hide (): void {
     this.untrack?.();
     this.untrack = null;
@@ -184,7 +175,6 @@ export class DropletTooltip extends HTMLElementBase {
     this.bubble?.removeAttribute('data-show');
   }
 
-  // Handle callback events
   handleEvent (event: Event): void {
     switch (event.type) {
       case 'pointerenter': this.show(); break;

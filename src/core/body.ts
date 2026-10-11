@@ -1,7 +1,6 @@
 /*
- * The Droplet UI soft-body membrane simulation: geometry + math helpers, the
- * rounded-rectangle membrane builder, and the DropletBody class that wobbles a
- * shape in pure local coordinates. The DOM layer (element) feeds it pointer
+ * The soft-body membrane simulation: a ring of springy points around a rounded
+ * rectangle, wobbled in pure local coordinates. The DOM layer feeds it pointer
  * input and reads back the deformed surface to paint.
  */
 
@@ -10,19 +9,16 @@ import { integrateSpring }  from '../utilities/index.js';
 import { DEFAULT_CONFIG }   from './config.js';
 import type { DropletConfig } from './config.js';
 
-// A 2D point; membrane points, surface points and projected points all have x/y
 export interface Point {
   x: number;
   y: number;
 }
 
-// A unit outward normal
 interface Normal {
   nx: number;
   ny: number;
 }
 
-// One membrane sample: rest position, normal, radial (d) and depth (z) offsets
 export interface MembranePoint {
   x: number;
   y: number;
@@ -30,7 +26,7 @@ export interface MembranePoint {
   ny: number;
   d: number;   // outward displacement along the normal
   v: number;   // displacement velocity
-  z: number;   // depth displacement (toward / away from the viewer)
+  z: number;   // depth displacement (toward or away from the viewer)
   zv: number;  // depth velocity
 }
 
@@ -41,7 +37,6 @@ export interface SurfacePoint {
   z: number;
 }
 
-// The whole-body spring state (press depth, tilt, rotation, pointer tracking)
 interface DropletState {
   clickDepth: number;
   clickDepthV: number;
@@ -76,7 +71,6 @@ interface DropletState {
   pointerLocalY: number;
 }
 
-// Options for constructing a DropletBody
 export interface DropletBodyOptions {
   width: number;
   height: number;
@@ -85,32 +79,25 @@ export interface DropletBodyOptions {
 }
 
 /*
- * The membrane couples neighboring points, which makes explicit Euler
- * integration stiff: one big frame delta (a background tab waking up, a
- * long GC pause, a 30Hz mobile display) could inject energy instead of
- * settling. Integrating in substeps no longer than this keeps the
- * simulation stable and identical in feel at any frame rate. The cap sits
- * just above the 60Hz frame delta the physics was tuned at, so a 60fps
- * frame still integrates in a single step (no added cost) while slower
- * frames are subdivided back to the tuned regime.
+ * Neighbor coupling makes explicit Euler stiff: one long frame (a waking
+ * background tab, a GC pause, a 30Hz display) can inject energy instead of
+ * settling. The cap sits just above the 60Hz delta the physics was tuned at,
+ * so 60fps frames take one step and slower ones are subdivided back to it.
  */
 const MAX_STEP = 1 / 58;
 
 // Math helpers
 
-// Hermite smoothstep: 0 below edge0, 1 above edge1, eased in between
 function smoothstep (edge0: number, edge1: number, value: number): number {
   const t = clamp((value - edge0) / (edge1 - edge0), 0, 1);
 
   return t * t * (3 - 2 * t);
 }
 
-// Wrap an index onto the ring
 function wrap (index: number, length: number): number {
   return (index + length) % length;
 }
 
-// Shortest distance between two ring indices
 function ringDistance (a: number, b: number, length: number): number {
   const distance = Math.abs(a - b);
 
@@ -122,10 +109,7 @@ function gaussian (distance: number, width: number): number {
   return Math.exp(-(distance * distance) / (2 * width * width));
 }
 
-/*
- * Signed distance for a rounded rectangle (capsule / circle fall out of
- * this for free). Positive outside, negative inside.
- */
+// Signed distance to a rounded rectangle (capsules and circles fall out for free); negative inside
 function roundedRectSDF (x: number, y: number, halfW: number, halfH: number, radius: number): number {
   const r  = Math.min(radius, halfW, halfH);
   const qx = Math.abs(x) - (halfW - r);
@@ -229,7 +213,6 @@ function createRoundedRectMembrane (width: number, height: number, radius: numbe
   return points;
 }
 
-// Outward normal estimated from a point's ring neighbors
 function outwardNormalFromNeighbors (points: MembranePoint[], index: number): Normal {
   const length   = points.length;
   const previous = points[wrap(index - 1, length)]!;
@@ -290,12 +273,12 @@ function polygonArea (points: readonly Point[]): number {
 
 /*
  * Trace a closed Catmull-Rom spline (as cubic beziers) through the points.
- * The caller controls fill / stroke.
+ * The caller controls fill and stroke.
  */
 export function traceSmoothPath (ctx: CanvasRenderingContext2D | Path2D, points: readonly Point[], tension = DEFAULT_CONFIG.curveTension): void {
   const length = points.length;
 
-  // Path2D implements CanvasPath but not beginPath - a fresh one starts empty
+  // Path2D implements CanvasPath but not beginPath; a fresh one starts empty
   if ('beginPath' in ctx) {
     ctx.beginPath();
   }
@@ -343,10 +326,9 @@ export class DropletBody {
     this.config = { ...DEFAULT_CONFIG, ...(config ?? {}) };
     this.config.normalBlendPasses = clampBlendPasses(this.config.normalBlendPasses);
 
-    // Sustained sideways bias: lean in [-1, 1] shifts the body's "mass" to
-    // one end (that side bulges out, the other tucks in). leanAmount is the
-    // pixel depth; 0 means no lean (the resting default). Used by the sliding
-    // controls - switch thumb, segmented pill, slider / range thumbs, progress.
+    // Sustained sideways bias: lean in [-1, 1] shifts the body's "mass" to one
+    // end (that side bulges, the other tucks in); leanAmount is the pixel depth,
+    // 0 at rest. The sliding controls drive it (switch, segmented, slider, range, progress).
     this.lean       = 0;
     this.leanAmount = 0;
 
@@ -389,7 +371,7 @@ export class DropletBody {
     this.baseArea = polygonArea(this.getSurfacePoints());
   }
 
-  // Rebuild the ring for a new size, preserving no motion (used on resize)
+  // Membrane motion is lost in the rebuild; the whole-body springs carry on
   resize (width: number, height: number, radius?: number): void {
     this.width  = width;
     this.height = height;
@@ -402,12 +384,10 @@ export class DropletBody {
     this.baseArea = polygonArea(this.getSurfacePoints());
   }
 
-  // Signed distance from a local point to the resting surface
   sdf (x: number, y: number): number {
     return roundedRectSDF(x, y, this.width / 2, this.height / 2, this.radius);
   }
 
-  // Index of the membrane point closest to a local coordinate
   nearestMembraneIndex (x: number, y: number): number {
     let nearest         = 0;
     let nearestDistance = Infinity;
@@ -427,7 +407,6 @@ export class DropletBody {
     return nearest;
   }
 
-  // Kick the membrane outward around a ring index with a gaussian falloff
   addMembraneImpulse (index: number, amount: number, width: number): void {
     const length = this.membrane.length;
 
@@ -437,7 +416,6 @@ export class DropletBody {
     }
   }
 
-  // Kick the membrane's depth (z) around a ring index with a gaussian falloff
   addDepthImpulse (index: number, amount: number, width: number): void {
     const length = this.membrane.length;
 
@@ -468,7 +446,6 @@ export class DropletBody {
     return p0 * 0.06 + p1 * 0.2 + p2 * 0.48 + p3 * 0.2 + p4 * 0.06;
   }
 
-  // How strongly the pointer's held position affects one membrane point
   insidePointInfluence (index: number): { local: number; halo: number } {
     const point = this.membrane[index]!;
 
@@ -496,7 +473,6 @@ export class DropletBody {
     };
   }
 
-  // Sustained bulge / depth offsets while the pointer is held inside
   heldMembraneOffsets (index: number): { d: number; z: number } {
     const insidePoint = this.insidePointInfluence(index);
 
@@ -510,7 +486,6 @@ export class DropletBody {
     };
   }
 
-  // Five-tap smoothing over a plain array of ring values
   smoothArrayValue (values: number[], index: number): number {
     const length = values.length;
 
@@ -525,7 +500,7 @@ export class DropletBody {
 
   /*
    * The current deformed surface. `offset` pushes every point outward along
-   * its normal - used to trace a focus ring that follows the same jiggle.
+   * its normal, which traces a focus ring that follows the same jiggle.
    */
   getSurfacePoints (offset = 0): SurfacePoint[] {
     const points: SurfacePoint[] = [];
@@ -574,7 +549,6 @@ export class DropletBody {
     return points;
   }
 
-  // Apply the perspective projection to one surface point
   projectPoint (point: SurfacePoint): SurfacePoint {
     const perspective = this.config.perspective / (this.config.perspective - point.z);
 
@@ -614,7 +588,6 @@ export class DropletBody {
     }
   }
 
-  // Follow the pointer while it is held down
   moveToLocal (localX: number, localY: number, influence = 1): void {
     this.state.pointerIndex = this.nearestMembraneIndex(localX, localY);
     this.updatePressTargets(localX, localY, influence);
@@ -629,7 +602,7 @@ export class DropletBody {
   }
 
   /*
-   * A one-shot squish from the center that settles on its own - for feedback
+   * A one-shot squish from the center that settles on its own, for feedback
    * that isn't a sustained press (focus, toggle, grab). Unlike centerPulse it
    * sets no held target, so the body returns to rest and can sleep.
    */
@@ -637,9 +610,8 @@ export class DropletBody {
     this.state.pointerLocalX = 0;
     this.state.pointerLocalY = 0;
 
-    // A radial inside impulse stays balanced across both axes. A localized
-    // impulse at the membrane sample nearest (0, 0) arbitrarily favors one
-    // edge of a symmetric shape, just like the old keyboard press did.
+    // Radial for the same reason as centerPulse: an impulse at the sample
+    // nearest (0, 0) would arbitrarily favor one edge of a symmetric shape
     this.addInsidePointImpulse(this.config.insideLocalBulgeImpulse * 0.5 * strength);
 
     this.state.pressV += 0.9 * strength;
@@ -691,7 +663,6 @@ export class DropletBody {
     this.state.pressV -= 0.55;
   }
 
-  // Advance the whole-body springs (press depth, tilt, rotation) one step
   updateGlobal (dt: number): void {
     const s = this.state;
     const c = this.config;
@@ -730,7 +701,6 @@ export class DropletBody {
     s.tiltY           = clamp(s.tiltY, -1, 1);
   }
 
-  // Advance the membrane wave equation one step
   updateMembrane (dt: number): void {
     const length = this.membrane.length;
     const c      = this.config;
@@ -796,11 +766,7 @@ export class DropletBody {
     }
   }
 
-  /*
-   * Advance the simulation by a frame delta. The delta is split into
-   * substeps no longer than MAX_STEP so the integration stays stable on
-   * slow frames, low-Hz displays and after background-tab pauses.
-   */
+  // Substeps keep every step at or under MAX_STEP (its comment explains why)
   update (dt: number): void {
     const steps = Math.max(1, Math.ceil(dt / MAX_STEP));
     const h     = dt / steps;
@@ -814,10 +780,9 @@ export class DropletBody {
   }
 
   /*
-   * Defensive backstop: if anything ever produced a non-finite number
-   * (a zero-sized rebuild, an extreme external mutation), reset all motion
-   * instead of painting garbage forever. The clamps make this near
-   * impossible, but a physics toy should never be able to wedge the UI.
+   * Backstop: a non-finite value (a zero-sized rebuild, an extreme external
+   * mutation) resets all motion instead of painting garbage forever. The clamps
+   * make this near impossible, but the simulation must never wedge the UI.
    */
   recoverIfUnstable (): void {
     const s = this.state;
@@ -853,7 +818,6 @@ export class DropletBody {
     s.tiltY           = 0; s.tiltYV           = 0;
   }
 
-  // True when the body has essentially stopped moving and nothing is held
   isResting (): boolean {
     const s = this.state;
 

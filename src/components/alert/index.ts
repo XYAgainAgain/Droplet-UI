@@ -1,8 +1,3 @@
-/*
- * A callout / alert banner on a jelly surface. Four tones and an optional
- * dismiss button, plus an imperative shake() to grab attention on demand.
- */
-
 import { DropletElement } from '../../element/index.js';
 import type { Shape }   from '../../element/index.js';
 
@@ -33,7 +28,7 @@ const TONE_ICONS: Record<string, IconName> = {
  *
  * @slot - The alert message.
  *
- * @attr {"info"|"success"|"warning"|"danger"} tone - The alert tone / color.
+ * @attr {"info"|"success"|"warning"|"danger"} tone - The alert tone, which sets its color.
  * @attr {boolean} dismissible - Show a dismiss button.
  * @attr {"small"|"medium"|"large"} size - Banner size.
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
@@ -58,12 +53,10 @@ export class DropletAlert extends DropletElement {
   shaking = 0;
   shakeDir = -1;
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['tone', 'size', 'dismissible', ...DropletElement.AXIS_ATTRIBUTES];
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     if (this.axisAttributeChanged(name)) {
       return;
@@ -92,7 +85,7 @@ export class DropletAlert extends DropletElement {
     }
   }
 
-  // Component styles layered over the shared jelly base styles
+  // Component styles layered over the shared base styles
   override styles (): string {
     return alertStyles;
   }
@@ -121,7 +114,7 @@ export class DropletAlert extends DropletElement {
     return this.resolveColor(`var(--jelly-fill, var(--droplet-fill, var(--jelly-color-background-surface, var(--droplet-color-background-surface, ${PALETTE['background-surface']}))))`);
   }
 
-  // Called once after the shadow DOM and canvas exist. Wire events here.
+  // Runs once after the shadow DOM and canvas exist
   override onBuilt (): void {
     this.wireClose();
 
@@ -150,7 +143,7 @@ export class DropletAlert extends DropletElement {
     close.addEventListener('click', () => this.dismiss());
   }
 
-  // A quick left-right jelly shake
+  // A quick left-right soft-body shake
   shake (): void {
     if (this.reducedMotion || !this.body) {
       return;
@@ -162,7 +155,6 @@ export class DropletAlert extends DropletElement {
     this.requestFrame();
   }
 
-  // Announce the dismissal, then fade out and remove the element
   dismiss (): void {
     emit(this, 'dismiss');
 
@@ -173,7 +165,6 @@ export class DropletAlert extends DropletElement {
     setTimeout(() => this.remove(), 180);
   }
 
-  // One animation step: alternate horizontal flings while shaking
   override frame (dt: number): boolean {
     const body = this.body;
 

@@ -1,46 +1,25 @@
 /*
- * Showcase playground configuration - one demo per component
- *
- * Each entry describes how the showcase (docs/showcase/index.js) builds a single
- * live preview and the attribute table beside it:
- *   - slot / inner : the markup rendered inside the component (label text or
- *                    the required children, e.g. a select's options)
- *   - trigger      : true when the component is opened from a trigger it
- *                    already contains (overlays)
- *   - controls     : the attributes shown in the table, in order. Every
- *                    option renders at once as a clickable badge (text
- *                    attributes as an editable field); picking or typing one
- *                    updates the preview and the snippet.
- *   - defaults     : starting values that differ from the documented default
- *   - aliases      : map a control onto a differently-named attribute
- *   - note         : a hint shown under the table
- *
- * Anything not listed here is documented on /api but not given a live
- * playground - see NO_PANEL at the bottom. To add a demo for a new
- * component, add an entry keyed by its tag.
+ * Showcase playground config, one entry per tag: index.js builds each live preview and its
+ * attribute table from it. A tag without an entry stays on /api only (see NO_PANEL).
  */
 
 import { dropletIcon } from '../../package.js';
 
-// The documented fill variants, shared by every variant control
 const VARIANTS = ['azure', 'rose', 'amber', 'mint', 'graphite', 'platinum', 'white'];
 
-// The density scale, shared by every size control
 const SIZES = ['small', 'medium', 'large'];
 
-// Control shorthands so the configs below stay readable
 const bool   = (attr) => ({ attr, kind: 'bool' });
 const size   = () => ({ attr: 'size', kind: 'enum', options: SIZES });
 const variant = () => ({ attr: 'variant', kind: 'enum', options: VARIANTS });
 const pick   = (attr, options) => ({ attr, kind: 'enum', options });
 // A number control shown as an editable spinner (clamped to min/max)
 const numField = (attr, min, max, step = 1) => ({ attr, kind: 'number', min, max, step, field: true });
-// A free-typed text control: an editable field whose value lands on the preview
 const text   = (attr, placeholder = '') => ({ attr, kind: 'text', placeholder });
 
 export const PLAYGROUNDS = {
 
-  /* ---- Theming ---- */
+  // Theming
 
   'droplet-theme': {
     // A roomy mini settings panel shows surface/text theming plus several
@@ -50,7 +29,7 @@ export const PLAYGROUNDS = {
     defaults: { mode: 'auto' },
   },
 
-  /* ---- Actions ---- */
+  // Actions
 
   'droplet-button': {
     slot: 'Publish',
@@ -61,13 +40,12 @@ export const PLAYGROUNDS = {
   },
 
   'droplet-icon-button': {
-    // A Fluent star (from the library's inline icon set) as the icon
     inner: dropletIcon('star', { size: 20 }),
     controls: [variant(), size(), pick('shape', ['square', 'circle']), bool('disabled'), text('label', 'Accessible name')],
     defaults: { shape: 'square' },
   },
 
-  /* ---- Forms ---- */
+  // Forms
 
   'droplet-input': {
     attrs: { label: 'Example input' },
@@ -157,7 +135,7 @@ export const PLAYGROUNDS = {
     controls: [bool('required'), size()],
   },
 
-  /* ---- Feedback ---- */
+  // Feedback
 
   'droplet-alert': {
     slot: 'Your changes are live.',
@@ -168,7 +146,6 @@ export const PLAYGROUNDS = {
   'droplet-badge': {
     slot: '7',
     controls: [variant(), size(), bool('outline'), pick('shape', ['pill', 'square']), bool('live'), bool('instant')],
-    // "pill" (the default) clears the attribute; "square" sets shape="square"
     aliases: { shape: { attr: 'shape', off: 'pill' } },
     defaults: { variant: 'rose', shape: 'pill' },
   },
@@ -197,19 +174,18 @@ export const PLAYGROUNDS = {
     note: 'Fires dropletToast() with the chosen tone. Add position="bottom" on a placed <droplet-toaster> to grow the stack upward.',
   },
 
-  /* ---- Surfaces ---- */
+  // Surfaces
 
   'droplet-card': {
-    inner: '<h3 style="margin:0 0 6px">Soft surface</h3><p style="margin:0">The jelly stays under the content.</p>',
+    inner: '<h3 style="margin:0 0 6px">Soft surface</h3><p style="margin:0">The soft body stays under the content.</p>',
     controls: [bool('squish'), size()],
   },
 
   'droplet-chip': {
     slot: 'Design',
-    // variant + size step first, while the chip is still selected (a chip only
+    // variant and size come first, while the chip is still selected (a chip only
     // shows its variant hue when selected), then the boolean toggles run
     controls: [variant(), size(), pick('shape', ['pill', 'square']), bool('selectable'), bool('selected'), bool('removable'), bool('disabled')],
-    // "pill" (the default) clears the attribute; "square" sets shape="square"
     aliases: { shape: { attr: 'shape', off: 'pill' } },
     bind: [{ event: 'change', attr: 'selected', get: (el) => el.selected }],
     defaults: { selectable: true, selected: true, shape: 'pill' },
@@ -225,7 +201,6 @@ export const PLAYGROUNDS = {
     inner: 'or',
     wrap: 'block',
     controls: [pick('direction', ['horizontal', 'vertical']), text('content', 'Label'), size()],
-    // "horizontal" is the default (attribute absent); only "vertical" sets it
     aliases: { direction: { attr: 'direction', off: 'horizontal' } },
     defaults: { content: 'or' },
   },
@@ -242,7 +217,7 @@ export const PLAYGROUNDS = {
     controls: [bool('single'), size()],
   },
 
-  /* ---- Navigation ---- */
+  // Navigation
 
   'droplet-tabs': {
     inner: [
@@ -277,11 +252,10 @@ export const PLAYGROUNDS = {
     inner: '<div class="pg-pane">One</div><div class="pg-pane">Two</div><div class="pg-pane">Three</div>',
     wrap: 'fill',
     controls: [pick('direction', ['row', 'vertical', 'both'])],
-    // "row" is the default (attribute absent)
     aliases: { direction: { attr: 'direction', off: 'row' } },
   },
 
-  /* ---- Overlays ---- */
+  // Overlays
 
   'droplet-tooltip': {
     inner: `<droplet-icon-button label="Copy">${dropletIcon('link', { size: 18 })}</droplet-icon-button>`,
@@ -325,7 +299,5 @@ export const PLAYGROUNDS = {
 
 };
 
-// Tags documented on /api but not given a standalone playground: the
-// child-only elements (they appear inside their parents' demos above) and
-// droplet-theme (a wrapper with nothing of its own to look at)
+// Child-only elements: documented on /api, shown inside their parents' demos
 export const NO_PANEL = new Set(['droplet-option', 'droplet-segment', 'droplet-menu-item', 'droplet-tab-panel']);

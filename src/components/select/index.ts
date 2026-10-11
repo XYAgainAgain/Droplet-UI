@@ -1,15 +1,7 @@
 /*
- * A dropdown field built on the combobox / listbox pattern, resting on a
- * soft jelly surface. The trigger is one jelly body; the option panel is a
- * second body that unfolds out of the trigger edge when opened - and flips
- * above the field when the viewport has no room below, so it never clips.
- * Keyboard navigation, ARIA (aria-expanded / aria-activedescendant) and
- * native form participation are all wired up.
- *
- *   <droplet-select label="Plan" placeholder="Choose a plan">
- *     <droplet-option value="free">Free</droplet-option>
- *     <droplet-option value="pro" selected>Pro</droplet-option>
- *   </droplet-select>
+ * A combobox/listbox dropdown. The trigger and the option panel are separate
+ * soft bodies; the panel unfolds from the trigger edge and flips above the
+ * field when the viewport has no room below.
  */
 
 import { DropletElement }     from '../../element/index.js';
@@ -51,7 +43,7 @@ const PANEL_RADIUS = 20;
 const VIEWPORT_MARGIN = 8;
 
 /**
- * A dropdown select built on the combobox / listbox pattern.
+ * A dropdown select built on the combobox/listbox pattern.
  *
  * @element droplet-select
  *
@@ -96,7 +88,7 @@ export class DropletSelect extends DropletElement {
   instanceId: string;
   panelSide: 'top' | 'bottom' = 'bottom';
 
-  // Underdamped spring state driving the panel unfold (position / velocity / target)
+  // Underdamped spring state driving the panel unfold (position/velocity/target)
   openT              = 0;
   openTargetVelocity = 0;
   openTarget         = 0;
@@ -117,11 +109,9 @@ export class DropletSelect extends DropletElement {
   mutationObserver: MutationObserver | null = null;
   reflectingValue = false;
 
-  // Type-ahead buffer and its reset timer
   typeaheadBuffer = '';
   typeaheadTimer: ReturnType<typeof setTimeout> | undefined;
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['disabled', 'label', 'placeholder', 'size', 'value', ...DropletElement.AXIS_ATTRIBUTES];
   }
@@ -133,12 +123,10 @@ export class DropletSelect extends DropletElement {
     this.instanceId = uniqueId('droplet-select');
   }
 
-  // Component styles layered over the shared jelly base styles
   override styles (): string {
     return selectStyles + variantColors({ color: '--droplet-accent' });
   }
 
-  // The interactive markup that sits above the canvas
   override content (): string {
     return `
       <button class="trigger" part="trigger" type="button" role="combobox"
@@ -170,7 +158,6 @@ export class DropletSelect extends DropletElement {
     return { width: w, height: h, radius };
   }
 
-  // Called once after the shadow DOM and canvas exist. Wire events here.
   override onBuilt (): void {
     this.trigger     = this.shadowRoot!.querySelector('.trigger')!;
     this.valueEl     = this.shadowRoot!.querySelector('.value')!;
@@ -203,7 +190,6 @@ export class DropletSelect extends DropletElement {
     this.syncOptions();
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   override connectedCallback (): void {
     const rebuilt = this.built;
 
@@ -216,7 +202,6 @@ export class DropletSelect extends DropletElement {
     }
   }
 
-  // Lifecycle method: Called automatically when the element leaves the DOM
   override disconnectedCallback (): void {
     super.disconnectedCallback();
 
@@ -236,7 +221,7 @@ export class DropletSelect extends DropletElement {
     }
   }
 
-  // Route events from the trigger, the option list and the document
+  // Route events from the trigger, the option list, and the document
   handleEvent (event: Event): void {
     // Capture-phase document listener: presses outside the select close the panel
     if (event.currentTarget === document) {
@@ -265,7 +250,6 @@ export class DropletSelect extends DropletElement {
     }
   }
 
-  // Dent the trigger surface under the pointer
   pressTrigger (event: PointerEvent): void {
     if (this.hasAttribute('disabled')) {
       return;
@@ -274,7 +258,7 @@ export class DropletSelect extends DropletElement {
     this.pressAt(event.clientX, event.clientY, 0.9);
   }
 
-  // Track trigger focus so the fill, border and painted ring can respond
+  // Track trigger focus so the fill, border, and painted ring can respond
   setFocused (focused: boolean): void {
     this.focused = focused;
     this.requestFrame();
@@ -301,7 +285,7 @@ export class DropletSelect extends DropletElement {
 
     this.selectedIndex = selectedIndex;
 
-    // Option labels are author / user content - escape them before innerHTML
+    // Option labels are author or user content, so escape them before innerHTML
     this.list.innerHTML = this.options
       .map((opt, i) => {
         const selected = i === this.selectedIndex;
@@ -322,7 +306,6 @@ export class DropletSelect extends DropletElement {
     this.sizePanel();
   }
 
-  // Show the selected label (or the placeholder) and mirror the value into the form
   renderValue (): void {
     const selected = this.options[this.selectedIndex];
 
@@ -337,7 +320,6 @@ export class DropletSelect extends DropletElement {
     }
   }
 
-  // Size the panel, its canvas and the panel physics body to fit the options
   sizePanel (): void {
     const rect   = this.getBoundingClientRect();
     const width  = rect.width || 240;
@@ -378,12 +360,9 @@ export class DropletSelect extends DropletElement {
   }
 
   /*
-   * Collision handling: measure the viewport room around the trigger and
-   * anchor the panel below when it fits, above when it would clip and there
-   * is room overhead - the same flip rule placeAnchored() uses. The chosen
-   * side lands in data-side, which re-anchors the panel in CSS and frame()
-   * mirrors the clip reveal, the row stagger and the canvas scale origin so
-   * the surface always unfolds away from the trigger edge.
+   * Anchor below when the panel fits, above when it would clip and there's
+   * room overhead (the same flip rule as placeAnchored()). data-side carries
+   * the choice to CSS, and frame() mirrors the reveal to unfold away from the trigger.
    */
   placePanel (): void {
     const rect   = this.getBoundingClientRect();
@@ -396,7 +375,6 @@ export class DropletSelect extends DropletElement {
     this.panel.setAttribute('data-side', this.panelSide);
   }
 
-  // Flip between open and closed
   toggle (): void {
     if (this.isOpen) {
       this.close();
@@ -405,7 +383,6 @@ export class DropletSelect extends DropletElement {
     }
   }
 
-  // Open the panel on the side with room and let the surface unfold
   openPanel (): void {
     if (this.isOpen || !this.options.length) {
       return;
@@ -458,7 +435,6 @@ export class DropletSelect extends DropletElement {
     this.requestFrame();
   }
 
-  // Highlight the active row and point aria-activedescendant at it
   renderActive (): void {
     const rows = [...this.list.children] as HTMLElement[];
 
@@ -494,7 +470,6 @@ export class DropletSelect extends DropletElement {
     this.renderActive();
   }
 
-  // Commit a selection: reflect it, re-render, close and notify listeners
   selectIndex (index: number): void {
     const opt = this.options[index];
 
@@ -529,7 +504,6 @@ export class DropletSelect extends DropletElement {
     this.reflectingValue = false;
   }
 
-  // Deselect every option and fall back to the placeholder
   clearSelection (): void {
     this.options.forEach((o) => o.removeAttribute('selected'));
     this.selectedIndex = -1;
@@ -591,9 +565,7 @@ export class DropletSelect extends DropletElement {
       case 'Escape':    event.preventDefault(); this.close();                                break;
       case 'Tab':       this.close();                                                        break;
       default:
-        // First-character type-ahead (APG select-only combobox): a printable
-        // key jumps to the next enabled option whose label starts with the
-        // buffer; the buffer resets after a short pause
+        // Printable keys feed type-ahead (APG select-only combobox)
         if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
           this.typeahead(event.key);
         }
@@ -631,7 +603,6 @@ export class DropletSelect extends DropletElement {
     }
   }
 
-  // Pointer movement over the list makes the hovered row active
   onRowHover (event: PointerEvent): void {
     const row = (event.target as HTMLElement).closest('.row') as HTMLElement | null;
 
@@ -647,7 +618,6 @@ export class DropletSelect extends DropletElement {
     }
   }
 
-  // A click on a row selects it
   onRowClick (event: MouseEvent): void {
     const row = (event.target as HTMLElement).closest('.row') as HTMLElement | null;
 
@@ -674,11 +644,8 @@ export class DropletSelect extends DropletElement {
     return custom || this.resolveColor(`var(--jelly-color-background-muted, var(--droplet-color-background-muted, ${PALETTE['background-muted']}))`);
   }
 
-  /*
-   * Show the painted ring whenever the trigger is focused or the panel is
-   * open - including pointer focus - so the dropdown gets the same ring as
-   * droplet-input rather than only lighting up on keyboard (:focus-visible) focus
-   */
+  // The ring shows on any focus, pointer included, or while open, to match
+  // droplet-input rather than lighting only on :focus-visible
   override focusRing (): Ring | null {
     if (!this.focused && !this.isOpen) {
       return null;
@@ -696,7 +663,6 @@ export class DropletSelect extends DropletElement {
     return { color, width: 1 };
   }
 
-  // One animation step: trigger body, unfold spring, panel body, row reveal
   override frame (dt: number): boolean {
     const trigger = this.body;
 
@@ -735,9 +701,8 @@ export class DropletSelect extends DropletElement {
       this.panel.style.visibility = visible ? 'visible' : 'hidden';
       this.panel.style.opacity    = String(clamp(t * 2, 0, 1));
 
-      // Reveal the rows away from the trigger edge to match the surface -
-      // top-down when the panel hangs below, bottom-up when it sits above -
-      // and let each one settle at its natural size with a light stagger
+      // Reveal rows away from the trigger edge to match the surface (top-down
+      // below, bottom-up above), each settling at natural size with a light stagger
       const hidden = (1 - tc) * 100;
 
       this.panelMask.style.clipPath = flipped
@@ -765,10 +730,8 @@ export class DropletSelect extends DropletElement {
       this.panelBody.update(dt);
       this.panelCtx.clearRect(0, 0, this.panelCssW, this.panelCssH);
 
-      // The surface itself unfolds: scaleY anchored to the edge nearest the
-      // trigger plus a slight width squash - the organic pop a flat list
-      // can't do. Fill and border resolve through the theme tokens at paint
-      // time, so an open panel follows dark-mode flips live.
+      // The surface unfolds with scaleY anchored at the trigger edge plus a slight
+      // width squash; colors resolve at paint time, so it follows dark-mode flips live
       const H    = this.panelBody.height;
       const sy   = Math.max(0.02, t);
       const lift = (1 - sy) * H / 2;
@@ -793,7 +756,6 @@ export class DropletSelect extends DropletElement {
     return keep;
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     if (this.axisAttributeChanged(name)) {
       return;
@@ -806,7 +768,6 @@ export class DropletSelect extends DropletElement {
     this.sync(name, this.getAttribute(name));
   }
 
-  // Push one observed attribute into the rendered control
   sync (name: string, value: string | null): void {
     switch (name) {
       case 'placeholder':
@@ -851,7 +812,6 @@ export class DropletSelect extends DropletElement {
     }
   }
 
-  // Mirror the label attribute onto the trigger as its accessible name
   syncLabel (): void {
     if (!this.trigger) {
       return;

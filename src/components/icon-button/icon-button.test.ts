@@ -5,7 +5,7 @@ import { mount, settle } from '../../testing/index.js';
 import type { DropletIconButton } from './index.js';
 import '../../testing/define-all.js';
 
-test('upgrades with a labelled inner button', async () => {
+test('upgrades with a labeled inner button', async () => {
   const host = mount('<droplet-icon-button label="Search">🔍</droplet-icon-button>');
   const el = host.querySelector('droplet-icon-button') as DropletIconButton;
 

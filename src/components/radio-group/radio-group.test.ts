@@ -5,7 +5,7 @@ import { mount, raf } from '../../testing/index.js';
 import type { DropletRadioGroup } from './index.js';
 import '../../testing/define-all.js';
 
-test('renders a radiogroup with a labelled legend', async () => {
+test('renders a radiogroup with a labeled legend', async () => {
   const host = mount(`
     <droplet-radio-group label="Billing">
       <droplet-radio name="b" value="m" checked>Monthly</droplet-radio>

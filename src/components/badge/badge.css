@@ -15,8 +15,8 @@
   font-size: 14px;
 }
 
-/* A smaller, rounded-rectangle radius instead of the full pill - holds
-   the same 0.32-of-height ratio as droplet-icon-button's default square */
+/* A smaller rounded-rectangle radius instead of the full pill, roughly the
+   0.32-of-height ratio of droplet-icon-button's default square */
 :host([shape="square"]) { --droplet-badge-radius: 8px; --jelly-badge-radius: var(--droplet-badge-radius); }
 :host([shape="square"][size="small"]) { --droplet-badge-radius: 6px; --jelly-badge-radius: var(--droplet-badge-radius); }
 :host([shape="square"][size="large"]) { --droplet-badge-radius: 10px; --jelly-badge-radius: var(--droplet-badge-radius); }
@@ -44,10 +44,8 @@
   padding-inline: 12px;
 }
 
-/* Outline badge: the canvas paints a hollow pill (see frame/surfaceBorder)
-   with the variant colour as the rim, and the label renders in the
-   neutral text colour so it stays readable in both themes and for the
-   white / platinum variants (the raw hue as text fails WCAG AA). */
+/* Outline badge: the canvas paints the variant hue as a hollow rim, so the label
+   uses neutral text; the raw hue as text fails WCAG AA for white and platinum. */
 :host([outline]) .badge {
   color: var(--jelly-color-foreground-default, var(--droplet-color-foreground-default));
 }

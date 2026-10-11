@@ -1,9 +1,7 @@
 /*
- * A real switch - a capsule track with a sliding thumb - with a jello twist:
- * the thumb stretches along its travel like a liquid drop, squishes when it
- * lands and the track jiggles and crossfades between the off and on colors.
- * The thumb can be tapped or dragged and "on" always travels toward the
- * inline end, so right-to-left pages mirror correctly
+ * A capsule switch whose thumb stretches along its travel and squishes as it
+ * lands while the track crossfades between off and on. Tap or drag the thumb;
+ * "on" always sits at the inline end, so right-to-left pages mirror correctly
  */
 
 import { DropletElement }    from '../../element/index.js';
@@ -33,7 +31,6 @@ interface SwitchSize {
   font: string;
 }
 
-// Track geometry and label sizing for each size on the documented scale
 const SWITCH_SIZES: Record<Size, SwitchSize> = {
   small:  { width: 50, height: 28, inset: 4, gap: 10, font: '14px' },
   medium: { width: 62, height: 34, inset: 5, gap: 12, font: '15.5px' },
@@ -80,7 +77,7 @@ export class DropletSwitch extends DropletElement {
 
   internals: ElementInternals;
 
-  // Populated in onBuilt() / onShape()
+  // Populated in onBuilt() or onShape()
   input!: HTMLInputElement;
   track!: HTMLElement;
   thumbBody: DropletBody | null = null;
@@ -93,7 +90,6 @@ export class DropletSwitch extends DropletElement {
   pointerId: number | null = null;
   downX = 0;
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['checked', 'disabled', 'label', 'size', 'value', ...DropletElement.AXIS_ATTRIBUTES];
   }
@@ -104,12 +100,10 @@ export class DropletSwitch extends DropletElement {
     this.internals = this.attachInternals();
   }
 
-  // Component styles layered over the shared jelly base styles
   override styles (): string {
     return switchStyles + variantColors({ color: '--droplet-on', on: '--droplet-switch-thumb-on' });
   }
 
-  // The interactive markup that sits above the canvas
   override content (): string {
     return `
       <label class="wrap" part="wrap">
@@ -119,17 +113,16 @@ export class DropletSwitch extends DropletElement {
       </label>`;
   }
 
-  // The capsule the physics body takes - the track region, not the label
+  // The capsule the physics body takes: the track region, not the label
   override shape (width: number = this.sizeConfig.width, height: number = this.sizeConfig.height): Shape {
     return { width, height, radius: height / 2 };
   }
 
-  // The canonical size name, accepting the sm / md / lg aliases
+  // The canonical size name, accepting the sm/md/lg aliases
   get sizeKey (): Size {
     return sizeName(this);
   }
 
-  // The geometry row for the current size
   get sizeConfig (): SwitchSize {
     return SWITCH_SIZES[this.sizeKey];
   }
@@ -149,7 +142,7 @@ export class DropletSwitch extends DropletElement {
     return width - height;
   }
 
-  // The thumb's resting offset for a checked state - "on" sits at the inline end
+  // The thumb's resting offset for a checked state; "on" sits at the inline end
   targetFor (checked: boolean): number {
     const sign = isRTL(this) ? -1 : 1;
 
@@ -164,13 +157,8 @@ export class DropletSwitch extends DropletElement {
     return clamp(((this.thumbX * sign) / half + 1) / 2, 0, 1);
   }
 
-  /*
-   * The track color for the current thumb position. The off / on endpoints
-   * are re-resolved through the live theme tokens on every paint - so theme
-   * flips, variant changes and token overrides (including rgb() and named
-   * colors) recolor the track mid-slide - then blended by the thumb's
-   * progress toward the "on" end, which is the inline end in both directions.
-   */
+  // The off/on endpoints re-resolve from live tokens every paint, so theme flips,
+  // variants, and overrides recolor the track mid-slide; slide progress blends them
   trackFill (): string {
     return this.mixColor(
       'var(--jelly-off, var(--droplet-off))',
@@ -179,9 +167,8 @@ export class DropletSwitch extends DropletElement {
     );
   }
 
-  // The thumb stays white as it slides (off and on both default to the white
-  // token), like a physical knob, so it reads consistently across themes and
-  // accents. Variants can still override --droplet-switch-thumb-on for contrast.
+  // Both ends default to white so the thumb reads like a physical knob across
+  // themes and accents; variants can override --droplet-switch-thumb-on for contrast
   thumbFill (): string {
     return this.mixColor(
       'var(--jelly-switch-thumb-off, var(--droplet-switch-thumb-off))',
@@ -190,7 +177,6 @@ export class DropletSwitch extends DropletElement {
     );
   }
 
-  // Called once after the shadow DOM and canvas exist. Wire events here.
   override onBuilt (): void {
     this.input = this.shadowRoot!.querySelector('input')!;
     this.track = this.shadowRoot!.querySelector('.track')!;
@@ -226,7 +212,6 @@ export class DropletSwitch extends DropletElement {
     this.track.addEventListener('lostpointercapture', (event) => this.onUp(event));
   }
 
-  // Called whenever the shape (re)builds: size the thumb and seat it in place
   override onShape (): void {
     const { height } = this.trackSize;
     const size       = height - this.sizeConfig.inset * 2;
@@ -244,7 +229,6 @@ export class DropletSwitch extends DropletElement {
     this.requestFrame();
   }
 
-  // Press: capture the pointer and dent the track where the finger lands
   onDown (event: PointerEvent): void {
     if (this.hasAttribute('disabled')) {
       return;
@@ -320,7 +304,7 @@ export class DropletSwitch extends DropletElement {
 
     if (fromUser && changed) {
       if (!this.reducedMotion && this.thumbBody) {
-        // Stretch toward the direction of travel - the inline end when turning on
+        // Stretch toward the direction of travel (the inline end when turning on)
         const sign = isRTL(this) ? -1 : 1;
 
         this.thumbBody.stretchAlong((value ? 1 : -1) * sign, 0, 0.9);
@@ -333,7 +317,6 @@ export class DropletSwitch extends DropletElement {
     this.requestFrame();
   }
 
-  // One animation step: slide the thumb, advance both bodies, repaint
   override frame (dt: number): boolean {
     const track = this.body;
     const thumb = this.thumbBody;
@@ -344,7 +327,6 @@ export class DropletSwitch extends DropletElement {
 
     const prevX = this.thumbX;
 
-    // Reduced motion snaps the thumb straight to its target instead of gliding
     if (this.reducedMotion) {
       this.thumbX         = this.thumbTarget;
       this.thumbXVelocity = 0;
@@ -353,7 +335,7 @@ export class DropletSwitch extends DropletElement {
     }
 
     // Organic lean: the thumb bulges toward its direction of travel and tucks the
-    // trailing side in (a teardrop), relaxing to round as it lands - no flat oval.
+    // trailing side in (a teardrop), relaxing to round as it lands, never a flat oval
     const speed = Math.abs(this.thumbXVelocity);
 
     if (speed > 6) {
@@ -362,7 +344,6 @@ export class DropletSwitch extends DropletElement {
 
     thumb.leanAmount = this.reducedMotion ? 0 : Math.min(thumb.height * 0.34, speed * 0.014);
 
-    // A little "plop" ripple in the track as the thumb passes
     if (!this.reducedMotion && Math.abs(this.thumbX - prevX) > 0.01) {
       track.pulseAt(this.thumbX, -this.trackSize.height / 2, 0.02 * Math.min(3, speed / 120));
     }
@@ -383,7 +364,6 @@ export class DropletSwitch extends DropletElement {
     return !(track.isResting() && thumb.isResting() && slideSettled) || this.pointerId != null;
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     if (this.axisAttributeChanged(name)) {
       return;
@@ -401,7 +381,6 @@ export class DropletSwitch extends DropletElement {
     }
   }
 
-  // Push one observed attribute into the hidden native input
   sync (name: string): void {
     switch (name) {
       case 'checked':
@@ -434,7 +413,6 @@ export class DropletSwitch extends DropletElement {
     }
   }
 
-  // Whether the switch is currently on (reflects the attribute)
   get checked (): boolean {
     return this.hasAttribute('checked');
   }

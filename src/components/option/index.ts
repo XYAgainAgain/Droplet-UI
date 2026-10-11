@@ -1,6 +1,6 @@
 /*
  * Declarative option data for <droplet-select>: the parent select reads each
- * option's value, label and disabled state and renders its own listbox
+ * option's value, label, and disabled state and renders its own listbox
  * rows, so this element hides itself and never takes part in layout
  */
 
@@ -30,34 +30,28 @@ export class DropletOption extends HTMLElementBase {
     return defineOption(options);
   }
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['value', 'selected', 'disabled'];
   }
 
-  // The submitted value: the value attribute, else the trimmed text content
   get value (): string {
     return this.hasAttribute('value')
       ? this.getAttribute('value') ?? ''
       : (this.textContent ?? '').trim();
   }
 
-  // The human-readable label shown in the trigger and its listbox row
   get label (): string {
     return (this.textContent ?? '').trim();
   }
 
-  // True when the option cannot be selected
   get disabled (): boolean {
     return this.hasAttribute('disabled');
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (): void {
     (this.closest(anyTag('select')) as OptionParent | null)?.syncOptions?.();
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
     this.style.display = 'none';
     (this.closest(anyTag('select')) as OptionParent | null)?.syncOptions?.();

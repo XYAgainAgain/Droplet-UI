@@ -24,7 +24,7 @@
 }
 
 /* The rover glides between the three fixed dots; the goo filter melts it
-   into whichever dot it's nearest, so it reads as one blob travelling */
+   into whichever dot it's nearest, so it reads as one blob traveling */
 .rover {
   animation: sp-rove 1.5s cubic-bezier(.55, 0, .45, 1) infinite;
 }

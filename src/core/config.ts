@@ -75,5 +75,4 @@ export const DEFAULT_CONFIG = {
   samples:                     240,
 };
 
-// The full physics tuning record (components pass a Partial to override a few)
 export type DropletConfig = typeof DEFAULT_CONFIG;

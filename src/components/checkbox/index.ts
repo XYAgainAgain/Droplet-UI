@@ -1,8 +1,7 @@
 /*
- * A squishy checkbox with an optional slotted label and a mixed
- * (indeterminate) state. A visually-hidden native checkbox carries focus,
- * keyboard and the form value while the jelly square is painted behind it
- * and pops each time it toggles; a dash mark shows the mixed state
+ * A squishy checkbox with an optional slotted label and a mixed state.
+ * A visually hidden native checkbox carries focus, keyboard, and the form
+ * value while the soft-body square is painted behind it and pops on toggle.
  */
 
 import { DropletElement }     from '../../element/index.js';
@@ -21,7 +20,7 @@ import type { DefineOptions, DefineResult } from '../../registry/index.js';
 import checkboxStyles       from './checkbox.css?inline';
 
 /**
- * A squishy checkbox backed by a real form-associated native checkbox.
+ * A squishy, form-associated checkbox backed by a real native checkbox.
  *
  * @element droplet-checkbox
  *
@@ -67,7 +66,6 @@ export class DropletCheckbox extends DropletElement {
   scale = 1;
   scaleVelocity = 0;
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['checked', 'disabled', 'indeterminate', 'label', 'size', 'value', ...DropletElement.AXIS_ATTRIBUTES];
   }
@@ -78,12 +76,10 @@ export class DropletCheckbox extends DropletElement {
     this.internals = this.attachInternals();
   }
 
-  // Component styles layered over the shared jelly base styles
   override styles (): string {
     return checkboxStyles + variantColors({ color: '--droplet-on', on: '--droplet-checkbox-mark' });
   }
 
-  // The interactive markup that sits above the canvas
   override content (): string {
     return `
       <label class="wrap" part="wrap">
@@ -96,7 +92,7 @@ export class DropletCheckbox extends DropletElement {
       </label>`;
   }
 
-  // The square the physics body takes - the box region, not the label
+  // The square the physics body takes: the box region, not the label
   override shape (width: number, height: number): Shape {
     const size = Math.min(width, height);
 
@@ -110,7 +106,6 @@ export class DropletCheckbox extends DropletElement {
       : this.resolveColor(`var(--jelly-fill, var(--droplet-fill, ${PALETTE['background-neutral']}))`);
   }
 
-  // Called once after the shadow DOM and canvas exist. Wire events here.
   override onBuilt (): void {
     this.input = this.shadowRoot!.querySelector('input')!;
 
@@ -123,13 +118,13 @@ export class DropletCheckbox extends DropletElement {
     this.trackFocus(this.input);
 
     this.input.addEventListener('change', () => {
-      // A user toggle resolves a mixed state - indeterminate always clears
+      // A user toggle resolves a mixed state, so indeterminate always clears
       this.indeterminate = false;
 
       this.toggleAttribute('checked', this.input.checked);
       this.syncFormValue();
 
-      // Clean expand on check, collapse on uncheck - no membrane wiggle
+      // Clean expand on check, collapse on uncheck; no membrane wiggle
       this.pop(this.input.checked ? 4 : -3);
       triggerHaptic();
 
@@ -155,7 +150,6 @@ export class DropletCheckbox extends DropletElement {
       return false;
     }
 
-    // One uniform scale spring - the box expands / collapses, never wiggles
     [this.scale, this.scaleVelocity] = integrateSpring(this.scale, this.scaleVelocity, 1, 260, 17, dt);
 
     this.clearCanvas();
@@ -164,12 +158,10 @@ export class DropletCheckbox extends DropletElement {
     return Math.abs(1 - this.scale) > 0.0015 || Math.abs(this.scaleVelocity) > 0.0015;
   }
 
-  // Report the submitted value: `value` when checked, nothing otherwise
   syncFormValue (): void {
     this.internals.setFormValue(this.input.checked ? this.value : null);
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     if (this.axisAttributeChanged(name)) {
       return;
@@ -221,7 +213,6 @@ export class DropletCheckbox extends DropletElement {
     }
   }
 
-  // Whether the checkbox is currently checked (reflects the attribute)
   get checked (): boolean {
     return this.hasAttribute('checked');
   }
@@ -230,7 +221,6 @@ export class DropletCheckbox extends DropletElement {
     this.toggleAttribute('checked', Boolean(value));
   }
 
-  // Mixed state: shows a dash and reports aria-checked="mixed"; cleared by a user toggle
   get indeterminate (): boolean {
     return this.hasAttribute('indeterminate');
   }
@@ -248,7 +238,6 @@ export class DropletCheckbox extends DropletElement {
     this.setAttribute('value', String(value));
   }
 
-  // Route programmatic host focus into the hidden native input
   override focus (options?: FocusOptions): void {
     this.input?.focus(options);
   }

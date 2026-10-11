@@ -23,11 +23,9 @@ test('builds a tablist from panels and shows the active one', async () => {
 });
 
 test('switches panels when the markup is set through a connected innerHTML', async () => {
-  // The showcase builds each preview with `stage.innerHTML = ...` on a stage
-  // that is already in the document, so droplet-tabs connects (and stamps its
-  // panels) before the panels themselves upgrade. A cached per-panel value
-  // would be reset by the panel's class fields and every switch would then
-  // match nothing, hiding all panels.
+  // The showcase sets innerHTML on a stage already in the document, so tabs connects
+  // before its panels upgrade. A cached per-panel value would be reset by the panels'
+  // class fields, every switch would match nothing, and all panels would hide.
   const stage = document.createElement('div');
   document.body.appendChild(stage);
 

@@ -1,12 +1,6 @@
 /*
- * A click-triggered floating jelly panel: non-modal, anchored to its
- * trigger, dismissed by Escape or clicking outside. Focus moves into the
- * panel on open and returns to the trigger on close.
- *
- *   <droplet-popover placement="bottom" label="Options">
- *     <droplet-button slot="trigger">Options</droplet-button>
- *     <div slot="content">Anything…</div>
- *   </droplet-popover>
+ * Escape or an outside click dismisses the panel; focus moves into it on
+ * open and returns to the trigger on close.
  */
 
 import { placeAnchored }     from '../../anchor/index.js';
@@ -71,12 +65,10 @@ export class DropletPopover extends HTMLElementBase {
     }
   };
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['placement', 'size', 'label'];
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
     ensureThemeTokens();
     canonicalizeSize(this);
@@ -87,7 +79,6 @@ export class DropletPopover extends HTMLElementBase {
 
     this.built = true;
 
-    // Encapsulate styles and markup inside a Shadow DOM so they don't leak out
     this.attachShadow({ mode: 'open', delegatesFocus: true });
 
     this.shadowRoot!.innerHTML = `
@@ -109,7 +100,6 @@ export class DropletPopover extends HTMLElementBase {
     this.syncLabel();
   }
 
-  // Lifecycle method: Called automatically when the element leaves the DOM
   disconnectedCallback (): void {
     if (this.isOpen) {
       this.isOpen = false;
@@ -124,7 +114,6 @@ export class DropletPopover extends HTMLElementBase {
     }
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     switch (name) {
       case 'size':
@@ -141,7 +130,6 @@ export class DropletPopover extends HTMLElementBase {
     }
   }
 
-  // The panel's accessible name comes from the label attribute
   syncLabel (): void {
     const label = this.getAttribute('label');
 
@@ -159,7 +147,6 @@ export class DropletPopover extends HTMLElementBase {
     return (slot?.assignedElements()[0] as HTMLElement | undefined) || this;
   }
 
-  // Mark the trigger as opening a dialog and mirror the open state onto it
   reflectTrigger (): void {
     const trigger = this.trigger;
 
@@ -171,7 +158,6 @@ export class DropletPopover extends HTMLElementBase {
     trigger.setAttribute('aria-expanded', this.isOpen ? 'true' : 'false');
   }
 
-  // Flip between open and closed
   toggle (): void {
     if (this.isOpen) {
       this.close();
@@ -180,7 +166,6 @@ export class DropletPopover extends HTMLElementBase {
     }
   }
 
-  // Open the panel, move focus into it and start following the trigger
   open (): void {
     if (this.isOpen) {
       return;
@@ -207,7 +192,6 @@ export class DropletPopover extends HTMLElementBase {
     emit(this, 'open');
   }
 
-  // Anchor the panel to the trigger and keep it pinned on scroll
   place (): void {
     if (!this.panel) {
       return;
@@ -219,14 +203,11 @@ export class DropletPopover extends HTMLElementBase {
     placeAnchored(anchor, this.panel, placement, 8);
 
     this.untrack?.();
-    // Close on scroll-out WITHOUT returning focus - focusing the trigger would
-    // scroll it back into view and undo the very dismissal we just triggered.
+    // Scroll-out closes without returning focus: focusing the trigger would
+    // scroll it back into view and undo the dismissal.
     this.untrack = trackAnchor(anchor, this.panel, placement, 8, () => this.close({ returnFocus: false }));
   }
 
-  // Close the panel. Hands focus back to the trigger for a user-driven close
-  // (Escape, click-outside, selection); scroll-out closes pass returnFocus:
-  // false so the page doesn't jump back to the now-off-screen trigger.
   close ({ returnFocus = true }: { returnFocus?: boolean } = {}): void {
     if (!this.isOpen) {
       return;
@@ -250,7 +231,6 @@ export class DropletPopover extends HTMLElementBase {
     emit(this, 'close');
   }
 
-  // Route programmatic host focus onto the trigger
   override focus (options?: FocusOptions): void {
     this.trigger?.focus?.(options);
   }

@@ -1,10 +1,7 @@
 /*
- * ARIA forwarding from a roleless host onto the native control inside its
- * shadow root. IDREF attributes cannot resolve light-DOM ids from inside the
- * shadow tree, so they cross as element references instead: a shadow element
- * may reference elements in its ancestor scopes, never the other way round.
- * Setting ariaControlsElements and friends writes an empty content attribute
- * (aria-controls="") on the inner element; that is the platform's design.
+ * IDREF attributes can't resolve light-DOM ids from inside the shadow tree, so they cross as
+ * element references. Setting ariaControlsElements and friends leaves aria-controls="" on the
+ * inner element; that is the platform's behavior.
  */
 
 // IDREF attributes and the element-reflection property each one crosses as
@@ -75,7 +72,6 @@ export function forwardAria (host: Element, target: Element, name: string): void
   reflect[prop] = prop.endsWith('Elements') ? refs : (refs?.[0] ?? null);
 }
 
-// Forward every aria-* attribute the host currently carries
 export function forwardAllAria (host: Element, target: Element, names: readonly string[] = FORWARDED_ARIA): void {
   for (const name of names) {
     if (host.hasAttribute(name)) {

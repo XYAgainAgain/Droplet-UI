@@ -1,9 +1,3 @@
-/*
- * A group controller for <droplet-collapsible> items. Add `single` so
- * opening one item bounces the others closed; `size` propagates to every
- * item that hasn't chosen its own
- */
-
 import { canonicalizeSize }    from '../../utilities/index.js';
 import { propagateSize }       from '../../utilities/index.js';
 
@@ -36,12 +30,10 @@ export class DropletAccordion extends HTMLElementBase {
 
   built = false;
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['single', 'size'];
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
     ensureThemeTokens();
     canonicalizeSize(this);
@@ -52,7 +44,6 @@ export class DropletAccordion extends HTMLElementBase {
 
     this.built = true;
 
-    // Encapsulate styles and markup inside a Shadow DOM so they don't leak out
     this.attachShadow({ mode: 'open', delegatesFocus: true });
 
     this.shadowRoot!.innerHTML = `
@@ -68,7 +59,6 @@ export class DropletAccordion extends HTMLElementBase {
 
     propagateSize(this, anyTag('collapsible'));
 
-    // In single mode, opening one item closes its siblings
     this.addEventListener('toggle', (event) => {
       if (!this.hasAttribute('single')) {
         return;
@@ -88,7 +78,6 @@ export class DropletAccordion extends HTMLElementBase {
     });
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     if (name === 'size') {
       canonicalizeSize(this);

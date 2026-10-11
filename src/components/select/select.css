@@ -130,11 +130,8 @@
   transform: rotate(180deg);
 }
 
-/* The panel only fades; the jelly surface (canvas) does the organic
-   unfold from frame(), so the DOM rows are never scaled or skewed.
-   It hangs below the trigger by default; when placePanel() measures
-   no viewport room below, data-side="top" re-anchors it above and
-   frame() mirrors the reveal so it still unfolds away from the trigger. */
+/* The panel only fades; the canvas surface does the unfold in frame(), so
+   DOM rows are never scaled or skewed. data-side="top" re-anchors it above. */
 .panel {
   position:           absolute;
   inset-inline-start: 0;
@@ -164,7 +161,7 @@
 }
 
 /* The list is revealed away from the trigger edge (clip) to track the
-   unfolding surface; each row settles at its natural size - never stretched. */
+   unfolding surface; each row settles at its natural size, never stretched. */
 .panel-mask {
   position:      relative;
   z-index:       1;

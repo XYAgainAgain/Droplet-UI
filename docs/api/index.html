@@ -20,14 +20,12 @@
       }
     </script>
 
-    <!-- Page styles: shared chrome + reference-specific (see docs/README.md) -->
+    <!-- Page styles: shared chrome and reference-specific (see docs/README.md) -->
     <link rel="stylesheet" href="../docs/shared/site.css" />
     <link rel="stylesheet" href="../docs/api/reference.css" />
 
-    <!-- OPTIONAL performance hint, not an import: the page loads ../package.js
-         (via docs/api/index.js), which re-exports the built bundle. Preloading the
-         bundle here fetches it in parallel so the components register sooner.
-         Deleting these lines changes nothing except first-load speed. -->
+    <!-- Performance hint, not an import: fetching package.js and the bundle it re-exports
+         in parallel registers the components sooner. Removing it only slows first load. -->
     <link rel="modulepreload" href="../package.js" />
     <link rel="modulepreload" href="../dist/droplet.js" />
   </head>
@@ -35,10 +33,9 @@
   <body>
     <a class="skip" href="#sections">Skip to reference</a>
 
-    <!-- The shared top bar (styles in site.css) — the same bar the showcase
-         uses, plus the mobile-only sidebar toggle -->
+    <!-- The shared top bar (styles in site.css), plus the mobile-only sidebar toggle -->
     <nav class="subnav" aria-label="Site">
-      <a class="subnav-brand" href="../">Droplet UI <span class="subnav-ver">v1.1</span></a>
+      <a class="subnav-brand" href="../">Droplet UI <span class="subnav-ver">v0.1</span></a>
 
       <droplet-button id="navToggle" size="small" variant="platinum" shape="square"
                     aria-expanded="false" aria-controls="sidebar">Components ▾</droplet-button>
@@ -65,20 +62,14 @@
         <section class="intro">
           <h1>API Reference</h1>
           <p>
-            Every attribute, property, method, event, slot, shadow part, CSS custom
-            property and keyboard map — generated from <code>docs/content/data.js</code>.
-            For live, interactive examples, head to the
-            <a href="../">component showcase</a>.
+            Every attribute, property, method, event, slot, shadow part, CSS custom property, and keyboard map, generated from <code>docs/content/data.js</code>. For live, interactive examples, head to the <a href="../">component showcase</a>.
           </p>
         </section>
 
         <div id="sections"><!-- generated from docs/content/data.js --></div>
 
         <footer>
-          Droplet UI — dependency-free Web Components, one script tag to consume.
-          To document a component, edit its descriptor in <code>docs/content.js</code>
-          and run <code>npm run docs</code> — it reconciles the prose against the
-          component TypeScript and regenerates this page's data.
+          Droplet UI: dependency-free Web Components, one script tag to consume. To document a component, edit its descriptor in <code>docs/content/content.js</code> and run <code>npm run docs</code>; it reconciles the prose against the component TypeScript and regenerates this page's data.
         </footer>
       </main>
     </div>

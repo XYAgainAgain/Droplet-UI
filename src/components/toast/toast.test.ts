@@ -40,7 +40,7 @@ test('clicking the toast removes it', async () => {
   expect(el.isConnected).toBe(true);
 
   el.click();
-  // toastOut resolves on the next animation frame under reduced motion / no anim
+  // Long enough for the 320 ms exit animation when motion isn't reduced
   await new Promise((resolve) => setTimeout(resolve, 400));
 
   expect(el.isConnected).toBe(false);

@@ -1,9 +1,7 @@
 /*
- * A resizable panel grid. Drag the jelly dividers between panels; each
- * child becomes a flexible pane. direction="vertical" stacks the panes,
- * direction="both" makes a 2×2 split with two resize axes. Dividers
- * follow the window-splitter pattern (focusable, arrow keys, live
- * aria-valuenow) and respect reading direction
+ * Each child becomes a flexible pane; direction="both" makes a 2×2 split with
+ * two resize axes. Dividers follow the window-splitter pattern (focusable,
+ * arrow keys, live aria-valuenow) and respect reading direction.
  */
 
 import { emit }              from '../../utilities/index.js';
@@ -21,7 +19,7 @@ import resizableStyles       from './resizable.css?inline';
 type ResizableSizes = number[] | { cols: number[]; rows: number[] };
 
 /**
- * A resizable panel grid with draggable jelly dividers.
+ * A resizable panel grid with draggable dividers.
  *
  * @element droplet-resizable
  *
@@ -48,12 +46,10 @@ export class DropletResizable extends HTMLElementBase {
   // Populated in render()
   container!: HTMLElement;
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['direction'];
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
     ensureThemeTokens();
 
@@ -63,38 +59,32 @@ export class DropletResizable extends HTMLElementBase {
 
     this.built = true;
 
-    // Encapsulate styles and markup inside a Shadow DOM so they don't leak out
     this.attachShadow({ mode: 'open', delegatesFocus: true });
 
     this.render();
   }
 
-  // Lifecycle method: Called automatically when the element leaves the DOM
   disconnectedCallback (): void {
     // A drag in progress must not leave window listeners behind
     this.endDrag?.();
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (): void {
     if (this.built) {
       this.render();
     }
   }
 
-  // True for the 2×2 two-axis layout
   get isBothAxes (): boolean {
     return this.getAttribute('direction') === 'both';
   }
 
-  // True when panes stack top-to-bottom
   get vertical (): boolean {
     return this.getAttribute('direction') === 'vertical';
   }
 
-  // The current pane fractions (each axis sums to 1). A single-axis layout
-  // returns a flat array; the 2×2 layout returns { cols, rows }. Carried in
-  // the change event detail so a listener can read the resulting layout.
+  // Pane fractions (each axis sums to 1): a flat array for single-axis layouts,
+  // { cols, rows } for 2×2. The change event carries this as detail.sizes.
   get sizes (): ResizableSizes {
     const normalize = (weights: number[]): number[] => {
       const sum = weights.reduce((a, b) => a + b, 0) || 1;
@@ -178,11 +168,8 @@ export class DropletResizable extends HTMLElementBase {
     });
   }
 
-  /*
-   * Window-splitter values: each separator reports the size of its first
-   * pane as a percentage of the pair (0–100), kept live through drags and
-   * keyboard resizes.
-   */
+  // Window-splitter values: each separator reports its first pane's share of
+  // the pair as a percentage (0–100)
   syncSeparatorValues (): void {
     const percent = (a: number, b: number): string => String(Math.round((a / (a + b)) * 100));
 
@@ -222,7 +209,7 @@ export class DropletResizable extends HTMLElementBase {
     const start = this.vertical ? event.clientY : event.clientX;
 
     // In RTL the first pane sits at the physical right, so a rightward drag
-    // shrinks it - mirror the pixel delta
+    // shrinks it: mirror the pixel delta
     const mirror = !this.vertical && isRTL(this) ? -1 : 1;
 
     const g0  = this.grow[i];
@@ -328,7 +315,7 @@ export class DropletResizable extends HTMLElementBase {
   }
 
   // Keyboard resize: arrows move the divider (direction-aware), one step at a
-  // time; Home/End drive it to the minimum / maximum (nudge clamps the ends)
+  // time; Home/End drive it to the minimum/maximum (nudge clamps the ends)
   onDividerKey (event: KeyboardEvent, i: number): void {
     const step = 0.12;
     const axis = (event.currentTarget as HTMLElement | null)?.dataset.axis;

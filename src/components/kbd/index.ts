@@ -1,9 +1,3 @@
-/*
- * A jelly keyboard key. Poke it with the pointer, or give it `key="k"`
- * and it depresses and squishes for real whenever that key is held
- * anywhere on the page
- */
-
 import { DropletElement } from '../../element/index.js';
 import type { Shape }   from '../../element/index.js';
 import { defineStrict, TAGS } from '../../registry/index.js';
@@ -130,12 +124,10 @@ export class DropletKbd extends DropletElement implements EventListenerObject {
   pointerPressed = false;
   mirrorPressed = false;
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['key', 'decorative', ...DropletElement.AXIS_ATTRIBUTES];
   }
 
-  // Reflects the decorative attribute
   get decorative (): boolean {
     return this.hasAttribute('decorative');
   }
@@ -144,12 +136,10 @@ export class DropletKbd extends DropletElement implements EventListenerObject {
     this.toggleAttribute('decorative', Boolean(value));
   }
 
-  // Component styles layered over the shared jelly base styles
   override styles (): string {
     return kbdStyles;
   }
 
-  // The interactive markup that sits above the canvas
   override content (): string {
     return `<span class="cap" part="cap"><slot></slot></span>`;
   }
@@ -163,7 +153,6 @@ export class DropletKbd extends DropletElement implements EventListenerObject {
     };
   }
 
-  // Called once after the shadow DOM and canvas exist. Wire events here.
   override onBuilt (): void {
     this.syncDecorative();
     this.trackFocus(this);
@@ -179,7 +168,6 @@ export class DropletKbd extends DropletElement implements EventListenerObject {
     this.armKeyMirror();
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     if (this.axisAttributeChanged(name)) {
       return;
@@ -212,9 +200,7 @@ export class DropletKbd extends DropletElement implements EventListenerObject {
     }
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the
-  // DOM. Re-arm the document-wide key mirror - disconnectedCallback dropped it,
-  // and a kbd that is detached and re-appended should keep mirroring its key.
+  // disconnectedCallback drops the key mirror, so a detached and re-appended kbd re-arms it here
   override connectedCallback (): void {
     super.connectedCallback();
 
@@ -223,11 +209,7 @@ export class DropletKbd extends DropletElement implements EventListenerObject {
     }
   }
 
-  /*
-   * With key="…" the cap mirrors that physical key document-wide. Idempotent:
-   * the old listener pair is always dropped first, so connect / re-connect /
-   * key changes never stack listeners.
-   */
+  // Idempotent: the old listener pair is dropped first, so reconnects and key changes never stack listeners
   armKeyMirror (): void {
     this.disarmKeyMirror();
 
@@ -278,7 +260,6 @@ export class DropletKbd extends DropletElement implements EventListenerObject {
     }
   }
 
-  // Handle callback events
   handleEvent (event: Event): void {
     switch (event.type) {
       case 'pointerdown': {
@@ -351,7 +332,7 @@ export class DropletKbd extends DropletElement implements EventListenerObject {
     }
   }
 
-  // Let the cap travel back up and the jelly settle, unless another source still holds it
+  // Let the cap travel back up and the soft body settle, unless another source still holds it
   release (): void {
     if (this.pointerPressed || this.keyboardActive || this.mirrorPressed || !this.classList.contains('pressed')) {
       return;

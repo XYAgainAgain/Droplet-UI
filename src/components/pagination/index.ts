@@ -1,6 +1,6 @@
 /*
- * Page navigation built from jelly buttons, with a windowed page list
- * and previous / next arrows that follow the reading direction
+ * Page navigation built from soft-body buttons, with a windowed page list
+ * and previous/next arrows that follow the reading direction
  *
  * Emits `change` with event.detail.page when the page changes.
  */
@@ -18,7 +18,6 @@ import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import paginationStyles      from './pagination.css?inline';
 
-// Options for one rendered page button
 interface PageButtonOptions {
   current?: boolean;
   disabled?: boolean;
@@ -26,7 +25,7 @@ interface PageButtonOptions {
 }
 
 /**
- * Page navigation built from jelly buttons, with a windowed page list.
+ * Page navigation built from soft-body buttons, with a windowed page list.
  *
  * @element droplet-pagination
  *
@@ -44,16 +43,13 @@ export class DropletPagination extends HTMLElementBase {
 
   built = false;
 
-  // Populated in connectedCallback()
   row!: HTMLElement;
   onDirectionChange: () => void = () => this.render();
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['total', 'page', 'size'];
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
     ensureThemeTokens();
     canonicalizeSize(this);
@@ -64,7 +60,6 @@ export class DropletPagination extends HTMLElementBase {
 
     this.built = true;
 
-    // Encapsulate styles and markup inside a Shadow DOM so they don't leak out
     this.attachShadow({ mode: 'open', delegatesFocus: true });
 
     this.shadowRoot!.innerHTML = `
@@ -81,12 +76,10 @@ export class DropletPagination extends HTMLElementBase {
     this.render();
   }
 
-  // Lifecycle method: Called automatically when the element leaves the DOM
   disconnectedCallback (): void {
     window.removeEventListener('droplet-theme-change', this.onDirectionChange);
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     if (name === 'size') {
       canonicalizeSize(this);
@@ -134,7 +127,6 @@ export class DropletPagination extends HTMLElementBase {
     return out;
   }
 
-  // Navigate to a page and announce the change
   go (page: number): void {
     if (page < 1 || page > this.total || page === this.page) {
       return;
@@ -145,7 +137,6 @@ export class DropletPagination extends HTMLElementBase {
     emit(this, 'change', { page });
   }
 
-  // Rebuild the row of page buttons for the current state
   render (): void {
     const cur = this.page;
     const rtl = isRTL(this);

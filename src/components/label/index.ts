@@ -1,10 +1,3 @@
-/*
- * A form label that pairs with any control via `for`: clicking it focuses
- * the target and - because idrefs cannot cross shadow roots - it also
- * pushes its text into the target's `label` attribute so Droplet form
- * controls gain a real accessible name
- */
-
 import { canonicalizeSize }  from '../../utilities/index.js';
 
 import { ensureThemeTokens } from '../../theme/index.js';
@@ -36,15 +29,12 @@ export class DropletLabel extends HTMLElementBase {
 
   built = false;
 
-  // Populated in connectedCallback()
   label!: HTMLLabelElement;
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['for', 'required', 'size'];
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
     ensureThemeTokens();
     canonicalizeSize(this);
@@ -55,7 +45,6 @@ export class DropletLabel extends HTMLElementBase {
 
     this.built = true;
 
-    // Encapsulate styles and markup inside a Shadow DOM so they don't leak out
     this.attachShadow({ mode: 'open' });
 
     this.shadowRoot!.innerHTML = `
@@ -78,7 +67,6 @@ export class DropletLabel extends HTMLElementBase {
     this.sync();
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     if (name === 'size') {
       canonicalizeSize(this);
@@ -89,7 +77,7 @@ export class DropletLabel extends HTMLElementBase {
     }
   }
 
-  // Resolve the `for` target in this label's own document / shadow root
+  // Resolve the `for` target in this label's own document/shadow root
   get target (): HTMLElement | null {
     const id = this.getAttribute('for');
 
@@ -102,16 +90,12 @@ export class DropletLabel extends HTMLElementBase {
     return root.getElementById?.(id) ?? document.getElementById(id);
   }
 
-  // Clicking the label focuses the referenced control (cross-root safe)
   focusTarget (): void {
     this.target?.focus?.();
   }
 
-  /*
-   * Give the target an accessible name and required state. Droplet form
-   * controls map their `label` attribute to an inner aria-label, which
-   * works across shadow roots where aria-labelledby idrefs cannot.
-   */
+  // Droplet form controls map `label` to an inner aria-label, which works across
+  // shadow roots where aria-labelledby idrefs cannot
   sync (): void {
     const target = this.target;
 

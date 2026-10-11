@@ -59,7 +59,7 @@ test('emits open and close events', () => {
   host.remove();
 });
 
-// The state has to land on the roled control AT reads, not on a roleless jelly host
+// The state has to land on the roled control assistive tech reads, not on a roleless host
 async function expectTriggerState (triggerMarkup: string): Promise<void> {
   const host = mount(`
     <droplet-popover label="Settings">

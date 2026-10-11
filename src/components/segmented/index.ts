@@ -1,7 +1,6 @@
 /*
- * A segmented control: a capsule track of mutually exclusive options with
- * a jelly pill that slides between segments, leaning and stretching along
- * its travel. Form-associated and presented as a radiogroup by default -
+ * A segmented control: a capsule track with a soft-body pill that slides
+ * between options. Form-associated and presented as a radiogroup by default;
  * roles="tablist" switches to tab semantics (used by <droplet-tabs>)
  */
 
@@ -27,7 +26,7 @@ import { DropletSegment }       from '../segment/index.js';
 import segmentedStyles     from './segmented.css?inline';
 
 /**
- * A segmented control with a sliding jelly pill (radiogroup, or tablist mode).
+ * A segmented control with a sliding soft-body pill (radiogroup, or tablist mode).
  *
  * @element droplet-segmented
  *
@@ -59,7 +58,7 @@ export class DropletSegmented extends DropletElement {
 
   internals: ElementInternals;
 
-  // Populated in onBuilt() / onShape()
+  // Populated in onBuilt()/onShape()
   wrap!: HTMLElement;
   pill: DropletBody | null = null;
   mutationObserver: MutationObserver | null = null;
@@ -76,7 +75,6 @@ export class DropletSegmented extends DropletElement {
   placed = false;
   reflecting = false;
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['value', 'disabled', 'size', 'roles', 'label', ...DropletElement.AXIS_ATTRIBUTES];
   }
@@ -87,17 +85,15 @@ export class DropletSegmented extends DropletElement {
     this.internals = this.attachInternals();
   }
 
-  // Component styles layered over the shared jelly base styles
   override styles (): string {
     return segmentedStyles;
   }
 
-  // The interactive markup that sits above the canvas
   override content (): string {
     return `<div class="wrap" part="wrap" role="radiogroup"></div>`;
   }
 
-  // The jelly track: a capsule inset a hair from the host box
+  // The track capsule, inset 3px per side from the host box
   override shape (width: number, height: number): Shape {
     const w = width - 6;
     const h = height - 6;
@@ -105,7 +101,6 @@ export class DropletSegmented extends DropletElement {
     return { width: w, height: h, radius: h / 2 };
   }
 
-  // Called once after the shadow DOM and canvas exist. Wire events here.
   override onBuilt (): void {
     this.wrap = this.shadowRoot!.querySelector('.wrap')!;
 
@@ -120,21 +115,19 @@ export class DropletSegmented extends DropletElement {
     this.sync();
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   override connectedCallback (): void {
     const alreadyBuilt = this.built;
 
     super.connectedCallback();
 
-    // Re-arm the light-DOM observer after a remove + re-append - it was
-    // disconnected on removal and the segments may have changed since
+    // Re-arm the light-DOM observer after a re-append: removal disconnected it,
+    // and the segments may have changed since
     if (alreadyBuilt && this.mutationObserver) {
       this.mutationObserver.observe(this, { childList: true, subtree: true, characterData: true });
       this.sync();
     }
   }
 
-  // Lifecycle method: Called automatically when the element leaves the DOM
   override disconnectedCallback (): void {
     super.disconnectedCallback();
 
@@ -151,21 +144,16 @@ export class DropletSegmented extends DropletElement {
     }
   }
 
-  // True when the control presents tab semantics instead of radio semantics
   get isTablist (): boolean {
     return this.getAttribute('roles') === 'tablist';
   }
 
-  // The ARIA state attribute matching the current roles mode
   get stateAttribute (): string {
     return this.isTablist ? 'aria-selected' : 'aria-checked';
   }
 
-  /*
-   * Rebuild the shadow buttons from the light-DOM <droplet-segment> children.
-   * Runs on connect, on any light-DOM mutation and when the roles or
-   * disabled attributes change the rendered semantics.
-   */
+  // Rebuild the shadow buttons from the light-DOM segments: on connect, on any
+  // light-DOM mutation, and when roles or disabled change the semantics
   sync (): void {
     if (!this.wrap) {
       return;
@@ -206,7 +194,6 @@ export class DropletSegmented extends DropletElement {
     this.onShape();
   }
 
-  // Apply the label attribute as the group's accessible name
   syncLabel (): void {
     const label = this.getAttribute('label');
 
@@ -217,7 +204,6 @@ export class DropletSegmented extends DropletElement {
     }
   }
 
-  // Push the active segment's value into the form internals
   syncValue (): void {
     const seg = this.segments[this.index];
 
@@ -241,16 +227,15 @@ export class DropletSegmented extends DropletElement {
     if (!this.pill) {
       this.pill = this.createBody({ width: pillW, height: pillH, radius: r });
     } else if (Math.abs(this.pill.width - pillW) > 1.5 || Math.abs(this.pill.height - pillH) > 1.5) {
-      // Only rebuild the membrane on a real size change - not the sub-pixel
-      // reflow that selecting a tab causes (the active label turns bold).
+      // Rebuild the membrane only on a real size change, not the sub-pixel
+      // reflow when the active label turns bold
       this.pill.resize(pillW, pillH, r);
     }
 
     this.pillTarget = this.segX(this.index);
 
-    // Snap into place only on first layout. Re-measures triggered mid-slide
-    // (e.g. the ResizeObserver firing when the active label goes bold) must NOT
-    // reset the pill, or the animation between segments is killed on every click.
+    // Snap only on first layout: a mid-slide re-measure (the ResizeObserver
+    // firing as the active label bolds) must not reset the pill and kill the slide
     if (!this.placed) {
       this.pillX         = this.pillTarget;
       this.pillXVelocity = 0;
@@ -260,12 +245,8 @@ export class DropletSegmented extends DropletElement {
     this.requestFrame();
   }
 
-  /*
-   * The pill's resting center for a segment, in canvas-local coordinates.
-   * Measured from the rendered button's box, so it is correct in both LTR
-   * and RTL without any direction math; falls back to an even split
-   * (mirrored for RTL) before the first layout.
-   */
+  // The pill's canvas-local resting center, measured from the rendered button so
+  // LTR and RTL need no direction math; an even split (mirrored) before layout
   segX (index: number): number {
     const button = this.wrap?.children[index] as HTMLElement | undefined;
 
@@ -278,11 +259,7 @@ export class DropletSegmented extends DropletElement {
     return isRTL(this) ? -x : x;
   }
 
-  /*
-   * Make a segment the active one: move the roving tabindex, launch the
-   * pill toward it, sync the form value and reflect to the host attribute.
-   * User selections also stretch the pill, buzz, focus and emit change.
-   */
+  // fromUser adds the pill stretch, haptic buzz, focus move, and change event
   select (index: number, fromUser = false): void {
     const seg = this.segments[index];
 
@@ -326,12 +303,10 @@ export class DropletSegmented extends DropletElement {
     this.requestFrame();
   }
 
-  // Move focus onto a segment's button
   focusSeg (index: number): void {
     (this.wrap.children[index] as HTMLElement | undefined)?.focus();
   }
 
-  // Activate the segment under a click / tap
   onClick (event: MouseEvent): void {
     const seg = (event.target as HTMLElement).closest('.segment') as HTMLElement | null;
 
@@ -340,11 +315,8 @@ export class DropletSegmented extends DropletElement {
     }
   }
 
-  /*
-   * Roving-tabindex keyboard support: arrows move the selection (horizontal
-   * arrows flip with the reading direction), Home / End jump to the ends,
-   * and disabled segments are skipped in the direction of travel.
-   */
+  // Roving tabindex: horizontal arrows flip with reading direction, and
+  // disabled segments are skipped in the direction of travel
   onKey (event: KeyboardEvent): void {
     const count = this.segments.length;
 
@@ -382,13 +354,11 @@ export class DropletSegmented extends DropletElement {
     this.requestFrame();
   }
 
-  // Hide the painted focus ring when focus leaves the control
   onFocusOut (): void {
     this.focusVisible = false;
     this.requestFrame();
   }
 
-  // One animation step: spring the pill toward its segment, paint track + pill
   override frame (dt: number): boolean {
     const pill = this.pill;
 
@@ -396,9 +366,8 @@ export class DropletSegmented extends DropletElement {
       return false;
     }
 
-    // Smooth, nearly critically-damped slide. This keeps the jelly feel without
-    // the uneven overshoot/clamp rhythm that made longer jumps feel lumpy.
-    // Reduced motion snaps the pill straight to the active segment.
+    // Nearly critically damped, keeping the soft-body feel without the lumpy
+    // overshoot/clamp rhythm on long jumps; reduced motion snaps straight there
     if (this.reducedMotion) {
       this.pillX         = this.pillTarget;
       this.pillXVelocity = 0;
@@ -406,9 +375,8 @@ export class DropletSegmented extends DropletElement {
       [this.pillX, this.pillXVelocity] = integrateSpring(this.pillX, this.pillXVelocity, this.pillTarget, 260, 32, dt);
     }
 
-    // Keep the pill fully inside the track: the bouncy spring's overshoot must
-    // never carry it past the parent's edges. Stop the outward velocity at the
-    // wall so it settles instead of fighting the clamp.
+    // Clamp the pill inside the track and zero its outward velocity at the wall,
+    // so spring overshoot settles instead of fighting the clamp
     const limit = Math.max(0, this.trackW / 2 - pill.width / 2);
 
     if (this.pillX > limit) {
@@ -419,8 +387,7 @@ export class DropletSegmented extends DropletElement {
       if (this.pillXVelocity < 0) this.pillXVelocity = 0;
     }
 
-    // Gentle organic lean: enough to feel soft, but not enough to pull the
-    // moving pill into an uneven shape.
+    // A subtle lean; more would pull the moving pill into an uneven shape
     const speed = Math.abs(this.pillXVelocity);
 
     if (speed > 6) {
@@ -460,7 +427,6 @@ export class DropletSegmented extends DropletElement {
     return !settled;
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     if (this.axisAttributeChanged(name)) {
       return;

@@ -1,8 +1,4 @@
-/*
- * A breadcrumb trail. Light-DOM children provide the items (text +
- * optional href); the last one is the current page. Links give a little
- * bounce on hover and the trail rebuilds itself when items change
- */
+// Light-DOM children supply each item's text and optional href; the last is the current page
 
 import { canonicalizeSize }  from '../../utilities/index.js';
 import { escapeHTML }        from '../../utilities/index.js';
@@ -15,7 +11,7 @@ import type { DefineOptions, DefineResult } from '../../registry/index.js';
 import breadcrumbsStyles     from './breadcrumbs.css?inline';
 
 /**
- * A breadcrumb trail built from light-DOM `<a>` / `<span>` children.
+ * A breadcrumb trail built from light-DOM `<a>` or `<span>` children.
  *
  * @element droplet-breadcrumbs
  *
@@ -32,12 +28,10 @@ export class DropletBreadcrumbs extends HTMLElementBase {
   built = false;
   mutationObserver: MutationObserver | null = null;
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['size'];
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
     ensureThemeTokens();
     canonicalizeSize(this);
@@ -48,30 +42,25 @@ export class DropletBreadcrumbs extends HTMLElementBase {
 
     this.built = true;
 
-    // Encapsulate styles and markup inside a Shadow DOM so they don't leak out
     this.attachShadow({ mode: 'open', delegatesFocus: true });
 
     this.render();
 
-    // Rebuild when the light-DOM items change (added, removed, renamed)
     this.mutationObserver = new MutationObserver(() => this.render());
     this.mutationObserver.observe(this, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['href'] });
   }
 
-  // Lifecycle method: Called automatically when the element leaves the DOM
   disconnectedCallback (): void {
     this.mutationObserver?.disconnect();
     this.mutationObserver = null;
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     if (name === 'size') {
       canonicalizeSize(this);
     }
   }
 
-  // Rebuild the trail from the current light-DOM children
   render (): void {
     const children = [...this.children] as HTMLElement[];
     const items = children.map((child) => ({

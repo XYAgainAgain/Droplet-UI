@@ -3,7 +3,6 @@
  * share one lock, with scrollbar-gap compensation so the page never jumps.
  */
 
-// Ref-count so stacked modals cooperate on a single lock
 let scrollLocks        = 0;
 let savedScrollPadding = '';
 
@@ -24,7 +23,6 @@ export function lockScroll (): void {
   }
 }
 
-// Release one scroll lock
 export function unlockScroll (): void {
   if (scrollLocks === 0) {
     return;

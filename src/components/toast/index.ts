@@ -1,7 +1,7 @@
 /*
- * Toasts - bubbly notifications that pop in from the inline-end and
- * drift away. A <droplet-toaster> host is created automatically; place one
- * yourself (optionally with position="bottom") to control stacking.
+ * Toasts: bubbly notifications that pop in from the inline-end and drift
+ * away. A <droplet-toaster> host is created automatically; place one yourself
+ * (optionally with position="bottom") to control stacking.
  *
  *   import { dropletToast } from './src/droplet.js';
  *   dropletToast('Saved!', { tone: 'success' });
@@ -31,10 +31,8 @@ import { writeQuality }                 from '../../element/configure.js';
 
 import toastStyles           from './toast.css?inline';
 
-// The notification tones a toast can carry
 export type ToastTone = 'info' | 'success' | 'warning' | 'danger';
 
-// Options accepted by push() / dropletToast()
 export interface ToastOptions {
   tone?: ToastTone;
   duration?: number;
@@ -79,7 +77,6 @@ export class DropletToaster extends HTMLElementBase {
     return defineToaster(options);
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
     replayProperties(this, REPLAYED);
 
@@ -93,7 +90,6 @@ export class DropletToaster extends HTMLElementBase {
 
     this.built = true;
 
-    // Encapsulate styles and markup inside a Shadow DOM so they don't leak out
     this.attachShadow({ mode: 'open' });
 
     this.shadowRoot!.innerHTML = `
@@ -200,8 +196,8 @@ export class DropletToaster extends HTMLElementBase {
       this.#armTimer(el, duration, remove);
     }
 
-    // Click anywhere dismisses; the close button does too (and stops the click
-    // from double-firing). Keyboard users tab to the button and press it.
+    // Clicking anywhere dismisses; the close button stops propagation so it doesn't
+    // dismiss twice, and it gives keyboard users something to press.
     el.addEventListener('click', remove);
     close.addEventListener('click', (event) => { event.stopPropagation(); remove(); });
 

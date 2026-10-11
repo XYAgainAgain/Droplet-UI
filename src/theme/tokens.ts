@@ -1,10 +1,4 @@
-/*
- * The Droplet UI design tokens: one small palette expressed as CSS custom
- * properties, shared by the DOM and the canvas painter. Two semantic themes
- * (LIGHT / DARK) group colors by role (background / foreground / border); the
- * flattened *_TOKENS maps and PALETTE expose them to JS, and the FOCUS_RING /
- * SHADOW_* constants ride on the same tokens.
- */
+// One small palette as CSS custom properties, shared by the DOM and the canvas painter
 
 // The three document-wide theme modes ('auto' follows the operating system)
 export type ThemeMode = 'light' | 'dark' | 'auto';
@@ -39,30 +33,18 @@ export interface Theme {
   shadow: string;
 }
 
-// A flattened token map: `<group>-<role>` var suffix -> oklch value
+// A flattened token map: `<group>-<role>` var suffix → oklch value
 export type TokenMap = Record<string, string>;
 
 // The rounded display stack used by every component label
 export const FONT_STACK = `ui-rounded, 'SF Pro Rounded', system-ui, -apple-system, 'Segoe UI', sans-serif`;
 
-/*
- * The body/field text stack (inputs, dialogs, cards) and the monospace stack
- * (kbd). Shared here so no component re-types them - override site-wide with
- * the --droplet-font-text and --droplet-font-mono tokens.
- */
+// Shared so no component re-types the stacks; override site-wide with --droplet-font-text and --droplet-font-mono
 export const BODY_FONT_STACK = `system-ui, -apple-system, 'Segoe UI', sans-serif`;
 export const MONO_FONT_STACK = `ui-monospace, 'SF Mono', Menlo, monospace`;
 
-/*
- * ---------------------------------------------------------------------------
- * Shared swatches
- * ---------------------------------------------------------------------------
- * The four brand hues and pure white read identically in both modes, so they
- * live here and are referenced from each theme. Every value is oklch; the
- * source hex is kept in a comment. `sky` is the lightened azure dark mode uses
- * for the accent and focus ring, where the base azure is too dim on a dark
- * surface.
- */
+// Shared swatches: the four hues and white read identically in both modes.
+// `sky` is the lightened azure dark mode uses for accent and focus, where base azure is too dim.
 
 const WHITE = 'oklch(1 0 0)';                     // #FFFFFF
 const INK   = 'oklch(0.2609 0.0238 267.11)';      // #1F2430
@@ -73,25 +55,14 @@ const AZURE = 'oklch(0.5601 0.1577 249.8)';       // #0077CC
 const MINT  = 'oklch(0.5489 0.1374 151.7)';       // #178746
 const SKY   = 'oklch(0.7112 0.1559 250.96)';      // #4DA6FF
 
-/*
- * ---------------------------------------------------------------------------
- * Semantic themes
- * ---------------------------------------------------------------------------
- * background : page, surfaces, neutral fills, and the saturated hue fills
- * foreground : text tones and the labels placed on top of a fill
- * border     : hairlines and the focus ring
- *
- * The hues carry only their saturated fill plus the label that sits on it -
- * the soft tints and per-hue text tones were unused and have been dropped.
- * `accent` is the primary interactive fill (azure by default, re-tintable per
- * subtree by <droplet-theme accent="...">).
- */
+// Semantic themes, grouped by role: background, foreground (text and on-fill labels), border.
+// `accent` is the primary interactive fill, re-tintable per subtree by <droplet-theme accent="...">.
 
 export const LIGHT: Theme = {
   background: {
     default:         WHITE,                          // page background
     surface:         WHITE,                          // raised surface (cards, sheets)
-    muted:           'oklch(0.9906 0.0017 247.84)',  // #FBFCFD  input / field rest fill
+    muted:           'oklch(0.9906 0.0017 247.84)',  // #FBFCFD  input/field rest fill
     neutral:         'oklch(0.8884 0 0)',            // #DADADA  neutral fill (platinum)
     neutralEmphasis: 'oklch(0.4676 0 0)',            // #5A5A5A  strong neutral fill (graphite)
     white:           WHITE,                          // explicit white fill
@@ -104,7 +75,7 @@ export const LIGHT: Theme = {
   foreground: {
     default:    INK,                                 // primary text
     muted:      'oklch(0.503 0.0269 266.68)',        // #5D6474  secondary text
-    onEmphasis: WHITE,                               // label on a saturated / graphite fill
+    onEmphasis: WHITE,                               // label on a saturated/graphite fill
     onNeutral:  INK,                                 // label on a neutral fill
     onWhite:    INK,                                 // label on the white fill
     onAccent:   WHITE,                               // label on the accent fill
@@ -145,15 +116,7 @@ export const DARK: Theme = {
   shadow: '0, 0, 0',
 };
 
-/*
- * ---------------------------------------------------------------------------
- * CSS custom-property maps
- * ---------------------------------------------------------------------------
- * Flatten a semantic theme to { <var-suffix>: value } for --droplet-color-*,
- * naming each token `<group>-<role>` in kebab-case (background-neutral-emphasis,
- * foreground-on-accent, …). This is the only naming layer - there are no
- * aliases to keep in sync.
- */
+// Flatten a theme to { <var-suffix>: value } for --droplet-color-*, named `<group>-<role>` in kebab-case
 
 const kebab = (key: string): string => key.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase());
 
@@ -171,21 +134,16 @@ function flatten (t: Theme): TokenMap {
   return out;
 }
 
-// Full var-suffix -> value maps, one per mode
+// Full var-suffix → value maps, one per mode
 export const LIGHT_TOKENS: TokenMap = flatten(LIGHT);
 export const DARK_TOKENS: TokenMap  = flatten(DARK);
 
-/*
- * Convenience lookup for JS code that needs a concrete color (canvas fills,
- * documented defaults). Keyed by the same suffixes as the CSS tokens, so a
- * component's fallback reads `var(--droplet-color-background-neutral, var(--droplet-color-background-neutral,
- * ${PALETTE['background-neutral']}))`. Always prefer the CSS tokens in styles.
- */
+// Concrete light-mode colors for JS (canvas fills, themeColor() fallbacks), keyed like the CSS tokens.
+// Prefer the CSS tokens in styles.
 export const PALETTE: TokenMap = LIGHT_TOKENS;
 
-// Focus ring geometry (and default color) shared by every painted ring. The
-// CSS counterparts (--droplet-ring-*, --droplet-shadow-*) are emitted from these
-// values by themeTokenCSS() in runtime.ts.
+// Focus ring geometry (and default color) shared by every painted ring; themeTokenCSS()
+// in runtime.ts emits the --droplet-ring-* counterparts from these values.
 export const FOCUS_RING = {
   color: LIGHT.border.focus,
   width: 4.5,

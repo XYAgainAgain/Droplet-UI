@@ -1,20 +1,9 @@
-/*
- * Motion and device-feedback helpers: clamping, a damped-spring integrator,
- * the live reduced-motion query and haptic vibration.
- */
-
-// Keep a number inside [min, max]
 export function clamp (value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
-/*
- * Advance one damped spring by dt and return its new [position, velocity].
- * Uses semi-implicit (symplectic) Euler - the velocity updates first, then
- * drives the position - which settles toward the target without the buzzing
- * a plain Euler step gives. Shared by every control that eases a thumb, pill
- * or scale toward its resting value.
- */
+// Returns the new [position, velocity]. Semi-implicit Euler (velocity updates first, then drives
+// the position) settles toward the target without the buzzing a plain Euler step gives.
 export function integrateSpring (
   position: number,
   velocity: number,
@@ -29,7 +18,7 @@ export function integrateSpring (
   return [position + nextVelocity * dt, nextVelocity];
 }
 
-// Shared media queries, created once and kept live
+// Created once at load and kept live, so reads never re-query
 const motionQuery: MediaQueryList | null = typeof matchMedia === 'function'
   ? matchMedia('(prefers-reduced-motion: reduce)')
   : null;
@@ -53,7 +42,7 @@ export function prefersReducedMotion (): boolean {
   return motionQuery ? motionQuery.matches : false;
 }
 
-// A tiny vibration on devices that support it - pressing jelly should feel like something
+// A tiny vibration on devices that support it, so pressing a soft body feels physical
 export function triggerHaptic (duration = 8): void {
   if (!('vibrate' in navigator)) {
     return;

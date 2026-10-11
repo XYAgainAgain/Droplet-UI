@@ -44,12 +44,10 @@ export class DropletMenuItem extends HTMLElementBase {
     return defineMenuItem(options);
   }
 
-  // The value reported in the select event (falls back to the text)
   get value (): string {
     return this.getAttribute('value') ?? (this.textContent ?? '').trim();
   }
 
-  // True when this item cannot be picked
   get disabled (): boolean {
     return this.hasAttribute('disabled');
   }
@@ -83,7 +81,6 @@ export class DropletMenu extends HTMLElementBase {
   isOpen = false;
   active = 0;
 
-  // Populated in connectedCallback() / open()
   menu!: HTMLElement;
   items: DropletMenuItem[] = [];
 
@@ -96,12 +93,10 @@ export class DropletMenu extends HTMLElementBase {
     }
   };
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['placement', 'size'];
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
     ensureThemeTokens();
     canonicalizeSize(this);
@@ -112,7 +107,6 @@ export class DropletMenu extends HTMLElementBase {
 
     this.built = true;
 
-    // Encapsulate styles and markup inside a Shadow DOM so they don't leak out
     this.attachShadow({ mode: 'open', delegatesFocus: true });
 
     this.shadowRoot!.innerHTML = `
@@ -139,7 +133,6 @@ export class DropletMenu extends HTMLElementBase {
     this.menu.addEventListener('keydown', (event) => this.onKey(event as KeyboardEvent));
   }
 
-  // Lifecycle method: Called automatically when the element leaves the DOM
   disconnectedCallback (): void {
     if (this.isOpen) {
       this.isOpen = false;
@@ -152,7 +145,6 @@ export class DropletMenu extends HTMLElementBase {
     }
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     if (name === 'size') {
       canonicalizeSize(this);
@@ -163,7 +155,6 @@ export class DropletMenu extends HTMLElementBase {
     }
   }
 
-  // The nearest rendered row for an event target, or null
   rowFrom (event: Event): HTMLElement | null {
     return (event.target as HTMLElement).closest('.item');
   }
@@ -188,12 +179,10 @@ export class DropletMenu extends HTMLElementBase {
     trigger.setAttribute('aria-expanded', this.isOpen ? 'true' : 'false');
   }
 
-  // The rendered rows currently in the menu
   rows (): HTMLElement[] {
     return [...this.menu.querySelectorAll<HTMLElement>('.item')];
   }
 
-  // Flip between open and closed
   toggle (): void {
     if (this.isOpen) {
       this.close();
@@ -202,11 +191,7 @@ export class DropletMenu extends HTMLElementBase {
     }
   }
 
-  /*
-   * Open the menu: re-read the live light-DOM items (so dynamically added
-   * entries always appear), render them as focusable rows, anchor to the
-   * trigger and move focus to the first enabled row.
-   */
+  // Re-reads the live light-DOM items on every open so dynamically added entries appear
   open (): void {
     if (this.isOpen) {
       return;
@@ -250,14 +235,11 @@ export class DropletMenu extends HTMLElementBase {
     placeAnchored(anchor, this.menu, placement, 8);
 
     this.untrack?.();
-    // Close on scroll-out WITHOUT returning focus - focusing the trigger would
-    // scroll it back into view and undo the very dismissal we just triggered.
+    // Close on scroll-out without returning focus: focusing the trigger would
+    // scroll it back into view and undo the dismissal
     this.untrack = trackAnchor(anchor, this.menu, placement, 8, () => this.close({ returnFocus: false }));
   }
 
-  // Close the menu. Hands focus back to the trigger for a user-driven close
-  // (Escape, click-outside, selection); scroll-out closes pass returnFocus:
-  // false so the page doesn't jump back to the now-off-screen trigger.
   close ({ returnFocus = true }: { returnFocus?: boolean } = {}): void {
     if (!this.isOpen) {
       return;
@@ -280,7 +262,6 @@ export class DropletMenu extends HTMLElementBase {
     emit(this, 'close');
   }
 
-  // Pointer hover mirrors the roving focus onto the hovered row
   highlight (row: HTMLElement | null): void {
     if (!row || row.getAttribute('aria-disabled') === 'true') {
       return;
@@ -291,7 +272,6 @@ export class DropletMenu extends HTMLElementBase {
     row.focus({ preventScroll: true });
   }
 
-  // Pick a row: announce the selection and close
   pick (row: HTMLElement | null): void {
     if (!row || row.getAttribute('aria-disabled') === 'true') {
       return;
@@ -373,7 +353,6 @@ export class DropletMenu extends HTMLElementBase {
     rows[i]?.focus({ preventScroll: true });
   }
 
-  // Route programmatic host focus onto the trigger
   override focus (options?: FocusOptions): void {
     this.trigger?.focus?.(options);
   }

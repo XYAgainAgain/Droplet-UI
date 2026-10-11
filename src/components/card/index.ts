@@ -1,8 +1,3 @@
-/*
- * A jelly surface container. Add `squish` to make it press in like a
- * soft cushion (and act as a button); it springs when it first appears
- */
-
 import { DropletElement } from '../../element/index.js';
 import type { Shape }   from '../../element/index.js';
 import type { Border }  from '../../element/index.js';
@@ -18,7 +13,7 @@ import { readToken } from '../../theme/token-read.js';
 import cardStyles        from './card.css?inline';
 
 /**
- * A soft jelly surface container. With `squish` it presses in like a
+ * A soft-body surface container. With `squish` it presses in like a
  * cushion and behaves as a button.
  *
  * @element droplet-card
@@ -26,7 +21,7 @@ import cardStyles        from './card.css?inline';
  * @slot - The card's content.
  *
  * @attr {boolean} squish - Make the card pressable (acts as a button).
- * @attr {"small"|"medium"|"large"} size - Padding / radius scale.
+ * @attr {"small"|"medium"|"large"} size - Padding/radius scale.
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
  * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
@@ -52,17 +47,14 @@ export class DropletCard extends DropletElement {
   enterHeld = false;
   spaceArmed = false;
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['squish', ...DropletElement.AXIS_ATTRIBUTES];
   }
 
-  // Component styles layered over the shared jelly base styles
   override styles (): string {
     return cardStyles;
   }
 
-  // The interactive markup that sits above the canvas
   override content (): string {
     const squish = this.hasAttribute('squish');
     const attrs  = squish ? `tabindex="0" role="button"` : '';
@@ -77,7 +69,6 @@ export class DropletCard extends DropletElement {
     return { width, height, radius: Math.min(radius, Math.min(width, height) / 2) };
   }
 
-  // A hairline on the jelly surface, resolved through the theme
   override surfaceBorder (): Border {
     return {
       color: this.resolveColor(`var(--jelly-color-border-default, var(--droplet-color-border-default, ${PALETTE['border-default']}))`),
@@ -85,11 +76,9 @@ export class DropletCard extends DropletElement {
     };
   }
 
-  // Called once after the shadow DOM and canvas exist. Wire events here.
   override onBuilt (): void {
     this.card = this.shadowRoot!.querySelector('.card')!;
 
-    // Spring in on first appearance
     if (!this.reducedMotion) {
       requestAnimationFrame(() => this.centerPop(0.7));
     }
@@ -97,11 +86,8 @@ export class DropletCard extends DropletElement {
     this.syncSquish();
   }
 
-  /*
-   * Wire (or unwire) button behavior for squish mode. The card is a div
-   * with role="button", so Space/Enter need preventDefault by hand - the
-   * shared wirePress helper is for real buttons and would let Space scroll.
-   */
+  // Wire (or unwire) button behavior for squish mode. The card is a div with role="button",
+  // so Space/Enter need preventDefault by hand; the shared wirePress helper would let Space scroll.
   syncSquish (): void {
     if (!this.card) {
       return;
@@ -196,7 +182,7 @@ export class DropletCard extends DropletElement {
       }
     });
 
-    // A Space press interrupted by focus loss is cancelled, as on a native button
+    // A Space press interrupted by focus loss is canceled, as on a native button
     this.card.addEventListener('blur', () => {
       if (this.enterHeld || this.spaceArmed) {
         this.enterHeld = false;
@@ -213,7 +199,6 @@ export class DropletCard extends DropletElement {
     }
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     if (this.axisAttributeChanged(name)) {
       return;
@@ -224,7 +209,6 @@ export class DropletCard extends DropletElement {
     }
   }
 
-  // Route programmatic host focus onto the card surface
   override focus (options?: FocusOptions): void {
     this.card?.focus(options);
   }

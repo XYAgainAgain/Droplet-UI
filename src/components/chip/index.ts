@@ -1,8 +1,7 @@
 /*
- * A small jelly capsule. Static by default; add `selectable` to toggle
- * it, or `removable` for a ✕ that pops it out. Selecting bulges outward;
- * deselecting / removing sucks inward. Removing emits a cancelable
- * `remove` event and takes the element out of the DOM
+ * A small soft-body capsule. Static by default; `selectable` makes it a
+ * toggle and `removable` adds a ✕ that pops it out. Selecting bulges
+ * outward; deselecting or removing sucks inward.
  */
 
 import { DropletElement }  from '../../element/index.js';
@@ -19,7 +18,7 @@ import { readToken } from '../../theme/token-read.js';
 import chipStyles        from './chip.css?inline';
 
 /**
- * A small jelly capsule / tag. Optionally selectable or removable.
+ * A small soft-body capsule or tag, optionally selectable or removable.
  *
  * @element droplet-chip
  *
@@ -39,7 +38,7 @@ import chipStyles        from './chip.css?inline';
  * @fires remove - Cancelable; fires before a removable chip animates out.
  *
  * @csspart chip - The capsule.
- * @csspart main - The label / toggle button.
+ * @csspart main - The label or toggle button.
  * @csspart remove - The ✕ remove button.
  */
 export class DropletChip extends DropletElement {
@@ -60,29 +59,24 @@ export class DropletChip extends DropletElement {
   removeButton: HTMLElement | null = null;
   selectTarget: number | null = null;
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['selected', 'disabled', 'selectable', 'removable', 'variant', 'shape', ...DropletElement.AXIS_ATTRIBUTES];
   }
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   override connectedCallback (): void {
     super.connectedCallback();
     window.addEventListener('droplet-theme-change', this.onThemeFlip);
   }
 
-  // Lifecycle method: Called automatically when the element leaves the DOM
   override disconnectedCallback (): void {
     super.disconnectedCallback();
     window.removeEventListener('droplet-theme-change', this.onThemeFlip);
   }
 
-  // Component styles layered over the shared jelly base styles
   override styles (): string {
     return chipStyles + variantColors({ color: '--droplet-on', on: '--droplet-label-on' });
   }
 
-  // The interactive markup that sits above the canvas
   override content (): string {
     const selectable = this.hasAttribute('selectable');
     const removable  = this.hasAttribute('removable');
@@ -123,18 +117,14 @@ export class DropletChip extends DropletElement {
     return this.mixFill(this.hasAttribute('selected') ? 1 : 0);
   }
 
-  // Blend the off → on fills at factor t (0..1) so the color eases, not snaps.
-  // Both endpoints resolve fresh each paint so a runtime --droplet-on or --droplet-fill override
-  // (or its legacy --jelly-* name; inline style, class swap) recolors the chip, not a stale cached triple.
+  // Blend the off → on fills at t (0–1). Both ends re-resolve every paint, so a runtime --droplet-on
+  // or --droplet-fill override (or its legacy --jelly-* name) recolors the chip; nothing is cached.
   mixFill (t: number): string {
     return this.mixColor('var(--jelly-fill, var(--droplet-fill))', 'var(--jelly-on, var(--droplet-on))', t);
   }
 
-  /*
-   * Ease a selection factor so the jelly fill fades between tones instead
-   * of flipping instantly. Runs whenever `selected` changes (or the body
-   * wobbles).
-   */
+  // Ease the selection factor so the fill fades between tones instead of flipping.
+  // Runs whenever `selected` changes or the body is still moving.
   override frame (dt: number): boolean {
     const body = this.body;
 
@@ -161,7 +151,6 @@ export class DropletChip extends DropletElement {
     return Math.abs(target - this.selectTarget) > 0.001 || !body.isResting();
   }
 
-  // Called once after the shadow DOM and canvas exist. Wire events here.
   override onBuilt (): void {
     this.main         = this.shadowRoot!.querySelector('.main')!;
     this.removeButton = this.shadowRoot!.querySelector('.remove');
@@ -224,7 +213,7 @@ export class DropletChip extends DropletElement {
     }
   }
 
-  // Flip the selection, pop the jelly and notify listeners
+  // Flip the selection, pop the soft body, and notify listeners
   toggleSelected (): void {
     const next = !this.hasAttribute('selected');
 
@@ -251,10 +240,8 @@ export class DropletChip extends DropletElement {
       return;
     }
 
-    // Freeze the current width, then collapse it to 0 alongside the scale /
-    // fade so the row closes the gap organically instead of jumping when it's
-    // removed. Also swallow one flex gap (via negative margin) so the
-    // neighbours are already in their final spots when it leaves.
+    // Freeze the width, then collapse it to 0 with the scale and fade so the row closes up instead
+    // of jumping; a negative margin swallows one flex gap so neighbors are in place when it leaves.
     const gap = parseFloat(getComputedStyle(this.parentElement || this).columnGap) || 0;
     const w   = this.getBoundingClientRect().width;
 
@@ -287,7 +274,6 @@ export class DropletChip extends DropletElement {
     setTimeout(finish, 480);
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     if (this.axisAttributeChanged(name)) {
       return;
@@ -300,8 +286,8 @@ export class DropletChip extends DropletElement {
     switch (name) {
       case 'selectable':
       case 'removable':
-        // These decide whether the ✕ / toggle button exists, so re-render the
-        // interactive markup (the canvas + body are untouched siblings)
+        // These decide whether the ✕ and toggle buttons exist, so re-render the
+        // interactive markup (the canvas and body are untouched siblings)
         this.rebuildContent();
         break;
 
@@ -347,7 +333,6 @@ export class DropletChip extends DropletElement {
     this.requestFrame();
   }
 
-  // The selection state as a property
   get selected (): boolean {
     return this.hasAttribute('selected');
   }
@@ -356,7 +341,6 @@ export class DropletChip extends DropletElement {
     this.toggleAttribute('selected', !!value);
   }
 
-  // Route programmatic host focus onto the main (or remove) button
   override focus (options?: FocusOptions): void {
     (this.main || this.removeButton)?.focus(options);
   }

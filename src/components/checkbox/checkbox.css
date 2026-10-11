@@ -99,7 +99,7 @@ input {
   stroke-linejoin: round;
 
   /* The mark draws itself on (dash sweep) and plops in with a slight
-     overshoot, rather than just fading - reads as ink flowing into place. */
+     overshoot instead of fading, like ink flowing into place. */
   stroke-dasharray:  30;
   stroke-dashoffset: 30;
   transform:         scale(0.7);

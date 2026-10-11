@@ -1,7 +1,7 @@
 /*
- * A progress bar with a jelly fill. The leading edge wobbles as the
- * value advances; add `indeterminate` for a blob that travels the track,
- * leaning into its motion and splatting softly against each wall
+ * A progress bar with a soft-body fill. The leading edge wobbles as the
+ * value advances; `indeterminate` swaps in a blob that travels the track,
+ * leaning into its motion and splatting softly against each wall.
  */
 
 import { DropletElement } from '../../element/index.js';
@@ -25,7 +25,6 @@ interface ProgressSize {
   track: number;
 }
 
-// Track geometry for each size on the documented scale
 const PROGRESS_SIZES: Record<string, ProgressSize> = {
   small:  { width: 200, track: 10 },
   medium: { width: 240, track: 14 },
@@ -33,7 +32,7 @@ const PROGRESS_SIZES: Record<string, ProgressSize> = {
 };
 
 /**
- * A progress bar with a wobbling jelly fill, or a travelling blob when
+ * A progress bar with a wobbling soft-body fill, or a traveling blob when
  * indeterminate.
  *
  * @element droplet-progress
@@ -69,17 +68,15 @@ export class DropletProgress extends DropletElement {
   wall = false;
   rip = 0;
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['value', 'max', 'indeterminate', 'size', 'label', ...DropletElement.AXIS_ATTRIBUTES];
   }
 
-  // Component styles layered over the shared jelly base styles
   override styles (): string {
     return progressStyles + variantColors({ color: '--droplet-accent' });
   }
 
-  // No interactive content - the bar is pure canvas
+  // No interactive content: the bar is pure canvas
   override content (): string {
     return '';
   }
@@ -91,24 +88,20 @@ export class DropletProgress extends DropletElement {
     return { width, height: trackH, radius: trackH / 2 };
   }
 
-  // Geometry for the current (canonicalized) size attribute
   get sizeConfig (): ProgressSize {
     return PROGRESS_SIZES[this.getAttribute('size') ?? ''] ?? PROGRESS_SIZES.medium!;
   }
 
-  // Called once after the shadow DOM and canvas exist. Wire ARIA here.
   override onBuilt (): void {
     this.setAttribute('role', 'progressbar');
     this.readValue();
   }
 
-  // Cache the track box whenever the shape (re)builds
   override onShape (): void {
     this.trackW = this.body ? this.body.width : this.getBoundingClientRect().width;
     this.trackH = this.body ? this.body.height : this.sizeConfig.track;
   }
 
-  // True while the bar shows busy-without-a-value
   get indeterminate (): boolean {
     return this.hasAttribute('indeterminate');
   }
@@ -117,7 +110,6 @@ export class DropletProgress extends DropletElement {
     this.toggleAttribute('indeterminate', Boolean(value));
   }
 
-  // Parse value / max and mirror them into the progressbar ARIA
   readValue (): void {
     const max   = parseFloat(this.getAttribute('max') ?? '') || 100;
     const value = parseFloat(this.getAttribute('value') ?? '') || 0;
@@ -143,14 +135,12 @@ export class DropletProgress extends DropletElement {
     this.requestFrame();
   }
 
-  // Clip the drawing context to a rounded track segment
   roundedClip (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void {
     ctx.beginPath();
     ctx.roundRect(x, y, Math.max(0, w), h, Math.min(r, Math.max(0, w) / 2, h / 2));
     ctx.clip();
   }
 
-  // One animation step: paint the track, then the fill or the travelling blob
   override frame (dt: number): boolean {
     const body = this.body;
 
@@ -169,7 +159,6 @@ export class DropletProgress extends DropletElement {
     body.update(dt);
     this.clearCanvas();
 
-    // Track base
     const trackH = this.trackH || this.sizeConfig.track;
 
     ctx.beginPath();
@@ -180,9 +169,8 @@ export class DropletProgress extends DropletElement {
     let keepAnimating = false;
 
     if (this.indeterminate) {
-      // A single blob of jelly bounces wall to wall: it leans into its travel
-      // (teardrop), eases to a stop at each end and splats against the wall
-      // before springing back - far livelier than a pill sliding on a rail.
+      // One soft body bounces wall to wall, leaning into its travel (teardrop),
+      // easing to a stop at each end, and splatting before it springs back.
       const blobW = Math.max(trackH * 1.8, tW * 0.24);
 
       if (!this.blob) {
@@ -197,7 +185,7 @@ export class DropletProgress extends DropletElement {
       const blob = this.blob;
 
       if (this.reducedMotion) {
-        // Static centered blob - signals "busy" without any motion
+        // Static centered blob: signals "busy" without any motion
         blob.leanAmount = 0;
         blob.update(dt);
         this.paintBody(blob, { fill: accent, cx: 0 });
@@ -214,9 +202,8 @@ export class DropletProgress extends DropletElement {
       const vel   = Math.cos(this.phase);
       const speed = Math.abs(vel);
 
-      // Elongate along travel with rounded ends (a soft, flowing tail) plus
-      // only a gentle forward lean - pushing past the end radius would tuck
-      // the trailing tip into a sharp point. Both relax at the turnarounds.
+      // Keep the forward lean gentle: leaning past the end radius would tuck
+      // the trailing tip into a sharp point. Stretch and lean ease off at the turnarounds.
       const stretch = speed * 0.34;
 
       if (speed > 0.06) {
@@ -224,7 +211,7 @@ export class DropletProgress extends DropletElement {
       }
       blob.leanAmount = speed * (trackH / 2) * 0.4;
 
-      // A soft splat against the wall each time it turns around
+      // One splat per turnaround; re-arming only below 0.9 stops it re-firing at the wall
       if (Math.abs(s) > 0.985) {
         if (!this.wall) {
           this.wall = true;
@@ -244,8 +231,8 @@ export class DropletProgress extends DropletElement {
 
       keepAnimating = true;
     } else {
-      // Ease the fill length smoothly toward the target - no overshoot on the
-      // length itself (a bouncing edge reads as a clunk, not a wobble)
+      // Ease the fill length toward the target with no overshoot: a bouncing
+      // edge reads as a clunk, not a wobble
       this.shownFrac += (this.fraction - this.shownFrac) * Math.min(1, dt * 9);
 
       const remaining = Math.abs(this.fraction - this.shownFrac);
@@ -259,8 +246,8 @@ export class DropletProgress extends DropletElement {
         ? clamp(tW / 2 - this.shownFrac * tW, -tW / 2, tW / 2)
         : clamp(-tW / 2 + this.shownFrac * tW, -tW / 2, tW / 2);
 
-      // One soft ripple rolls along the leading edge while it advances -
-      // throttled so pulses don't pile up into a jittery wobble
+      // Ripple the leading edge while it advances, throttled so pulses don't
+      // pile up into a jittery wobble
       this.rip += dt;
 
       if (!this.reducedMotion && remaining > 0.003 && this.rip > 0.13) {
@@ -283,9 +270,8 @@ export class DropletProgress extends DropletElement {
     return keepAnimating;
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically.
-  // Guard on built-state (not body, which only exists after the first
-  // nonzero-size layout) so value changes land even before the first paint.
+  // Guard on built-state, not body (which needs a nonzero-size layout), so
+  // value changes land even before the first paint.
   attributeChangedCallback (name: string): void {
     if (this.axisAttributeChanged(name)) {
       return;
@@ -302,7 +288,6 @@ export class DropletProgress extends DropletElement {
     this.readValue();
   }
 
-  // The current value as a number
   get value (): number {
     return parseFloat(this.getAttribute('value') ?? '') || 0;
   }

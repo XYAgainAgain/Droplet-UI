@@ -1,18 +1,7 @@
 /*
- * Droplet UI documentation content — the hand-authored source, one descriptor
- * per component. This is the file you EDIT.
- *
- * `npm run docs` reconciles these descriptors against custom-elements.json
- * (the Custom Elements Manifest generated from the component TypeScript + its
- * JSDoc) and emits the generated docs/data.js the pages actually render. The
- * reconciler warns whenever a component gains or loses an attribute, event,
- * slot, CSS part or custom property that isn't reflected here, so the docs
- * can't silently drift out of sync with the source.
- *
- * Curated prose (summaries, descriptions, examples, keyboard maps, methods and
- * properties) lives here; attribute/event/slot/part/token TYPES are sourced
- * from the manifest at build time. To document a new component, add a
- * descriptor; to update prose, edit it here, then run `npm run docs`.
+ * Hand-authored docs prose, one descriptor per component: edit this, never the generated
+ * docs/content/data.js. Types come from custom-elements.json, and `npm run docs` warns when
+ * a component gains or loses an attribute, event, slot, part, or token not described here.
  */
 
 // The order component groups appear in the sidebar and on the page
@@ -90,7 +79,7 @@ export const COMPONENTS = [
     "tag": "droplet-button",
     "group": "Actions",
     "summary": "A capsule-shaped soft-body button with a real native <button> inside for keyboard and screen-reader support.",
-    "description": "The jelly membrane is painted on a canvas behind a shadow-DOM <button>, so activation, focus and ARIA semantics are fully native. Pointer presses dent the membrane under the finger and follow it; Enter/Space squish it from the center. click events bubble out composed and type=\"submit\"/\"reset\" drive the owner <form> (the nearest ancestor, or the one named by form=), submitting with this button's name, value, and form* overrides. The host is form-associated, so :disabled matches it and a disabled <fieldset> disables it.",
+    "description": "The soft-body membrane is painted on a canvas behind a shadow-DOM <button>, so activation, focus and ARIA semantics are fully native. Pointer presses dent the membrane under the finger and follow it; Enter/Space squish it from the center. click events bubble out composed and type=\"submit\"/\"reset\" drive the owner <form> (the nearest ancestor, or the one named by form=), submitting with this button's name, value, and form* overrides. The host is form-associated, so :disabled matches it and a disabled <fieldset> disables it.",
     "attributes": [
       {
         "name": "feel",
@@ -218,10 +207,6 @@ export const COMPONENTS = [
       {
         "name": "droplet",
         "description": "The canvas the soft body is painted on (from the DropletElement base)."
-      },
-      {
-        "name": "jelly",
-        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
@@ -278,7 +263,7 @@ export const COMPONENTS = [
       },
       {
         "keys": "Enter / Space",
-        "description": "Press-and-hold squishes the jelly from the center with a haptic tick; releasing lets it spring back and fires click (native button activation)."
+        "description": "Press-and-hold squishes the membrane from the center with a haptic tick; releasing lets it spring back and fires click (native button activation)."
       }
     ],
     "examples": [
@@ -300,7 +285,7 @@ export const COMPONENTS = [
     "tag": "droplet-icon-button",
     "group": "Actions",
     "summary": "A compact square or round soft-body button sized for a single icon, named for screen readers via its label attribute.",
-    "description": "A real <button> in the shadow DOM carries keyboard and ARIA semantics while the jelly is painted behind it. shape=\"circle\" reshapes the membrane into a full circle (radius = size / 2) in place — the box size is unchanged, so the canvas never flickers. Give every icon-only button a label so assistive technology has an accessible name.",
+    "description": "A real <button> in the shadow DOM carries keyboard and ARIA semantics while the membrane is painted behind it. shape=\"circle\" reshapes the membrane into a full circle (radius = size / 2) in place — the box size is unchanged, so the canvas never flickers. Give every icon-only button a label so assistive technology has an accessible name.",
     "attributes": [
       {
         "name": "feel",
@@ -382,10 +367,6 @@ export const COMPONENTS = [
       {
         "name": "droplet",
         "description": "The canvas the soft body is painted on (from the DropletElement base)."
-      },
-      {
-        "name": "jelly",
-        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
@@ -432,7 +413,7 @@ export const COMPONENTS = [
       },
       {
         "keys": "Enter / Space",
-        "description": "Press-and-hold squishes the jelly from the center with a haptic tick; releasing lets it spring back and fires click (native button activation)."
+        "description": "Press-and-hold squishes the membrane from the center with a haptic tick; releasing lets it spring back and fires click (native button activation)."
       }
     ],
     "examples": [
@@ -453,8 +434,8 @@ export const COMPONENTS = [
   {
     "tag": "droplet-checkbox",
     "group": "Forms",
-    "summary": "A squishy, form-associated checkbox with checked and mixed (indeterminate) states, painted as a soft jelly square that pops when toggled.",
-    "description": "A visually-hidden native <input type=\"checkbox\"> carries focus, keyboard behavior and the form value (via ElementInternals), while the jelly square is painted on a canvas behind it. The check mark draws itself on with a dash sweep and overshoot; the indeterminate state shows a dash and reports aria-checked=\"mixed\", clearing on any user toggle.",
+    "summary": "A squishy, form-associated checkbox with checked and mixed (indeterminate) states, painted as a soft-body square that pops when toggled.",
+    "description": "A visually-hidden native <input type=\"checkbox\"> carries focus, keyboard behavior and the form value (via ElementInternals), while the soft-body square is painted on a canvas behind it. The check mark draws itself on with a dash sweep and overshoot; the indeterminate state shows a dash and reports aria-checked=\"mixed\", clearing on any user toggle.",
     "attributes": [
       {
         "name": "feel",
@@ -562,11 +543,7 @@ export const COMPONENTS = [
       },
       {
         "name": "droplet",
-        "description": "The canvas the jelly square is painted on (from the DropletElement base)."
-      },
-      {
-        "name": "jelly",
-        "description": "The same canvas under its Jelly UI part name."
+        "description": "The canvas the soft-body square is painted on (from the DropletElement base)."
       }
     ],
     "cssProperties": [
@@ -649,8 +626,8 @@ export const COMPONENTS = [
   {
     "tag": "droplet-input",
     "group": "Forms",
-    "summary": "A single-line text field on a soft jelly surface: focus lifts and rings the membrane and each keystroke ripples the surface at the caret.",
-    "description": "Wraps a real native <input> over the canvas-painted jelly body, so keyboard, IME and assistive-technology behavior are native. Form-associated via ElementInternals, so it submits with a `name` like any built-in field. Caret ripples are measured in the input's own font and are direction-aware, landing under the caret in both LTR and RTL.",
+    "summary": "A single-line text field on a soft-body surface: focus lifts and rings the membrane and each keystroke ripples the surface at the caret.",
+    "description": "Wraps a real native <input> over the canvas-painted soft body, so keyboard, IME and assistive-technology behavior are native. Form-associated via ElementInternals, so it submits with a `name` like any built-in field. Caret ripples are measured in the input's own font and are direction-aware, landing under the caret in both LTR and RTL.",
     "attributes": [
       {
         "name": "feel",
@@ -796,10 +773,6 @@ export const COMPONENTS = [
       {
         "name": "droplet",
         "description": "The canvas that paints the soft body, fill, border and focus ring (from the DropletElement base)."
-      },
-      {
-        "name": "jelly",
-        "description": "The same canvas under its Jelly UI part name."
       },
       {
         "name": "input",
@@ -1134,7 +1107,7 @@ export const COMPONENTS = [
   {
     "tag": "droplet-radio",
     "group": "Forms",
-    "summary": "A jelly radio button; radios sharing a name under the same root form a group with roving tabindex and direction-aware arrow-key navigation.",
+    "summary": "A soft-body radio button; radios sharing a name under the same root form a group with roving tabindex and direction-aware arrow-key navigation.",
     "description": "Because each radio's control lives in its own shadow root, grouping (by the name attribute, scoped to the nearest document or shadow root), selection, roving tabindex and arrow-key navigation are coordinated by the component itself. The selected control pops with a scale spring and the dot lands with an overshoot.",
     "attributes": [
       {
@@ -1232,11 +1205,7 @@ export const COMPONENTS = [
       },
       {
         "name": "droplet",
-        "description": "The canvas the jelly circle is painted on (from the DropletElement base)."
-      },
-      {
-        "name": "jelly",
-        "description": "The same canvas under its Jelly UI part name."
+        "description": "The canvas the soft-body circle is painted on (from the DropletElement base)."
       }
     ],
     "cssProperties": [
@@ -1408,7 +1377,7 @@ export const COMPONENTS = [
   {
     "tag": "droplet-range",
     "group": "Forms",
-    "summary": "A dual-thumb range slider for picking a low/high interval, with two role=\"slider\" knobs carrying focus and ARIA and jelly thumbs that squish as they drag.",
+    "summary": "A dual-thumb range slider for picking a low/high interval, with two role=\"slider\" knobs carrying focus and ARIA and soft-body thumbs that squish as they drag.",
     "description": "Each thumb is a soft physics body that squishes when grabbed and leans into its travel; the accent fill spans the selected interval. Form-associated — submits its value as \"low,high\". Direction-aware: painting, knob placement (inset-inline-start) and arrow keys all mirror in RTL. Window-level drag listeners exist only for the duration of a drag and are cleaned up on release and on disconnect.",
     "attributes": [
       {
@@ -1524,10 +1493,6 @@ export const COMPONENTS = [
       {
         "name": "droplet",
         "description": "The canvas the track, interval fill and thumbs are painted on (from the DropletElement base)."
-      },
-      {
-        "name": "jelly",
-        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
@@ -1653,7 +1618,7 @@ export const COMPONENTS = [
   {
     "tag": "droplet-segmented",
     "group": "Forms",
-    "summary": "A capsule track of mutually exclusive options with a jelly pill that slides, leans and stretches between segments.",
+    "summary": "A capsule track of mutually exclusive options with a soft-body pill that slides, leans and stretches between segments.",
     "description": "Form-associated; presented as a radiogroup by default, or as a real tablist with roles=\"tablist\" (this is how <droplet-tabs> uses it). Options are declarative <droplet-segment> children and can change at any time.",
     "attributes": [
       {
@@ -1733,10 +1698,6 @@ export const COMPONENTS = [
         "description": "The canvas (from the DropletElement base)."
       },
       {
-        "name": "jelly",
-        "description": "The same canvas under its Jelly UI part name."
-      },
-      {
         "name": "wrap",
         "description": "The segment button row."
       }
@@ -1800,8 +1761,8 @@ export const COMPONENTS = [
   {
     "tag": "droplet-select",
     "group": "Forms",
-    "summary": "A form-associated dropdown on the ARIA combobox/listbox pattern whose trigger and option panel are both soft-body jelly surfaces, with the panel unfolding out of the field — flipping above it when the viewport has no room below.",
-    "description": "The trigger is one canvas-painted jelly body and the option panel is a second one that springs open with an underdamped unfold, revealing rows with a light stagger. Options are declared as light-DOM <droplet-option> children and re-read live through a MutationObserver. Keyboard navigation, aria-expanded/aria-activedescendant, outside-press dismissal, dark-mode theme tokens, RTL layout and native form submission via ElementInternals are all built in.",
+    "summary": "A form-associated dropdown on the ARIA combobox/listbox pattern whose trigger and option panel are both soft-body surfaces, with the panel unfolding out of the field — flipping above it when the viewport has no room below.",
+    "description": "The trigger is one canvas-painted soft body and the option panel is a second one that springs open with an underdamped unfold, revealing rows with a light stagger. Options are declared as light-DOM <droplet-option> children and re-read live through a MutationObserver. Keyboard navigation, aria-expanded/aria-activedescendant, outside-press dismissal, dark-mode theme tokens, RTL layout and native form submission via ElementInternals are all built in.",
     "attributes": [
       {
         "name": "feel",
@@ -1891,11 +1852,7 @@ export const COMPONENTS = [
     "parts": [
       {
         "name": "droplet",
-        "description": "The trigger's canvas surface (painted jelly body), from the shared base class (from the DropletElement base)."
-      },
-      {
-        "name": "jelly",
-        "description": "The same canvas under its Jelly UI part name."
+        "description": "The trigger's canvas surface (the painted soft body), from the DropletElement base."
       },
       {
         "name": "trigger",
@@ -2009,7 +1966,7 @@ export const COMPONENTS = [
     ],
     "examples": [
       {
-        "title": "Basic select with a labelled field",
+        "title": "Basic select with a labeled field",
         "code": "<script type=\"module\" src=\"./src/components/select.js\"></script>\n\n<droplet-select label=\"Plan\" placeholder=\"Choose a plan\">\n  <droplet-option value=\"free\">Free</droplet-option>\n  <droplet-option value=\"pro\" selected>Pro</droplet-option>\n  <droplet-option value=\"team\" disabled>Team (coming soon)</droplet-option>\n</droplet-select>\n\n<script>\n  document.querySelector('droplet-select')\n    .addEventListener('change', (event) => console.log(event.target.value));\n</script>"
       },
       {
@@ -2025,7 +1982,7 @@ export const COMPONENTS = [
   {
     "tag": "droplet-slider",
     "group": "Forms",
-    "summary": "A single-value range slider whose accent thumb is a squishy jelly body, backed by a hidden native range input for semantics and form participation.",
+    "summary": "A single-value range slider whose accent thumb is a squishy soft body, backed by a hidden native range input for semantics and form participation.",
     "description": "A hidden native <input type=\"range\"> owns the value, keyboard semantics and form participation while the thumb — a soft physics body — squishes when grabbed, leans into its travel and carries a variant-colored focus ring. Direction-aware: in RTL layouts the value origin, painted accent fill and arrow keys mirror like a native range input. In forced-colors mode the component hands interaction back to the fully styleable native input.",
     "attributes": [
       {
@@ -2044,7 +2001,7 @@ export const COMPONENTS = [
         "name": "value",
         "type": "number (string attribute)",
         "default": "50",
-        "description": "Current value. Clamped to [min, max] by the underlying native range input; updating it moves the jelly thumb."
+        "description": "Current value. Clamped to [min, max] by the underlying native range input; updating it moves the soft-body thumb."
       },
       {
         "name": "min",
@@ -2135,10 +2092,6 @@ export const COMPONENTS = [
       {
         "name": "droplet",
         "description": "The canvas the track, accent fill and thumb are painted on (from the DropletElement base)."
-      },
-      {
-        "name": "jelly",
-        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
@@ -2199,7 +2152,7 @@ export const COMPONENTS = [
   {
     "tag": "droplet-switch",
     "group": "Forms",
-    "summary": "A draggable jelly switch: a capsule track whose thumb stretches like a liquid drop and whose color crossfades between off and on.",
+    "summary": "A draggable soft-body switch: a capsule track whose thumb stretches like a liquid drop and whose color crossfades between off and on.",
     "description": "A visually-hidden native checkbox with role=\"switch\" carries focus, keyboard and the form value; the track and thumb are two coupled physics bodies painted on canvas. The thumb can be tapped or dragged past the midpoint; \"on\" always travels toward the inline end, so RTL pages mirror the travel, the drag release decision and the color progress.",
     "attributes": [
       {
@@ -2302,10 +2255,6 @@ export const COMPONENTS = [
       {
         "name": "droplet",
         "description": "The canvas the track and thumb bodies are painted on (from the DropletElement base)."
-      },
-      {
-        "name": "jelly",
-        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
@@ -2388,8 +2337,8 @@ export const COMPONENTS = [
   {
     "tag": "droplet-textarea",
     "group": "Forms",
-    "summary": "A multi-line text field on a jelly surface that auto-grows between a min and max height while the membrane follows, rippling at the caret as you type.",
-    "description": "Wraps a real native <textarea> over the canvas jelly body. The control auto-sizes to its content (capped by --droplet-textarea-max-height) and a private ResizeObserver keeps the physics shape in sync. Caret position is measured with a hidden layout mirror that replicates font, width, padding, wrapping and direction, so the ripple lands on the caret even across wrapped lines and in RTL. Form-associated via ElementInternals.",
+    "summary": "A multi-line text field on a soft-body surface that auto-grows between a min and max height while the membrane follows, rippling at the caret as you type.",
+    "description": "Wraps a real native <textarea> over the canvas-painted soft body. The control auto-sizes to its content (capped by --droplet-textarea-max-height) and a private ResizeObserver keeps the physics shape in sync. Caret position is measured with a hidden layout mirror that replicates font, width, padding, wrapping and direction, so the ripple lands on the caret even across wrapped lines and in RTL. Form-associated via ElementInternals.",
     "attributes": [
       {
         "name": "feel",
@@ -2516,10 +2465,6 @@ export const COMPONENTS = [
         "description": "The canvas that paints the soft body, fill, border and focus ring (from the DropletElement base)."
       },
       {
-        "name": "jelly",
-        "description": "The same canvas under its Jelly UI part name."
-      },
-      {
         "name": "textarea",
         "description": "The inner native <textarea>."
       },
@@ -2612,7 +2557,7 @@ export const COMPONENTS = [
   {
     "tag": "droplet-alert",
     "group": "Feedback",
-    "summary": "A callout banner on a jelly surface with four tones and an optional dismiss button.",
+    "summary": "A callout banner on a soft-body surface with four tones and an optional dismiss button.",
     "attributes": [
       {
         "name": "feel",
@@ -2648,7 +2593,7 @@ export const COMPONENTS = [
     "methods": [
       {
         "signature": "shake()",
-        "description": "A quick left-right jelly shake."
+        "description": "A quick left-right shake."
       },
       {
         "signature": "dismiss()",
@@ -2680,10 +2625,6 @@ export const COMPONENTS = [
       {
         "name": "droplet",
         "description": "The canvas (from the DropletElement base)."
-      },
-      {
-        "name": "jelly",
-        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
@@ -2698,11 +2639,11 @@ export const COMPONENTS = [
       {
         "name": "--droplet-alert-radius",
         "default": "16px",
-        "description": "Corner radius (also shapes the jelly)."
+        "description": "Corner radius (also shapes the membrane)."
       },
       {
         "name": "--droplet-alert-border",
-        "description": "Edge colour, a stronger wash of the tone by default."
+        "description": "Edge color, a stronger wash of the tone by default."
       },
       {
         "name": "--droplet-alert-icon",
@@ -2745,7 +2686,7 @@ export const COMPONENTS = [
   {
     "tag": "droplet-badge",
     "group": "Feedback",
-    "summary": "A small jelly badge / tag / status pill that pops whenever its text changes.",
+    "summary": "A small soft-body badge, tag, or status pill that pops whenever its text changes.",
     "attributes": [
       {
         "name": "feel",
@@ -2810,10 +2751,6 @@ export const COMPONENTS = [
       {
         "name": "droplet",
         "description": "The canvas (from the DropletElement base)."
-      },
-      {
-        "name": "jelly",
-        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
@@ -2841,8 +2778,8 @@ export const COMPONENTS = [
   {
     "tag": "droplet-progress",
     "group": "Feedback",
-    "summary": "A progress bar with a jelly fill whose leading edge wobbles as it advances; indeterminate mode sends a blob bouncing wall to wall.",
-    "description": "Proper progressbar ARIA (valuemin/max/now, valuetext while indeterminate). The fill grows from the inline-start edge, so it mirrors on RTL pages. Reduced motion swaps the travelling blob for a calm static one.",
+    "summary": "A progress bar with a soft-body fill whose leading edge wobbles as it advances; indeterminate mode sends a blob bouncing wall to wall.",
+    "description": "Proper progressbar ARIA (valuemin/max/now, valuetext while indeterminate). The fill grows from the inline-start edge, so it mirrors on RTL pages. Reduced motion swaps the traveling blob for a calm static one.",
     "attributes": [
       {
         "name": "feel",
@@ -2871,7 +2808,7 @@ export const COMPONENTS = [
       {
         "name": "indeterminate",
         "type": "boolean",
-        "description": "Busy-without-a-value mode: a jelly blob travels the track."
+        "description": "Busy-without-a-value mode: a soft blob travels the track."
       },
       {
         "name": "size",
@@ -2909,10 +2846,6 @@ export const COMPONENTS = [
       {
         "name": "droplet",
         "description": "The canvas (from the DropletElement base)."
-      },
-      {
-        "name": "jelly",
-        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
@@ -2935,7 +2868,7 @@ export const COMPONENTS = [
   {
     "tag": "droplet-skeleton",
     "group": "Feedback",
-    "summary": "A loading placeholder that gently breathes — a soft jelly wobble instead of a shimmer.",
+    "summary": "A loading placeholder that gently breathes: a soft-body wobble instead of a shimmer.",
     "description": "Each instance randomizes its sweep phase and speed so a page of skeletons never pulses in lock-step. role=\"status\" with aria-busy.",
     "attributes": [
       {
@@ -2965,10 +2898,6 @@ export const COMPONENTS = [
       {
         "name": "droplet",
         "description": "The canvas (from the DropletElement base)."
-      },
-      {
-        "name": "jelly",
-        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
@@ -2987,7 +2916,7 @@ export const COMPONENTS = [
   {
     "tag": "droplet-spinner",
     "group": "Feedback",
-    "summary": "Loading indicators with a jelly soul: a gooey blob gliding between three dots, or a living blob that morphs and spins.",
+    "summary": "Loading indicators with a soft-body soul: a gooey blob gliding between three dots, or a living blob that morphs and spins.",
     "attributes": [
       {
         "name": "feel",
@@ -3034,10 +2963,6 @@ export const COMPONENTS = [
       {
         "name": "droplet",
         "description": "The canvas (blob type) (from the DropletElement base)."
-      },
-      {
-        "name": "jelly",
-        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
@@ -3174,7 +3099,7 @@ export const COMPONENTS = [
   {
     "tag": "droplet-card",
     "group": "Surfaces",
-    "summary": "A jelly surface container; add `squish` to make it press in like a soft cushion and act as a button.",
+    "summary": "A soft-body surface container; add `squish` to make it press in like a soft cushion and act as a button.",
     "attributes": [
       {
         "name": "feel",
@@ -3228,10 +3153,6 @@ export const COMPONENTS = [
       {
         "name": "droplet",
         "description": "The canvas (from the DropletElement base)."
-      },
-      {
-        "name": "jelly",
-        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
@@ -3242,7 +3163,7 @@ export const COMPONENTS = [
       {
         "name": "--droplet-radius",
         "default": "22px",
-        "description": "Corner radius (also shapes the jelly)."
+        "description": "Corner radius (also shapes the membrane)."
       },
       {
         "name": "--droplet-card-padding-block",
@@ -3263,7 +3184,7 @@ export const COMPONENTS = [
     ],
     "examples": [
       {
-        "code": "<droplet-card style=\"max-width: 360px\"><h3>Title</h3><p>Cards keep their jelly under the content.</p></droplet-card>"
+        "code": "<droplet-card style=\"max-width: 360px\"><h3>Title</h3><p>Cards keep their soft body under the content.</p></droplet-card>"
       },
       {
         "title": "Pressable",
@@ -3274,8 +3195,8 @@ export const COMPONENTS = [
   {
     "tag": "droplet-chip",
     "group": "Surfaces",
-    "summary": "A small jelly capsule: static label, toggleable filter, or removable tag.",
-    "description": "Selecting bulges the jelly out and crossfades the fill toward the accent; removing fires a cancelable `remove` event, then collapses the chip's width so neighbours slide in organically.",
+    "summary": "A small soft-body capsule: static label, toggleable filter, or removable tag.",
+    "description": "Selecting bulges the membrane out and crossfades the fill toward the accent; removing fires a cancelable `remove` event, then collapses the chip's width so neighbors slide in organically.",
     "attributes": [
       {
         "name": "feel",
@@ -3375,10 +3296,6 @@ export const COMPONENTS = [
       {
         "name": "droplet",
         "description": "The canvas (from the DropletElement base)."
-      },
-      {
-        "name": "jelly",
-        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
@@ -3512,7 +3429,7 @@ export const COMPONENTS = [
   {
     "tag": "droplet-divider",
     "group": "Surfaces",
-    "summary": "A hairline separator: horizontal, vertical, or labelled.",
+    "summary": "A hairline separator: horizontal, vertical, or labeled.",
     "attributes": [
       {
         "name": "direction",
@@ -3576,7 +3493,7 @@ export const COMPONENTS = [
         "code": "<div style=\"width: 260px; display: grid; gap: 14px\">\n  Above the line\n  <droplet-divider></droplet-divider>\n  Below the line\n</div>"
       },
       {
-        "title": "Labelled",
+        "title": "Labeled",
         "code": "<div style=\"width: 260px\">\n  <droplet-divider>or</droplet-divider>\n</div>"
       },
       {
@@ -3588,7 +3505,7 @@ export const COMPONENTS = [
   {
     "tag": "droplet-kbd",
     "group": "Surfaces",
-    "summary": "A jelly keyboard key: poke it, or bind it to a real key so it depresses whenever that key is held.",
+    "summary": "A soft-body keyboard key: poke it, or bind it to a real key so it depresses whenever that key is held.",
     "attributes": [
       {
         "name": "feel",
@@ -3636,10 +3553,6 @@ export const COMPONENTS = [
       {
         "name": "droplet",
         "description": "The canvas (from the DropletElement base)."
-      },
-      {
-        "name": "jelly",
-        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
@@ -3672,7 +3585,7 @@ export const COMPONENTS = [
     "tag": "droplet-breadcrumbs",
     "group": "Navigation",
     "summary": "A breadcrumb trail built from light-DOM children; the last item is the current page.",
-    "description": "Rebuilds automatically when items change. The separator chevron mirrors in RTL and the trail is a labelled <nav> with aria-current on the last crumb.",
+    "description": "Rebuilds automatically when items change. The separator chevron mirrors in RTL and the trail is a labeled <nav> with aria-current on the last crumb.",
     "attributes": [
       {
         "name": "size",
@@ -3718,7 +3631,7 @@ export const COMPONENTS = [
   {
     "tag": "droplet-pagination",
     "group": "Navigation",
-    "summary": "Page navigation built from jelly buttons, with a windowed page list and direction-aware arrows.",
+    "summary": "Page navigation built from soft-body buttons, with a windowed page list and direction-aware arrows.",
     "attributes": [
       {
         "name": "total",
@@ -3788,7 +3701,7 @@ export const COMPONENTS = [
   {
     "tag": "droplet-resizable",
     "group": "Navigation",
-    "summary": "A resizable panel grid: drag the jelly dividers, or resize from the keyboard.",
+    "summary": "A resizable panel grid: drag the soft-body dividers, or resize from the keyboard.",
     "description": "Dividers follow the window-splitter pattern — focusable separators with live aria-valuenow (percent of the first pane). Horizontal drags and arrow keys respect reading direction.",
     "attributes": [
       {
@@ -3910,7 +3823,7 @@ export const COMPONENTS = [
   {
     "tag": "droplet-tabs",
     "group": "Navigation",
-    "summary": "Tabbed views: a sliding jelly pill tab bar with real tablist semantics and panels that bounce in.",
+    "summary": "Tabbed views: a sliding soft-body pill tab bar with real tablist semantics and panels that bounce in.",
     "description": "The tab bar is a <droplet-segmented roles=\"tablist\">, so tabs are announced as tabs with aria-selected. Panels are light-DOM <droplet-tab-panel> children; each panel is named after its tab label.",
     "attributes": [
       {
@@ -4502,7 +4415,7 @@ export const COMPONENTS = [
       },
       {
         "name": "--droplet-tooltip-color",
-        "description": "Bubble text colour (defaults to the surface token)."
+        "description": "Bubble text color (defaults to the surface token)."
       },
       {
         "name": "--droplet-tooltip-radius",

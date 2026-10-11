@@ -1,12 +1,8 @@
 /*
- * DropletElement - the base class for every canvas-backed Droplet UI component
- *
- * Handles the parts every Droplet component shares: a shadow-DOM <canvas>
- * sized to the host (plus padding so the wobble can overflow), device-
- * pixel-ratio and resize handling, converting pointer coordinates into
- * shape-local space, theme-change repaints and painting a DropletBody as a
- * flat solid fill. Subclasses provide the interactive markup, the shape,
- * the fill color and event wiring.
+ * The base class for every canvas-backed Droplet UI component: a shadow-DOM canvas
+ * sized to the host plus padding so the wobble can overflow, DPR and resize handling,
+ * pointer-to-local mapping, theme repaints, and a flat solid fill of a DropletBody.
+ * Subclasses supply the markup, shape, fill, and event wiring.
  */
 
 import { DropletBody }            from '../core/index.js';
@@ -59,7 +55,6 @@ import type { WirePressOptions } from './types.js';
 import { LOG_PREFIX }            from '../registry/tags.js';
 import { readToken } from '../theme/token-read.js';
 
-// Re-export the shape / paint / wiring types so consumers import them from here
 export type { RGBA, Shape, Ring, Border, PaintOptions, WirePressOptions } from './types.js';
 export type { PainterFrame } from './painter.js';
 
@@ -168,8 +163,8 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
     return {};
   }
 
-  // Drop what the resolver would silently ignore, but tell the author why -
-  // once per element per key, so a bad value in a frame loop cannot spam
+  // Drop what the resolver would silently ignore, but tell the author why, once
+  // per element per key so a bad value in a frame loop cannot spam
   validateConfig (value: Partial<DropletConfig>): Partial<DropletConfig> {
     const copy: Record<string, number> = {};
 
@@ -339,6 +334,7 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
   keyboardActive = false;
 
   // Base-class listeners are bound as fields so subclasses keep handleEvent to themselves
+
   // A theme or direction change can move the box without resizing the host, so
   // the ResizeObserver stays quiet; re-seat the geometry before repainting
   onThemeChange = (): void => {
@@ -350,9 +346,8 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
     this.requestFrame();
   };
 
-  // An in-page reduced-motion preview can change independently of the OS
-  // media query. Wake parked components so continuous indicators stop or
-  // resume immediately and every canvas repaints in its new motion mode.
+  // An in-page reduced-motion preview can change independently of the OS media
+  // query; wake parked components so they repaint in the new mode at once.
   onMotionChange = (): void => this.requestFrame();
 
   onWindowResize = (): void => this.applyShape();
@@ -382,7 +377,7 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
     this.attachShadow({ mode: 'open', delegatesFocus: true });
   }
 
-  /* ---- Subclass hooks ---------------------------------------------- */
+  // Subclass hooks
 
   // Extra CSS (string) for the shadow root
   styles (): string {
@@ -394,7 +389,7 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
     return '<slot></slot>';
   }
 
-  // Given the measured host size, return the jelly shape to build
+  // Given the measured host size, return the soft-body shape to build
   shape (width: number, height: number): Shape {
     return { width, height, radius: Math.min(width, height) / 2 };
   }
@@ -418,12 +413,12 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
   }
 
   // Paints the body surface with fillStyle already eased and globalAlpha set.
-  // paintTrack, paintFill and paintFocus are reserved for Phase 6 slots.
+  // paintTrack, paintFill, and paintFocus are reserved for Phase 6 slots.
   paintSurface (frame: PainterFrame): void {
     frame.ctx.fill(frame.path);
   }
 
-  /* ---- Lifecycle --------------------------------------------------- */
+  // Lifecycle
 
   connectedCallback (): void {
     if (this.usesResolver) {
@@ -442,18 +437,15 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
 
     this.observeResize();
 
-    // Many components style themselves entirely from host attributes the
-    // subclass doesn't observe (variant → --droplet-fill via CSS, inline
-    // token overrides, state classes). Repaint the canvas on any host
-    // attribute change so a dynamically set variant / token takes effect
-    // immediately instead of waiting for the next interaction.
+    // Components style themselves from host attributes the subclass doesn't observe
+    // (variant → --droplet-fill, inline tokens, state classes), so repaint on any change.
     if (!this.attributeObserver) {
       this.attributeObserver = new MutationObserver(() => this.requestFrame());
       this.attributeObserver.observe(this, { attributes: true });
     }
 
-    // Theme flips change the computed fill; zoom changes the device pixel
-    // ratio without firing the ResizeObserver - both need a repaint
+    // Theme flips change the computed fill, and zoom changes the device pixel
+    // ratio without firing the ResizeObserver; both need a repaint
     window.addEventListener('droplet-theme-change', this.onThemeChange);
     // The theme runtime relays a page's droplet-motion-change under this name
     window.addEventListener('droplet-motion-change', this.onMotionChange);
@@ -554,18 +546,15 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
   }
 
   /*
-   * The region the jelly shape occupies, in host-local pixels. Defaults to
-   * the whole host; a component can mark an inner element with
-   * `data-droplet-box` to render the jelly over just that sub-region
-   * (e.g. a checkbox next to its label).
+   * The region the soft body occupies, in host-local pixels. Defaults to the whole
+   * host; a component can mark an inner element `data-droplet-box` to cover just
+   * that sub-region (e.g. a checkbox next to its label).
    */
   dropletBox (): { width: number; height: number; offsetX: number; offsetY: number; screenX: number; screenY: number } {
     const hostRect = this.getBoundingClientRect();
 
-    // Divide out any ancestor CSS transform (e.g. a dialog's open-scale pop
-    // scales x/y by different amounts) so the canvas sizes in the element's
-    // own layout units — otherwise a jelly built mid-animation bakes in the
-    // wrong size/aspect ratio. Untransformed: sx/sy ≈ 1, a no-op.
+    // Divide out ancestor CSS transforms (a dialog's open-scale pop scales x and y
+    // unevenly) so a body built mid-animation doesn't bake in the wrong size or aspect.
     const sx   = this.offsetWidth > 0 ? hostRect.width / this.offsetWidth : 1;
     const sy   = this.offsetHeight > 0 ? hostRect.height / this.offsetHeight : 1;
     const invX = sx > 0.001 ? 1 / sx : 1;
@@ -606,9 +595,8 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
     const pxW   = Math.round(cssW * dpr);
     const pxH   = Math.round(cssH * dpr);
 
-    // Resizing the canvas clears it (a visible flicker) and rebuilds the
-    // membrane. Only do that when the pixel size actually changes - a sub-pixel
-    // reflow (e.g. a tab's active label going bold) must not trigger it.
+    // Resizing the canvas clears it (a visible flicker) and rebuilds the membrane, so only
+    // a real pixel-size change may; a sub-pixel reflow (a tab label going bold) must not.
     const resize = !this.body || this.canvas.width !== pxW || this.canvas.height !== pxH;
 
     if (resize) {
@@ -657,10 +645,8 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
 
     this.onShape();
 
-    // Resizing the canvas above cleared it. Repaint synchronously so a fast
-    // size transition (the ResizeObserver fires every frame) never flashes a
-    // blank frame between the resize and the engine's next tick, then wake the
-    // engine to let the physics settle.
+    // The resize cleared the canvas: repaint synchronously so a fast size transition
+    // never flashes a blank frame, then wake the engine to let the physics settle.
     try {
       this.frame(0);
     } catch (error) {
@@ -670,11 +656,8 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
     this.requestFrame();
   }
 
-  /*
-   * Rebuild the membrane in place after a shape attribute change (e.g. a
-   * radius swap) that doesn't resize the box - applyShape would early-return
-   * since the canvas pixel size is unchanged, so reshape the body directly.
-   */
+  // Rebuild the membrane in place after a shape change that doesn't resize the box
+  // (a radius swap); applyShape would early-return on the unchanged canvas size.
   reshapeMembrane (): void {
     if (!this.built || !this.body) {
       return;
@@ -692,9 +675,8 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
     this.requestFrame();
   }
 
-  /* ---- Rendering --------------------------------------------------- */
+  // Rendering
 
-  // Wipe the canvas for the next paint
   clearCanvas (): void {
     if (!this.canPaint) {
       return;
@@ -703,10 +685,8 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
     this.ctx.clearRect(0, 0, this.cssW, this.cssH);
   }
 
-  /*
-   * Paint one body centered in the canvas (with optional pixel offset).
-   * Flat solid fill - no gradients or shading.
-   */
+  // Paint one body centered in the canvas, with an optional pixel offset. The default
+  // paintSurface() is a flat solid fill, no gradients or shading.
   paintBody (body: DropletBody, options: PaintOptions = {}): void {
     if (!this.canPaint) {
       return;
@@ -725,19 +705,17 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
       scaleY = 1,
       border = null,
 
-      // Optional per-point post-projection deform (x, y, z) → (x, y, z).
-      // Used for effects the physics shouldn't carry, e.g. tapering a
-      // slider thumb's tail.
+      // Post-projection per-point deform for effects the physics shouldn't carry,
+      // e.g. tapering a slider thumb's tail.
       warp   = null,
 
-      // Crossfade the fill toward its target instead of snapping (so variant /
-      // state changes ease). Components that paint more than one body per frame
-      // pass a distinct easeKey per body so their colours don't share a track.
+      // Crossfade the fill toward its target instead of snapping. Components painting
+      // several bodies per frame pass a distinct easeKey so their colors don't share a track.
       ease    = true,
       easeKey = 'body',
     } = options;
 
-    // Ease the surface colour; ring / border stay exact (structural)
+    // Ease the surface color; ring and border stay exact (structural)
     const surface = ease ? this.easeColor(easeKey, fill, this.frameDt || 0) : fill;
 
     const centerX = cssW / 2 + cx;
@@ -780,7 +758,7 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
     let painted = false;
 
     if (!this.painterFailed) {
-      // A custom painter must not leak fill style, transforms, clips or filters
+      // A custom painter must not leak fill style, transforms, clips, or filters
       // into the border pass, another body, or the next frame
       ctx.save();
 
@@ -840,16 +818,15 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
     return !body.isResting();
   }
 
-  // Border descriptor painted on the jelly surface, else null
+  // The border stroke painted on the soft-body surface, or null for none
   surfaceBorder (): Border | null {
     return null;
   }
 
-  /* ---- Focus ring -------------------------------------------------- */
+  // Focus ring
 
-  // Ring descriptor when keyboard-focused, else null. Override as needed.
-  // Width and gap resolve from --droplet-ring-width and --droplet-ring-gap so the
-  // ring geometry is themeable, not only its color.
+  // The ring while keyboard-focused, else null. Width and gap resolve from
+  // --droplet-ring-width and --droplet-ring-gap, so the geometry is themeable too.
   focusRing (): Ring | null {
     if (!this.focusVisible) {
       return null;
@@ -862,26 +839,22 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
     return { color: this.ringColor(), width, gap: Number.isFinite(gap) ? gap : FOCUS_RING.gap };
   }
 
-  // The focus ring color, softly blended toward transparent - it tracks the
-  // component's own --droplet-ring (usually its fill hue) so the ring reads as
-  // part of the control rather than a generic blue outline.
+  // Tracks the component's own --droplet-ring (usually its fill hue), softened toward
+  // transparent, so the ring reads as part of the control, not a generic blue outline
   ringColor (): string {
     const [r, g, b, a] = this.rgbaTuple(
       `var(--jelly-ring, var(--droplet-ring, var(--jelly-color-border-focus, var(--droplet-color-border-focus, ${PALETTE['border-focus']}))))`,
     );
 
-    /* Canvas strokeStyle support for CSS Color 4's color(srgb … / .5)
-       serialization is inconsistent. Emit legacy rgba() so the alpha cannot
-       be rejected while CSS-rendered rings keep using color-mix(). */
+    /* Canvas strokeStyle support for CSS Color 4's color(srgb … / .5) is inconsistent,
+       so emit legacy rgba() here; CSS-rendered rings keep using color-mix(). */
     return this.colorString([r, g, b, a * FOCUS_RING.alpha], { forceAlpha: true });
   }
 
   /*
-   * Ease a fill color toward its target so a variant / state change crossfades
-   * rather than snapping. Keyed so a component painting several bodies a frame
-   * eases each on its own track. Frame-rate independent; settles in ~0.3s and
-   * jumps straight to the target under reduced motion or on the first paint.
-   * Raises `colorEasing` (read by the engine) so the frame keeps running.
+   * Ease a fill color toward its target so variant and state changes crossfade. Keyed so
+   * each body a component paints gets its own track; frame-rate independent, settling in
+   * about 0.3 s, and it snaps straight to the target under reduced motion or on first paint.
    */
   easeColor (key: string, expr: string, dt: number): string {
     const target = this.rgbaTuple(expr);
@@ -905,9 +878,9 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
       return this.colorString(target);
     }
 
-    // Still crossfading: keep the frame alive (the engine reads this) and only
-    // advance when time actually elapsed - the first frame after a park can
-    // arrive with dt = 0, which must hold the colour, not snap it.
+    // Still crossfading: keep the frame alive (the engine reads colorEasing) and advance
+    // only when time elapsed; the first frame after a park can arrive with dt = 0,
+    // which must hold the color, not snap it.
     this.colorEasing = true;
 
     if (dt > 0) {
@@ -921,9 +894,8 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
     return this.colorString(current);
   }
 
-  // Resolve a color expression to an [r, g, b, a] tuple. RGB channels use
-  // 0–255; alpha uses 0–1. Keeping alpha here prevents short hex colors such
-  // as #fff0 from becoming opaque as they pass through canvas animation.
+  // Resolve a color expression to [r, g, b, a] (RGB 0–255, alpha 0–1). Keeping alpha
+  // stops short hex colors such as #fff0 from turning opaque through canvas animation.
   rgbaTuple (expr: string): RGBA {
     const resolved = this.resolveColor(String(expr));
     const match    = resolved.match(/[\d.]+/g);
@@ -972,11 +944,8 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
     return this.colorString(mixed);
   }
 
-  // Resolve a CSS color expression (var(), color-mix(), …) to a concrete sRGB
-  // color. The token values are oklch(), and getComputedStyle preserves oklch()
-  // in modern browsers - so we wrap the expression in color-mix(in srgb, …) to
-  // force the computed value into sRGB (color(srgb …) / rgb()). rgbaTuple reads
-  // the channels numerically and would misread a raw oklch triple as RGB.
+  // getComputedStyle keeps the oklch() tokens as oklch(), which rgbaTuple would misread
+  // as RGB, so wrapping in color-mix(in srgb, …) forces the computed value into sRGB.
   resolveColor (expr: string): string {
     if (!this.probe) {
       this.probe = document.createElement('span');
@@ -1015,10 +984,8 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
 
     if (!this.hostFocusHandler) {
       this.hostFocusHandler = (event: FocusEvent): void => {
-        /* Focus events crossing a shadow boundary are retargeted to the host.
-           If an inner control already owns focus, leave it there; otherwise a
-           second tabbable control (for example a chip's remove button) gets
-           bounced back to the primary control. */
+        /* Focus is retargeted to the host across the shadow boundary. If an inner control
+           already owns it, leave it, or a chip's remove button would bounce to the primary. */
         if (
           event.target !== this ||
           !this.hostFocusTarget ||
@@ -1043,7 +1010,7 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
     this.removeAttribute('tabindex');
   }
 
-  /* ---- Interaction helpers ----------------------------------------- */
+  // Interaction helpers
 
   // Ask the shared engine for animation frames until the body rests
   requestFrame (): void {
@@ -1058,9 +1025,8 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
   toLocal (clientX: number, clientY: number, body: DropletBody | null = this.body): { x: number; y: number } {
     const box = this.dropletBox();
 
-    // Divide out ancestor CSS scale the same way dropletBox does, so a press
-    // inside a transformed ancestor (a dialog mid-pop) still lands where the
-    // finger is instead of drifting toward the center
+    // Divide out ancestor CSS scale as dropletBox does, so a press inside a transformed
+    // ancestor (a dialog mid-pop) lands under the finger instead of drifting to the center
     const hostRect = this.getBoundingClientRect();
     const sx       = this.offsetWidth > 0 ? hostRect.width / this.offsetWidth : 1;
     const sy       = this.offsetHeight > 0 ? hostRect.height / this.offsetHeight : 1;
@@ -1075,7 +1041,7 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
     return { x: dx * cos - dy * sin, y: dx * sin + dy * cos };
   }
 
-  // Press the jelly at a screen coordinate
+  // Press the body at a screen coordinate
   pressAt (clientX: number, clientY: number, strength = 1.12): void {
     if (this.reducedMotion || !this.body) {
       return;
@@ -1130,11 +1096,10 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
   }
 
   /*
-   * Wire the standard press feel onto an inner control: pointer presses
-   * dent the jelly under the finger and follow it, Enter / Space squish
-   * from the center and everything releases cleanly - including pointer
-   * capture loss and blur mid-press. Handles one pointer at a time; extra
-   * touches are ignored rather than fighting over the membrane.
+   * Wire the standard press feel onto an inner control: pointer presses dent the soft
+   * body under the finger and follow it, Enter/Space squish from the center, and
+   * everything releases cleanly, including pointer-capture loss and blur mid-press.
+   * One pointer at a time; extra touches are ignored rather than fighting over it.
    */
   wirePress (element: HTMLElement, { keyboard = true, disabled = () => this.hasAttribute('disabled') }: WirePressOptions = {}): void {
     this.pressPointerId = null;

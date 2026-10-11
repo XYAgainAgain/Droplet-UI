@@ -1,11 +1,7 @@
 /*
- * Droplet UI - barrel module. Import this once to register every component,
- * under both its droplet-* tag and its permanent Jelly UI alias.
- *
- *   import 'droplet-ui';
- *
- * Or import ./register and call the define helpers for just the elements you
- * use; importing a component module never registers anything by itself.
+ * Barrel module: importing it registers every component under its droplet-* tag and its
+ * permanent Jelly UI alias. For only some elements, import ./register and call the define
+ * helpers; component modules never register anything on their own.
  */
 
 import { defineAll } from './register.js';
@@ -21,7 +17,7 @@ export { DropletElement } from './element/index.js';
 export type { PainterFrame } from './element/index.js';
 export { dropletToast } from './components/toast/index.js';
 
-// Phase 1's authoring surface: presets, the resolver, and the scope cascade
+// Authoring surface: presets, the resolver, and the scope cascade
 export { registerPreset, getPreset, listPresets, PresetError } from './presets/index.js';
 export { resolveConfig, parseQuality, SAFETY_BOUNDS } from './resolve/index.js';
 export type { Quality, Resolved, Source, ResolveInputs } from './resolve/index.js';

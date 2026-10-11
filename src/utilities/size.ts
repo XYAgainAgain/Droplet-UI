@@ -1,24 +1,14 @@
-/*
- * The canonical size scale (small / medium / large) plus helpers to
- * normalize, read and propagate it across a component and its children.
- */
-
-// The canonical size scale every sizeable component renders on
 export type Size = 'small' | 'medium' | 'large';
 
-// The canonical size scale, plus the short aliases we accept for input
+// Short aliases accepted for input
 const SIZE_ALIASES: Record<string, Size> = {
   sm: 'small',
   md: 'medium',
   lg: 'large',
 };
 
-/*
- * Copy the host's size attribute onto matching children (and clear it again
- * when the host's size is removed), so container components like the radio
- * group and the accordion can size their items in one place. Children that
- * declared their own size are left alone.
- */
+// Lets a container size its items in one place, clearing the copy when the host's size is
+// removed. Children that declared their own size are left alone.
 export function propagateSize (host: Element, selector: string): void {
   const size = host.getAttribute('size');
 
@@ -37,11 +27,7 @@ export function propagateSize (host: Element, selector: string): void {
   }
 }
 
-/*
- * Normalize the host's size attribute onto the documented scale
- * (small / medium / large), rewriting the sm / md / lg aliases in place
- * so component CSS only ever needs the canonical selectors.
- */
+// Rewrites the sm/md/lg aliases in place, so component CSS only needs the canonical selectors
 export function canonicalizeSize (element: Element): void {
   const size = element.getAttribute('size');
 
@@ -50,9 +36,8 @@ export function canonicalizeSize (element: Element): void {
   }
 }
 
-// The canonical size name for an element, resolving sm / md / lg aliases,
-// without mutating it (for components that key geometry off the size). Falls
-// back to the given default when the attribute is absent or unrecognized.
+// Resolves sm/md/lg without mutating the element, for components that key geometry off the size.
+// Falls back when the attribute is absent or unrecognized.
 export function sizeName (element: Element, fallback: Size = 'medium'): Size {
   const raw = (element.getAttribute('size') || '').toLowerCase();
 

@@ -44,7 +44,7 @@
   height: 100%;
 }
 
-.labelled {
+.labeled {
   display:        flex;
   align-items:    center;
   gap:            var(--jelly-divider-gap, var(--droplet-divider-gap));
@@ -55,27 +55,27 @@
   white-space:    nowrap;
 }
 
-.labelled::before,
-.labelled::after {
+.labeled::before,
+.labeled::after {
   content:    "";
   flex:       1;
   height:     1px;
   background: var(--jelly-divider, var(--droplet-divider));
 }
 
-.labelled.vertical {
+.labeled.vertical {
   height:          100%;
   flex-direction:  column;
   justify-content: center;
 }
 
-.labelled.vertical::before,
-.labelled.vertical::after {
+.labeled.vertical::before,
+.labeled.vertical::after {
   width:  1px;
   height: auto;
 }
 
-.labelled.vertical .label {
+.labeled.vertical .label {
   writing-mode:     vertical-rl;
   text-orientation: mixed;
 }

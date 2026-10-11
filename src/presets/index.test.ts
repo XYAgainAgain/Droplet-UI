@@ -57,9 +57,9 @@ describe('preset registry', () => {
     sparse[3] = 2;
     expect(() => registerPreset('palette', 'sparse-palette', { ramp: sparse })).toThrow(PresetError);
 
-    const labelled: Record<string, unknown> = { hue: 1 };
-    labelled[Symbol('tag') as unknown as string] = 'x';
-    expect(() => registerPreset('palette', 'symbol-palette', labelled)).toThrow(PresetError);
+    const labeled: Record<string, unknown> = { hue: 1 };
+    labeled[Symbol('tag') as unknown as string] = 'x';
+    expect(() => registerPreset('palette', 'symbol-palette', labeled)).toThrow(PresetError);
 
     const hidden = {};
     Object.defineProperty(hidden, 'hue', { value: 1, enumerable: false });

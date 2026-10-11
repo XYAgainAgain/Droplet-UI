@@ -1,9 +1,3 @@
-/*
- * Theme runtime: build the document-level token sheet, install it once, switch
- * or read the document mode, and notify live canvases to repaint on a change.
- * Nothing here runs on import; components install per document on connect.
- */
-
 import type { ThemeMode }  from './tokens.js';
 import type { TokenMap }   from './tokens.js';
 import { FONT_STACK }      from './tokens.js';
@@ -13,7 +7,6 @@ import { FOCUS_RING }      from './tokens.js';
 import { LIGHT_TOKENS }    from './tokens.js';
 import { DARK_TOKENS }     from './tokens.js';
 
-// Serialize a token map into CSS declarations, one aligned line per token
 function tokenDeclarations (tokens: TokenMap): string {
   return Object.entries(tokens)
     .map(([name, value]) => `  --droplet-color-${name}: ${value};`)
@@ -32,18 +25,10 @@ function legacyLinks (): string {
 }
 
 /*
- * Build the document-level token sheet:
- *   - light tokens on :root
- *   - dark tokens when the OS prefers dark (unless mode is forced light)
- *   - dark tokens when the page forces data-droplet-mode (or the legacy
- *     data-jelly-mode, when no canonical attribute is set) to "dark"
- *   - --droplet-motion mirroring data-droplet-motion or data-jelly-motion, which
- *     shadow styles read through @container style() (:host-context() is Chromium-only)
- *
- * Everything lives in @layer droplet, so an un-layered consumer rule such as
- * `:root { --droplet-color-background-accent: #4F46E5 }` always wins the cascade
- * whatever its specificity or load order. Inside the layer the dark selectors
- * still out-specify the base :root, so the mode switch keeps working.
+ * Everything sits in @layer droplet, so any un-layered consumer rule wins the cascade whatever
+ * its specificity; inside the layer the dark selectors still out-specify the base :root.
+ * --droplet-motion mirrors the motion attribute because shadow styles read it through
+ * @container style() (:host-context() is Chromium-only).
  */
 export function themeTokenCSS (): string {
   return `
@@ -84,13 +69,9 @@ ${tokenDeclarations(DARK_TOKENS)}
 `;
 }
 
-// Documents already fitted with the sheet and the two theme observers
+// Documents already fitted with the sheet and the theme watchers
 const themedDocuments = new WeakSet<Document>();
 
-/*
- * Watch the two signals that change computed tokens without resizing anything:
- * the OS color scheme in auto mode, and the document's reading direction.
- */
 // Each pair is one setting under two names; a page writing either spelling moves
 // both, so page CSS and the library never disagree about the mode or motion
 const ATTRIBUTE_PAIRS: ReadonlyArray<readonly [canonical: string, legacy: string]> = [
@@ -160,6 +141,8 @@ function ensureEventBridge (view: Window): void {
   }
 }
 
+// Repaint on the two signals that change computed tokens without resizing anything:
+// the OS color scheme in auto mode and the document's reading direction
 function installThemeWatchers (doc: Document): void {
   const view = doc.defaultView;
 
@@ -249,7 +232,7 @@ export function setThemeMode (mode: ThemeMode = 'auto'): void {
   notifyThemeChange();
 }
 
-// Read the mode most recently set with setThemeMode (or 'auto')
+// The forced mode, whether setThemeMode or the page wrote it, else 'auto'
 export function getThemeMode (): ThemeMode {
   const mode = forcedMode();
 

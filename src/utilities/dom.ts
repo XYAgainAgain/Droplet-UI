@@ -1,10 +1,3 @@
-/*
- * DOM helpers shared by every component: unique ARIA ids, composed event
- * dispatch, idempotent attribute reflection, numeric attribute parsing, HTML
- * escaping and reading direction.
- */
-
-// Global counter so every generated id on the page is unique
 let uid = 0;
 
 // Mint a unique id for ARIA relationships (aria-labelledby, aria-controls, …)
@@ -12,13 +5,8 @@ export function uniqueId (prefix = 'droplet'): string {
   return `${prefix}-${++uid}`;
 }
 
-/*
- * Dispatch a composed, bubbling CustomEvent from a component so consumers
- * can listen on the host element like any native event. Returns false when
- * a cancelable event was prevented.
- *
- *   emit(this, 'change', { value: this.value });
- */
+// Composed and bubbling, so consumers listen on the host like any native event.
+// Returns false when a cancelable event was prevented.
 export function emit (
   element: Element,
   type: string,
@@ -67,7 +55,6 @@ export function escapeHTML (text: unknown): string {
     .replaceAll("'", '&#39;');
 }
 
-// True when the element currently renders right-to-left
 export function isRTL (element: Element): boolean {
   return getComputedStyle(element).direction === 'rtl';
 }

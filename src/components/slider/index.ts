@@ -1,10 +1,7 @@
 /*
- * A single-value range slider whose thumb is a squishy jelly body. A hidden
- * native <input type="range"> owns the value, form participation and
- * assistive-technology semantics, while the accent-tinted thumb squishes
- * when grabbed, leans into its travel and shows a soft focus ring on
- * keyboard focus. Direction-aware: in RTL layouts the value origin, the
- * painted accent fill and the arrow keys all mirror like a native range input
+ * A single-value range slider with a soft-body thumb. A hidden native range
+ * input owns the value, form participation, and accessibility semantics; in
+ * RTL the value origin, painted fill, and arrow keys mirror like a native range
  */
 
 import { DropletElement }         from '../../element/index.js';
@@ -52,7 +49,7 @@ const SLIDER_SIZES: Record<Size, SliderSize> = {
 };
 
 // The thumb body's component profile: a small, tight drop that stays lively
-// under drag. Resolved through the same feel / quality axes as the track.
+// under drag. Resolved through the same feel/quality axes as the track.
 export const THUMB_CONFIG: Partial<DropletConfig> = {
   membraneSpring:          82,
   membraneDamping:         14,
@@ -64,7 +61,7 @@ export const THUMB_CONFIG: Partial<DropletConfig> = {
 };
 
 /**
- * A single-value range slider with a squishy jelly thumb.
+ * A single-value range slider with a squishy soft-body thumb.
  *
  * @element droplet-slider
  *
@@ -80,7 +77,7 @@ export const THUMB_CONFIG: Partial<DropletConfig> = {
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
  * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
- * @fires input - Continuously as the value changes (drag / arrow keys).
+ * @fires input - Continuously as the value changes (drag/arrow keys).
  * @fires change - When the value is committed.
  *
  * @csspart wrap - The positioning wrapper.
@@ -102,14 +99,14 @@ export class DropletSlider extends DropletElement implements EventListenerObject
 
   internals: ElementInternals;
 
-  // Populated in onBuilt() / onShape()
+  // Populated in onBuilt()/onShape()
   input!: HTMLInputElement;
   track!: HTMLElement;
   thumbBody: DropletBody | null = null;
 
   thumbRecord: Resolved | undefined = undefined;
 
-  // The value as last set, so a write before build is not lost (Sol M12)
+  // The value as last set, so a write before build is not lost
   storedValue: string | null = null;
 
   // The value at the last committed change, so a no-op commit stays silent
@@ -130,7 +127,6 @@ export class DropletSlider extends DropletElement implements EventListenerObject
   trackW = 0;
   trackH = 0;
 
-  // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return ['value', 'min', 'max', 'step', 'label', 'disabled', 'size', ...DropletElement.AXIS_ATTRIBUTES];
   }
@@ -170,12 +166,10 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     return resolved;
   }
 
-  // Component styles layered over the shared jelly base styles
   override styles (): string {
     return sliderStyles + variantColors({ color: '--droplet-accent' });
   }
 
-  // The interactive markup that sits above the canvas
   override content (): string {
     return `
       <div class="wrap" part="wrap">
@@ -184,26 +178,23 @@ export class DropletSlider extends DropletElement implements EventListenerObject
       </div>`;
   }
 
-  // The base jelly body is the track capsule; the thumb body rides on top
+  // The base body is the track capsule; the thumb body rides on top
   override shape (width: number, height: number): Shape {
     const trackH = height || this.sizeConfig.track;
 
     return { width, height: trackH, radius: trackH / 2 };
   }
 
-  // The canonical size name, defaulting to medium
   get sizeKey (): Size {
     const size = (this.getAttribute('size') || 'medium').toLowerCase();
 
     return size === 'small' || size === 'large' ? size : 'medium';
   }
 
-  // The geometry record for the current size
   get sizeConfig (): SliderSize {
     return SLIDER_SIZES[this.sizeKey];
   }
 
-  // Called once after the shadow DOM and canvas exist. Wire events here.
   override onBuilt (): void {
     this.input = this.shadowRoot!.querySelector('input')!;
     this.track = this.shadowRoot!.querySelector('.track')!;
@@ -327,7 +318,7 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     return (this.input.valueAsNumber - min) / span;
   }
 
-  // The thumb's physical canvas x for the current value - mirrored in RTL,
+  // The thumb's physical canvas x for the current value; mirrored in RTL,
   // where the value origin sits at the right edge
   valueToX (): number {
     const x = -this.travel / 2 + this.fraction() * this.travel;
@@ -344,7 +335,6 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     this.requestFrame();
   }
 
-  // Map the label attribute onto the hidden input's accessible name
   syncLabel (): void {
     const label = this.getAttribute('label');
 
@@ -404,7 +394,7 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     emit(this, 'input');
   }
 
-  // Keyboard stepping: arrows follow reading direction, Shift ×10, Home / End jump
+  // Keyboard stepping: arrows follow reading direction, Shift ×10, Home/End jump
   onKey (event: KeyboardEvent): void {
     let direction = horizontalStep(event.key, isRTL(this));
 
@@ -456,7 +446,6 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     triggerHaptic();
   }
 
-  // Follow the captured pointer while a drag is active
   onMove (event: PointerEvent): void {
     if (!this.dragging || this.pointerId !== event.pointerId) {
       return;
@@ -531,8 +520,7 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     this.paintTrackPass();
 
     // The focus ring is painted from the same deformed surface as the thumb,
-    // so it wobbles and travels in perfect lockstep with it - the shared soft
-    // accent halo every other component shows on keyboard focus.
+    // so it wobbles and travels in lockstep with it
     this.paintBody(thumb, {
       fill:   accent,
       cx:     this.thumbX,
@@ -563,7 +551,7 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     const cx = this.cssW / 2;
     const cy = this.cssH / 2;
 
-    // The shipped paintTrack reads only width / height, so projecting and
+    // The shipped paintTrack reads only width/height, so projecting and
     // tracing every surface point is wasted work unless the slot is overridden
     const custom = this.paintTrack !== DropletSlider.prototype.paintTrack;
 
@@ -596,7 +584,7 @@ export class DropletSlider extends DropletElement implements EventListenerObject
   }
 
   // Track base, then the accent fill from the value origin (the inline-start
-  // edge, so the right one in RTL). Phase 6 slot preview; ctx is canvas space.
+  // edge, so the right one in RTL). An overridable painter slot; ctx is canvas space.
   paintTrack (frame: PainterFrame): void {
     const ctx    = frame.ctx;
     const cx     = frame.width / 2;
@@ -620,7 +608,6 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     }
   }
 
-  // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
     if (this.axisAttributeChanged(name)) {
       return;
@@ -676,8 +663,7 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     return this.input ? this.input.value : this.getAttribute('value') || this.storedValue || '50';
   }
 
-  // Set the value and reflect it into the thumb, ARIA and the form. A write
-  // before build is kept and applied in onBuilt(), never dropped (Sol M12).
+  // A write before build is kept and applied in onBuilt(), never dropped
   set value (v: string) {
     this.storedValue = String(v);
 

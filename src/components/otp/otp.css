@@ -27,9 +27,8 @@
   --droplet-otp-radius: 17px; --jelly-otp-radius: var(--droplet-otp-radius);
 }
 
-/* One-time codes read left-to-right in every locale, so the digit
-   row is pinned LTR - which also keeps the physical arrow-key
-   navigation below correct on RTL pages */
+/* Codes read left-to-right in every locale; pinning the row LTR also keeps
+   the physical arrow-key navigation correct on RTL pages */
 .row {
   display:   inline-flex;
   gap:       var(--jelly-otp-gap, var(--droplet-otp-gap));

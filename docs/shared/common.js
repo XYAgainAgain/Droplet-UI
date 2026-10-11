@@ -1,7 +1,4 @@
-/*
- * Shared behavior for both docs pages (the showcase and the API
- * reference): the theme and reduced-motion toggles
- */
+// Shared behavior for the docs pages: inline-code formatting and the theme and motion toggles
 
 import { dropletIcon }    from '../../package.js';
 import { dropletToast }   from '../../package.js';
@@ -11,27 +8,20 @@ import { escapeHTML }   from '../../package.js';
 
 export { escapeHTML };
 
-// Render backtick-delimited identifiers as inline code after escaping the
-// complete string, so documentation copy can be expressive without allowing
-// arbitrary HTML from the data file.
+// Escape first, then turn backtick spans into <code>, so the data file can't inject HTML
 export function formatInlineCode (text) {
   return escapeHTML(text).replace(/`([^`]+)`/g, '<code>$1</code>');
 }
 
-// The theme cycles auto → light → dark → auto. "auto" carries no forced mode,
-// so the page follows the OS / browser preference (and live-updates when it
-// changes); light / dark are explicit overrides.
+// "auto" carries no forced mode, so the page follows the OS/browser preference live;
+// light and dark are explicit overrides
 const ORDER   = ['auto', 'light', 'dark'];
 const ICON    = { auto: 'theme-auto', light: 'weather-sunny', dark: 'weather-moon' };
 const NAME    = { auto: 'system', light: 'light', dark: 'dark' };
 const TOOLTIP = { auto: 'System Settings', light: 'Light Mode', dark: 'Dark Mode' };
 
-/*
- * Wire the theme cycle button (Fluent icons): it shows the current mode's icon
- * and cycles auto → light → dark on click, remembering an explicit choice and
- * clearing it to follow the system again on "auto". (The pre-paint boot script
- * in each page's <head> reads the same localStorage key, so there is no flash.)
- */
+// The pre-paint boot script in each page's <head> reads the same localStorage key,
+// so a saved choice never flashes
 export function wireThemeToggle (button) {
   if (!button) {
     return;
@@ -98,10 +88,8 @@ function getMotionMode () {
 }
 
 /*
- * Let visitors preview the same calm component behavior normally selected by
- * prefers-reduced-motion. The root attribute is understood by the library's
- * JavaScript motion helper and by the matching CSS fallbacks; the saved value
- * is applied by each page's pre-paint script so motion never flashes on first.
+ * Previews reduced motion without changing the OS setting. The library's motion helper and
+ * CSS fallbacks both read the root attribute; each page's pre-paint script applies the saved value.
  */
 export function wireMotionToggle (button) {
   if (!button) {
@@ -118,9 +106,8 @@ export function wireMotionToggle (button) {
     button.closest('droplet-tooltip')?.setAttribute('text', MOTION_TOOLTIP[mode]);
   };
 
-  // This is an OS-preference notice, not feedback for the docs control.
-  // Remember it for the browser session so navigation and reloads do not
-  // repeatedly show a persistent toast.
+  // An OS-preference notice, not feedback for the docs control: shown once per browser
+  // session so navigation and reloads don't keep raising a persistent toast
   const announceSystemReducedMotion = () => {
     if (!systemMotionQuery.matches || sessionStorage.getItem(MOTION_NOTICE_STORAGE)) {
       return;

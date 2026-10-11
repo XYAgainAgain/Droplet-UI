@@ -14,8 +14,7 @@ const QUALITY_SPELLINGS = new Set(['lo', 'low', 'md', 'med', 'medium', 'hi', 'hi
 // keyed by document so an iframe gets its own warning (attribute-matrix.md)
 const warnedFeels = new WeakMap<Document, Set<string>>();
 
-// An alias is rewritten to canonical form the way canonicalizeSize() does;
-// garbage is left alone so the author can see it (attribute-matrix.md)
+// Mirrors canonicalizeSize(): only the known spellings above are rewritten
 export function canonicalizeQualityAttribute (el: Element): void {
   const raw = el.getAttribute('quality');
 
