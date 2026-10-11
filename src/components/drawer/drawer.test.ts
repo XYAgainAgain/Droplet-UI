@@ -2,12 +2,12 @@ import { expect, test } from 'vitest';
 
 import { mount } from '../../testing/index.js';
 
-import type { JellyDrawer } from './index.js';
+import type { DropletDrawer } from './index.js';
 import '../../testing/define-all.js';
 
 test('defaults to the end side and presents as a modal dialog', () => {
-  const host = mount('<jelly-drawer><nav>Links</nav></jelly-drawer>');
-  const el = host.querySelector('jelly-drawer') as JellyDrawer;
+  const host = mount('<droplet-drawer><nav>Links</nav></droplet-drawer>');
+  const el = host.querySelector('droplet-drawer') as DropletDrawer;
 
   expect(el.getAttribute('side')).toBe('end');
 
@@ -19,8 +19,8 @@ test('defaults to the end side and presents as a modal dialog', () => {
 });
 
 test('opening emits open, locks scroll and mirrors the heading name', () => {
-  const host = mount('<jelly-drawer><h2>Filters</h2></jelly-drawer>');
-  const el = host.querySelector('jelly-drawer') as JellyDrawer;
+  const host = mount('<droplet-drawer><h2>Filters</h2></droplet-drawer>');
+  const el = host.querySelector('droplet-drawer') as DropletDrawer;
 
   let opened = 0;
   el.addEventListener('open', () => { opened++; });
@@ -37,8 +37,8 @@ test('opening emits open, locks scroll and mirrors the heading name', () => {
 });
 
 test('the close button dismisses the drawer and emits close', async () => {
-  const host = mount('<jelly-drawer><nav>Links</nav></jelly-drawer>');
-  const el = host.querySelector('jelly-drawer') as JellyDrawer;
+  const host = mount('<droplet-drawer><nav>Links</nav></droplet-drawer>');
+  const el = host.querySelector('droplet-drawer') as DropletDrawer;
 
   el.open = true;
 
@@ -56,8 +56,8 @@ test('the close button dismisses the drawer and emits close', async () => {
 });
 
 test('resolvedSide maps start / end to physical sides', () => {
-  const host = mount('<jelly-drawer side="start"><p>x</p></jelly-drawer>');
-  const el = host.querySelector('jelly-drawer') as JellyDrawer;
+  const host = mount('<droplet-drawer side="start"><p>x</p></droplet-drawer>');
+  const el = host.querySelector('droplet-drawer') as DropletDrawer;
 
   expect(el.resolvedSide).toBe('left');
 

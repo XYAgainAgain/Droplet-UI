@@ -4,7 +4,7 @@
  * width/height (or the shape presets); shape="circle" for avatars
  */
 
-import { JellyElement } from '../../element/index.js';
+import { DropletElement } from '../../element/index.js';
 import type { Shape }   from '../../element/index.js';
 import { defineStrict, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
@@ -22,7 +22,7 @@ import skeletonStyles    from './skeleton.css?inline';
  *
  * @cssprop [--jelly-fill] - Placeholder fill color.
  */
-export class JellySkeleton extends JellyElement {
+export class DropletSkeleton extends DropletElement {
 
   static define (options?: DefineOptions): DefineResult {
     return defineSkeleton(options);
@@ -40,7 +40,7 @@ export class JellySkeleton extends JellyElement {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['shape', ...JellyElement.AXIS_ATTRIBUTES];
+    return ['shape', ...DropletElement.AXIS_ATTRIBUTES];
   }
 
   // Component styles layered over the shared jelly base styles
@@ -139,11 +139,11 @@ export class JellySkeleton extends JellyElement {
 }
 
 export function defineSkeleton (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.skeleton, JellySkeleton]], options);
+  return defineStrict([[TAGS.skeleton, DropletSkeleton]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-skeleton': JellySkeleton;
+    'droplet-skeleton': DropletSkeleton;
   }
 }

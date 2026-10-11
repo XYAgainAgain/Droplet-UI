@@ -42,7 +42,7 @@ import popoverStyles         from './popover.css?inline';
  *
  * @csspart panel - The floating panel.
  */
-export class JellyPopover extends HTMLElementBase {
+export class DropletPopover extends HTMLElementBase {
 
   static define (options?: DefineOptions): DefineResult {
     return definePopover(options);
@@ -258,11 +258,11 @@ export class JellyPopover extends HTMLElementBase {
 }
 
 export function definePopover (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.popover, JellyPopover]], options);
+  return defineStrict([[TAGS.popover, DropletPopover]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-popover': JellyPopover;
+    'droplet-popover': DropletPopover;
   }
 }

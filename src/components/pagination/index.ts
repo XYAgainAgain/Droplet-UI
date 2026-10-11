@@ -11,7 +11,7 @@ import { isRTL }             from '../../utilities/index.js';
 
 import { ensureThemeTokens } from '../../theme/index.js';
 
-import { JellyButton }          from '../button/index.js';
+import { DropletButton }          from '../button/index.js';
 import { HTMLElementBase }   from '../../element/base.js';
 import { defineStrict, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
@@ -36,7 +36,7 @@ interface PageButtonOptions {
  *
  * @fires change - With `detail.page` when the page changes.
  */
-export class JellyPagination extends HTMLElementBase {
+export class DropletPagination extends HTMLElementBase {
 
   static define (options?: DefineOptions): DefineResult {
     return definePagination(options);
@@ -151,7 +151,7 @@ export class JellyPagination extends HTMLElementBase {
     const rtl = isRTL(this);
 
     const makeButton = (label: string, page: number, { current = false, disabled = false, name = null }: PageButtonOptions = {}): HTMLElement => {
-      const button = document.createElement('jelly-button');
+      const button = document.createElement(TAGS.button);
 
       button.setAttribute('size', this.buttonSize);
       button.textContent = label;
@@ -201,7 +201,7 @@ export class JellyPagination extends HTMLElementBase {
   // Route programmatic host focus onto the current (or first enabled) page
   override focus (options?: FocusOptions): void {
     const current = this.shadowRoot!.querySelector('[aria-current]') as HTMLElement | null;
-    const first   = [...this.shadowRoot!.querySelectorAll('jelly-button')].find((b) => !b.hasAttribute('disabled'));
+    const first   = [...this.shadowRoot!.querySelectorAll(TAGS.button)].find((b) => !b.hasAttribute('disabled'));
 
     (current || first)?.focus(options);
   }
@@ -209,11 +209,11 @@ export class JellyPagination extends HTMLElementBase {
 }
 
 export function definePagination (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.button, JellyButton], [TAGS.pagination, JellyPagination]], options);
+  return defineStrict([[TAGS.button, DropletButton], [TAGS.pagination, DropletPagination]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-pagination': JellyPagination;
+    'droplet-pagination': DropletPagination;
   }
 }

@@ -27,6 +27,7 @@ export default defineConfig({
   environments: {
     register: libEnvironment('register', 'src/register.ts', true),
     core: libEnvironment('core', 'src/core/index.ts', false),
+    compat: libEnvironment('compat', 'src/compat/index.ts', false),
     jelly: libEnvironment('jelly', 'src/jelly.ts', false),
   },
   builder: {
@@ -43,6 +44,8 @@ export default defineConfig({
       await rename(resolve('dist/jelly.d.ts'), resolve('dist/register.d.ts'));
       await builder.build(builder.environments['core']!);
       await rename(resolve('dist/jelly.d.ts'), resolve('dist/core.d.ts'));
+      await builder.build(builder.environments['compat']!);
+      await rename(resolve('dist/jelly.d.ts'), resolve('dist/compat.d.ts'));
       await builder.build(builder.environments['jelly']!);
     },
   },

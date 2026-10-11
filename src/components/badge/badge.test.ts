@@ -2,12 +2,12 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import type { JellyBadge } from './index.js';
+import type { DropletBadge } from './index.js';
 import '../../testing/define-all.js';
 
 test('upgrades and renders its slotted content', async () => {
-  const host = mount('<jelly-badge>3</jelly-badge>');
-  const el = host.querySelector('jelly-badge') as JellyBadge;
+  const host = mount('<droplet-badge>3</droplet-badge>');
+  const el = host.querySelector('droplet-badge') as DropletBadge;
 
   await settle(3);
   expect(el.shadowRoot!.querySelector('.badge')).toBeTruthy();
@@ -17,8 +17,8 @@ test('upgrades and renders its slotted content', async () => {
 });
 
 test('variant="mint" paints the mint fill', async () => {
-  const host = mount('<jelly-badge variant="mint">Live</jelly-badge>');
-  const el = host.querySelector('jelly-badge') as JellyBadge;
+  const host = mount('<droplet-badge variant="mint">Live</droplet-badge>');
+  const el = host.querySelector('droplet-badge') as DropletBadge;
 
   await settle(12);
   const canvas = el.shadowRoot!.querySelector('canvas') as HTMLCanvasElement;
@@ -32,8 +32,8 @@ test('variant="mint" paints the mint fill', async () => {
 });
 
 test('live badges expose a polite status region', async () => {
-  const host = mount('<jelly-badge live>0</jelly-badge>');
-  const el = host.querySelector('jelly-badge') as JellyBadge;
+  const host = mount('<droplet-badge live>0</droplet-badge>');
+  const el = host.querySelector('droplet-badge') as DropletBadge;
 
   await settle(3);
   expect(el.getAttribute('role')).toBe('status');

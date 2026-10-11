@@ -34,7 +34,7 @@
   font:        640 var(--jelly-pagination-font-size)/1 var(--jelly-font-display);
 }
 
-jelly-button {
+droplet-button {
   /* Override the button's own size scale so every page control keeps a
      square footprint (height == min-width) with only light padding -
      otherwise medium / large buttons inherit a 168–200px min-width and
@@ -47,7 +47,7 @@ jelly-button {
   --jelly-label: var(--jelly-color-foreground-on-neutral);
 }
 
-jelly-button[aria-current] {
+droplet-button[aria-current] {
   --jelly-fill:  var(--jelly-color-background-accent);
   --jelly-label: var(--jelly-color-foreground-on-accent);
 }

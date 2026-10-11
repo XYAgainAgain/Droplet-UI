@@ -1,6 +1,6 @@
 /*
  * The Jelly UI soft-body membrane simulation: geometry + math helpers, the
- * rounded-rectangle membrane builder, and the JellyBody class that wobbles a
+ * rounded-rectangle membrane builder, and the DropletBody class that wobbles a
  * shape in pure local coordinates. The DOM layer (element) feeds it pointer
  * input and reads back the deformed surface to paint.
  */
@@ -8,7 +8,7 @@
 import { clamp }            from '../utilities/index.js';
 import { integrateSpring }  from '../utilities/index.js';
 import { DEFAULT_CONFIG }   from './config.js';
-import type { JellyConfig } from './config.js';
+import type { DropletConfig } from './config.js';
 
 // A 2D point; membrane points, surface points and projected points all have x/y
 export interface Point {
@@ -42,7 +42,7 @@ export interface SurfacePoint {
 }
 
 // The whole-body spring state (press depth, tilt, rotation, pointer tracking)
-interface JellyState {
+interface DropletState {
   clickDepth: number;
   clickDepthV: number;
   targetClickDepth: number;
@@ -76,12 +76,12 @@ interface JellyState {
   pointerLocalY: number;
 }
 
-// Options for constructing a JellyBody
-export interface JellyBodyOptions {
+// Options for constructing a DropletBody
+export interface DropletBodyOptions {
   width: number;
   height: number;
   radius?: number;
-  config?: Partial<JellyConfig>;
+  config?: Partial<DropletConfig>;
 }
 
 /*
@@ -323,20 +323,20 @@ export function traceSmoothPath (ctx: CanvasRenderingContext2D | Path2D, points:
   ctx.closePath();
 }
 
-// JellyBody: one soft-body blob, pure physics in local coordinates.
-export class JellyBody {
+// DropletBody: one soft-body blob, pure physics in local coordinates.
+export class DropletBody {
 
   width: number;
   height: number;
   radius: number;
-  config: JellyConfig;
+  config: DropletConfig;
   lean: number;
   leanAmount: number;
   membrane: MembranePoint[];
-  state: JellyState;
+  state: DropletState;
   baseArea: number;
 
-  constructor ({ width, height, radius, config }: JellyBodyOptions) {
+  constructor ({ width, height, radius, config }: DropletBodyOptions) {
     this.width  = width;
     this.height = height;
     this.radius = radius ?? Math.min(width, height) / 2;

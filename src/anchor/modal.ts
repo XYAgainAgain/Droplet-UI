@@ -49,7 +49,7 @@ export function portalToBody (el: HTMLElement): () => void {
     return () => {};
   }
 
-  const marker = document.createComment('jelly-portal');
+  const marker = document.createComment('droplet-portal');
 
   parent.insertBefore(marker, el);
   document.body.appendChild(el);

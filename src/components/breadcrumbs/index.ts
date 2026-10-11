@@ -23,7 +23,7 @@ import breadcrumbsStyles     from './breadcrumbs.css?inline';
  *
  * @attr {"small"|"medium"|"large"} size - Typography scale.
  */
-export class JellyBreadcrumbs extends HTMLElementBase {
+export class DropletBreadcrumbs extends HTMLElementBase {
 
   static define (options?: DefineOptions): DefineResult {
     return defineBreadcrumbs(options);
@@ -111,11 +111,11 @@ export class JellyBreadcrumbs extends HTMLElementBase {
 }
 
 export function defineBreadcrumbs (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.breadcrumbs, JellyBreadcrumbs]], options);
+  return defineStrict([[TAGS.breadcrumbs, DropletBreadcrumbs]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-breadcrumbs': JellyBreadcrumbs;
+    'droplet-breadcrumbs': DropletBreadcrumbs;
   }
 }

@@ -9,7 +9,7 @@
  * ratio as jelly-icon-button's default square).
  */
 
-import { JellyElement }   from '../../element/index.js';
+import { DropletElement }   from '../../element/index.js';
 import type { Shape }      from '../../element/index.js';
 
 import { SUBMIT_BUTTON }                from '../../element/submitter.js';
@@ -80,7 +80,7 @@ const SUBMITTER_ATTRIBUTES = ['name', 'value', 'formaction', 'formenctype', 'for
  * @cssprop [--jelly-fill] - Surface fill color (usually set by `variant`).
  * @cssprop [--jelly-label] - Label color.
  */
-export class JellyButton extends JellyElement {
+export class DropletButton extends DropletElement {
 
   static override usesResolver = true;
 
@@ -88,7 +88,7 @@ export class JellyButton extends JellyElement {
   static formAssociated = true;
 
   static override REPLAYED: readonly string[] = [
-    ...JellyElement.REPLAYED,
+    ...DropletElement.REPLAYED,
     'disabled', 'name', 'value', 'type',
     'formAction', 'formMethod', 'formEnctype', 'formTarget', 'formNoValidate',
   ];
@@ -121,7 +121,7 @@ export class JellyButton extends JellyElement {
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return [
-      'disabled', 'label', 'type', 'shape', ...JellyElement.AXIS_ATTRIBUTES,
+      'disabled', 'label', 'type', 'shape', ...DropletElement.AXIS_ATTRIBUTES,
       // Forwarded to the inner button, because the roleless host is not what AT reads
       ...FORWARDED_ARIA,
     ];
@@ -527,11 +527,11 @@ export class JellyButton extends JellyElement {
 }
 
 export function defineButton (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.button, JellyButton]], options);
+  return defineStrict([[TAGS.button, DropletButton]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-button': JellyButton;
+    'droplet-button': DropletButton;
   }
 }

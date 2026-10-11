@@ -5,7 +5,7 @@
  * `remove` event and takes the element out of the DOM
  */
 
-import { JellyElement }  from '../../element/index.js';
+import { DropletElement }  from '../../element/index.js';
 import type { Shape }    from '../../element/index.js';
 
 import { emit }          from '../../utilities/index.js';
@@ -41,7 +41,7 @@ import chipStyles        from './chip.css?inline';
  * @csspart main - The label / toggle button.
  * @csspart remove - The ✕ remove button.
  */
-export class JellyChip extends JellyElement {
+export class DropletChip extends DropletElement {
 
   static define (options?: DefineOptions): DefineResult {
     return defineChip(options);
@@ -61,7 +61,7 @@ export class JellyChip extends JellyElement {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['selected', 'disabled', 'selectable', 'removable', 'variant', 'shape', ...JellyElement.AXIS_ATTRIBUTES];
+    return ['selected', 'disabled', 'selectable', 'removable', 'variant', 'shape', ...DropletElement.AXIS_ATTRIBUTES];
   }
 
   // Lifecycle method: Called automatically when the element is appended to the DOM
@@ -364,11 +364,11 @@ export class JellyChip extends JellyElement {
 }
 
 export function defineChip (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.chip, JellyChip]], options);
+  return defineStrict([[TAGS.chip, DropletChip]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-chip': JellyChip;
+    'droplet-chip': DropletChip;
   }
 }

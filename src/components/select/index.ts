@@ -12,12 +12,12 @@
  *   </jelly-select>
  */
 
-import { JellyElement }     from '../../element/index.js';
+import { DropletElement }     from '../../element/index.js';
 import type { Shape }       from '../../element/index.js';
 import type { Ring }        from '../../element/index.js';
 import type { Border }      from '../../element/index.js';
 
-import { JellyBody }        from '../../core/index.js';
+import { DropletBody }        from '../../core/index.js';
 
 import { canonicalizeSize } from '../../utilities/index.js';
 import { clamp }            from '../../utilities/index.js';
@@ -31,9 +31,9 @@ import { PALETTE }          from '../../theme/index.js';
 import { variantColors }    from '../../theme/index.js';
 
 import '../option/index.js';
-import { defineStrict, TAGS } from '../../registry/index.js';
+import { anyTag, defineStrict, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
-import { JellyOption }         from '../option/index.js';
+import { DropletOption }         from '../option/index.js';
 
 import selectStyles         from './select.css?inline';
 
@@ -74,7 +74,7 @@ const VIEWPORT_MARGIN = 8;
  * @csspart panel - The dropdown panel.
  * @csspart panel-mask - The clipped list surface.
  */
-export class JellySelect extends JellyElement {
+export class DropletSelect extends DropletElement {
 
   static define (options?: DefineOptions): DefineResult {
     return defineSelect(options);
@@ -91,7 +91,7 @@ export class JellySelect extends JellyElement {
   focused       = false;
   activeIndex   = -1;
   selectedIndex = -1;
-  options: JellyOption[] = [];
+  options: DropletOption[] = [];
   instanceId: string;
   panelSide: 'top' | 'bottom' = 'bottom';
 
@@ -109,7 +109,7 @@ export class JellySelect extends JellyElement {
   panelCtx!: CanvasRenderingContext2D;
   list!: HTMLElement;
 
-  panelBody: JellyBody | null = null;
+  panelBody: DropletBody | null = null;
   panelCssW = 0;
   panelCssH = 0;
 
@@ -122,14 +122,14 @@ export class JellySelect extends JellyElement {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['disabled', 'label', 'placeholder', 'size', 'value', ...JellyElement.AXIS_ATTRIBUTES];
+    return ['disabled', 'label', 'placeholder', 'size', 'value', ...DropletElement.AXIS_ATTRIBUTES];
   }
 
   constructor () {
     super();
 
     this.internals  = this.attachInternals();
-    this.instanceId = uniqueId('jelly-select');
+    this.instanceId = uniqueId('droplet-select');
   }
 
   // Component styles layered over the shared jelly base styles
@@ -285,7 +285,7 @@ export class JellySelect extends JellyElement {
       return;
     }
 
-    this.options = [...this.querySelectorAll('jelly-option')];
+    this.options = [...this.querySelectorAll<DropletOption>(anyTag('option'))];
 
     const valueAttr    = this.getAttribute('value');
     const hasValueAttr = valueAttr != null && valueAttr !== '';
@@ -885,11 +885,11 @@ export class JellySelect extends JellyElement {
 }
 
 export function defineSelect (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.select, JellySelect], [TAGS.option, JellyOption]], options);
+  return defineStrict([[TAGS.select, DropletSelect], [TAGS.option, DropletOption]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-select': JellySelect;
+    'droplet-select': DropletSelect;
   }
 }

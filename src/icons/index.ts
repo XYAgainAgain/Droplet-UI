@@ -8,10 +8,10 @@
  * at runtime. The paths carry no colour of their own - they render with
  * `currentColor`, so an icon inherits the text colour of wherever it sits.
  *
- *   import { jellyIcon } from './jelly.js';
+ *   import { dropletIcon } from './jelly.js';
  *
- *   button.innerHTML = jellyIcon('heart', { size: 18 });
- *   alertIcon        = jellyIcon('warning', { label: 'Warning' });
+ *   button.innerHTML = dropletIcon('heart', { size: 18 });
+ *   alertIcon        = dropletIcon('warning', { label: 'Warning' });
  */
 
 import info            from './info.svg?raw';
@@ -32,7 +32,7 @@ import animalRabbitOffFilled from './animal-rabbit-off-filled.svg?raw';
 import animalRabbitRegular from './animal-rabbit-regular.svg?raw';
 
 // Every icon, keyed by its kebab-case name. Each value is a complete standalone
-// 24×24 SVG string; jellyIcon() injects size and ARIA attributes at render time.
+// 24×24 SVG string; dropletIcon() injects size and ARIA attributes at render time.
 export const ICONS = {
   'info':             info,
   'checkmark-circle': checkmarkCircle,
@@ -67,7 +67,7 @@ export interface IconOptions {
  * stored SVG is a full 24×24 glyph - this only stamps the requested pixel
  * size and the ARIA role onto its opening tag.
  */
-export function jellyIcon (name: IconName, { size = 20, label = null }: IconOptions = {}): string {
+export function dropletIcon (name: IconName, { size = 20, label = null }: IconOptions = {}): string {
   const svg = ICONS[name];
 
   if (!svg) {

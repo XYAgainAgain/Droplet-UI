@@ -38,6 +38,10 @@
       "types": "./dist/register.d.ts",
       "import": "./dist/register.js"
     },
+    "./compat": {
+      "types": "./dist/compat.d.ts",
+      "import": "./dist/compat.js"
+    },
     "./dist/*": "./dist/*"
   },
   "scripts": {

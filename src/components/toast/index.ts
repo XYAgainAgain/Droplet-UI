@@ -3,19 +3,19 @@
  * drift away. A <jelly-toaster> host is created automatically; place one
  * yourself (optionally with position="bottom") to control stacking.
  *
- *   import { jellyToast } from './src/jelly.js';
- *   jellyToast('Saved!', { tone: 'success' });
+ *   import { dropletToast } from './src/jelly.js';
+ *   dropletToast('Saved!', { tone: 'success' });
  */
 
 import { toastIn }           from '../../anchor/index.js';
 import { toastOut }          from '../../anchor/index.js';
 
-import { jellyIcon }         from '../../icons/index.js';
+import { dropletIcon }         from '../../icons/index.js';
 
 import { ensureThemeTokens } from '../../theme/index.js';
 
 import { installScopeBridge }               from '../../cascade/index.js';
-import { defineStrict, TAGS }               from '../../registry/index.js';
+import { anyTag, defineStrict, TAGS }               from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
 import type { Quality }                     from '../../resolve/index.js';
 
@@ -34,7 +34,7 @@ import toastStyles           from './toast.css?inline';
 // The notification tones a toast can carry
 export type ToastTone = 'info' | 'success' | 'warning' | 'danger';
 
-// Options accepted by push() / jellyToast()
+// Options accepted by push() / dropletToast()
 export interface ToastOptions {
   tone?: ToastTone;
   duration?: number;
@@ -62,7 +62,7 @@ const TONES: Record<ToastTone, { color: string; spoken: string }> = {
  * @csspart dot - The tone indicator dot.
  * @csspart close - The dismiss button.
  */
-export class JellyToaster extends HTMLElementBase {
+export class DropletToaster extends HTMLElementBase {
 
   built = false;
 
@@ -183,7 +183,7 @@ export class JellyToaster extends HTMLElementBase {
     close.className = 'close';
     close.setAttribute('part', 'close');
     close.setAttribute('aria-label', 'Dismiss');
-    close.innerHTML = jellyIcon('dismiss', { size: 13 });
+    close.innerHTML = dropletIcon('dismiss', { size: 13 });
 
     el.append(dot, spoken, text, close);
 
@@ -284,22 +284,22 @@ export class JellyToaster extends HTMLElementBase {
 }
 
 export function defineToaster (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.toaster, JellyToaster]], options);
+  return defineStrict([[TAGS.toaster, DropletToaster]], options);
 }
 
 // Show a toast, creating the shared toaster host on first use. The lookup is
 // against the global document; per-document hosts are a Phase 7 iframe item.
-export function jellyToast (message: string, options?: ToastOptions): HTMLElement {
+export function dropletToast (message: string, options?: ToastOptions): HTMLElement {
   // Importing this module defines no tag, so the host is registered on use;
   // strict: false keeps a foreign owner of the tag from throwing out of a toast.
   if (typeof customElements !== 'undefined' && !customElements.get(TAGS.toaster)) {
     defineToaster({ strict: false });
   }
 
-  let toaster = document.querySelector('jelly-toaster') as JellyToaster | null;
+  let toaster = document.querySelector(anyTag('toaster')) as DropletToaster | null;
 
   if (!toaster) {
-    toaster = document.createElement('jelly-toaster') as JellyToaster;
+    toaster = document.createElement(TAGS.toaster) as DropletToaster;
     document.body.appendChild(toaster);
   }
 
@@ -308,15 +308,18 @@ export function jellyToast (message: string, options?: ToastOptions): HTMLElemen
 
 // Convenience global so inline handlers can fire toasts
 if (typeof window !== 'undefined') {
-  window.jellyToast = jellyToast;
+  window.dropletToast = dropletToast;
+  // The Jelly UI global keeps working for inline handlers written against it
+  window.jellyToast = dropletToast;
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-toaster': JellyToaster;
+    'droplet-toaster': DropletToaster;
   }
 
   interface Window {
-    jellyToast: typeof jellyToast;
+    dropletToast: typeof dropletToast;
+    jellyToast: typeof dropletToast;
   }
 }

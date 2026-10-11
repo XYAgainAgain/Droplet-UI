@@ -4,13 +4,13 @@ import { mount, settle } from '../../testing/index.js';
 
 import { defineAll } from '../../register.js';
 import { installScopeBridge } from '../../cascade/index.js';
-import { JellyCollapsible, defineCollapsible } from './index.js';
+import { DropletCollapsible, defineCollapsible } from './index.js';
 
 defineAll({ strict: false });
 
 test('renders a header button reflecting the open state', () => {
-  const host = mount('<jelly-collapsible open><span slot="header">Details</span>Body</jelly-collapsible>');
-  const el = host.querySelector('jelly-collapsible') as JellyCollapsible;
+  const host = mount('<droplet-collapsible open><span slot="header">Details</span>Body</droplet-collapsible>');
+  const el = host.querySelector('droplet-collapsible') as DropletCollapsible;
 
   const head = el.shadowRoot!.querySelector('.head')!;
   expect(head.getAttribute('aria-expanded')).toBe('true');
@@ -19,8 +19,8 @@ test('renders a header button reflecting the open state', () => {
 });
 
 test('toggling fires exactly one toggle event per real change', () => {
-  const host = mount('<jelly-collapsible><span slot="header">Details</span>Body</jelly-collapsible>');
-  const el = host.querySelector('jelly-collapsible') as JellyCollapsible;
+  const host = mount('<droplet-collapsible><span slot="header">Details</span>Body</droplet-collapsible>');
+  const el = host.querySelector('droplet-collapsible') as DropletCollapsible;
 
   let toggles = 0;
   el.addEventListener('toggle', () => { toggles += 1; });
@@ -33,16 +33,16 @@ test('toggling fires exactly one toggle event per real change', () => {
   host.remove();
 });
 
-describe('jelly-collapsible contracts', () => {
+describe('droplet-collapsible contracts', () => {
   it('registers through the helper', () => {
-    expect(defineCollapsible().alreadyDefined).toEqual(['jelly-collapsible']);
-    expect(JellyCollapsible.define().alreadyDefined).toEqual(['jelly-collapsible']);
+    expect(defineCollapsible().alreadyDefined).toEqual(['droplet-collapsible']);
+    expect(DropletCollapsible.define().alreadyDefined).toEqual(['droplet-collapsible']);
   });
 
   it('emits one toggle for a programmatic open change and none for a no-op set', async () => {
-    const host = mount(`<jelly-collapsible><span slot="header">H</span><p>Body</p></jelly-collapsible>`);
+    const host = mount(`<droplet-collapsible><span slot="header">H</span><p>Body</p></droplet-collapsible>`);
     await settle();
-    const el = host.firstElementChild as JellyCollapsible;
+    const el = host.firstElementChild as DropletCollapsible;
     const seen = vi.fn();
     el.addEventListener('toggle', seen);
     el.open = true;
@@ -57,9 +57,9 @@ describe('jelly-collapsible contracts', () => {
   });
 
   it('emits exactly one composed toggle per user click', async () => {
-    const host = mount(`<jelly-collapsible><span slot="header">H</span><p>Body</p></jelly-collapsible>`);
+    const host = mount(`<droplet-collapsible><span slot="header">H</span><p>Body</p></droplet-collapsible>`);
     await settle();
-    const el = host.firstElementChild as JellyCollapsible;
+    const el = host.firstElementChild as DropletCollapsible;
     const seen = vi.fn();
     el.addEventListener('toggle', seen);
     el.shadowRoot!.querySelector('button')!.click();
@@ -72,9 +72,9 @@ describe('jelly-collapsible contracts', () => {
   });
 
   it('emits a toggle when the open attribute changes and clears the state on close', async () => {
-    const host = mount(`<jelly-collapsible><span slot="header">H</span><p>Body</p></jelly-collapsible>`);
+    const host = mount(`<droplet-collapsible><span slot="header">H</span><p>Body</p></droplet-collapsible>`);
     await settle();
-    const el = host.firstElementChild as JellyCollapsible;
+    const el = host.firstElementChild as DropletCollapsible;
     const seen = vi.fn();
     el.addEventListener('toggle', seen);
 
@@ -102,10 +102,10 @@ describe('jelly-collapsible contracts', () => {
     host.addEventListener('toggle', seen);
     document.body.appendChild(host);
 
-    customElements.define(tag, class extends JellyCollapsible {});
+    customElements.define(tag, class extends DropletCollapsible {});
     await settle();
 
-    const el = host.firstElementChild as JellyCollapsible;
+    const el = host.firstElementChild as DropletCollapsible;
     expect(el.open).toBe(true);
     expect(el.matches(':state(open)')).toBe(true);
     expect(seen).not.toHaveBeenCalled();
@@ -113,7 +113,7 @@ describe('jelly-collapsible contracts', () => {
   });
 
   it('emits one toggle for an open change made while disconnected', async () => {
-    const el = document.createElement('jelly-collapsible') as JellyCollapsible;
+    const el = document.createElement('droplet-collapsible') as DropletCollapsible;
     const seen = vi.fn();
     el.addEventListener('toggle', seen);
 
@@ -131,21 +131,21 @@ describe('jelly-collapsible contracts', () => {
   it('reads quality from the nearest scope and lets the element attribute win', async () => {
     installScopeBridge(document);
     const host = mount(`<div data-droplet-quality="low">
-      <jelly-collapsible id="a"><span slot="header">A</span>1</jelly-collapsible>
-      <jelly-collapsible id="b" quality="hi"><span slot="header">B</span>2</jelly-collapsible>
+      <droplet-collapsible id="a"><span slot="header">A</span>1</droplet-collapsible>
+      <droplet-collapsible id="b" quality="hi"><span slot="header">B</span>2</droplet-collapsible>
     </div>`);
     await settle();
-    const a = host.querySelector('#a') as JellyCollapsible;
-    const b = host.querySelector('#b') as JellyCollapsible;
+    const a = host.querySelector('#a') as DropletCollapsible;
+    const b = host.querySelector('#b') as DropletCollapsible;
     expect(a.quality).toBe('low');
     expect(b.quality).toBe('high');
     host.remove();
   });
 
   it('reflects the canonical quality keyword and defaults invalid input', async () => {
-    const host = mount(`<jelly-collapsible quality="med"><span slot="header">H</span>B</jelly-collapsible>`);
+    const host = mount(`<droplet-collapsible quality="med"><span slot="header">H</span>B</droplet-collapsible>`);
     await settle();
-    const el = host.firstElementChild as JellyCollapsible;
+    const el = host.firstElementChild as DropletCollapsible;
     expect(el.quality).toBe('medium');
     expect(el.getAttribute('quality')).toBe('medium');
 
@@ -174,12 +174,12 @@ describe('jelly-collapsible contracts', () => {
     markup.open = false;
 
     document.body.append(early, markup);
-    customElements.define(tag, class extends JellyCollapsible {});
+    customElements.define(tag, class extends DropletCollapsible {});
     await settle();
 
-    expect((early as unknown as JellyCollapsible).open).toBe(true);
-    expect((early as unknown as JellyCollapsible).quality).toBe('low');
-    expect((markup as unknown as JellyCollapsible).open).toBe(true);
+    expect((early as unknown as DropletCollapsible).open).toBe(true);
+    expect((early as unknown as DropletCollapsible).quality).toBe('low');
+    expect((markup as unknown as DropletCollapsible).open).toBe(true);
 
     early.remove();
     markup.remove();

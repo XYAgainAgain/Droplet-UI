@@ -2,12 +2,12 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import type { JellyProgress } from './index.js';
+import type { DropletProgress } from './index.js';
 import '../../testing/define-all.js';
 
 test('upgrades as a progressbar and mirrors value into ARIA', async () => {
-  const host = mount('<jelly-progress value="60" max="100"></jelly-progress>');
-  const el = host.querySelector('jelly-progress') as JellyProgress;
+  const host = mount('<droplet-progress value="60" max="100"></droplet-progress>');
+  const el = host.querySelector('droplet-progress') as DropletProgress;
 
   await settle(3);
   expect(el.getAttribute('role')).toBe('progressbar');
@@ -18,8 +18,8 @@ test('upgrades as a progressbar and mirrors value into ARIA', async () => {
 });
 
 test('setting the value property updates aria-valuenow', async () => {
-  const host = mount('<jelly-progress value="10"></jelly-progress>');
-  const el = host.querySelector('jelly-progress') as JellyProgress;
+  const host = mount('<droplet-progress value="10"></droplet-progress>');
+  const el = host.querySelector('droplet-progress') as DropletProgress;
 
   await settle(3);
   el.value = 80;
@@ -29,8 +29,8 @@ test('setting the value property updates aria-valuenow', async () => {
 });
 
 test('indeterminate bars expose a busy value text', async () => {
-  const host = mount('<jelly-progress indeterminate></jelly-progress>');
-  const el = host.querySelector('jelly-progress') as JellyProgress;
+  const host = mount('<droplet-progress indeterminate></droplet-progress>');
+  const el = host.querySelector('droplet-progress') as DropletProgress;
 
   await settle(3);
   expect(el.getAttribute('aria-valuetext')).toBe('Loading…');

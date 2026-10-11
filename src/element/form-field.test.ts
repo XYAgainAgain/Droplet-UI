@@ -5,9 +5,9 @@ import { mount, settle } from '../testing/index.js';
 import { defineInput }        from '../components/input/index.js';
 import { defineTextarea }     from '../components/textarea/index.js';
 import { defineButton }       from '../components/button/index.js';
-import type { JellyButton }   from '../components/button/index.js';
-import type { JellyInput }    from '../components/input/index.js';
-import type { JellyTextarea } from '../components/textarea/index.js';
+import type { DropletButton }   from '../components/button/index.js';
+import type { DropletInput }    from '../components/input/index.js';
+import type { DropletTextarea } from '../components/textarea/index.js';
 import { implicitlySubmit }   from './form-field.js';
 
 defineButton({ strict: false });
@@ -52,10 +52,10 @@ class ThrowingProbe extends HTMLElement {
 
 customElements.define('form-field-throwing-probe', ThrowingProbe);
 
-test('a jelly-button of type submit is the default button, skipped for clicks while disabled', () => {
-  const host = mount('<form><jelly-input></jelly-input><jelly-button type="submit">S</jelly-button></form>');
+test('a droplet-button of type submit is the default button, skipped for clicks while disabled', () => {
+  const host = mount('<form><droplet-input></droplet-input><droplet-button type="submit">S</droplet-button></form>');
   const form = host.querySelector('form') as HTMLFormElement;
-  const button = host.querySelector('jelly-button') as JellyButton;
+  const button = host.querySelector('droplet-button') as DropletButton;
   const counts = track(form);
   let clicks = 0;
 
@@ -75,7 +75,7 @@ test('a jelly-button of type submit is the default button, skipped for clicks wh
 test('a foreign form-associated element is never the default button, whatever its getters do', () => {
   const host = mount(`
     <form><form-field-submit-probe type="submit"></form-field-submit-probe><form-field-throwing-probe></form-field-throwing-probe>
-    <jelly-input></jelly-input><jelly-button type="button">B</jelly-button></form>`);
+    <droplet-input></droplet-input><droplet-button type="button">B</droplet-button></form>`);
   const form = host.querySelector('form') as HTMLFormElement;
   const probe = host.querySelector('form-field-submit-probe') as SubmitProbe;
   const counts = track(form);
@@ -92,7 +92,7 @@ test('a foreign form-associated element is never the default button, whatever it
 });
 
 test('textareas and non-text inputs never block implicit submission', () => {
-  const host = mount('<form><jelly-input></jelly-input><jelly-textarea></jelly-textarea><input type="checkbox"><textarea></textarea></form>');
+  const host = mount('<form><droplet-input></droplet-input><droplet-textarea></droplet-textarea><input type="checkbox"><textarea></textarea></form>');
   const form = host.querySelector('form') as HTMLFormElement;
   const counts = track(form);
 
@@ -102,8 +102,8 @@ test('textareas and non-text inputs never block implicit submission', () => {
   host.remove();
 });
 
-test('two blocking fields, jelly or native, stop implicit submission', () => {
-  const host = mount('<form><jelly-input type="email"></jelly-input><input type="number"></form>');
+test('two blocking fields, droplet or native, stop implicit submission', () => {
+  const host = mount('<form><droplet-input type="email"></droplet-input><input type="number"></form>');
   const form = host.querySelector('form') as HTMLFormElement;
   const counts = track(form);
 
@@ -113,12 +113,12 @@ test('two blocking fields, jelly or native, stop implicit submission', () => {
   host.remove();
 });
 
-const control = (el: JellyInput | JellyTextarea): HTMLInputElement | HTMLTextAreaElement => el.control!;
+const control = (el: DropletInput | DropletTextarea): HTMLInputElement | HTMLTextAreaElement => el.control!;
 
 test('a file-type field ignores a markup default and throws on a scripted filename, as native does', () => {
-  const host = mount('<form><jelly-input type="file" value="x"></jelly-input></form>');
+  const host = mount('<form><droplet-input type="file" value="x"></droplet-input></form>');
   const form = host.querySelector('form') as HTMLFormElement;
-  const el = host.querySelector('jelly-input') as JellyInput;
+  const el = host.querySelector('droplet-input') as DropletInput;
 
   expect(control(el).type).toBe('file');
   expect(el.value).toBe('');
@@ -161,9 +161,9 @@ function assignFiles (input: HTMLInputElement, files: File[]): boolean {
 }
 
 test('a file-type field submits its selected files under its name, and nothing when empty or unnamed', () => {
-  const host = mount('<form><jelly-input type="file" name="upload"></jelly-input></form>');
+  const host = mount('<form><droplet-input type="file" name="upload"></droplet-input></form>');
   const form = host.querySelector('form') as HTMLFormElement;
-  const el = host.querySelector('jelly-input') as JellyInput;
+  const el = host.querySelector('droplet-input') as DropletInput;
   const input = control(el) as HTMLInputElement;
   const files = [new File(['a'], 'a.txt', { type: 'text/plain' }), new File(['bb'], 'b.txt', { type: 'text/plain' })];
 
@@ -203,11 +203,11 @@ test('a file-type field submits its selected files under its name, and nothing w
 
 test('unsupported input types run the inner control as text and leave the attribute as authored', () => {
   const types = ['checkbox', 'radio', 'submit', 'reset', 'button', 'image', 'hidden', 'range', 'color', 'bogus'];
-  const host = mount(`<form>${types.map((type) => `<jelly-input type="${type}" name="${type}" value="v-${type}"></jelly-input>`).join('')}</form>`);
+  const host = mount(`<form>${types.map((type) => `<droplet-input type="${type}" name="${type}" value="v-${type}"></droplet-input>`).join('')}</form>`);
   const form = host.querySelector('form') as HTMLFormElement;
   const data = new FormData(form);
 
-  for (const el of Array.from(host.querySelectorAll('jelly-input')) as JellyInput[]) {
+  for (const el of Array.from(host.querySelectorAll('droplet-input')) as DropletInput[]) {
     const authored = el.getAttribute('type')!;
 
     expect(control(el).type, authored).toBe('text');
@@ -215,7 +215,7 @@ test('unsupported input types run the inner control as text and leave the attrib
     expect(data.get(authored), authored).toBe(`v-${authored}`);
   }
 
-  const late = host.querySelector('jelly-input') as JellyInput;
+  const late = host.querySelector('droplet-input') as DropletInput;
 
   late.type = 'EMAIL';
   expect(control(late).type).toBe('email');
@@ -225,7 +225,7 @@ test('unsupported input types run the inner control as text and leave the attrib
   expect(control(late).type).toBe('text');
   expect(late.getAttribute('type')).toBe('color');
 
-  const detached = document.createElement('jelly-input') as JellyInput;
+  const detached = document.createElement('droplet-input') as DropletInput;
 
   detached.setAttribute('type', 'range');
   expect(detached.type).toBe('text');
@@ -237,8 +237,8 @@ test('unsupported input types run the inner control as text and leave the attrib
 const reactions = (): Promise<void> => Promise.resolve();
 
 test('explicitly set host ARIA elements forward onto the inner control', async () => {
-  const host = mount('<p>Hint</p><p>Other</p><jelly-input></jelly-input>');
-  const el = host.querySelector('jelly-input') as JellyInput & { ariaDescribedByElements: Element[] | null };
+  const host = mount('<p>Hint</p><p>Other</p><droplet-input></droplet-input>');
+  const el = host.querySelector('droplet-input') as DropletInput & { ariaDescribedByElements: Element[] | null };
   const input = control(el) as HTMLInputElement & { ariaDescribedByElements?: Element[] | null };
   const [hint, other] = Array.from(host.querySelectorAll('p'));
 
@@ -265,8 +265,8 @@ test('explicitly set host ARIA elements forward onto the inner control', async (
 });
 
 test('aria-invalid tokens are case-insensitive: false, empty, and absent paint valid', () => {
-  const host = mount('<jelly-input></jelly-input>');
-  const el = host.querySelector('jelly-input') as JellyInput;
+  const host = mount('<droplet-input></droplet-input>');
+  const el = host.querySelector('droplet-input') as DropletInput;
   const cases: Array<[string, boolean]> = [
     ['False', false], ['FALSE', false], [' false ', false], ['', false],
     ['true', true], ['TRUE', true], ['grammar', true], ['Spelling', true], ['mixed', true],
@@ -309,10 +309,10 @@ function withoutLabelReflection (run: () => void): void {
 test('without element reflection the label text fallback clears once its label is gone', () => {
   withoutLabelReflection(() => {
     const host = mount(`
-      <label for="ff-fallback">Caption</label><jelly-input id="ff-fallback"></jelly-input>
-      <label for="ff-own">Other</label><jelly-input id="ff-own" aria-label="Own"></jelly-input>`);
-    const [fallback, own] = Array.from(host.querySelectorAll('jelly-input')) as JellyInput[];
-    const focusin = (el: JellyInput): boolean => control(el).dispatchEvent(new FocusEvent('focusin', { bubbles: true, composed: true }));
+      <label for="ff-fallback">Caption</label><droplet-input id="ff-fallback"></droplet-input>
+      <label for="ff-own">Other</label><droplet-input id="ff-own" aria-label="Own"></droplet-input>`);
+    const [fallback, own] = Array.from(host.querySelectorAll('droplet-input')) as DropletInput[];
+    const focusin = (el: DropletInput): boolean => control(el).dispatchEvent(new FocusEvent('focusin', { bubbles: true, composed: true }));
 
     expect(control(fallback!).getAttribute('aria-label')).toBe('Caption');
     expect(control(own!).getAttribute('aria-label')).toBe('Own');
@@ -331,8 +331,8 @@ test('without element reflection the label text fallback clears once its label i
 });
 
 test('an IDREF target inserted after connect links when the field takes focus', async () => {
-  const host = mount('<jelly-input aria-describedby="ff-late"></jelly-input>');
-  const el = host.querySelector('jelly-input') as JellyInput;
+  const host = mount('<droplet-input aria-describedby="ff-late"></droplet-input>');
+  const el = host.querySelector('droplet-input') as DropletInput;
   const input = control(el) as HTMLInputElement & { ariaDescribedByElements?: Element[] | null };
 
   if (!('ariaDescribedByElements' in input)) {
@@ -352,7 +352,7 @@ test('an IDREF target inserted after connect links when the field takes focus', 
 });
 
 test('reassigning a shared reflected property to its current value writes no attribute', () => {
-  const host = mount('<jelly-input></jelly-input><jelly-textarea></jelly-textarea>');
+  const host = mount('<droplet-input></droplet-input><droplet-textarea></droplet-textarea>');
   const writes: Array<[string, unknown]> = [
     ['maxLength', 5], ['minLength', 2], ['name', 'n'], ['placeholder', 'p'], ['autocomplete', 'off'],
     ['defaultValue', 'd'], ['disabled', true], ['required', true], ['readOnly', true],

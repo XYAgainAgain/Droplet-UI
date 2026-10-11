@@ -6,7 +6,7 @@
  * navigation are coordinated here
  */
 
-import { JellyElement }     from '../../element/index.js';
+import { DropletElement }     from '../../element/index.js';
 import type { Shape }       from '../../element/index.js';
 
 import { canonicalizeSize } from '../../utilities/index.js';
@@ -19,7 +19,7 @@ import { integrateSpring }  from '../../utilities/index.js';
 
 import { PALETTE }          from '../../theme/index.js';
 import { variantColors }    from '../../theme/index.js';
-import { defineStrict, TAGS } from '../../registry/index.js';
+import { anyTag, defineStrict, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import radioStyles          from './radio.css?inline';
@@ -51,7 +51,7 @@ import radioStyles          from './radio.css?inline';
  * @cssprop [--jelly-on] - Selected fill color.
  * @cssprop [--jelly-radio-dot-color] - Center dot color.
  */
-export class JellyRadio extends JellyElement {
+export class DropletRadio extends DropletElement {
 
   static define (options?: DefineOptions): DefineResult {
     return defineRadio(options);
@@ -74,7 +74,7 @@ export class JellyRadio extends JellyElement {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['checked', 'disabled', 'label', 'size', 'value', ...JellyElement.AXIS_ATTRIBUTES];
+    return ['checked', 'disabled', 'label', 'size', 'value', ...DropletElement.AXIS_ATTRIBUTES];
   }
 
   constructor () {
@@ -90,7 +90,7 @@ export class JellyRadio extends JellyElement {
 
   // The interactive markup that sits above the canvas
   override content (): string {
-    const labelId = uniqueId('jelly-radio-label');
+    const labelId = uniqueId('droplet-radio-label');
 
     return `
       <label class="wrap" part="wrap">
@@ -160,7 +160,7 @@ export class JellyRadio extends JellyElement {
   }
 
   // Every radio sharing this name under the same root (document or shadow root)
-  group (): JellyRadio[] {
+  group (): DropletRadio[] {
     const name = this.getAttribute('name');
 
     if (!name) {
@@ -169,7 +169,7 @@ export class JellyRadio extends JellyElement {
 
     const root = this.getRootNode() as Document | ShadowRoot;
 
-    return [...root.querySelectorAll<JellyRadio>(`jelly-radio[name="${CSS.escape(name)}"]`)];
+    return [...root.querySelectorAll<DropletRadio>(`:is(${anyTag('radio')})[name="${CSS.escape(name)}"]`)];
   }
 
   // With no selection yet, the first enabled radio becomes the group's tab stop
@@ -331,11 +331,11 @@ export class JellyRadio extends JellyElement {
 }
 
 export function defineRadio (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.radio, JellyRadio]], options);
+  return defineStrict([[TAGS.radio, DropletRadio]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-radio': JellyRadio;
+    'droplet-radio': DropletRadio;
   }
 }

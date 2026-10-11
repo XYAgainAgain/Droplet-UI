@@ -2,7 +2,7 @@
 // unobservable and quality is a cap rather than another opinion.
 
 import { DEFAULT_CONFIG } from '../core/index.js';
-import type { JellyConfig } from '../core/index.js';
+import type { DropletConfig } from '../core/index.js';
 import { CONFIG_KEYS, clampToBounds, isConfigKey } from './bounds.js';
 import { getPreset } from '../presets/index.js';
 // Built-ins register through the public loading path, so every consumer of the
@@ -15,23 +15,23 @@ export type Quality = 'low' | 'medium' | 'high';
 export type Source = 'baseline' | 'profile' | 'feel' | 'raw' | 'quality';
 
 export interface ResolveInputs {
-  profile?: Partial<JellyConfig>;
+  profile?: Partial<DropletConfig>;
   feel?: string | null;
-  raw?: Partial<JellyConfig> | null;
+  raw?: Partial<DropletConfig> | null;
   quality?: Quality;
   document?: Document;
 }
 
 export interface Resolved {
-  readonly config: Readonly<JellyConfig>;
-  readonly provenance: Readonly<Record<keyof JellyConfig, Source>>;
+  readonly config: Readonly<DropletConfig>;
+  readonly provenance: Readonly<Record<keyof DropletConfig, Source>>;
   readonly feel: string;
   readonly quality: Quality;
 }
 
 export const DEFAULT_FEEL = 'gel';
 
-const QUALITY_CAPS: Readonly<Record<Quality, Readonly<Partial<Record<keyof JellyConfig, number>>>>> = Object.freeze({
+const QUALITY_CAPS: Readonly<Record<Quality, Readonly<Partial<Record<keyof DropletConfig, number>>>>> = Object.freeze({
   low: Object.freeze({ samples: 120, normalBlendPasses: 2 }),
   medium: Object.freeze({}),
   high: Object.freeze({}),
@@ -51,9 +51,9 @@ export function parseQuality (value: string | null | undefined): Quality {
 // Safety bounds bind every layer above the baseline, and a clamped value keeps
 // the provenance of the layer that asked for it.
 function applyLayer (
-  config: JellyConfig,
-  provenance: Record<keyof JellyConfig, Source>,
-  layer: Partial<JellyConfig> | null | undefined,
+  config: DropletConfig,
+  provenance: Record<keyof DropletConfig, Source>,
+  layer: Partial<DropletConfig> | null | undefined,
   source: Source,
 ): void {
   if (!layer) return;
@@ -66,19 +66,19 @@ function applyLayer (
 }
 
 export function resolveConfig (inputs: ResolveInputs = {}): Resolved {
-  const config: JellyConfig = { ...DEFAULT_CONFIG };
-  const provenance = {} as Record<keyof JellyConfig, Source>;
+  const config: DropletConfig = { ...DEFAULT_CONFIG };
+  const provenance = {} as Record<keyof DropletConfig, Source>;
   for (const key of CONFIG_KEYS) provenance[key] = 'baseline';
 
   applyLayer(config, provenance, inputs.profile, 'profile');
 
   // Names are looked up exactly as written, so mixed case never matches (attribute-matrix.md).
   const requested = typeof inputs.feel === 'string' ? inputs.feel.trim() : '';
-  const found = requested === '' ? null : getPreset<Partial<JellyConfig>>('feel', requested, inputs.document);
+  const found = requested === '' ? null : getPreset<Partial<DropletConfig>>('feel', requested, inputs.document);
   // An unknown feel silently becomes gel, overlay included, since a document may
   // override gel itself; warning is the element's job.
   const feel = found === null ? DEFAULT_FEEL : requested;
-  const preset = found ?? getPreset<Partial<JellyConfig>>('feel', DEFAULT_FEEL, inputs.document);
+  const preset = found ?? getPreset<Partial<DropletConfig>>('feel', DEFAULT_FEEL, inputs.document);
   applyLayer(config, provenance, preset, 'feel');
 
   applyLayer(config, provenance, inputs.raw, 'raw');

@@ -1,7 +1,9 @@
-// The only place a tag name is spelled; TAG_PREFIX is a constant, not
-// configuration, and Phase 2 flips it.
+// The only place a tag name is spelled; both prefixes are constants, not
+// configuration, and every legacy tag is the canonical one renamed.
 
-export const TAG_PREFIX = 'jelly';
+export const TAG_PREFIX = 'droplet';
+
+export const LEGACY_PREFIX = 'jelly';
 
 export const LOG_PREFIX = `[${TAG_PREFIX}]`;
 
@@ -49,3 +51,21 @@ export const TAGS = {
 } as const;
 
 export type TagName = (typeof TAGS)[keyof typeof TAGS];
+
+export type TagKey = keyof typeof TAGS;
+
+// Jelly UI's tags, registered forever as thin subclasses (src/compat)
+export const LEGACY_TAGS = Object.freeze(Object.fromEntries(
+  Object.entries(TAGS).map(([key, tag]) => [key, LEGACY_PREFIX + tag.slice(TAG_PREFIX.length)]),
+)) as { readonly [K in TagKey]: string };
+
+// Library children may be authored under either name, so lookups match both
+export function anyTag (key: TagKey): string {
+  return `${TAGS[key]}, ${LEGACY_TAGS[key]}`;
+}
+
+const LIBRARY_TAGS: ReadonlySet<string> = new Set([...Object.values(TAGS), ...Object.values(LEGACY_TAGS)]);
+
+export function isLibraryTag (localName: string): boolean {
+  return LIBRARY_TAGS.has(localName);
+}

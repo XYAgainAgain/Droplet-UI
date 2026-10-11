@@ -2,16 +2,16 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import type { JellyPopover } from './index.js';
+import type { DropletPopover } from './index.js';
 import '../../testing/define-all.js';
 
-function makePopover (): { host: HTMLDivElement; el: JellyPopover } {
+function makePopover (): { host: HTMLDivElement; el: DropletPopover } {
   const host = mount(`
-    <jelly-popover label="Options">
+    <droplet-popover label="Options">
       <button slot="trigger">Open</button>
       <div slot="content"><button>Item</button></div>
-    </jelly-popover>`);
-  return { host, el: host.querySelector('jelly-popover') as JellyPopover };
+    </droplet-popover>`);
+  return { host, el: host.querySelector('droplet-popover') as DropletPopover };
 }
 
 test('marks the trigger with aria-haspopup and reflects expanded state', () => {
@@ -62,11 +62,11 @@ test('emits open and close events', () => {
 // The state has to land on the roled control AT reads, not on a roleless jelly host
 async function expectTriggerState (triggerMarkup: string): Promise<void> {
   const host = mount(`
-    <jelly-popover label="Settings">
+    <droplet-popover label="Settings">
       ${triggerMarkup}
       <div slot="content"><button>Item</button></div>
-    </jelly-popover>`);
-  const el      = host.querySelector('jelly-popover') as JellyPopover;
+    </droplet-popover>`);
+  const el      = host.querySelector('droplet-popover') as DropletPopover;
   const trigger = host.querySelector('[slot="trigger"]') as HTMLElement;
 
   await settle(2);
@@ -101,10 +101,10 @@ test('reflects trigger state onto a native <button> trigger', async () => {
   await expectTriggerState('<button slot="trigger">Open</button>');
 });
 
-test('reflects trigger state onto the inner button of a jelly-button trigger', async () => {
-  await expectTriggerState('<jelly-button slot="trigger">Open</jelly-button>');
+test('reflects trigger state onto the inner button of a droplet-button trigger', async () => {
+  await expectTriggerState('<droplet-button slot="trigger">Open</droplet-button>');
 });
 
-test('reflects trigger state onto the inner button of a jelly-icon-button trigger', async () => {
-  await expectTriggerState('<jelly-icon-button slot="trigger" label="Settings">⚙</jelly-icon-button>');
+test('reflects trigger state onto the inner button of a droplet-icon-button trigger', async () => {
+  await expectTriggerState('<droplet-icon-button slot="trigger" label="Settings">⚙</droplet-icon-button>');
 });

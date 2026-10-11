@@ -7,7 +7,7 @@
  * "circle". The host is form-associated, so a disabled <fieldset> disables it.
  */
 
-import { JellyElement }      from '../../element/index.js';
+import { DropletElement }      from '../../element/index.js';
 import type { Shape }        from '../../element/index.js';
 
 
@@ -48,7 +48,7 @@ import variantStyles         from '../../styles/variants.css?inline';
  * @cssprop [--jelly-icon-button-size=48px] - Button diameter / side.
  * @cssprop [--jelly-icon-button-radius=16px] - Corner radius for the square shape.
  */
-export class JellyIconButton extends JellyElement {
+export class DropletIconButton extends DropletElement {
 
   static define (options?: DefineOptions): DefineResult {
     return defineIconButton(options);
@@ -56,7 +56,7 @@ export class JellyIconButton extends JellyElement {
 
   static override usesResolver = true;
 
-  static override REPLAYED: readonly string[] = [...JellyElement.REPLAYED, 'disabled', 'name'];
+  static override REPLAYED: readonly string[] = [...DropletElement.REPLAYED, 'disabled', 'name'];
 
   // :disabled and fieldset disabling come from the platform; it never submits
   static formAssociated = true;
@@ -78,7 +78,7 @@ export class JellyIconButton extends JellyElement {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['disabled', 'label', 'shape', ...FORWARDED_ARIA, ...JellyElement.AXIS_ATTRIBUTES];
+    return ['disabled', 'label', 'shape', ...FORWARDED_ARIA, ...DropletElement.AXIS_ATTRIBUTES];
   }
 
   get disabled (): boolean {
@@ -285,11 +285,11 @@ export class JellyIconButton extends JellyElement {
 }
 
 export function defineIconButton (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.iconButton, JellyIconButton]], options);
+  return defineStrict([[TAGS.iconButton, DropletIconButton]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-icon-button': JellyIconButton;
+    'droplet-icon-button': DropletIconButton;
   }
 }

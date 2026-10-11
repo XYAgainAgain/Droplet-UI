@@ -8,7 +8,7 @@
 let uid = 0;
 
 // Mint a unique id for ARIA relationships (aria-labelledby, aria-controls, …)
-export function uniqueId (prefix = 'jelly'): string {
+export function uniqueId (prefix = 'droplet'): string {
   return `${prefix}-${++uid}`;
 }
 

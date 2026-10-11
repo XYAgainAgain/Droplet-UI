@@ -2,12 +2,12 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import type { JellyRadio } from './index.js';
+import type { DropletRadio } from './index.js';
 import '../../testing/define-all.js';
 
 test('upgrades with a role=radio control', async () => {
-  const host = mount('<jelly-radio>One</jelly-radio>');
-  const el = host.querySelector('jelly-radio') as JellyRadio;
+  const host = mount('<droplet-radio>One</droplet-radio>');
+  const el = host.querySelector('droplet-radio') as DropletRadio;
 
   await settle(3);
   const control = el.shadowRoot!.querySelector('.control')!;
@@ -17,8 +17,8 @@ test('upgrades with a role=radio control', async () => {
 });
 
 test('reflects checked into aria-checked', async () => {
-  const host = mount('<jelly-radio checked>One</jelly-radio>');
-  const el = host.querySelector('jelly-radio') as JellyRadio;
+  const host = mount('<droplet-radio checked>One</droplet-radio>');
+  const el = host.querySelector('droplet-radio') as DropletRadio;
 
   await settle(3);
   expect(el.shadowRoot!.querySelector('.control')!.getAttribute('aria-checked')).toBe('true');
@@ -28,9 +28,9 @@ test('reflects checked into aria-checked', async () => {
 
 test('selecting one radio deselects its group siblings and fires change', async () => {
   const host = mount(`
-    <jelly-radio name="plan" value="a" checked>A</jelly-radio>
-    <jelly-radio name="plan" value="b">B</jelly-radio>`);
-  const [a, b] = [...host.querySelectorAll('jelly-radio')] as [JellyRadio, JellyRadio];
+    <droplet-radio name="plan" value="a" checked>A</droplet-radio>
+    <droplet-radio name="plan" value="b">B</droplet-radio>`);
+  const [a, b] = [...host.querySelectorAll('droplet-radio')] as [DropletRadio, DropletRadio];
 
   await settle(3);
   let fired = 0;
@@ -46,8 +46,8 @@ test('selecting one radio deselects its group siblings and fires change', async 
 });
 
 test('selected mint variant paints the accent fill', async () => {
-  const host = mount('<jelly-radio checked variant="mint">One</jelly-radio>');
-  const el = host.querySelector('jelly-radio') as JellyRadio;
+  const host = mount('<droplet-radio checked variant="mint">One</droplet-radio>');
+  const el = host.querySelector('droplet-radio') as DropletRadio;
 
   await settle(12);
   const canvas = el.shadowRoot!.querySelector('canvas') as HTMLCanvasElement;
@@ -63,8 +63,8 @@ test('selected mint variant paints the accent fill', async () => {
 test('submits the selected value in a form', async () => {
   const host = mount(`
     <form>
-      <jelly-radio name="plan" value="a">A</jelly-radio>
-      <jelly-radio name="plan" value="b" checked>B</jelly-radio>
+      <droplet-radio name="plan" value="a">A</droplet-radio>
+      <droplet-radio name="plan" value="b" checked>B</droplet-radio>
     </form>`);
 
   await settle(3);

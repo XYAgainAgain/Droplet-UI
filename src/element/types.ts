@@ -1,5 +1,5 @@
 /*
- * Shared shape / paint / wiring types for JellyElement and its subclasses.
+ * Shared shape / paint / wiring types for DropletElement and its subclasses.
  */
 
 import type { SurfacePoint } from '../core/index.js';

@@ -5,7 +5,7 @@
  * and pops each time it toggles; a dash mark shows the mixed state
  */
 
-import { JellyElement }     from '../../element/index.js';
+import { DropletElement }     from '../../element/index.js';
 import type { Shape }       from '../../element/index.js';
 
 import { canonicalizeSize } from '../../utilities/index.js';
@@ -47,7 +47,7 @@ import checkboxStyles       from './checkbox.css?inline';
  * @cssprop [--jelly-on] - Checked fill color.
  * @cssprop [--jelly-checkbox-mark] - Check-mark color.
  */
-export class JellyCheckbox extends JellyElement {
+export class DropletCheckbox extends DropletElement {
 
   static define (options?: DefineOptions): DefineResult {
     return defineCheckbox(options);
@@ -69,7 +69,7 @@ export class JellyCheckbox extends JellyElement {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['checked', 'disabled', 'indeterminate', 'label', 'size', 'value', ...JellyElement.AXIS_ATTRIBUTES];
+    return ['checked', 'disabled', 'indeterminate', 'label', 'size', 'value', ...DropletElement.AXIS_ATTRIBUTES];
   }
 
   constructor () {
@@ -256,11 +256,11 @@ export class JellyCheckbox extends JellyElement {
 }
 
 export function defineCheckbox (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.checkbox, JellyCheckbox]], options);
+  return defineStrict([[TAGS.checkbox, DropletCheckbox]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-checkbox': JellyCheckbox;
+    'droplet-checkbox': DropletCheckbox;
   }
 }

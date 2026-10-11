@@ -3,16 +3,16 @@ import { userEvent } from 'vitest/browser';
 
 import { mount, settle } from '../../testing/index.js';
 
-import type { JellyTextarea } from './index.js';
+import type { DropletTextarea } from './index.js';
 import '../../testing/define-all.js';
 
-const inner = (el: JellyTextarea): HTMLTextAreaElement => el.shadowRoot!.querySelector('textarea') as HTMLTextAreaElement;
+const inner = (el: DropletTextarea): HTMLTextAreaElement => el.shadowRoot!.querySelector('textarea') as HTMLTextAreaElement;
 
 type Reflected = { ariaDescribedByElements?: Element[] | null; ariaLabelledByElements?: Element[] | null };
 
 test('upgrades with a native textarea', async () => {
-  const host = mount('<jelly-textarea value="hi" placeholder="Notes"></jelly-textarea>');
-  const el = host.querySelector('jelly-textarea') as JellyTextarea;
+  const host = mount('<droplet-textarea value="hi" placeholder="Notes"></droplet-textarea>');
+  const el = host.querySelector('droplet-textarea') as DropletTextarea;
 
   await settle(3);
   const ta = el.shadowRoot!.querySelector('textarea') as HTMLTextAreaElement;
@@ -24,8 +24,8 @@ test('upgrades with a native textarea', async () => {
 });
 
 test('the value property round-trips through the inner textarea', async () => {
-  const host = mount('<jelly-textarea></jelly-textarea>');
-  const el = host.querySelector('jelly-textarea') as JellyTextarea;
+  const host = mount('<droplet-textarea></droplet-textarea>');
+  const el = host.querySelector('droplet-textarea') as DropletTextarea;
 
   await settle(3);
   el.value = 'line one\nline two';
@@ -36,7 +36,7 @@ test('the value property round-trips through the inner textarea', async () => {
 });
 
 test('participates in a form under its name', async () => {
-  const host = mount('<form><jelly-textarea name="notes" value="body"></jelly-textarea></form>');
+  const host = mount('<form><droplet-textarea name="notes" value="body"></droplet-textarea></form>');
   await settle(3);
 
   const data = new FormData(host.querySelector('form') as HTMLFormElement);
@@ -46,8 +46,8 @@ test('participates in a form under its name', async () => {
 });
 
 test('IDL properties reflect their attributes with native semantics', () => {
-  const host = mount('<form><jelly-textarea></jelly-textarea></form>');
-  const el = host.querySelector('jelly-textarea') as JellyTextarea;
+  const host = mount('<form><droplet-textarea></droplet-textarea></form>');
+  const el = host.querySelector('droplet-textarea') as DropletTextarea;
 
   expect(el.maxLength).toBe(-1);
 
@@ -76,8 +76,8 @@ test('IDL properties reflect their attributes with native semantics', () => {
 });
 
 test('constraint and hint attributes reach the inner textarea, maxlength included', () => {
-  const host = mount('<jelly-textarea required minlength="2" maxlength="140" inputmode="text" enterkeyhint="enter"></jelly-textarea>');
-  const el = host.querySelector('jelly-textarea') as JellyTextarea;
+  const host = mount('<droplet-textarea required minlength="2" maxlength="140" inputmode="text" enterkeyhint="enter"></droplet-textarea>');
+  const el = host.querySelector('droplet-textarea') as DropletTextarea;
   const ta = inner(el);
 
   expect(ta.required).toBe(true);
@@ -93,9 +93,9 @@ test('constraint and hint attributes reach the inner textarea, maxlength include
 });
 
 test('validity mirrors the inner textarea, so form.checkValidity() works on the host', () => {
-  const host = mount('<form><jelly-textarea name="notes" required></jelly-textarea></form>');
+  const host = mount('<form><droplet-textarea name="notes" required></droplet-textarea></form>');
   const form = host.querySelector('form') as HTMLFormElement;
-  const el = host.querySelector('jelly-textarea') as JellyTextarea;
+  const el = host.querySelector('droplet-textarea') as DropletTextarea;
 
   expect(el.validity.valueMissing).toBe(true);
   expect(el.matches(':invalid')).toBe(true);
@@ -116,8 +116,8 @@ test('validity mirrors the inner textarea, so form.checkValidity() works on the 
 });
 
 test('the value attribute is the default until the value is dirty', () => {
-  const host = mount('<jelly-textarea value="a"></jelly-textarea>');
-  const el = host.querySelector('jelly-textarea') as JellyTextarea;
+  const host = mount('<droplet-textarea value="a"></droplet-textarea>');
+  const el = host.querySelector('droplet-textarea') as DropletTextarea;
 
   el.setAttribute('value', 'b');
   expect(el.value).toBe('b');
@@ -131,7 +131,7 @@ test('the value attribute is the default until the value is dirty', () => {
 
 test('a value set before build survives to the inner textarea and the form', () => {
   const form = document.createElement('form');
-  const el = document.createElement('jelly-textarea');
+  const el = document.createElement('droplet-textarea');
 
   el.name = 'notes';
   el.value = 'early';
@@ -145,10 +145,10 @@ test('a value set before build survives to the inner textarea and the form', () 
 });
 
 test('form.reset() restores the default; a disabled fieldset disables the inner textarea', () => {
-  const host = mount('<form><fieldset><jelly-textarea name="notes" value="start"></jelly-textarea></fieldset></form>');
+  const host = mount('<form><fieldset><droplet-textarea name="notes" value="start"></droplet-textarea></fieldset></form>');
   const form = host.querySelector('form') as HTMLFormElement;
   const fieldset = host.querySelector('fieldset') as HTMLFieldSetElement;
-  const el = host.querySelector('jelly-textarea') as JellyTextarea;
+  const el = host.querySelector('droplet-textarea') as DropletTextarea;
 
   el.value = 'changed';
   form.reset();
@@ -167,8 +167,8 @@ test('form.reset() restores the default; a disabled fieldset disables the inner 
 });
 
 test('formStateRestoreCallback restores the value', () => {
-  const host = mount('<jelly-textarea></jelly-textarea>');
-  const el = host.querySelector('jelly-textarea') as JellyTextarea;
+  const host = mount('<droplet-textarea></droplet-textarea>');
+  const el = host.querySelector('droplet-textarea') as DropletTextarea;
 
   el.formStateRestoreCallback('back again');
   expect(el.value).toBe('back again');
@@ -177,9 +177,9 @@ test('formStateRestoreCallback restores the value', () => {
 });
 
 test(':state(user-invalid) follows a committed edit and paints the danger border', async () => {
-  const host = mount('<form><jelly-textarea minlength="5"></jelly-textarea></form>');
+  const host = mount('<form><droplet-textarea minlength="5"></droplet-textarea></form>');
   const form = host.querySelector('form') as HTMLFormElement;
-  const el = host.querySelector('jelly-textarea') as JellyTextarea;
+  const el = host.querySelector('droplet-textarea') as DropletTextarea;
 
   el.focus();
   await userEvent.keyboard('abc');
@@ -196,8 +196,8 @@ test(':state(user-invalid) follows a committed edit and paints the danger border
 });
 
 test('host ARIA and labels reach the inner textarea', async () => {
-  const host = mount('<p id="t-hint">Markdown works</p><label for="t">Notes</label><jelly-textarea id="t" aria-describedby="t-hint"></jelly-textarea>');
-  const el = host.querySelector('jelly-textarea') as JellyTextarea;
+  const host = mount('<p id="t-hint">Markdown works</p><label for="t">Notes</label><droplet-textarea id="t" aria-describedby="t-hint"></droplet-textarea>');
+  const el = host.querySelector('droplet-textarea') as DropletTextarea;
   const ta = inner(el);
 
   if ('ariaDescribedByElements' in ta) {
@@ -213,9 +213,9 @@ test('host ARIA and labels reach the inner textarea', async () => {
 });
 
 test('Enter inserts a newline and never submits the form', async () => {
-  const host = mount('<form><jelly-textarea name="notes"></jelly-textarea></form>');
+  const host = mount('<form><droplet-textarea name="notes"></droplet-textarea></form>');
   const form = host.querySelector('form') as HTMLFormElement;
-  const el = host.querySelector('jelly-textarea') as JellyTextarea;
+  const el = host.querySelector('droplet-textarea') as DropletTextarea;
   let submits = 0;
 
   form.addEventListener('submit', (event) => { event.preventDefault(); submits++; });

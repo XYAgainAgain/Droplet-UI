@@ -1,19 +1,19 @@
 /*
- * JellyElement - the base class for every canvas-backed Jelly UI component
+ * DropletElement - the base class for every canvas-backed Droplet UI component
  *
- * Handles the parts every jelly component shares: a shadow-DOM <canvas>
+ * Handles the parts every Droplet component shares: a shadow-DOM <canvas>
  * sized to the host (plus padding so the wobble can overflow), device-
  * pixel-ratio and resize handling, converting pointer coordinates into
- * shape-local space, theme-change repaints and painting a JellyBody as a
+ * shape-local space, theme-change repaints and painting a DropletBody as a
  * flat solid fill. Subclasses provide the interactive markup, the shape,
  * the fill color and event wiring.
  */
 
-import { JellyBody }            from '../core/index.js';
+import { DropletBody }            from '../core/index.js';
 import { engine }               from '../core/index.js';
 import { traceSmoothPath }      from '../core/index.js';
-import type { JellyComponent }  from '../core/index.js';
-import type { JellyConfig }     from '../core/index.js';
+import type { DropletComponent }  from '../core/index.js';
+import type { DropletConfig }     from '../core/index.js';
 import type { SurfacePoint }    from '../core/index.js';
 
 import { canonicalizeSize }     from '../utilities/index.js';
@@ -64,9 +64,9 @@ export type { PainterFrame } from './painter.js';
 
 // Keyed by body rather than by element so a component with several bodies keeps
 // one applied record per membrane (the slider's thumb resolves separately)
-const appliedRecords = new WeakMap<JellyBody, Resolved>();
+const appliedRecords = new WeakMap<DropletBody, Resolved>();
 
-export class JellyElement extends HTMLElementBase implements JellyComponent {
+export class DropletElement extends HTMLElementBase implements DropletComponent {
 
   // Padding around the shape so the wobble can overflow without clipping
   static PAD = 48;
@@ -82,29 +82,29 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
   // Spread into a converted component's observedAttributes
   static AXIS_ATTRIBUTES: readonly string[] = ['feel', 'quality'];
 
-  body: JellyBody | null = null;
+  body: DropletBody | null = null;
   built = false;
   dpr = 1;
   cssW = 0;
   cssH = 0;
 
   // The raw override layer behind the config accessor; frozen once validated
-  rawConfig: Partial<JellyConfig> | undefined = undefined;
+  rawConfig: Partial<DropletConfig> | undefined = undefined;
 
   resolvedRecord: Resolved | undefined = undefined;
   configWarned: Set<string> | undefined = undefined;
   scopeUnsubscribe: (() => void) | null = null;
 
   // Membranes beyond the main body, each with its own component profile
-  extraBodies = new Map<JellyBody, Partial<JellyConfig>>();
+  extraBodies = new Map<DropletBody, Partial<DropletConfig>>();
 
   // The stored copy is frozen, so editing it in place cannot skip validation or
   // the resolver; the resolved record is read through resolvedConfig (resolver.md)
-  get config (): Partial<JellyConfig> | undefined {
+  get config (): Partial<DropletConfig> | undefined {
     return this.rawConfig;
   }
 
-  set config (value: Partial<JellyConfig> | null | undefined) {
+  set config (value: Partial<DropletConfig> | null | undefined) {
     if (!this.usesResolver) {
       this.rawConfig = value ?? undefined;
       return;
@@ -115,7 +115,7 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
   }
 
   get usesResolver (): boolean {
-    return (this.constructor as typeof JellyElement).usesResolver;
+    return (this.constructor as typeof DropletElement).usesResolver;
   }
 
   // The effective feel after the cascade and the unknown-name fallback, never
@@ -158,18 +158,18 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
     writeNamedAxis(this, 'material', value);
   }
 
-  get resolvedConfig (): Readonly<JellyConfig> {
+  get resolvedConfig (): Readonly<DropletConfig> {
     return this.resolution().config;
   }
 
   // The component's own physics layer, below any feel preset (resolver.md)
-  profile (): Partial<JellyConfig> {
+  profile (): Partial<DropletConfig> {
     return {};
   }
 
   // Drop what the resolver would silently ignore, but tell the author why -
   // once per element per key, so a bad value in a frame loop cannot spam
-  validateConfig (value: Partial<JellyConfig>): Partial<JellyConfig> {
+  validateConfig (value: Partial<DropletConfig>): Partial<DropletConfig> {
     const copy: Record<string, number> = {};
 
     for (const [key, entry] of Object.entries(value)) {
@@ -184,11 +184,11 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
 
       if (!this.configWarned.has(key)) {
         this.configWarned.add(key);
-        console.warn(`${LOG_PREFIX} config.${key} is not a finite JellyConfig field; ignoring`, this);
+        console.warn(`${LOG_PREFIX} config.${key} is not a finite DropletConfig field; ignoring`, this);
       }
     }
 
-    return copy as Partial<JellyConfig>;
+    return copy as Partial<DropletConfig>;
   }
 
   // Every input change recomputes the whole record from canonical inputs, so
@@ -235,13 +235,13 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
 
   // A membrane beyond the main body, born with its resolved record and kept on it
   // through every re-resolve; profile is its own layer, like profile() for the main body
-  createBody (shape: Shape, profile: Partial<JellyConfig> = {}): JellyBody {
+  createBody (shape: Shape, profile: Partial<DropletConfig> = {}): DropletBody {
     if (!this.usesResolver) {
-      return new JellyBody({ ...shape, config: { ...profile } });
+      return new DropletBody({ ...shape, config: { ...profile } });
     }
 
     const record = this.resolveFor(profile);
-    const body   = new JellyBody({ ...shape, config: { ...record.config } });
+    const body   = new DropletBody({ ...shape, config: { ...record.config } });
 
     this.seedResolved(body, record);
     this.extraBodies.set(body, profile);
@@ -269,19 +269,19 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
 
   // A second membrane resolved through the same axis inputs but its own
   // component profile; the slider's thumb is the Phase 1 case (resolver.md)
-  resolveFor (profile: Partial<JellyConfig>): Resolved {
+  resolveFor (profile: Partial<DropletConfig>): Resolved {
     return resolveConfig({ profile, ...this.axisInputs() });
   }
 
   // Record what a freshly built body was seeded from, so the next applyResolved
   // compares against it instead of rebuilding a membrane that already matches
-  seedResolved (body: JellyBody, resolved: Resolved): void {
+  seedResolved (body: DropletBody, resolved: Resolved): void {
     appliedRecords.set(body, resolved);
   }
 
   // Momentum-preserving resampling is Phase 6, so a membrane-shaping change
   // rebuilds the ring from rest for now.
-  applyResolved (resolved: Resolved, body: JellyBody | null = this.body): void {
+  applyResolved (resolved: Resolved, body: DropletBody | null = this.body): void {
     if (!body) {
       return;
     }
@@ -465,7 +465,7 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
   connectResolver (): void {
     installScopeBridge(this.ownerDocument);
 
-    replayProperties(this, (this.constructor as typeof JellyElement).REPLAYED);
+    replayProperties(this, (this.constructor as typeof DropletElement).REPLAYED);
     canonicalizeQualityAttribute(this);
     this.resolve();
 
@@ -557,7 +557,7 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
    * `data-jelly-box` to render the jelly over just that sub-region
    * (e.g. a checkbox next to its label).
    */
-  jellyBox (): { width: number; height: number; offsetX: number; offsetY: number; screenX: number; screenY: number } {
+  dropletBox (): { width: number; height: number; offsetX: number; offsetY: number; screenX: number; screenY: number } {
     const hostRect = this.getBoundingClientRect();
 
     // Divide out any ancestor CSS transform (e.g. a dialog's open-scale pop
@@ -590,14 +590,14 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
       return;
     }
 
-    const box = this.jellyBox();
+    const box = this.dropletBox();
 
     if (box.width < 1 || box.height < 1) {
       return;
     }
 
     const shape = this.shape(box.width, box.height);
-    const pad   = (this.constructor as typeof JellyElement).PAD;
+    const pad   = (this.constructor as typeof DropletElement).PAD;
     const cssW  = shape.width + pad * 2;
     const cssH  = shape.height + pad * 2;
     const dpr   = Math.min(window.devicePixelRatio || 1, 3);
@@ -639,7 +639,7 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
       // the membrane is born with its final sample count, not rebuilt after.
       const resolved = this.usesResolver ? this.resolution() : null;
 
-      this.body = new JellyBody({
+      this.body = new DropletBody({
         width:  shape.width,
         height: shape.height,
         radius: shape.radius,
@@ -678,7 +678,7 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
       return;
     }
 
-    const box = this.jellyBox();
+    const box = this.dropletBox();
 
     if (box.width < 1 || box.height < 1) {
       return;
@@ -705,7 +705,7 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
    * Paint one body centered in the canvas (with optional pixel offset).
    * Flat solid fill - no gradients or shading.
    */
-  paintBody (body: JellyBody, options: PaintOptions = {}): void {
+  paintBody (body: DropletBody, options: PaintOptions = {}): void {
     if (!this.canPaint) {
       return;
     }
@@ -1053,10 +1053,10 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
   }
 
   // Convert client coords into the body's local (shape-centered) frame
-  toLocal (clientX: number, clientY: number, body: JellyBody | null = this.body): { x: number; y: number } {
-    const box = this.jellyBox();
+  toLocal (clientX: number, clientY: number, body: DropletBody | null = this.body): { x: number; y: number } {
+    const box = this.dropletBox();
 
-    // Divide out ancestor CSS scale the same way jellyBox does, so a press
+    // Divide out ancestor CSS scale the same way dropletBox does, so a press
     // inside a transformed ancestor (a dialog mid-pop) still lands where the
     // finger is instead of drifting toward the center
     const hostRect = this.getBoundingClientRect();

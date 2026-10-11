@@ -2,12 +2,12 @@ import { expect, test, vi } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import type { JellyIconButton } from './index.js';
+import type { DropletIconButton } from './index.js';
 import '../../testing/define-all.js';
 
 test('upgrades with a labelled inner button', async () => {
-  const host = mount('<jelly-icon-button label="Search">🔍</jelly-icon-button>');
-  const el = host.querySelector('jelly-icon-button') as JellyIconButton;
+  const host = mount('<droplet-icon-button label="Search">🔍</droplet-icon-button>');
+  const el = host.querySelector('droplet-icon-button') as DropletIconButton;
 
   await settle(3);
   const button = el.shadowRoot!.querySelector('button') as HTMLButtonElement;
@@ -18,8 +18,8 @@ test('upgrades with a labelled inner button', async () => {
 });
 
 test('disabled reflects onto the inner button', async () => {
-  const host = mount('<jelly-icon-button label="Close" disabled>✕</jelly-icon-button>');
-  const el = host.querySelector('jelly-icon-button') as JellyIconButton;
+  const host = mount('<droplet-icon-button label="Close" disabled>✕</droplet-icon-button>');
+  const el = host.querySelector('droplet-icon-button') as DropletIconButton;
 
   await settle(3);
   expect((el.shadowRoot!.querySelector('button') as HTMLButtonElement).disabled).toBe(true);
@@ -28,8 +28,8 @@ test('disabled reflects onto the inner button', async () => {
 });
 
 test('does not activate when a pointer is released outside the button', async () => {
-  const host = mount('<jelly-icon-button label="Close">✕</jelly-icon-button>');
-  const el = host.querySelector('jelly-icon-button') as JellyIconButton;
+  const host = mount('<droplet-icon-button label="Close">✕</droplet-icon-button>');
+  const el = host.querySelector('droplet-icon-button') as DropletIconButton;
   const onClick = vi.fn();
 
   el.addEventListener('click', onClick);
@@ -46,11 +46,11 @@ test('does not activate when a pointer is released outside the button', async ()
   host.remove();
 });
 
-const inner = (el: JellyIconButton): HTMLButtonElement => el.shadowRoot!.querySelector('button')!;
+const inner = (el: DropletIconButton): HTMLButtonElement => el.shadowRoot!.querySelector('button')!;
 
 test('aria-label names the inner button when label is absent, and label wins', async () => {
-  const host = mount('<jelly-icon-button aria-label="Next image">→</jelly-icon-button>');
-  const el = host.querySelector('jelly-icon-button') as JellyIconButton;
+  const host = mount('<droplet-icon-button aria-label="Next image">→</droplet-icon-button>');
+  const el = host.querySelector('droplet-icon-button') as DropletIconButton;
 
   await settle(2);
   expect(inner(el).getAttribute('aria-label')).toBe('Next image');
@@ -69,9 +69,9 @@ test('aria-label names the inner button when label is absent, and label wins', a
 
 test('forwards expanded, haspopup, pressed, and controls state onto the inner button', async () => {
   const host = mount(`
-    <jelly-icon-button label="Settings" aria-expanded="false" aria-haspopup="dialog" aria-pressed="true" aria-controls="ib-tray">⚙</jelly-icon-button>
+    <droplet-icon-button label="Settings" aria-expanded="false" aria-haspopup="dialog" aria-pressed="true" aria-controls="ib-tray">⚙</droplet-icon-button>
     <div id="ib-tray">Tray</div>`);
-  const el = host.querySelector('jelly-icon-button') as JellyIconButton;
+  const el = host.querySelector('droplet-icon-button') as DropletIconButton;
 
   await settle(2);
   const button = inner(el);
@@ -94,8 +94,8 @@ test('forwards expanded, haspopup, pressed, and controls state onto the inner bu
 });
 
 test('disabled and name reflect as IDL properties', async () => {
-  const host = mount('<jelly-icon-button label="Zoom" name="zoom">+</jelly-icon-button>');
-  const el = host.querySelector('jelly-icon-button') as JellyIconButton;
+  const host = mount('<droplet-icon-button label="Zoom" name="zoom">+</droplet-icon-button>');
+  const el = host.querySelector('droplet-icon-button') as DropletIconButton;
 
   await settle(2);
 
@@ -114,8 +114,8 @@ test('disabled and name reflect as IDL properties', async () => {
 });
 
 test('a disabled fieldset disables it without touching the host attribute', async () => {
-  const host = mount('<fieldset><jelly-icon-button label="Next">→</jelly-icon-button></fieldset>');
-  const el = host.querySelector('jelly-icon-button') as JellyIconButton;
+  const host = mount('<fieldset><droplet-icon-button label="Next">→</droplet-icon-button></fieldset>');
+  const el = host.querySelector('droplet-icon-button') as DropletIconButton;
   const fieldset = host.querySelector('fieldset')!;
 
   await settle(2);
@@ -139,8 +139,8 @@ test('a disabled fieldset disables it without touching the host attribute', asyn
 });
 
 test('host.click() activates the inner button once and does nothing while disabled', async () => {
-  const host = mount('<fieldset><jelly-icon-button label="Next">→</jelly-icon-button></fieldset>');
-  const el = host.querySelector('jelly-icon-button') as JellyIconButton;
+  const host = mount('<fieldset><droplet-icon-button label="Next">→</droplet-icon-button></fieldset>');
+  const el = host.querySelector('droplet-icon-button') as DropletIconButton;
   const fieldset = host.querySelector('fieldset')!;
   const onClick = vi.fn();
   const onInner = vi.fn();
@@ -164,7 +164,7 @@ test('host.click() activates the inner button once and does nothing while disabl
 });
 
 test('host.click() before build still dispatches one click', () => {
-  const el = document.createElement('jelly-icon-button') as JellyIconButton;
+  const el = document.createElement('droplet-icon-button') as DropletIconButton;
   const onClick = vi.fn();
 
   el.addEventListener('click', onClick);
@@ -173,8 +173,8 @@ test('host.click() before build still dispatches one click', () => {
 });
 
 test('forwards aria-disabled and links a late IDREF target on focusin', async () => {
-  const host = mount('<jelly-icon-button label="Menu" aria-disabled="true" aria-controls="ib-late">≡</jelly-icon-button>');
-  const el = host.querySelector('jelly-icon-button') as JellyIconButton;
+  const host = mount('<droplet-icon-button label="Menu" aria-disabled="true" aria-controls="ib-late">≡</droplet-icon-button>');
+  const el = host.querySelector('droplet-icon-button') as DropletIconButton;
 
   await settle(2);
   const button = inner(el);
@@ -194,8 +194,8 @@ test('forwards aria-disabled and links a late IDREF target on focusin', async ()
 });
 
 test('reassigning name or disabled to its current value writes no attribute', async () => {
-  const host = mount('<jelly-icon-button label="Zoom">+</jelly-icon-button>');
-  const el = host.querySelector('jelly-icon-button') as JellyIconButton;
+  const host = mount('<droplet-icon-button label="Zoom">+</droplet-icon-button>');
+  const el = host.querySelector('droplet-icon-button') as DropletIconButton;
   const observer = new MutationObserver(() => {});
 
   await settle(2);

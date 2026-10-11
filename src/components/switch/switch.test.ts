@@ -2,12 +2,12 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import type { JellySwitch } from './index.js';
+import type { DropletSwitch } from './index.js';
 import '../../testing/define-all.js';
 
 test('upgrades with a role=switch native input', async () => {
-  const host = mount('<jelly-switch>Wi-Fi</jelly-switch>');
-  const el = host.querySelector('jelly-switch') as JellySwitch;
+  const host = mount('<droplet-switch>Wi-Fi</droplet-switch>');
+  const el = host.querySelector('droplet-switch') as DropletSwitch;
 
   await settle(3);
   const input = el.shadowRoot!.querySelector('input') as HTMLInputElement;
@@ -17,8 +17,8 @@ test('upgrades with a role=switch native input', async () => {
 });
 
 test('reflects checked onto the inner input and aria-checked', async () => {
-  const host = mount('<jelly-switch checked>Wi-Fi</jelly-switch>');
-  const el = host.querySelector('jelly-switch') as JellySwitch;
+  const host = mount('<droplet-switch checked>Wi-Fi</droplet-switch>');
+  const el = host.querySelector('droplet-switch') as DropletSwitch;
 
   await settle(3);
   const input = el.shadowRoot!.querySelector('input') as HTMLInputElement;
@@ -29,8 +29,8 @@ test('reflects checked onto the inner input and aria-checked', async () => {
 });
 
 test('clicking the label toggles and fires change', async () => {
-  const host = mount('<jelly-switch>Wi-Fi</jelly-switch>');
-  const el = host.querySelector('jelly-switch') as JellySwitch;
+  const host = mount('<droplet-switch>Wi-Fi</droplet-switch>');
+  const el = host.querySelector('droplet-switch') as DropletSwitch;
 
   await settle(3);
   let fired = 0;
@@ -45,8 +45,8 @@ test('clicking the label toggles and fires change', async () => {
 });
 
 test('on-state mint variant paints the mint track', async () => {
-  const host = mount('<jelly-switch checked variant="mint">Wi-Fi</jelly-switch>');
-  const el = host.querySelector('jelly-switch') as JellySwitch;
+  const host = mount('<droplet-switch checked variant="mint">Wi-Fi</droplet-switch>');
+  const el = host.querySelector('droplet-switch') as DropletSwitch;
 
   await settle(16);
   const canvas = el.shadowRoot!.querySelector('canvas') as HTMLCanvasElement;
@@ -61,7 +61,7 @@ test('on-state mint variant paints the mint track', async () => {
 });
 
 test('submits its value in a form when on', async () => {
-  const host = mount('<form><jelly-switch name="wifi" value="on" checked>Wi-Fi</jelly-switch></form>');
+  const host = mount('<form><droplet-switch name="wifi" value="on" checked>Wi-Fi</droplet-switch></form>');
   await settle(3);
 
   const data = new FormData(host.querySelector('form') as HTMLFormElement);

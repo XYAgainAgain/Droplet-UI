@@ -2,12 +2,12 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import type { JellySpinner } from './index.js';
+import type { DropletSpinner } from './index.js';
 import '../../testing/define-all.js';
 
 test('the default dots spinner renders gooey SVG and a status role', async () => {
-  const host = mount('<jelly-spinner></jelly-spinner>');
-  const el = host.querySelector('jelly-spinner') as JellySpinner;
+  const host = mount('<droplet-spinner></droplet-spinner>');
+  const el = host.querySelector('droplet-spinner') as DropletSpinner;
 
   await settle(3);
   expect(el.getAttribute('role')).toBe('status');
@@ -18,8 +18,8 @@ test('the default dots spinner renders gooey SVG and a status role', async () =>
 });
 
 test('the blob spinner paints on the canvas', async () => {
-  const host = mount('<jelly-spinner type="blob"></jelly-spinner>');
-  const el = host.querySelector('jelly-spinner') as JellySpinner;
+  const host = mount('<droplet-spinner type="blob"></droplet-spinner>');
+  const el = host.querySelector('droplet-spinner') as DropletSpinner;
 
   await settle();
   expect(el.shadowRoot!.querySelector('svg.dots')).toBeNull();

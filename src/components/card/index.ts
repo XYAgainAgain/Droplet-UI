@@ -3,7 +3,7 @@
  * soft cushion (and act as a button); it springs when it first appears
  */
 
-import { JellyElement } from '../../element/index.js';
+import { DropletElement } from '../../element/index.js';
 import type { Shape }   from '../../element/index.js';
 import type { Border }  from '../../element/index.js';
 
@@ -36,7 +36,7 @@ import cardStyles        from './card.css?inline';
  * @cssprop [--jelly-fill] - Surface fill.
  * @cssprop [--jelly-radius=22px] - Corner radius of the painted surface.
  */
-export class JellyCard extends JellyElement {
+export class DropletCard extends DropletElement {
 
   static define (options?: DefineOptions): DefineResult {
     return defineCard(options);
@@ -53,7 +53,7 @@ export class JellyCard extends JellyElement {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['squish', ...JellyElement.AXIS_ATTRIBUTES];
+    return ['squish', ...DropletElement.AXIS_ATTRIBUTES];
   }
 
   // Component styles layered over the shared jelly base styles
@@ -231,11 +231,11 @@ export class JellyCard extends JellyElement {
 }
 
 export function defineCard (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.card, JellyCard]], options);
+  return defineStrict([[TAGS.card, DropletCard]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-card': JellyCard;
+    'droplet-card': DropletCard;
   }
 }

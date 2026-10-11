@@ -35,7 +35,7 @@ import tooltipStyles         from './tooltip.css?inline';
  * @attr {"top"|"bottom"|"left"|"right"|"start"|"end"} placement - Preferred side.
  * @attr {"small"|"medium"|"large"} size - Bubble size.
  */
-export class JellyTooltip extends HTMLElementBase {
+export class DropletTooltip extends HTMLElementBase {
 
   static define (options?: DefineOptions): DefineResult {
     return defineTooltip(options);
@@ -72,7 +72,7 @@ export class JellyTooltip extends HTMLElementBase {
 
     this.built = true;
 
-    const id = uniqueId('jelly-tooltip');
+    const id = uniqueId('droplet-tooltip');
 
     // Encapsulate styles and markup inside a Shadow DOM so they don't leak out
     this.attachShadow({ mode: 'open' });
@@ -197,11 +197,11 @@ export class JellyTooltip extends HTMLElementBase {
 }
 
 export function defineTooltip (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.tooltip, JellyTooltip]], options);
+  return defineStrict([[TAGS.tooltip, DropletTooltip]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-tooltip': JellyTooltip;
+    'droplet-tooltip': DropletTooltip;
   }
 }

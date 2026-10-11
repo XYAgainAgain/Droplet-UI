@@ -5,10 +5,10 @@
  * roles="tablist" switches to tab semantics (used by <jelly-tabs>)
  */
 
-import { JellyElement }    from '../../element/index.js';
+import { DropletElement }    from '../../element/index.js';
 import type { Shape }      from '../../element/index.js';
 
-import { JellyBody }       from '../../core/index.js';
+import { DropletBody }       from '../../core/index.js';
 
 import { emit }            from '../../utilities/index.js';
 import { escapeHTML }      from '../../utilities/index.js';
@@ -20,9 +20,9 @@ import { integrateSpring } from '../../utilities/index.js';
 import { PALETTE }         from '../../theme/index.js';
 
 import '../segment/index.js';
-import { defineStrict, TAGS } from '../../registry/index.js';
+import { anyTag, defineStrict, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
-import { JellySegment }       from '../segment/index.js';
+import { DropletSegment }       from '../segment/index.js';
 
 import segmentedStyles     from './segmented.css?inline';
 
@@ -46,7 +46,7 @@ import segmentedStyles     from './segmented.css?inline';
  *
  * @csspart wrap - The segment container.
  */
-export class JellySegmented extends JellyElement {
+export class DropletSegmented extends DropletElement {
 
   static define (options?: DefineOptions): DefineResult {
     return defineSegmented(options);
@@ -61,11 +61,11 @@ export class JellySegmented extends JellyElement {
 
   // Populated in onBuilt() / onShape()
   wrap!: HTMLElement;
-  pill: JellyBody | null = null;
+  pill: DropletBody | null = null;
   mutationObserver: MutationObserver | null = null;
 
   // Pill slide spring (position, velocity, target) plus the rendered segments
-  segments: JellySegment[] = [];
+  segments: DropletSegment[] = [];
   index = 0;
   pillX = 0;
   pillXVelocity = 0;
@@ -78,7 +78,7 @@ export class JellySegmented extends JellyElement {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['value', 'disabled', 'size', 'roles', 'label', ...JellyElement.AXIS_ATTRIBUTES];
+    return ['value', 'disabled', 'size', 'roles', 'label', ...DropletElement.AXIS_ATTRIBUTES];
   }
 
   constructor () {
@@ -171,7 +171,7 @@ export class JellySegmented extends JellyElement {
       return;
     }
 
-    this.segments = [...this.querySelectorAll('jelly-segment')];
+    this.segments = [...this.querySelectorAll<DropletSegment>(anyTag('segment'))];
 
     const want  = this.getAttribute('value');
     const found = this.segments.findIndex((s) => s.value === want);
@@ -524,11 +524,11 @@ export class JellySegmented extends JellyElement {
 }
 
 export function defineSegmented (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.segmented, JellySegmented], [TAGS.segment, JellySegment]], options);
+  return defineStrict([[TAGS.segmented, DropletSegmented], [TAGS.segment, DropletSegment]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-segmented': JellySegmented;
+    'droplet-segmented': DropletSegmented;
   }
 }

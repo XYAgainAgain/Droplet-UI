@@ -2,21 +2,21 @@ import { expect, test, vi } from 'vitest';
 import { page } from 'vitest/browser';
 
 import { DEFAULT_CONFIG } from '../core/index.js';
-import type { JellyConfig } from '../core/index.js';
+import type { DropletConfig } from '../core/index.js';
 import { registerPreset } from '../presets/index.js';
 import { mount, settle } from '../testing/index.js';
 
-import { JellyElement } from './index.js';
+import { DropletElement } from './index.js';
 import type { PainterFrame } from './index.js';
 
 // A stand-in for the 36 components that have not been converted: no opt-in, no
 // attachInternals(), nothing but the pre-fork base class.
-class PlainJelly extends JellyElement {}
+class PlainJelly extends DropletElement {}
 
 customElements.define('jelly-plain-unconverted', PlainJelly);
 
 test('the resolver half is opt-in and off by default', () => {
-  expect(JellyElement.usesResolver).toBe(false);
+  expect(DropletElement.usesResolver).toBe(false);
   expect(PlainJelly.usesResolver).toBe(false);
 });
 
@@ -46,7 +46,7 @@ test('an unconverted connect never attaches ElementInternals', async () => {
   const spy = vi.spyOn(HTMLElement.prototype, 'attachInternals');
 
   // Defined after the spy so the upgrade itself is observed, not just the connect
-  class LateJelly extends JellyElement {}
+  class LateJelly extends DropletElement {}
   customElements.define('jelly-plain-late', LateJelly);
 
   const host = mount('<jelly-plain-late style="display:block;width:80px;height:40px"></jelly-plain-late>');
@@ -63,7 +63,7 @@ test('reading feel on an unconverted subclass resolves without touching the body
   const host = mount('<jelly-plain-unconverted style="width:120px;height:40px"></jelly-plain-unconverted>');
   await settle();
 
-  const el = host.firstElementChild as JellyElement;
+  const el = host.firstElementChild as DropletElement;
   const resize = vi.spyOn(el.body!, 'resize');
 
   expect(el.feel).toBe('gel');
@@ -96,7 +96,7 @@ test('a raw config assigned before connection seeds the first unconverted body',
   el.setAttribute('style', 'display:block;width:80px;height:40px');
 
   // Includes a key the resolver would strip, proving no validation ran
-  const raw = { pressure: 321, notAConfigKey: 7 } as unknown as Partial<JellyConfig>;
+  const raw = { pressure: 321, notAConfigKey: 7 } as unknown as Partial<DropletConfig>;
 
   el.config = raw;
 
@@ -116,7 +116,7 @@ test('a raw config assigned before connection seeds the first unconverted body',
 });
 
 // Paints the whole canvas, so every overhang pixel is deterministic at rest
-class FloodJelly extends JellyElement {
+class FloodJelly extends DropletElement {
   override paintSurface (frame: PainterFrame): void {
     frame.ctx.fillRect(-frame.width / 2, -frame.height / 2, frame.width, frame.height);
   }
@@ -142,7 +142,7 @@ async function expectNoPageOverflow (dir: 'ltr' | 'rtl', edge: string): Promise<
     // The overhang really does cross the viewport edge by PAD, it just adds no scroll
     const crossing = dir === 'ltr' ? canvas.right - scroller.clientWidth : -canvas.left;
 
-    expect(crossing).toBeCloseTo(JellyElement.PAD, 0);
+    expect(crossing).toBeCloseTo(DropletElement.PAD, 0);
     expect(scroller.scrollWidth).toBe(scroller.clientWidth);
     expect(scroller.scrollWidth).toBe(before.width);
     expect(scroller.scrollHeight).toBe(before.height);
@@ -179,7 +179,7 @@ test('the canvas still extends PAD past the host box on every side', async () =>
   const el = host.firstElementChild as PlainJelly;
   const box = el.getBoundingClientRect();
   const canvas = el.canvas.getBoundingClientRect();
-  const pad = JellyElement.PAD;
+  const pad = DropletElement.PAD;
 
   expect(canvas.left).toBeCloseTo(box.left - pad, 0);
   expect(canvas.top).toBeCloseTo(box.top - pad, 0);

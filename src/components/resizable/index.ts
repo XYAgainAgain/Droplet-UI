@@ -33,7 +33,7 @@ type ResizableSizes = number[] | { cols: number[]; rows: number[] };
  *
  * @csspart container - The pane container.
  */
-export class JellyResizable extends HTMLElementBase {
+export class DropletResizable extends HTMLElementBase {
 
   static define (options?: DefineOptions): DefineResult {
     return defineResizable(options);
@@ -440,11 +440,11 @@ export class JellyResizable extends HTMLElementBase {
 }
 
 export function defineResizable (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.resizable, JellyResizable]], options);
+  return defineStrict([[TAGS.resizable, DropletResizable]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-resizable': JellyResizable;
+    'droplet-resizable': DropletResizable;
   }
 }

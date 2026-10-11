@@ -9,7 +9,7 @@
  *                          full pill (same 0.32-of-height ratio as icon-button)
  */
 
-import { JellyElement } from '../../element/index.js';
+import { DropletElement } from '../../element/index.js';
 import type { Shape }   from '../../element/index.js';
 import type { Border }  from '../../element/index.js';
 import { defineStrict, TAGS } from '../../registry/index.js';
@@ -38,7 +38,7 @@ import variantStyles    from '../../styles/variants.css?inline';
  *
  * @cssprop [--jelly-badge-radius=999px] - Corner radius of the painted pill.
  */
-export class JellyBadge extends JellyElement {
+export class DropletBadge extends DropletElement {
 
   static define (options?: DefineOptions): DefineResult {
     return defineBadge(options);
@@ -50,7 +50,7 @@ export class JellyBadge extends JellyElement {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['live', 'shape', ...JellyElement.AXIS_ATTRIBUTES];
+    return ['live', 'shape', ...DropletElement.AXIS_ATTRIBUTES];
   }
 
   // Component styles layered over the shared jelly base styles
@@ -181,11 +181,11 @@ export class JellyBadge extends JellyElement {
 }
 
 export function defineBadge (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.badge, JellyBadge]], options);
+  return defineStrict([[TAGS.badge, DropletBadge]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-badge': JellyBadge;
+    'droplet-badge': DropletBadge;
   }
 }

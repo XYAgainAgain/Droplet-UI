@@ -5,7 +5,7 @@
  */
 
 import { HTMLElementBase } from '../../element/base.js';
-import { defineStrict, TAGS } from '../../registry/index.js';
+import { anyTag, defineStrict, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 // The minimal surface of a parent that re-reads its options
@@ -24,7 +24,7 @@ interface OptionParent extends HTMLElement {
  * @attr {boolean} selected - Whether this option is initially selected.
  * @attr {boolean} disabled - Whether this option cannot be selected.
  */
-export class JellyOption extends HTMLElementBase {
+export class DropletOption extends HTMLElementBase {
 
   static define (options?: DefineOptions): DefineResult {
     return defineOption(options);
@@ -54,23 +54,23 @@ export class JellyOption extends HTMLElementBase {
 
   // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (): void {
-    (this.closest('jelly-select') as OptionParent | null)?.syncOptions?.();
+    (this.closest(anyTag('select')) as OptionParent | null)?.syncOptions?.();
   }
 
   // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
     this.style.display = 'none';
-    (this.closest('jelly-select') as OptionParent | null)?.syncOptions?.();
+    (this.closest(anyTag('select')) as OptionParent | null)?.syncOptions?.();
   }
 
 }
 
 export function defineOption (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.option, JellyOption]], options);
+  return defineStrict([[TAGS.option, DropletOption]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-option': JellyOption;
+    'droplet-option': DropletOption;
   }
 }

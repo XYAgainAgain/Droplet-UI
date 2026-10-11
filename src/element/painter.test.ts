@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { JellyElement }      from './index.js';
+import { DropletElement }      from './index.js';
 import { buildFrame }        from './painter.js';
 import type { PainterFrame } from './painter.js';
 
@@ -10,7 +10,7 @@ import type { SurfacePoint }  from '../core/index.js';
 
 import { mount, settle }     from '../testing/index.js';
 
-class ProbeElement extends JellyElement {
+class ProbeElement extends DropletElement {
 
   frames: PainterFrame[] = [];
   fillStyles: string[] = [];
@@ -72,19 +72,19 @@ customElements.define('x-async-paint', AsyncElement);
 
 const SIZED = 'style="width:100px;height:40px"';
 
-function pixel (el: JellyElement, x: number, y: number): Uint8ClampedArray {
+function pixel (el: DropletElement, x: number, y: number): Uint8ClampedArray {
   return el.ctx.getImageData(x, y, 1, 1).data;
 }
 
 // True when the pixel at the canvas center is not fully transparent
-function centerPainted (el: JellyElement): boolean {
+function centerPainted (el: DropletElement): boolean {
   const data = pixel(el, Math.round(el.canvas.width / 2), Math.round(el.canvas.height / 2));
 
   return (data[3] ?? 0) > 0;
 }
 
 // Any strongly red pixel, i.e. the border stroke survived the failed painter
-function hasRedStroke (el: JellyElement): boolean {
+function hasRedStroke (el: DropletElement): boolean {
   const { data } = el.ctx.getImageData(0, 0, el.canvas.width, el.canvas.height);
 
   for (let i = 0; i < data.length; i += 4) {

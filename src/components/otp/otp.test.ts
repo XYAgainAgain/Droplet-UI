@@ -2,12 +2,12 @@ import { expect, test } from 'vitest';
 
 import { mount } from '../../testing/index.js';
 
-import type { JellyOtp } from './index.js';
+import type { DropletOtp } from './index.js';
 import '../../testing/define-all.js';
 
 test('renders one input box per digit', () => {
-  const host = mount('<jelly-otp length="4"></jelly-otp>');
-  const el = host.querySelector('jelly-otp') as JellyOtp;
+  const host = mount('<droplet-otp length="4"></droplet-otp>');
+  const el = host.querySelector('droplet-otp') as DropletOtp;
 
   expect(el.shadowRoot!.querySelectorAll('input').length).toBe(4);
 
@@ -15,8 +15,8 @@ test('renders one input box per digit', () => {
 });
 
 test('typing a digit fills the box, advances focus and reports value', () => {
-  const host = mount('<jelly-otp length="3"></jelly-otp>');
-  const el = host.querySelector('jelly-otp') as JellyOtp;
+  const host = mount('<droplet-otp length="3"></droplet-otp>');
+  const el = host.querySelector('droplet-otp') as DropletOtp;
 
   const boxes = [...el.shadowRoot!.querySelectorAll('input')] as HTMLInputElement[];
   boxes[0]!.value = '7';
@@ -29,8 +29,8 @@ test('typing a digit fills the box, advances focus and reports value', () => {
 });
 
 test('fires complete with the joined value when every box is filled', () => {
-  const host = mount('<jelly-otp length="3"></jelly-otp>');
-  const el = host.querySelector('jelly-otp') as JellyOtp;
+  const host = mount('<droplet-otp length="3"></droplet-otp>');
+  const el = host.querySelector('droplet-otp') as DropletOtp;
 
   let completed = '';
   el.addEventListener('complete', (event) => { completed = (event as CustomEvent).detail.value; });

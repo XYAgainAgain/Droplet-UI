@@ -2,12 +2,12 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import type { JellyCard } from './index.js';
+import type { DropletCard } from './index.js';
 import '../../testing/define-all.js';
 
 test('upgrades and renders its slotted content in a surface', async () => {
-  const host = mount('<jelly-card><h3>Title</h3></jelly-card>');
-  const el = host.querySelector('jelly-card') as JellyCard;
+  const host = mount('<droplet-card><h3>Title</h3></droplet-card>');
+  const el = host.querySelector('droplet-card') as DropletCard;
 
   await settle(3);
   expect(el.shadowRoot!.querySelector('.card')).toBeTruthy();
@@ -17,8 +17,8 @@ test('upgrades and renders its slotted content in a surface', async () => {
 });
 
 test('squish cards become keyboard-activatable buttons', async () => {
-  const host = mount('<jelly-card squish>Tap</jelly-card>');
-  const el = host.querySelector('jelly-card') as JellyCard;
+  const host = mount('<droplet-card squish>Tap</droplet-card>');
+  const el = host.querySelector('droplet-card') as DropletCard;
 
   await settle(3);
   const card = el.shadowRoot!.querySelector('.card') as HTMLElement;
@@ -34,9 +34,9 @@ test('squish cards become keyboard-activatable buttons', async () => {
   host.remove();
 });
 
-async function squishCard (html = '<jelly-card squish>Tap</jelly-card>'): Promise<{ host: HTMLDivElement; card: HTMLElement; clicks: () => number }> {
+async function squishCard (html = '<droplet-card squish>Tap</droplet-card>'): Promise<{ host: HTMLDivElement; card: HTMLElement; clicks: () => number }> {
   const host = mount(html);
-  const el = host.querySelector('jelly-card') as JellyCard;
+  const el = host.querySelector('droplet-card') as DropletCard;
   let clicked = 0;
 
   await settle(3);
@@ -93,7 +93,7 @@ test('focus loss cancels a pending Space press', async () => {
 });
 
 test('keys from focusable slotted content do not activate the card', async () => {
-  const { host, clicks } = await squishCard('<jelly-card squish><button type="button">Inner</button></jelly-card>');
+  const { host, clicks } = await squishCard('<droplet-card squish><button type="button">Inner</button></droplet-card>');
   const inner = host.querySelector('button')!;
 
   key(inner, 'keydown', { key: 'Enter' });

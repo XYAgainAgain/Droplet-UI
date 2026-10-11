@@ -1,9 +1,7 @@
 import { expect, test } from 'vitest';
 
 import * as JellyUI from '../jelly.js';
-import { JellyButton } from '../components/button/index.js';
-import { JellyCollapsible } from '../components/collapsible/index.js';
-import { JellySlider } from '../components/slider/index.js';
+import { JellyButton, JellyCollapsible, JellySlider } from '../compat/index.js';
 import { mount, settle } from './index.js';
 import { JELLY_UI_1_1_0_CONSUMER_MARKUP, JELLY_UI_1_1_0_TAGS } from './fixtures/jelly-ui-1.1.0.js';
 

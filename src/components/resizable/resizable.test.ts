@@ -2,12 +2,12 @@ import { expect, test } from 'vitest';
 
 import { mount } from '../../testing/index.js';
 
-import type { JellyResizable } from './index.js';
+import type { DropletResizable } from './index.js';
 import '../../testing/define-all.js';
 
 test('lays out panes with a divider between each pair', () => {
-  const host = mount('<jelly-resizable><div>L</div><div>M</div><div>R</div></jelly-resizable>');
-  const el = host.querySelector('jelly-resizable') as JellyResizable;
+  const host = mount('<droplet-resizable><div>L</div><div>M</div><div>R</div></droplet-resizable>');
+  const el = host.querySelector('droplet-resizable') as DropletResizable;
 
   expect(el.shadowRoot!.querySelector('.container')).toBeTruthy();
   // three panes → two dividers
@@ -19,8 +19,8 @@ test('lays out panes with a divider between each pair', () => {
 });
 
 test('direction="both" builds a 2×2 grid with two axis dividers', () => {
-  const host = mount('<jelly-resizable direction="both"><div>A</div><div>B</div><div>C</div><div>D</div></jelly-resizable>');
-  const el = host.querySelector('jelly-resizable') as JellyResizable;
+  const host = mount('<droplet-resizable direction="both"><div>A</div><div>B</div><div>C</div><div>D</div></droplet-resizable>');
+  const el = host.querySelector('droplet-resizable') as DropletResizable;
 
   expect(el.shadowRoot!.querySelector('.divider-x')).toBeTruthy();
   expect(el.shadowRoot!.querySelector('.divider-y')).toBeTruthy();

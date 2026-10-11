@@ -14,10 +14,10 @@ import { ensureThemeTokens }    from '../../theme/index.js';
 
 import '../segmented/index.js';
 import { HTMLElementBase }      from '../../element/base.js';
-import { defineStrict, TAGS }   from '../../registry/index.js';
+import { anyTag, defineStrict, TAGS }   from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
-import { JellySegment }         from '../segment/index.js';
-import { JellySegmented }       from '../segmented/index.js';
+import { DropletSegment }         from '../segment/index.js';
+import { DropletSegmented }       from '../segmented/index.js';
 
 import tabsStyles               from './tabs.css?inline';
 
@@ -37,7 +37,7 @@ interface TabBar extends HTMLElement {
  * @attr {string} value - The panel's value (defaults to its index).
  * @attr {boolean} active - Whether this panel is initially active.
  */
-export class JellyTabPanel extends HTMLElementBase {
+export class DropletTabPanel extends HTMLElementBase {
 
   static define (options?: DefineOptions): DefineResult {
     return defineTabPanel(options);
@@ -80,7 +80,7 @@ export class JellyTabPanel extends HTMLElementBase {
  *
  * @csspart tabs - The inner segmented tab bar.
  */
-export class JellyTabs extends HTMLElementBase {
+export class DropletTabs extends HTMLElementBase {
 
   static define (options?: DefineOptions): DefineResult {
     return defineTabs(options);
@@ -107,7 +107,7 @@ export class JellyTabs extends HTMLElementBase {
 
     this.built = true;
 
-    const panels = [...this.querySelectorAll('jelly-tab-panel')];
+    const panels = [...this.querySelectorAll<DropletTabPanel>(anyTag('tabPanel'))];
 
     // A host value attribute wins; otherwise the panel marked `active` leads
     const activeIndex = Math.max(0, panels.findIndex((panel) => panel.hasAttribute('active')));
@@ -121,17 +121,17 @@ export class JellyTabs extends HTMLElementBase {
       <style>${tabsStyles}</style>
 
       <div class="bar">
-        <jelly-segmented part="tabs" roles="tablist" value="${escapeHTML(activeValue)}">
+        <${TAGS.segmented} part="tabs" roles="tablist" value="${escapeHTML(activeValue)}">
           ${panels.map((panel, i) =>
-            `<jelly-segment value="${escapeHTML(this.panelValue(panel, i))}">${escapeHTML(this.panelLabel(panel, i))}</jelly-segment>`,
+            `<${TAGS.segment} value="${escapeHTML(this.panelValue(panel, i))}">${escapeHTML(this.panelLabel(panel, i))}</${TAGS.segment}>`,
           ).join('')}
-        </jelly-segmented>
+        </${TAGS.segmented}>
       </div>
 
       <div class="panels"><slot></slot></div>
     `;
 
-    this.segmented = this.shadowRoot!.querySelector('jelly-segmented') as TabBar | null;
+    this.segmented = this.shadowRoot!.querySelector(TAGS.segmented) as TabBar | null;
     this.current   = null;
 
     this.syncSize();
@@ -190,12 +190,12 @@ export class JellyTabs extends HTMLElementBase {
   // this controller (as happens when the tabs markup is set through a
   // connected element's innerHTML, the parent connecting before its children
   // upgrade) would have any stamped field reset to its class default.
-  panelValue (panel: JellyTabPanel, index: number): string {
+  panelValue (panel: DropletTabPanel, index: number): string {
     return panel.getAttribute('value') || String(index);
   }
 
   // The visible label for one panel's tab
-  panelLabel (panel: JellyTabPanel, index: number): string {
+  panelLabel (panel: DropletTabPanel, index: number): string {
     const label = panel.getAttribute('label');
 
     if (label) {
@@ -209,7 +209,7 @@ export class JellyTabs extends HTMLElementBase {
 
   // Show the panel for `value`, hide the rest and announce real changes
   activate (value: string, animate: boolean): void {
-    const panels = [...this.querySelectorAll('jelly-tab-panel')];
+    const panels = [...this.querySelectorAll<DropletTabPanel>(anyTag('tabPanel'))];
 
     panels.forEach((panel, i) => {
       const on = this.panelValue(panel, i) === String(value);
@@ -266,16 +266,16 @@ export class JellyTabs extends HTMLElementBase {
 }
 
 export function defineTabPanel (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.tabPanel, JellyTabPanel]], options);
+  return defineStrict([[TAGS.tabPanel, DropletTabPanel]], options);
 }
 
 export function defineTabs (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.segmented, JellySegmented], [TAGS.segment, JellySegment], [TAGS.tabPanel, JellyTabPanel], [TAGS.tabs, JellyTabs]], options);
+  return defineStrict([[TAGS.segmented, DropletSegmented], [TAGS.segment, DropletSegment], [TAGS.tabPanel, DropletTabPanel], [TAGS.tabs, DropletTabs]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-tab-panel': JellyTabPanel;
-    'jelly-tabs': JellyTabs;
+    'droplet-tab-panel': DropletTabPanel;
+    'droplet-tabs': DropletTabs;
   }
 }

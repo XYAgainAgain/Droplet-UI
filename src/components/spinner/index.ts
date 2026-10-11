@@ -8,7 +8,7 @@
  * prefers-reduced-motion by settling into something calm and static.
  */
 
-import { JellyElement } from '../../element/index.js';
+import { DropletElement } from '../../element/index.js';
 import type { Shape }   from '../../element/index.js';
 
 import { uniqueId }     from '../../utilities/index.js';
@@ -32,7 +32,7 @@ import variantStyles    from '../../styles/variants.css?inline';
  *
  * @cssprop [--jelly-fill] - Dot / blob color.
  */
-export class JellySpinner extends JellyElement {
+export class DropletSpinner extends DropletElement {
 
   static define (options?: DefineOptions): DefineResult {
     return defineSpinner(options);
@@ -43,11 +43,11 @@ export class JellySpinner extends JellyElement {
   timeAccumulator = 0;
   idx = 0;
   angle = 0;
-  instanceId = uniqueId('jelly-spinner-goo');
+  instanceId = uniqueId('droplet-spinner-goo');
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['type', 'variant', 'size', 'label', ...JellyElement.AXIS_ATTRIBUTES];
+    return ['type', 'variant', 'size', 'label', ...DropletElement.AXIS_ATTRIBUTES];
   }
 
   // Lifecycle method: Fires when observed HTML attributes change dynamically
@@ -200,11 +200,11 @@ export class JellySpinner extends JellyElement {
 }
 
 export function defineSpinner (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.spinner, JellySpinner]], options);
+  return defineStrict([[TAGS.spinner, DropletSpinner]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-spinner': JellySpinner;
+    'droplet-spinner': DropletSpinner;
   }
 }

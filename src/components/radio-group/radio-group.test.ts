@@ -2,16 +2,16 @@ import { expect, test } from 'vitest';
 
 import { mount, raf } from '../../testing/index.js';
 
-import type { JellyRadioGroup } from './index.js';
+import type { DropletRadioGroup } from './index.js';
 import '../../testing/define-all.js';
 
 test('renders a radiogroup with a labelled legend', async () => {
   const host = mount(`
-    <jelly-radio-group label="Billing">
-      <jelly-radio name="b" value="m" checked>Monthly</jelly-radio>
-      <jelly-radio name="b" value="y">Yearly</jelly-radio>
-    </jelly-radio-group>`);
-  const el = host.querySelector('jelly-radio-group') as JellyRadioGroup;
+    <droplet-radio-group label="Billing">
+      <droplet-radio name="b" value="m" checked>Monthly</droplet-radio>
+      <droplet-radio name="b" value="y">Yearly</droplet-radio>
+    </droplet-radio-group>`);
+  const el = host.querySelector('droplet-radio-group') as DropletRadioGroup;
   await raf();
 
   const items = el.shadowRoot!.querySelector('.items')!;
@@ -24,12 +24,12 @@ test('renders a radiogroup with a labelled legend', async () => {
 
 test('propagates its size to child radios', async () => {
   const host = mount(`
-    <jelly-radio-group size="large">
-      <jelly-radio name="s" value="a">A</jelly-radio>
-    </jelly-radio-group>`);
+    <droplet-radio-group size="large">
+      <droplet-radio name="s" value="a">A</droplet-radio>
+    </droplet-radio-group>`);
   await raf();
 
-  const radio = host.querySelector('jelly-radio')!;
+  const radio = host.querySelector('droplet-radio')!;
   expect(radio.getAttribute('size')).toBe('large');
 
   host.remove();

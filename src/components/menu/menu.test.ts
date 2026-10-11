@@ -2,17 +2,17 @@ import { expect, test } from 'vitest';
 
 import { mount } from '../../testing/index.js';
 
-import type { JellyMenu } from './index.js';
+import type { DropletMenu } from './index.js';
 import '../../testing/define-all.js';
 
-function makeMenu (): { host: HTMLDivElement; el: JellyMenu } {
+function makeMenu (): { host: HTMLDivElement; el: DropletMenu } {
   const host = mount(`
-    <jelly-menu>
+    <droplet-menu>
       <button slot="trigger">Actions</button>
-      <jelly-menu-item value="edit">Edit</jelly-menu-item>
-      <jelly-menu-item value="del" danger>Delete</jelly-menu-item>
-    </jelly-menu>`);
-  return { host, el: host.querySelector('jelly-menu') as JellyMenu };
+      <droplet-menu-item value="edit">Edit</droplet-menu-item>
+      <droplet-menu-item value="del" danger>Delete</droplet-menu-item>
+    </droplet-menu>`);
+  return { host, el: host.querySelector('droplet-menu') as DropletMenu };
 }
 
 test('marks the trigger as a menu button', () => {

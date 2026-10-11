@@ -7,16 +7,16 @@
 import { clamp } from '../utilities/index.js';
 import { LOG_PREFIX } from '../registry/tags.js';
 
-// The surface the engine drives - JellyElement satisfies this structurally
-export interface JellyComponent {
+// The surface the engine drives - DropletElement satisfies this structurally
+export interface DropletComponent {
   frame(dt: number): boolean;
   frameDt?: number;
   colorEasing?: boolean;
 }
 
-class JellyEngine {
+class DropletEngine {
 
-  private active = new Set<JellyComponent>();
+  private active = new Set<DropletComponent>();
   private running = false;
   private lastTime = 0;
 
@@ -25,7 +25,7 @@ class JellyEngine {
   }
 
   // Add a component to the loop and start it if it was parked
-  wake (component: JellyComponent): void {
+  wake (component: DropletComponent): void {
     this.active.add(component);
 
     if (!this.running) {
@@ -36,7 +36,7 @@ class JellyEngine {
   }
 
   // Remove a component from the loop (used on disconnect)
-  drop (component: JellyComponent): void {
+  drop (component: DropletComponent): void {
     this.active.delete(component);
   }
 
@@ -76,4 +76,4 @@ class JellyEngine {
 
 }
 
-export const engine = new JellyEngine();
+export const engine = new DropletEngine();

@@ -9,9 +9,9 @@ import { propagateSize }       from '../../utilities/index.js';
 
 import { ensureThemeTokens }   from '../../theme/index.js';
 
-import { JellyCollapsible }      from '../collapsible/index.js';
+import { DropletCollapsible }      from '../collapsible/index.js';
 import { HTMLElementBase }     from '../../element/base.js';
-import { defineStrict, TAGS }  from '../../registry/index.js';
+import { anyTag, defineStrict, TAGS }  from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import accordionStyles         from './accordion.css?inline';
@@ -28,7 +28,7 @@ import accordionStyles         from './accordion.css?inline';
  *
  * @fires toggle - Bubbles up from a child collapsible when it opens or closes.
  */
-export class JellyAccordion extends HTMLElementBase {
+export class DropletAccordion extends HTMLElementBase {
 
   static define (options?: DefineOptions): DefineResult {
     return defineAccordion(options);
@@ -63,10 +63,10 @@ export class JellyAccordion extends HTMLElementBase {
 
     // Newly slotted items pick up the group size
     this.shadowRoot!.querySelector('slot')!.addEventListener('slotchange', () => {
-      propagateSize(this, 'jelly-collapsible');
+      propagateSize(this, anyTag('collapsible'));
     });
 
-    propagateSize(this, 'jelly-collapsible');
+    propagateSize(this, anyTag('collapsible'));
 
     // In single mode, opening one item closes its siblings
     this.addEventListener('toggle', (event) => {
@@ -74,13 +74,13 @@ export class JellyAccordion extends HTMLElementBase {
         return;
       }
 
-      const target = event.target as JellyCollapsible | null;
+      const target = event.target as DropletCollapsible | null;
 
-      if (!target || !target.matches('jelly-collapsible') || !target.open) {
+      if (!target || !target.matches(anyTag('collapsible')) || !target.open) {
         return;
       }
 
-      for (const item of this.querySelectorAll('jelly-collapsible')) {
+      for (const item of this.querySelectorAll<DropletCollapsible>(anyTag('collapsible'))) {
         if (item !== target && item.open) {
           item.toggle(false);
         }
@@ -92,7 +92,7 @@ export class JellyAccordion extends HTMLElementBase {
   attributeChangedCallback (name: string): void {
     if (name === 'size') {
       canonicalizeSize(this);
-      propagateSize(this, 'jelly-collapsible');
+      propagateSize(this, anyTag('collapsible'));
     }
 
     // Turning single mode on collapses all but the first already-open item, so
@@ -100,7 +100,7 @@ export class JellyAccordion extends HTMLElementBase {
     if (name === 'single' && this.built && this.hasAttribute('single')) {
       let keptOpen = false;
 
-      for (const item of this.querySelectorAll('jelly-collapsible')) {
+      for (const item of this.querySelectorAll<DropletCollapsible>(anyTag('collapsible'))) {
         if (!item.open) {
           continue;
         }
@@ -116,17 +116,17 @@ export class JellyAccordion extends HTMLElementBase {
 
   // Route programmatic host focus onto the first item
   override focus (options?: FocusOptions): void {
-    this.querySelector('jelly-collapsible')?.focus(options);
+    this.querySelector<DropletCollapsible>(anyTag('collapsible'))?.focus(options);
   }
 
 }
 
 export function defineAccordion (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.collapsible, JellyCollapsible], [TAGS.accordion, JellyAccordion]], options);
+  return defineStrict([[TAGS.collapsible, DropletCollapsible], [TAGS.accordion, DropletAccordion]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-accordion': JellyAccordion;
+    'droplet-accordion': DropletAccordion;
   }
 }

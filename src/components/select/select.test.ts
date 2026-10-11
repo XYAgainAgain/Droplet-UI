@@ -2,16 +2,16 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import type { JellySelect } from './index.js';
+import type { DropletSelect } from './index.js';
 import '../../testing/define-all.js';
 
 test('renders one listbox row per option and honors the selected attribute', async () => {
   const host = mount(`
-    <jelly-select label="Plan">
-      <jelly-option value="free">Free</jelly-option>
-      <jelly-option value="pro" selected>Pro</jelly-option>
-    </jelly-select>`);
-  const el = host.querySelector('jelly-select') as JellySelect;
+    <droplet-select label="Plan">
+      <droplet-option value="free">Free</droplet-option>
+      <droplet-option value="pro" selected>Pro</droplet-option>
+    </droplet-select>`);
+  const el = host.querySelector('droplet-select') as DropletSelect;
   await settle(6);
 
   const rows = el.shadowRoot!.querySelectorAll('.row');
@@ -24,11 +24,11 @@ test('renders one listbox row per option and honors the selected attribute', asy
 
 test('opening the panel sets aria-expanded and clicking a row selects it', async () => {
   const host = mount(`
-    <jelly-select label="Plan" placeholder="Choose">
-      <jelly-option value="free">Free</jelly-option>
-      <jelly-option value="pro">Pro</jelly-option>
-    </jelly-select>`);
-  const el = host.querySelector('jelly-select') as JellySelect;
+    <droplet-select label="Plan" placeholder="Choose">
+      <droplet-option value="free">Free</droplet-option>
+      <droplet-option value="pro">Pro</droplet-option>
+    </droplet-select>`);
+  const el = host.querySelector('droplet-select') as DropletSelect;
   await settle(6);
 
   let changed = false;
@@ -51,10 +51,10 @@ test('opening the panel sets aria-expanded and clicking a row selects it', async
 test('submits the selected value in a form', async () => {
   const host = mount(`
     <form>
-      <jelly-select name="plan" value="pro">
-        <jelly-option value="free">Free</jelly-option>
-        <jelly-option value="pro">Pro</jelly-option>
-      </jelly-select>
+      <droplet-select name="plan" value="pro">
+        <droplet-option value="free">Free</droplet-option>
+        <droplet-option value="pro">Pro</droplet-option>
+      </droplet-select>
     </form>`);
   await settle(6);
 

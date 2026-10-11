@@ -1,5 +1,5 @@
 /*
- * The painter frame: the frozen, versioned record a JellyElement hands to
+ * The painter frame: the frozen, versioned record a DropletElement hands to
  * paintSurface() once per body per paint. See .dev/docs/contracts/painter.md.
  */
 

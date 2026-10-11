@@ -5,7 +5,7 @@
  * from the inner control, reset/disable/restore callbacks, ARIA and label linking.
  */
 
-import { JellyElement }     from './index.js';
+import { DropletElement }     from './index.js';
 import type { Border }      from './index.js';
 
 import { AriaLink }         from '../utilities/index.js';
@@ -24,7 +24,7 @@ export type FieldControl = HTMLInputElement | HTMLTextAreaElement;
 // Attributes every text field observes; components append their own
 export const FIELD_ATTRIBUTES: readonly string[] = [
   'id', 'value', 'placeholder', 'label', 'disabled', 'readonly',
-  'autocomplete', 'no-autofill', 'size', ...FORWARDED_ARIA, ...JellyElement.AXIS_ATTRIBUTES,
+  'autocomplete', 'no-autofill', 'size', ...FORWARDED_ARIA, ...DropletElement.AXIS_ATTRIBUTES,
 ];
 
 // Properties a framework may assign before upgrade (state-and-reflection.md)
@@ -85,7 +85,7 @@ function blocksImplicitSubmission (el: Element): boolean {
     return BLOCKING_TYPES.has(el.type);
   }
 
-  return el instanceof JellyFormField && el.blocksImplicitSubmission();
+  return el instanceof DropletFormField && el.blocksImplicitSubmission();
 }
 
 /*
@@ -114,7 +114,7 @@ export function implicitlySubmit (form: HTMLFormElement): void {
   }
 }
 
-export abstract class JellyFormField extends JellyElement implements EventListenerObject {
+export abstract class DropletFormField extends DropletElement implements EventListenerObject {
 
   // Participate in native form submission, validation and reset through ElementInternals
   static formAssociated = true;
@@ -168,7 +168,7 @@ export abstract class JellyFormField extends JellyElement implements EventListen
     this.sync('disabled');
     this.syncAutofill();
 
-    for (const name of (this.constructor as typeof JellyFormField).CONSTRAINTS) {
+    for (const name of (this.constructor as typeof DropletFormField).CONSTRAINTS) {
       this.syncConstraint(name);
     }
 
@@ -197,7 +197,7 @@ export abstract class JellyFormField extends JellyElement implements EventListen
 
   // Lifecycle method: Called automatically when the element is appended to the DOM
   override connectedCallback (): void {
-    replayProperties(this, (this.constructor as typeof JellyFormField).fieldReplayed());
+    replayProperties(this, (this.constructor as typeof DropletFormField).fieldReplayed());
 
     super.connectedCallback();
 
@@ -279,7 +279,7 @@ export abstract class JellyFormField extends JellyElement implements EventListen
         break;
 
       default:
-        if ((this.constructor as typeof JellyFormField).CONSTRAINTS.includes(name)) {
+        if ((this.constructor as typeof DropletFormField).CONSTRAINTS.includes(name)) {
           this.syncConstraint(name);
         } else if (FORWARDED_ARIA.includes(name)) {
           forwardAria(this, control, name);

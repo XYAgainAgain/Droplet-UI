@@ -9,7 +9,7 @@ import { canonicalizeSize }  from '../../utilities/index.js';
 
 import { ensureThemeTokens } from '../../theme/index.js';
 import { HTMLElementBase }   from '../../element/base.js';
-import { defineStrict, TAGS } from '../../registry/index.js';
+import { defineStrict, isLibraryTag, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import labelStyles           from './label.css?inline';
@@ -28,7 +28,7 @@ import labelStyles           from './label.css?inline';
  *
  * @csspart label - The label element.
  */
-export class JellyLabel extends HTMLElementBase {
+export class DropletLabel extends HTMLElementBase {
 
   static define (options?: DefineOptions): DefineResult {
     return defineLabel(options);
@@ -121,7 +121,7 @@ export class JellyLabel extends HTMLElementBase {
 
     const text = (this.textContent ?? '').trim();
 
-    if (text && target.localName.startsWith('jelly-') && !target.hasAttribute('label')) {
+    if (text && isLibraryTag(target.localName) && !target.hasAttribute('label')) {
       target.setAttribute('label', text);
     }
 
@@ -133,11 +133,11 @@ export class JellyLabel extends HTMLElementBase {
 }
 
 export function defineLabel (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.label, JellyLabel]], options);
+  return defineStrict([[TAGS.label, DropletLabel]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-label': JellyLabel;
+    'droplet-label': DropletLabel;
   }
 }

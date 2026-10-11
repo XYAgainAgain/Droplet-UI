@@ -52,7 +52,7 @@ interface SlideFrames {
  * @cssprop [--jelly-drawer-padding=22px] - Inner padding.
  * @cssprop [--jelly-drawer-radius=24px] - Corner radius.
  */
-export class JellyDrawer extends HTMLElementBase {
+export class DropletDrawer extends HTMLElementBase {
 
   static define (options?: DefineOptions): DefineResult {
     return defineDrawer(options);
@@ -326,11 +326,11 @@ export class JellyDrawer extends HTMLElementBase {
 }
 
 export function defineDrawer (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.drawer, JellyDrawer]], options);
+  return defineStrict([[TAGS.drawer, DropletDrawer]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-drawer': JellyDrawer;
+    'droplet-drawer': DropletDrawer;
   }
 }

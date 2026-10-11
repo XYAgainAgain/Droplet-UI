@@ -44,7 +44,7 @@ const REPLAYED = ['open', 'quality', 'palette', 'material'] as const;
  *
  * @csspart header - The header button.
  */
-export class JellyCollapsible extends HTMLElementBase {
+export class DropletCollapsible extends HTMLElementBase {
 
   built = false;
 
@@ -171,7 +171,7 @@ export class JellyCollapsible extends HTMLElementBase {
   }
 
   #build (): void {
-    const id = uniqueId('jelly-collapsible');
+    const id = uniqueId('droplet-collapsible');
 
     // Encapsulate styles and markup inside a Shadow DOM so they don't leak out
     this.attachShadow({ mode: 'open', delegatesFocus: true });
@@ -211,11 +211,11 @@ export class JellyCollapsible extends HTMLElementBase {
 }
 
 export function defineCollapsible (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.collapsible, JellyCollapsible]], options);
+  return defineStrict([[TAGS.collapsible, DropletCollapsible]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-collapsible': JellyCollapsible;
+    'droplet-collapsible': DropletCollapsible;
   }
 }

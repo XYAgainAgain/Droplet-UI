@@ -2,12 +2,12 @@ import { expect, test } from 'vitest';
 
 import { mount, raf } from '../../testing/index.js';
 
-import type { JellyTheme } from './index.js';
+import type { DropletTheme } from './index.js';
 import '../../testing/define-all.js';
 
 test('mode="dark" scopes the dark tokens to its subtree', async () => {
-  const host = mount('<jelly-theme mode="dark"><span class="child">x</span></jelly-theme>');
-  const el = host.querySelector('jelly-theme') as JellyTheme;
+  const host = mount('<droplet-theme mode="dark"><span class="child">x</span></droplet-theme>');
+  const el = host.querySelector('droplet-theme') as DropletTheme;
   await raf();
 
   expect(el.resolvedMode).toBe('dark');
@@ -21,7 +21,7 @@ test('mode="dark" scopes the dark tokens to its subtree', async () => {
 });
 
 test('a custom accent publishes a resolved accent + readable on-color', async () => {
-  const host = mount('<jelly-theme accent="#7C3AED"><span class="child">x</span></jelly-theme>');
+  const host = mount('<droplet-theme accent="#7C3AED"><span class="child">x</span></droplet-theme>');
   await raf();
 
   const child = host.querySelector('.child') as HTMLElement;

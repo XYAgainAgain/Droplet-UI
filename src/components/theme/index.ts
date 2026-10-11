@@ -78,7 +78,7 @@ function readableOn (color: string, backdrop: string): string {
  * @attr {"light"|"dark"|"auto"} mode - Force a color scheme, or follow the OS.
  * @attr {string} accent - A named hue or any CSS color to re-tint the accent.
  */
-export class JellyTheme extends HTMLElementBase {
+export class DropletTheme extends HTMLElementBase {
 
   static define (options?: DefineOptions): DefineResult {
     return defineTheme(options);
@@ -231,11 +231,11 @@ export class JellyTheme extends HTMLElementBase {
 }
 
 export function defineTheme (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.theme, JellyTheme]], options);
+  return defineStrict([[TAGS.theme, DropletTheme]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-theme': JellyTheme;
+    'droplet-theme': DropletTheme;
   }
 }

@@ -1,15 +1,15 @@
 import { expect, test } from 'vitest';
 
-import { JellyBody, traceSmoothPath } from './body.js';
+import { DropletBody, traceSmoothPath } from './body.js';
 import { DEFAULT_CONFIG } from './config.js';
 
-const normalsOf = (body: JellyBody): Array<[number, number]> =>
+const normalsOf = (body: DropletBody): Array<[number, number]> =>
   body.membrane.map((point) => [point.nx, point.ny]);
 
 test('membrane sampling rejects non-finite counts and clamps undersized counts', () => {
-  const fallback = new JellyBody({ width: 100, height: 40, config: { samples: Infinity } });
-  const clamped = new JellyBody({ width: 100, height: 40, config: { samples: 0 } });
-  const fractional = new JellyBody({ width: 100, height: 40, config: { samples: 4.2 } });
+  const fallback = new DropletBody({ width: 100, height: 40, config: { samples: Infinity } });
+  const clamped = new DropletBody({ width: 100, height: 40, config: { samples: 0 } });
+  const fractional = new DropletBody({ width: 100, height: 40, config: { samples: 4.2 } });
 
   expect(fallback.membrane).toHaveLength(DEFAULT_CONFIG.samples);
   expect(clamped.membrane).toHaveLength(4);
@@ -32,8 +32,8 @@ test('tracing an empty path clears any path already on the context', () => {
 
 test('normalBlendPasses changes the membrane normals when overridden', () => {
   const base = { width: 120, height: 40, radius: 20 };
-  const smooth = new JellyBody({ ...base, config: { normalBlendPasses: 6 } });
-  const raw = new JellyBody({ ...base, config: { normalBlendPasses: 0 } });
+  const smooth = new DropletBody({ ...base, config: { normalBlendPasses: 6 } });
+  const raw = new DropletBody({ ...base, config: { normalBlendPasses: 0 } });
 
   const differs = smooth.membrane.some((p, i) => {
     const q = raw.membrane[i]!;
@@ -45,12 +45,12 @@ test('normalBlendPasses changes the membrane normals when overridden', () => {
 
 test('normalBlendPasses clamps to the 0-6 safety bound at the constructor', () => {
   const base = { width: 100, height: 40, radius: 18 };
-  const high   = new JellyBody({ ...base, config: { normalBlendPasses: 99 } });
-  const capped = new JellyBody({ ...base, config: { normalBlendPasses: 6 } });
-  const low    = new JellyBody({ ...base, config: { normalBlendPasses: -3 } });
-  const zero   = new JellyBody({ ...base, config: { normalBlendPasses: 0 } });
-  const bogus  = new JellyBody({ ...base, config: { normalBlendPasses: Number.NaN } });
-  const fallback = new JellyBody({ ...base, config: { normalBlendPasses: DEFAULT_CONFIG.normalBlendPasses } });
+  const high   = new DropletBody({ ...base, config: { normalBlendPasses: 99 } });
+  const capped = new DropletBody({ ...base, config: { normalBlendPasses: 6 } });
+  const low    = new DropletBody({ ...base, config: { normalBlendPasses: -3 } });
+  const zero   = new DropletBody({ ...base, config: { normalBlendPasses: 0 } });
+  const bogus  = new DropletBody({ ...base, config: { normalBlendPasses: Number.NaN } });
+  const fallback = new DropletBody({ ...base, config: { normalBlendPasses: DEFAULT_CONFIG.normalBlendPasses } });
 
   expect(high.config.normalBlendPasses).toBe(6);
   expect(low.config.normalBlendPasses).toBe(0);
@@ -64,8 +64,8 @@ test('normalBlendPasses clamps to the 0-6 safety bound at the constructor', () =
 
 test('resize keeps the 0-6 safety bound after config is mutated directly', () => {
   const base = { width: 100, height: 40, radius: 18 };
-  const mutated = new JellyBody({ ...base, config: { normalBlendPasses: 2 } });
-  const bounded = new JellyBody({ ...base, config: { normalBlendPasses: 6 } });
+  const mutated = new DropletBody({ ...base, config: { normalBlendPasses: 2 } });
+  const bounded = new DropletBody({ ...base, config: { normalBlendPasses: 6 } });
 
   mutated.config.normalBlendPasses = 99;
   mutated.resize(140, 50, 20);

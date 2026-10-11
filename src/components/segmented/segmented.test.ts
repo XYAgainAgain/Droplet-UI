@@ -2,17 +2,17 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import type { JellySegmented } from './index.js';
+import type { DropletSegmented } from './index.js';
 import '../../testing/define-all.js';
 
 test('renders one button per segment as a radiogroup', async () => {
   const host = mount(`
-    <jelly-segmented value="week">
-      <jelly-segment value="day">Day</jelly-segment>
-      <jelly-segment value="week">Week</jelly-segment>
-      <jelly-segment value="month">Month</jelly-segment>
-    </jelly-segmented>`);
-  const el = host.querySelector('jelly-segmented') as JellySegmented;
+    <droplet-segmented value="week">
+      <droplet-segment value="day">Day</droplet-segment>
+      <droplet-segment value="week">Week</droplet-segment>
+      <droplet-segment value="month">Month</droplet-segment>
+    </droplet-segmented>`);
+  const el = host.querySelector('droplet-segmented') as DropletSegmented;
   await settle(8);
 
   const wrap = el.shadowRoot!.querySelector('.wrap')!;
@@ -25,11 +25,11 @@ test('renders one button per segment as a radiogroup', async () => {
 
 test('clicking a segment selects it and fires change', async () => {
   const host = mount(`
-    <jelly-segmented value="day">
-      <jelly-segment value="day">Day</jelly-segment>
-      <jelly-segment value="week">Week</jelly-segment>
-    </jelly-segmented>`);
-  const el = host.querySelector('jelly-segmented') as JellySegmented;
+    <droplet-segmented value="day">
+      <droplet-segment value="day">Day</droplet-segment>
+      <droplet-segment value="week">Week</droplet-segment>
+    </droplet-segmented>`);
+  const el = host.querySelector('droplet-segmented') as DropletSegmented;
   await settle(8);
 
   let changed = '';
@@ -48,10 +48,10 @@ test('clicking a segment selects it and fires change', async () => {
 test('submits the selected value in a form', async () => {
   const host = mount(`
     <form>
-      <jelly-segmented name="range" value="week">
-        <jelly-segment value="day">Day</jelly-segment>
-        <jelly-segment value="week">Week</jelly-segment>
-      </jelly-segmented>
+      <droplet-segmented name="range" value="week">
+        <droplet-segment value="day">Day</droplet-segment>
+        <droplet-segment value="week">Week</droplet-segment>
+      </droplet-segmented>
     </form>`);
   await settle(8);
 

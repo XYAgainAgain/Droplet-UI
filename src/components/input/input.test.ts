@@ -3,16 +3,16 @@ import { userEvent } from 'vitest/browser';
 
 import { mount, settle } from '../../testing/index.js';
 
-import { JellyInput } from './index.js';
+import { DropletInput } from './index.js';
 import '../../testing/define-all.js';
 
-const inner = (el: JellyInput): HTMLInputElement => el.shadowRoot!.querySelector('input') as HTMLInputElement;
+const inner = (el: DropletInput): HTMLInputElement => el.shadowRoot!.querySelector('input') as HTMLInputElement;
 
 type Reflected = { ariaDescribedByElements?: Element[] | null; ariaLabelledByElements?: Element[] | null };
 
 test('upgrades with a native input carrying value/type/placeholder', async () => {
-  const host = mount('<jelly-input value="hi" type="email" placeholder="you@x.com"></jelly-input>');
-  const el = host.querySelector('jelly-input') as JellyInput;
+  const host = mount('<droplet-input value="hi" type="email" placeholder="you@x.com"></droplet-input>');
+  const el = host.querySelector('droplet-input') as DropletInput;
 
   await settle(3);
   const input = el.shadowRoot!.querySelector('input') as HTMLInputElement;
@@ -24,8 +24,8 @@ test('upgrades with a native input carrying value/type/placeholder', async () =>
 });
 
 test('the value property round-trips through the inner input', async () => {
-  const host = mount('<jelly-input></jelly-input>');
-  const el = host.querySelector('jelly-input') as JellyInput;
+  const host = mount('<droplet-input></droplet-input>');
+  const el = host.querySelector('droplet-input') as DropletInput;
 
   await settle(3);
   el.value = 'typed';
@@ -36,7 +36,7 @@ test('the value property round-trips through the inner input', async () => {
 });
 
 test('participates in a form under its name', async () => {
-  const host = mount('<form><jelly-input name="q" value="typed"></jelly-input></form>');
+  const host = mount('<form><droplet-input name="q" value="typed"></droplet-input></form>');
   await settle(3);
 
   const data = new FormData(host.querySelector('form') as HTMLFormElement);
@@ -46,8 +46,8 @@ test('participates in a form under its name', async () => {
 });
 
 test('no-autofill opts the inner input out of autocomplete', async () => {
-  const host = mount('<jelly-input no-autofill></jelly-input>');
-  const el = host.querySelector('jelly-input') as JellyInput;
+  const host = mount('<droplet-input no-autofill></droplet-input>');
+  const el = host.querySelector('droplet-input') as DropletInput;
 
   await settle(3);
   const input = el.shadowRoot!.querySelector('input') as HTMLInputElement;
@@ -58,8 +58,8 @@ test('no-autofill opts the inner input out of autocomplete', async () => {
 });
 
 test('IDL properties reflect their attributes with native semantics', () => {
-  const host = mount('<form><jelly-input></jelly-input></form>');
-  const el = host.querySelector('jelly-input') as JellyInput;
+  const host = mount('<form><droplet-input></droplet-input></form>');
+  const el = host.querySelector('droplet-input') as DropletInput;
 
   expect(el.name).toBe('');
   expect(el.minLength).toBe(-1);
@@ -110,8 +110,8 @@ test('IDL properties reflect their attributes with native semantics', () => {
 });
 
 test('constraint and hint attributes reach the inner input, maxlength included', () => {
-  const host = mount('<jelly-input required minlength="2" maxlength="5" pattern="\\d+" min="1" max="9" step="2" inputmode="numeric" enterkeyhint="send"></jelly-input>');
-  const el = host.querySelector('jelly-input') as JellyInput;
+  const host = mount('<droplet-input required minlength="2" maxlength="5" pattern="\\d+" min="1" max="9" step="2" inputmode="numeric" enterkeyhint="send"></droplet-input>');
+  const el = host.querySelector('droplet-input') as DropletInput;
   const input = inner(el);
 
   expect(input.required).toBe(true);
@@ -133,9 +133,9 @@ test('constraint and hint attributes reach the inner input, maxlength included',
 });
 
 test('validity mirrors the inner input, so form.checkValidity() and :invalid work on the host', () => {
-  const host = mount('<form><jelly-input name="email" type="email" required></jelly-input></form>');
+  const host = mount('<form><droplet-input name="email" type="email" required></droplet-input></form>');
   const form = host.querySelector('form') as HTMLFormElement;
-  const el = host.querySelector('jelly-input') as JellyInput;
+  const el = host.querySelector('droplet-input') as DropletInput;
 
   expect(el.willValidate).toBe(true);
   expect(el.validity.valueMissing).toBe(true);
@@ -172,8 +172,8 @@ test('validity mirrors the inner input, so form.checkValidity() and :invalid wor
 });
 
 test('the value attribute is the default until the value is dirty', () => {
-  const host = mount('<jelly-input value="a"></jelly-input>');
-  const el = host.querySelector('jelly-input') as JellyInput;
+  const host = mount('<droplet-input value="a"></droplet-input>');
+  const el = host.querySelector('droplet-input') as DropletInput;
 
   el.setAttribute('value', 'b');
   expect(el.value).toBe('b');
@@ -187,8 +187,8 @@ test('the value attribute is the default until the value is dirty', () => {
 });
 
 test('typing marks the value dirty too', async () => {
-  const host = mount('<jelly-input value="a"></jelly-input>');
-  const el = host.querySelector('jelly-input') as JellyInput;
+  const host = mount('<droplet-input value="a"></droplet-input>');
+  const el = host.querySelector('droplet-input') as DropletInput;
 
   el.focus();
   await userEvent.keyboard('b');
@@ -200,7 +200,7 @@ test('typing marks the value dirty too', async () => {
 
 test('a value set before build survives to the inner input and the form', () => {
   const form = document.createElement('form');
-  const el = document.createElement('jelly-input');
+  const el = document.createElement('droplet-input');
 
   el.name = 'q';
   el.value = 'early';
@@ -221,18 +221,18 @@ test('a value assigned before upgrade is replayed through the setter', () => {
 
   el.value = 'captured';
   document.body.appendChild(el);
-  customElements.define(tag, class extends JellyInput {});
+  customElements.define(tag, class extends DropletInput {});
 
-  expect(el).toBeInstanceOf(JellyInput);
-  expect(inner(el as unknown as JellyInput).value).toBe('captured');
+  expect(el).toBeInstanceOf(DropletInput);
+  expect(inner(el as unknown as DropletInput).value).toBe('captured');
 
   el.remove();
 });
 
 test('form.reset() restores the default and clears the dirty flag', () => {
-  const host = mount('<form><jelly-input name="q" value="start"></jelly-input></form>');
+  const host = mount('<form><droplet-input name="q" value="start"></droplet-input></form>');
   const form = host.querySelector('form') as HTMLFormElement;
-  const el = host.querySelector('jelly-input') as JellyInput;
+  const el = host.querySelector('droplet-input') as DropletInput;
 
   el.value = 'changed';
   form.reset();
@@ -246,10 +246,10 @@ test('form.reset() restores the default and clears the dirty flag', () => {
 });
 
 test('a disabled fieldset disables the inner input without touching the host attribute', () => {
-  const host = mount('<form><fieldset><jelly-input name="q" value="x"></jelly-input></fieldset></form>');
+  const host = mount('<form><fieldset><droplet-input name="q" value="x"></droplet-input></fieldset></form>');
   const form = host.querySelector('form') as HTMLFormElement;
   const fieldset = host.querySelector('fieldset') as HTMLFieldSetElement;
-  const el = host.querySelector('jelly-input') as JellyInput;
+  const el = host.querySelector('droplet-input') as DropletInput;
 
   fieldset.disabled = true;
   expect(inner(el).disabled).toBe(true);
@@ -267,8 +267,8 @@ test('a disabled fieldset disables the inner input without touching the host att
 });
 
 test('formStateRestoreCallback restores the value silently', () => {
-  const host = mount('<form><jelly-input name="q"></jelly-input></form>');
-  const el = host.querySelector('jelly-input') as JellyInput;
+  const host = mount('<form><droplet-input name="q"></droplet-input></form>');
+  const el = host.querySelector('droplet-input') as DropletInput;
   let events = 0;
 
   el.addEventListener('input', () => events++);
@@ -283,9 +283,9 @@ test('formStateRestoreCallback restores the value silently', () => {
 });
 
 test(':state(user-invalid) follows a committed edit and a failed submit, and paints the danger border', async () => {
-  const host = mount('<form><jelly-input minlength="3"></jelly-input><jelly-input required></jelly-input></form>');
+  const host = mount('<form><droplet-input minlength="3"></droplet-input><droplet-input required></droplet-input></form>');
   const form = host.querySelector('form') as HTMLFormElement;
-  const [short, empty] = Array.from(host.querySelectorAll('jelly-input')) as JellyInput[];
+  const [short, empty] = Array.from(host.querySelectorAll('droplet-input')) as DropletInput[];
   const neutral = short!.surfaceBorder().color;
 
   short!.focus();
@@ -316,8 +316,8 @@ test(':state(user-invalid) follows a committed edit and a failed submit, and pai
 });
 
 test('aria-invalid="true" paints the danger border too', () => {
-  const host = mount('<jelly-input aria-invalid="true"></jelly-input>');
-  const el = host.querySelector('jelly-input') as JellyInput;
+  const host = mount('<droplet-input aria-invalid="true"></droplet-input>');
+  const el = host.querySelector('droplet-input') as DropletInput;
 
   expect(el.surfaceBorder().color).toBe(el.resolveColor('var(--jelly-color-background-rose)'));
   expect(inner(el).getAttribute('aria-invalid')).toBe('true');
@@ -329,8 +329,8 @@ test('aria-invalid="true" paints the danger border too', () => {
 });
 
 test('host ARIA reaches the inner input; IDREFs cross as element references', () => {
-  const host = mount('<p id="hint">Work address</p><jelly-input aria-describedby="hint" aria-busy="true" aria-label="Email"></jelly-input>');
-  const el = host.querySelector('jelly-input') as JellyInput;
+  const host = mount('<p id="hint">Work address</p><droplet-input aria-describedby="hint" aria-busy="true" aria-label="Email"></droplet-input>');
+  const el = host.querySelector('droplet-input') as DropletInput;
   const input = inner(el);
 
   expect(input.getAttribute('aria-busy')).toBe('true');
@@ -351,8 +351,8 @@ test('host ARIA reaches the inner input; IDREFs cross as element references', ()
 });
 
 test('a <label for> and a wrapping <label> are linked to the inner input', () => {
-  const host = mount('<label for="f">Email</label><jelly-input id="f"></jelly-input><label>Phone <jelly-input></jelly-input></label>');
-  const [forField, wrapped] = Array.from(host.querySelectorAll('jelly-input')) as JellyInput[];
+  const host = mount('<label for="f">Email</label><droplet-input id="f"></droplet-input><label>Phone <droplet-input></droplet-input></label>');
+  const [forField, wrapped] = Array.from(host.querySelectorAll('droplet-input')) as DropletInput[];
   const [forLabel, wrapper] = Array.from(host.querySelectorAll('label'));
 
   expect(Array.from(forField!.labels)).toEqual([forLabel]);
@@ -373,8 +373,8 @@ test('a <label for> and a wrapping <label> are linked to the inner input', () =>
 });
 
 test('clicking a <label for> focuses the inner input', async () => {
-  const host = mount('<label for="g">Email</label><jelly-input id="g"></jelly-input>');
-  const el = host.querySelector('jelly-input') as JellyInput;
+  const host = mount('<label for="g">Email</label><droplet-input id="g"></droplet-input>');
+  const el = host.querySelector('droplet-input') as DropletInput;
 
   await settle(2);
   await userEvent.click(host.querySelector('label')!);
@@ -385,19 +385,19 @@ test('clicking a <label for> focuses the inner input', async () => {
 });
 
 // Waits out the keydown dispatch the implicit submission defers to
-const enterIn = async (el: JellyInput): Promise<void> => {
+const enterIn = async (el: DropletInput): Promise<void> => {
   el.focus();
   await userEvent.keyboard('{Enter}');
   await new Promise((resolve) => setTimeout(resolve, 20));
 };
 
 test('Enter submits a form with no submit button and one blocking field', async () => {
-  const host = mount('<form><jelly-input name="q" value="x"></jelly-input><input type="checkbox"></form>');
+  const host = mount('<form><droplet-input name="q" value="x"></droplet-input><input type="checkbox"></form>');
   const form = host.querySelector('form') as HTMLFormElement;
   let submits = 0;
 
   form.addEventListener('submit', (event) => { event.preventDefault(); submits++; });
-  await enterIn(host.querySelector('jelly-input') as JellyInput);
+  await enterIn(host.querySelector('droplet-input') as DropletInput);
 
   expect(submits).toBe(1);
 
@@ -405,10 +405,10 @@ test('Enter submits a form with no submit button and one blocking field', async 
 });
 
 test('Enter clicks the default button, and does nothing when it is disabled', async () => {
-  const host = mount('<form><jelly-input name="q"></jelly-input><button type="submit">Go</button></form>');
+  const host = mount('<form><droplet-input name="q"></droplet-input><button type="submit">Go</button></form>');
   const form = host.querySelector('form') as HTMLFormElement;
   const button = host.querySelector('button') as HTMLButtonElement;
-  const el = host.querySelector('jelly-input') as JellyInput;
+  const el = host.querySelector('droplet-input') as DropletInput;
   let clicks = 0;
   let submits = 0;
 
@@ -428,9 +428,9 @@ test('Enter clicks the default button, and does nothing when it is disabled', as
 });
 
 test('Enter does not submit with two blocking fields and no button, or when prevented', async () => {
-  const host = mount('<form><jelly-input name="a"></jelly-input><input name="b"></form>');
+  const host = mount('<form><droplet-input name="a"></droplet-input><input name="b"></form>');
   const form = host.querySelector('form') as HTMLFormElement;
-  const el = host.querySelector('jelly-input') as JellyInput;
+  const el = host.querySelector('droplet-input') as DropletInput;
   let submits = 0;
 
   form.addEventListener('submit', (event) => { event.preventDefault(); submits++; });
@@ -449,8 +449,8 @@ test('Enter does not submit with two blocking fields and no button, or when prev
 });
 
 test('reassigning type, pattern, min, max, or step to its current value writes no attribute', () => {
-  const host = mount('<jelly-input></jelly-input>');
-  const el = host.querySelector('jelly-input') as JellyInput;
+  const host = mount('<droplet-input></droplet-input>');
+  const el = host.querySelector('droplet-input') as DropletInput;
   const observer = new MutationObserver(() => {});
   const writes: Array<[string, string]> = [['type', 'number'], ['pattern', '\d+'], ['min', '1'], ['max', '9'], ['step', '2']];
 

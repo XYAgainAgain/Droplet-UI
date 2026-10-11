@@ -26,7 +26,7 @@ import dividerStyles         from './divider.css?inline';
  *
  * @cssprop [--jelly-divider] - Line color.
  */
-export class JellyDivider extends HTMLElementBase {
+export class DropletDivider extends HTMLElementBase {
 
   static define (options?: DefineOptions): DefineResult {
     return defineDivider(options);
@@ -103,11 +103,11 @@ export class JellyDivider extends HTMLElementBase {
 }
 
 export function defineDivider (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.divider, JellyDivider]], options);
+  return defineStrict([[TAGS.divider, DropletDivider]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-divider': JellyDivider;
+    'droplet-divider': DropletDivider;
   }
 }

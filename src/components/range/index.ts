@@ -7,11 +7,11 @@
  * placement and the arrow keys all mirror like native sliders
  */
 
-import { JellyElement }     from '../../element/index.js';
+import { DropletElement }     from '../../element/index.js';
 import type { Shape }       from '../../element/index.js';
 
-import { JellyBody }        from '../../core/index.js';
-import type { JellyConfig } from '../../core/index.js';
+import { DropletBody }        from '../../core/index.js';
+import type { DropletConfig } from '../../core/index.js';
 
 import { canonicalizeSize } from '../../utilities/index.js';
 import { clamp }            from '../../utilities/index.js';
@@ -47,7 +47,7 @@ const RANGE_SIZES: Record<Size, RangeSize> = {
 };
 
 // Physics tuning for the thumb bodies - small, tight drops that stay lively under drag
-const THUMB_CONFIG: Partial<JellyConfig> = {
+const THUMB_CONFIG: Partial<DropletConfig> = {
   membraneSpring:          82,
   membraneDamping:         14,
   waveCoupling:            170,
@@ -85,7 +85,7 @@ const THUMB_CONFIG: Partial<JellyConfig> = {
  * @cssprop [--jelly-accent] - Selected-interval fill and thumb color.
  * @cssprop [--jelly-track] - Empty-track color.
  */
-export class JellyRange extends JellyElement implements EventListenerObject {
+export class DropletRange extends DropletElement implements EventListenerObject {
 
   static define (options?: DefineOptions): DefineResult {
     return defineRange(options);
@@ -101,7 +101,7 @@ export class JellyRange extends JellyElement implements EventListenerObject {
   // Populated in onBuilt() / onShape()
   track!: HTMLElement;
   knobs!: HTMLElement[];
-  thumbs: [JellyBody, JellyBody] | null = null;
+  thumbs: [DropletBody, DropletBody] | null = null;
   val: [number, number] = [0, 100];
 
   x: [number, number] = [0, 0];
@@ -119,7 +119,7 @@ export class JellyRange extends JellyElement implements EventListenerObject {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['min', 'max', 'step', 'low', 'high', 'label', 'disabled', 'size', ...JellyElement.AXIS_ATTRIBUTES];
+    return ['min', 'max', 'step', 'low', 'high', 'label', 'disabled', 'size', ...DropletElement.AXIS_ATTRIBUTES];
   }
 
   constructor () {
@@ -700,11 +700,11 @@ export class JellyRange extends JellyElement implements EventListenerObject {
 }
 
 export function defineRange (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.range, JellyRange]], options);
+  return defineStrict([[TAGS.range, DropletRange]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-range': JellyRange;
+    'droplet-range': DropletRange;
   }
 }

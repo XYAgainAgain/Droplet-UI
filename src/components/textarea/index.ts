@@ -7,7 +7,7 @@
  * validates, and resets with its form
  */
 
-import { JellyFormField }   from '../../element/form-field.js';
+import { DropletFormField }   from '../../element/form-field.js';
 import { FIELD_ATTRIBUTES } from '../../element/form-field.js';
 import type { Shape }       from '../../element/index.js';
 
@@ -74,7 +74,7 @@ const MIRRORED_STYLES = [
  * @cssprop [--jelly-textarea-max-height=240px] - Cap for the auto-grow height.
  * @cssprop [--jelly-fill] - Resting surface fill.
  */
-export class JellyTextarea extends JellyFormField {
+export class DropletTextarea extends DropletFormField {
 
   static define (options?: DefineOptions): DefineResult {
     return defineTextarea(options);
@@ -87,7 +87,7 @@ export class JellyTextarea extends JellyFormField {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return [...FIELD_ATTRIBUTES, ...JellyTextarea.CONSTRAINTS, 'rows'];
+    return [...FIELD_ATTRIBUTES, ...DropletTextarea.CONSTRAINTS, 'rows'];
   }
 
   // Component styles layered over the shared jelly base styles
@@ -278,11 +278,11 @@ export class JellyTextarea extends JellyFormField {
 }
 
 export function defineTextarea (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.textarea, JellyTextarea]], options);
+  return defineStrict([[TAGS.textarea, DropletTextarea]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-textarea': JellyTextarea;
+    'droplet-textarea': DropletTextarea;
   }
 }

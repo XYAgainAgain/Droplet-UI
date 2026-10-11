@@ -1,7 +1,7 @@
 /*
  * Physics tuning for the soft-body core. Values in "index units" are
  * independent of shape size (the ring is always the same sample count); values
- * in pixels scale with the shape. Components pass a Partial<JellyConfig> to
+ * in pixels scale with the shape. Components pass a Partial<DropletConfig> to
  * override a few.
  */
 
@@ -76,4 +76,4 @@ export const DEFAULT_CONFIG = {
 };
 
 // The full physics tuning record (components pass a Partial to override a few)
-export type JellyConfig = typeof DEFAULT_CONFIG;
+export type DropletConfig = typeof DEFAULT_CONFIG;

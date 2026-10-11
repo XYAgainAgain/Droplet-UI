@@ -8,7 +8,7 @@
  * resets, and Enter submits its form
  */
 
-import { JellyFormField }   from '../../element/form-field.js';
+import { DropletFormField }   from '../../element/form-field.js';
 import { FIELD_ATTRIBUTES } from '../../element/form-field.js';
 import { FIELD_REPLAYED }   from '../../element/form-field.js';
 import { implicitlySubmit } from '../../element/form-field.js';
@@ -94,7 +94,7 @@ function fieldType (value: string | null): string {
  * @cssprop [--jelly-accent] - Focused-border accent color.
  * @cssprop [--jelly-input-radius=16px] - Corner radius of the painted surface.
  */
-export class JellyInput extends JellyFormField {
+export class DropletInput extends DropletFormField {
 
   static define (options?: DefineOptions): DefineResult {
     return defineInput(options);
@@ -110,7 +110,7 @@ export class JellyInput extends JellyFormField {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return [...FIELD_ATTRIBUTES, ...JellyInput.CONSTRAINTS, 'type', 'name'];
+    return [...FIELD_ATTRIBUTES, ...DropletInput.CONSTRAINTS, 'type', 'name'];
   }
 
   static override fieldReplayed (): readonly string[] {
@@ -348,11 +348,11 @@ export class JellyInput extends JellyFormField {
 }
 
 export function defineInput (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.input, JellyInput]], options);
+  return defineStrict([[TAGS.input, DropletInput]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-input': JellyInput;
+    'droplet-input': DropletInput;
   }
 }

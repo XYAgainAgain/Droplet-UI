@@ -2,12 +2,12 @@ import { expect, test } from 'vitest';
 
 import { mount } from '../../testing/index.js';
 
-import type { JellyTooltip } from './index.js';
+import type { DropletTooltip } from './index.js';
 import '../../testing/define-all.js';
 
 test('mirrors text into the bubble and describes the trigger', () => {
-  const host = mount('<jelly-tooltip text="Copy link"><button>Copy</button></jelly-tooltip>');
-  const el = host.querySelector('jelly-tooltip') as JellyTooltip;
+  const host = mount('<droplet-tooltip text="Copy link"><button>Copy</button></droplet-tooltip>');
+  const el = host.querySelector('droplet-tooltip') as DropletTooltip;
 
   const content = el.shadowRoot!.querySelector('slot[name="content"]') as HTMLElement;
   expect(content.textContent).toBe('Copy link');
@@ -17,8 +17,8 @@ test('mirrors text into the bubble and describes the trigger', () => {
 });
 
 test('shows on pointerenter and hides on pointerleave', () => {
-  const host = mount('<jelly-tooltip text="Info"><button>Trigger</button></jelly-tooltip>');
-  const el = host.querySelector('jelly-tooltip') as JellyTooltip;
+  const host = mount('<droplet-tooltip text="Info"><button>Trigger</button></droplet-tooltip>');
+  const el = host.querySelector('droplet-tooltip') as DropletTooltip;
   const bubble = el.shadowRoot!.querySelector('.bubble') as HTMLElement;
 
   el.dispatchEvent(new Event('pointerenter'));
@@ -31,8 +31,8 @@ test('shows on pointerenter and hides on pointerleave', () => {
 });
 
 test('repositions an open tooltip when its text changes', () => {
-  const host = mount('<jelly-tooltip text="Info"><button>Trigger</button></jelly-tooltip>');
-  const el = host.querySelector('jelly-tooltip') as JellyTooltip;
+  const host = mount('<droplet-tooltip text="Info"><button>Trigger</button></droplet-tooltip>');
+  const el = host.querySelector('droplet-tooltip') as DropletTooltip;
   const bubble = el.shadowRoot!.querySelector('.bubble') as HTMLElement;
 
   el.show();
@@ -45,8 +45,8 @@ test('repositions an open tooltip when its text changes', () => {
 });
 
 test('Escape dismisses the visible tooltip', () => {
-  const host = mount('<jelly-tooltip text="Info"><button>Trigger</button></jelly-tooltip>');
-  const el = host.querySelector('jelly-tooltip') as JellyTooltip;
+  const host = mount('<droplet-tooltip text="Info"><button>Trigger</button></droplet-tooltip>');
+  const el = host.querySelector('droplet-tooltip') as DropletTooltip;
   const bubble = el.shadowRoot!.querySelector('.bubble') as HTMLElement;
 
   el.dispatchEvent(new Event('focusin'));

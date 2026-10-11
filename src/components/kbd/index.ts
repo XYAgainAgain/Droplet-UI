@@ -4,7 +4,7 @@
  * anywhere on the page
  */
 
-import { JellyElement } from '../../element/index.js';
+import { DropletElement } from '../../element/index.js';
 import type { Shape }   from '../../element/index.js';
 import { defineStrict, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
@@ -115,7 +115,7 @@ function shortcutsOff (el: Element): boolean {
  *
  * @csspart cap - The keycap surface.
  */
-export class JellyKbd extends JellyElement implements EventListenerObject {
+export class DropletKbd extends DropletElement implements EventListenerObject {
 
   static define (options?: DefineOptions): DefineResult {
     return defineKbd(options);
@@ -132,7 +132,7 @@ export class JellyKbd extends JellyElement implements EventListenerObject {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['key', 'decorative', ...JellyElement.AXIS_ATTRIBUTES];
+    return ['key', 'decorative', ...DropletElement.AXIS_ATTRIBUTES];
   }
 
   // Reflects the decorative attribute
@@ -374,11 +374,11 @@ export class JellyKbd extends JellyElement implements EventListenerObject {
 }
 
 export function defineKbd (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.kbd, JellyKbd]], options);
+  return defineStrict([[TAGS.kbd, DropletKbd]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-kbd': JellyKbd;
+    'droplet-kbd': DropletKbd;
   }
 }

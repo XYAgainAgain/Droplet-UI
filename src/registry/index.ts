@@ -3,8 +3,8 @@
 
 import { LOG_PREFIX } from './tags.js';
 
-export { LOG_PREFIX, TAG_PREFIX, TAGS } from './tags.js';
-export type { TagName } from './tags.js';
+export { anyTag, isLibraryTag, LEGACY_PREFIX, LEGACY_TAGS, LOG_PREFIX, TAG_PREFIX, TAGS } from './tags.js';
+export type { TagKey, TagName } from './tags.js';
 
 export interface Collision {
   tag: string;

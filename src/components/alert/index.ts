@@ -3,10 +3,10 @@
  * dismiss button, plus an imperative shake() to grab attention on demand.
  */
 
-import { JellyElement } from '../../element/index.js';
+import { DropletElement } from '../../element/index.js';
 import type { Shape }   from '../../element/index.js';
 
-import { jellyIcon }     from '../../icons/index.js';
+import { dropletIcon }     from '../../icons/index.js';
 import type { IconName } from '../../icons/index.js';
 
 import { emit }          from '../../utilities/index.js';
@@ -45,7 +45,7 @@ const TONE_ICONS: Record<string, IconName> = {
  *
  * @cssprop [--tone] - The tone color driving the fill wash and edge.
  */
-export class JellyAlert extends JellyElement {
+export class DropletAlert extends DropletElement {
 
   static define (options?: DefineOptions): DefineResult {
     return defineAlert(options);
@@ -59,7 +59,7 @@ export class JellyAlert extends JellyElement {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['tone', 'size', 'dismissible', ...JellyElement.AXIS_ATTRIBUTES];
+    return ['tone', 'size', 'dismissible', ...DropletElement.AXIS_ATTRIBUTES];
   }
 
   // Lifecycle method: Fires when observed HTML attributes change dynamically
@@ -102,9 +102,9 @@ export class JellyAlert extends JellyElement {
 
     return `
       <div class="box" part="box" role="alert">
-        <span class="icon" aria-hidden="true">${jellyIcon(TONE_ICONS[tone] ?? TONE_ICONS.info!)}</span>
+        <span class="icon" aria-hidden="true">${dropletIcon(TONE_ICONS[tone] ?? TONE_ICONS.info!)}</span>
         <div class="body"><slot></slot></div>
-        <button class="close" part="close" aria-label="Dismiss">${jellyIcon('dismiss', { size: 14 })}</button>
+        <button class="close" part="close" aria-label="Dismiss">${dropletIcon('dismiss', { size: 14 })}</button>
       </div>`;
   }
 
@@ -205,11 +205,11 @@ export class JellyAlert extends JellyElement {
 }
 
 export function defineAlert (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.alert, JellyAlert]], options);
+  return defineStrict([[TAGS.alert, DropletAlert]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-alert': JellyAlert;
+    'droplet-alert': DropletAlert;
   }
 }

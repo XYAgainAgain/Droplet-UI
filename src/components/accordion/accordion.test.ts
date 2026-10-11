@@ -2,18 +2,18 @@ import { expect, test } from 'vitest';
 
 import { mount, raf } from '../../testing/index.js';
 
-import type { JellyCollapsible } from '../collapsible/index.js';
+import type { DropletCollapsible } from '../collapsible/index.js';
 import '../../testing/define-all.js';
 
 test('single mode closes siblings when one item opens', async () => {
   const host = mount(`
-    <jelly-accordion single>
-      <jelly-collapsible open><span slot="header">One</span>1</jelly-collapsible>
-      <jelly-collapsible><span slot="header">Two</span>2</jelly-collapsible>
-    </jelly-accordion>`);
+    <droplet-accordion single>
+      <droplet-collapsible open><span slot="header">One</span>1</droplet-collapsible>
+      <droplet-collapsible><span slot="header">Two</span>2</droplet-collapsible>
+    </droplet-accordion>`);
   await raf();
 
-  const [one, two] = [...host.querySelectorAll('jelly-collapsible')] as [JellyCollapsible, JellyCollapsible];
+  const [one, two] = [...host.querySelectorAll('droplet-collapsible')] as [DropletCollapsible, DropletCollapsible];
 
   (two.shadowRoot!.querySelector('.head') as HTMLButtonElement).click();
 
@@ -25,12 +25,12 @@ test('single mode closes siblings when one item opens', async () => {
 
 test('propagates its size to child collapsibles', async () => {
   const host = mount(`
-    <jelly-accordion size="large">
-      <jelly-collapsible><span slot="header">One</span>1</jelly-collapsible>
-    </jelly-accordion>`);
+    <droplet-accordion size="large">
+      <droplet-collapsible><span slot="header">One</span>1</droplet-collapsible>
+    </droplet-accordion>`);
   await raf();
 
-  expect(host.querySelector('jelly-collapsible')!.getAttribute('size')).toBe('large');
+  expect(host.querySelector('droplet-collapsible')!.getAttribute('size')).toBe('large');
 
   host.remove();
 });

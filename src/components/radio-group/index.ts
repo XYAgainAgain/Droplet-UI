@@ -12,9 +12,9 @@ import { uniqueId }          from '../../utilities/index.js';
 
 import { ensureThemeTokens } from '../../theme/index.js';
 import { HTMLElementBase }   from '../../element/base.js';
-import { defineStrict, TAGS } from '../../registry/index.js';
+import { anyTag, defineStrict, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
-import { JellyRadio }        from '../radio/index.js';
+import { DropletRadio }        from '../radio/index.js';
 
 import radioGroupStyles      from './radio-group.css?inline';
 
@@ -33,7 +33,7 @@ import radioGroupStyles      from './radio-group.css?inline';
  * @csspart legend - The legend text.
  * @csspart items - The radiogroup container.
  */
-export class JellyRadioGroup extends HTMLElementBase {
+export class DropletRadioGroup extends HTMLElementBase {
 
   static define (options?: DefineOptions): DefineResult {
     return defineRadioGroup(options);
@@ -62,13 +62,13 @@ export class JellyRadioGroup extends HTMLElementBase {
     }
 
     this.syncLabel();
-    propagateSize(this, 'jelly-radio');
+    propagateSize(this, anyTag('radio'));
   }
 
   // Render the shadow DOM once
   build (): void {
     this.built    = true;
-    this.legendId = uniqueId('jelly-radio-group-legend');
+    this.legendId = uniqueId('droplet-radio-group-legend');
 
     this.attachShadow({ mode: 'open' });
 
@@ -82,7 +82,7 @@ export class JellyRadioGroup extends HTMLElementBase {
     this.slotEl = this.shadowRoot!.querySelector('slot')!;
 
     // Radios slotted in later still pick up the group's size
-    this.slotEl.addEventListener('slotchange', () => propagateSize(this, 'jelly-radio'));
+    this.slotEl.addEventListener('slotchange', () => propagateSize(this, anyTag('radio')));
   }
 
   // Lifecycle method: Fires when observed HTML attributes change dynamically
@@ -95,7 +95,7 @@ export class JellyRadioGroup extends HTMLElementBase {
       this.syncLabel();
     } else if (name === 'size') {
       canonicalizeSize(this);
-      propagateSize(this, 'jelly-radio');
+      propagateSize(this, anyTag('radio'));
     }
   }
 
@@ -115,11 +115,11 @@ export class JellyRadioGroup extends HTMLElementBase {
 }
 
 export function defineRadioGroup (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.radio, JellyRadio], [TAGS.radioGroup, JellyRadioGroup]], options);
+  return defineStrict([[TAGS.radio, DropletRadio], [TAGS.radioGroup, DropletRadioGroup]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-radio-group': JellyRadioGroup;
+    'droplet-radio-group': DropletRadioGroup;
   }
 }

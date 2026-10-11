@@ -9,7 +9,7 @@ import { registerPreset }     from '../../presets/index.js';
 import { PALETTE }            from '../../theme/index.js';
 
 import { defineAll } from '../../register.js';
-import { defineSlider, JellySlider, THUMB_CONFIG } from './index.js';
+import { defineSlider, DropletSlider, THUMB_CONFIG } from './index.js';
 
 defineAll({ strict: false });
 
@@ -22,8 +22,8 @@ function offscreen (width: number, height: number): CanvasRenderingContext2D {
 }
 
 test('upgrades with a native range input', async () => {
-  const host = mount('<jelly-slider value="40"></jelly-slider>');
-  const el = host.querySelector('jelly-slider') as JellySlider;
+  const host = mount('<droplet-slider value="40"></droplet-slider>');
+  const el = host.querySelector('droplet-slider') as DropletSlider;
 
   await settle(3);
   const input = el.shadowRoot!.querySelector('input') as HTMLInputElement;
@@ -34,8 +34,8 @@ test('upgrades with a native range input', async () => {
 });
 
 test('arrow keys step the value and fire input', async () => {
-  const host = mount('<jelly-slider value="40" min="0" max="100" step="5"></jelly-slider>');
-  const el = host.querySelector('jelly-slider') as JellySlider;
+  const host = mount('<droplet-slider value="40" min="0" max="100" step="5"></droplet-slider>');
+  const el = host.querySelector('droplet-slider') as DropletSlider;
 
   await settle(3);
   let inputs = 0;
@@ -51,8 +51,8 @@ test('arrow keys step the value and fire input', async () => {
 });
 
 test('the value property reads and writes the inner input', async () => {
-  const host = mount('<jelly-slider value="10"></jelly-slider>');
-  const el = host.querySelector('jelly-slider') as JellySlider;
+  const host = mount('<droplet-slider value="10"></droplet-slider>');
+  const el = host.querySelector('droplet-slider') as DropletSlider;
 
   await settle(3);
   expect(el.value).toBe('10');
@@ -64,7 +64,7 @@ test('the value property reads and writes the inner input', async () => {
 });
 
 test('participates in a form', async () => {
-  const host = mount('<form><jelly-slider name="vol" value="30"></jelly-slider></form>');
+  const host = mount('<form><droplet-slider name="vol" value="30"></droplet-slider></form>');
   await settle(3);
 
   const data = new FormData(host.querySelector('form') as HTMLFormElement);
@@ -73,20 +73,20 @@ test('participates in a form', async () => {
   host.remove();
 });
 
-describe('jelly-slider contracts', () => {
+describe('droplet-slider contracts', () => {
 
   test('registers through the helper and is a no-op the second time', () => {
-    expect(defineSlider().alreadyDefined).toEqual(['jelly-slider']);
+    expect(defineSlider().alreadyDefined).toEqual(['droplet-slider']);
   });
 
   test('reads feel from the nearest scope and lets the element override it', async () => {
     installScopeBridge(document);
     registerPreset('feel', 'slider-stiff', { pressure: 900 }, { override: true });
 
-    const host = mount('<div data-droplet-feel="slider-stiff"><jelly-slider></jelly-slider><jelly-slider feel="gel"></jelly-slider></div>');
+    const host = mount('<div data-droplet-feel="slider-stiff"><droplet-slider></droplet-slider><droplet-slider feel="gel"></droplet-slider></div>');
     await settle();
 
-    const [a, b] = host.querySelectorAll('jelly-slider') as NodeListOf<JellySlider>;
+    const [a, b] = host.querySelectorAll('droplet-slider') as NodeListOf<DropletSlider>;
 
     expect(a!.feel).toBe('slider-stiff');
     expect(a!.resolvedConfig.pressure).toBe(900);
@@ -99,10 +99,10 @@ describe('jelly-slider contracts', () => {
   test('keeps the thumb profile under a feel preset', async () => {
     registerPreset('feel', 'test-soft', { pressure: 300 }, { override: true });
 
-    const host = mount('<jelly-slider feel="test-soft"></jelly-slider>');
+    const host = mount('<droplet-slider feel="test-soft"></droplet-slider>');
     await settle();
 
-    const el = host.firstElementChild as JellySlider;
+    const el = host.firstElementChild as DropletSlider;
 
     // The preset wins field by field over the profile, so pressure is the
     // preset's on both bodies while untouched profile fields survive
@@ -117,10 +117,10 @@ describe('jelly-slider contracts', () => {
   });
 
   test('re-resolves both bodies on an attribute change without rebuilding the thumb', async () => {
-    const host = mount('<jelly-slider></jelly-slider>');
+    const host = mount('<droplet-slider></droplet-slider>');
     await settle(6);
 
-    const el = host.firstElementChild as JellySlider;
+    const el = host.firstElementChild as DropletSlider;
     const resize = vi.spyOn(el.thumbBody!, 'resize');
 
     el.setAttribute('quality', 'high');
@@ -134,10 +134,10 @@ describe('jelly-slider contracts', () => {
   });
 
   test('applies the quality cap to both bodies and reflects the canonical alias', async () => {
-    const host = mount('<jelly-slider quality="med"></jelly-slider>');
+    const host = mount('<droplet-slider quality="med"></droplet-slider>');
     await settle(6);
 
-    const el = host.firstElementChild as JellySlider;
+    const el = host.firstElementChild as DropletSlider;
 
     expect(el.quality).toBe('medium');
     expect(el.getAttribute('quality')).toBe('medium');
@@ -158,10 +158,10 @@ describe('jelly-slider contracts', () => {
     el.value = '17';
     document.body.appendChild(el);
 
-    customElements.define('jelly-slider-not-yet', class extends JellySlider {});
+    customElements.define('jelly-slider-not-yet', class extends DropletSlider {});
     await settle(3);
 
-    const slider = el as unknown as JellySlider;
+    const slider = el as unknown as DropletSlider;
 
     expect(slider.value).toBe('17');
     expect((slider.shadowRoot!.querySelector('input') as HTMLInputElement).value).toBe('17');
@@ -175,19 +175,19 @@ describe('jelly-slider contracts', () => {
     el.value = '17';
     document.body.appendChild(el);
 
-    customElements.define('jelly-slider-markup-wins', class extends JellySlider {});
+    customElements.define('jelly-slider-markup-wins', class extends DropletSlider {});
     await settle(3);
 
-    expect((el as unknown as JellySlider).value).toBe('80');
+    expect((el as unknown as DropletSlider).value).toBe('80');
 
     el.remove();
   });
 
   test('emits nothing for a programmatic value set', async () => {
-    const host = mount('<jelly-slider value="10"></jelly-slider>');
+    const host = mount('<droplet-slider value="10"></droplet-slider>');
     await settle(3);
 
-    const el = host.firstElementChild as JellySlider;
+    const el = host.firstElementChild as DropletSlider;
     const onInput = vi.fn();
     const onChange = vi.fn();
 
@@ -205,10 +205,10 @@ describe('jelly-slider contracts', () => {
   });
 
   test('stays silent for a native change that committed no new value', async () => {
-    const host = mount('<jelly-slider value="100"></jelly-slider>');
+    const host = mount('<droplet-slider value="100"></droplet-slider>');
     await settle();
 
-    const el = host.firstElementChild as JellySlider;
+    const el = host.firstElementChild as DropletSlider;
     const onChange = vi.fn();
     const onInput = vi.fn();
 
@@ -234,10 +234,10 @@ describe('jelly-slider contracts', () => {
   });
 
   test('emits exactly one input and one change per keyboard step', async () => {
-    const host = mount('<jelly-slider value="40" min="0" max="100" step="5"></jelly-slider>');
+    const host = mount('<droplet-slider value="40" min="0" max="100" step="5"></droplet-slider>');
     await settle(3);
 
-    const el = host.firstElementChild as JellySlider;
+    const el = host.firstElementChild as DropletSlider;
     const onInput = vi.fn();
     const onChange = vi.fn();
 
@@ -256,10 +256,10 @@ describe('jelly-slider contracts', () => {
   });
 
   test('does not let the hidden input\'s own events escape as duplicates', async () => {
-    const host = mount('<jelly-slider value="40"></jelly-slider>');
+    const host = mount('<droplet-slider value="40"></droplet-slider>');
     await settle(3);
 
-    const el = host.firstElementChild as JellySlider;
+    const el = host.firstElementChild as DropletSlider;
     const onInput = vi.fn();
     const onChange = vi.fn();
 
@@ -280,10 +280,10 @@ describe('jelly-slider contracts', () => {
   });
 
   test('emits one input per drag move and one change on release', async () => {
-    const host = mount('<jelly-slider value="40"></jelly-slider>');
+    const host = mount('<droplet-slider value="40"></droplet-slider>');
     await settle(6);
 
-    const el = host.firstElementChild as JellySlider;
+    const el = host.firstElementChild as DropletSlider;
     const onInput = vi.fn();
     const onChange = vi.fn();
 
@@ -305,10 +305,10 @@ describe('jelly-slider contracts', () => {
   });
 
   test('exposes dragging through :state() and clears it on pointer cancel', async () => {
-    const host = mount('<jelly-slider></jelly-slider>');
+    const host = mount('<droplet-slider></droplet-slider>');
     await settle(6);
 
-    const el    = host.firstElementChild as JellySlider;
+    const el    = host.firstElementChild as DropletSlider;
     const track = el.shadowRoot!.querySelector('.track') as HTMLElement;
     const rect  = track.getBoundingClientRect();
     const base  = { bubbles: true, composed: true, pointerId: 3, isPrimary: true, clientX: rect.left + 10, clientY: rect.top + rect.height / 2 };
@@ -323,10 +323,10 @@ describe('jelly-slider contracts', () => {
   });
 
   test('keeps dragging through a pointerup from a different pointer', async () => {
-    const host = mount('<jelly-slider></jelly-slider>');
+    const host = mount('<droplet-slider></droplet-slider>');
     await settle(6);
 
-    const el    = host.firstElementChild as JellySlider;
+    const el    = host.firstElementChild as DropletSlider;
     const track = el.shadowRoot!.querySelector('.track') as HTMLElement;
     const rect  = track.getBoundingClientRect();
 
@@ -344,10 +344,10 @@ describe('jelly-slider contracts', () => {
   });
 
   test('ends the drag when pointer capture is lost without a pointerup', async () => {
-    const host = mount('<jelly-slider></jelly-slider>');
+    const host = mount('<droplet-slider></droplet-slider>');
     await settle(6);
 
-    const el    = host.firstElementChild as JellySlider;
+    const el    = host.firstElementChild as DropletSlider;
     const track = el.shadowRoot!.querySelector('.track') as HTMLElement;
     const rect  = track.getBoundingClientRect();
 
@@ -378,10 +378,10 @@ describe('jelly-slider contracts', () => {
   });
 
   test('ignores a second pointer while a drag is in flight', async () => {
-    const host = mount('<jelly-slider value="50"></jelly-slider>');
+    const host = mount('<droplet-slider value="50"></droplet-slider>');
     await settle(6);
 
-    const el    = host.firstElementChild as JellySlider;
+    const el    = host.firstElementChild as DropletSlider;
     const track = el.shadowRoot!.querySelector('.track') as HTMLElement;
     const rect  = track.getBoundingClientRect();
     const y     = rect.top + rect.height / 2;
@@ -405,10 +405,10 @@ describe('jelly-slider contracts', () => {
   });
 
   test('clears dragging state on disconnect', async () => {
-    const host = mount('<jelly-slider></jelly-slider>');
+    const host = mount('<droplet-slider></droplet-slider>');
     await settle(6);
 
-    const el    = host.firstElementChild as JellySlider;
+    const el    = host.firstElementChild as DropletSlider;
     const track = el.shadowRoot!.querySelector('.track') as HTMLElement;
     const rect  = track.getBoundingClientRect();
 
@@ -426,10 +426,10 @@ describe('jelly-slider contracts', () => {
   });
 
   test('paints the track identically through the extracted painter slot', async () => {
-    const host = mount('<jelly-slider value="35"></jelly-slider>');
+    const host = mount('<droplet-slider value="35"></droplet-slider>');
     await settle(10);
 
-    const el     = host.firstElementChild as JellySlider;
+    const el     = host.firstElementChild as DropletSlider;
     const w      = el.cssW;
     const h      = el.cssH;
     const cx     = w / 2;
@@ -484,7 +484,7 @@ describe('jelly-slider contracts', () => {
   test('isolates a throwing track painter and logs once', async () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    customElements.define('jelly-slider-hostile', class extends JellySlider {
+    customElements.define('jelly-slider-hostile', class extends DropletSlider {
       calls = 0;
 
       override paintTrack (): void {
@@ -496,7 +496,7 @@ describe('jelly-slider contracts', () => {
     const host = mount('<jelly-slider-hostile></jelly-slider-hostile>');
     await settle(8);
 
-    const el = host.firstElementChild as JellySlider & { calls: number };
+    const el = host.firstElementChild as DropletSlider & { calls: number };
 
     expect(el.calls).toBe(1);
     expect(error).toHaveBeenCalledTimes(1);
@@ -520,7 +520,7 @@ describe('jelly-slider contracts', () => {
   });
 
   test('builds the track frame from the real render path', async () => {
-    customElements.define('jelly-slider-frame-probe', class extends JellySlider {
+    customElements.define('jelly-slider-frame-probe', class extends DropletSlider {
       seen: PainterFrame | null = null;
 
       override paintTrack (frame: PainterFrame): void {
@@ -532,7 +532,7 @@ describe('jelly-slider contracts', () => {
     const host = mount('<jelly-slider-frame-probe value="35"></jelly-slider-frame-probe>');
     await settle(8);
 
-    const el = host.firstElementChild as JellySlider & { seen: PainterFrame | null };
+    const el = host.firstElementChild as DropletSlider & { seen: PainterFrame | null };
 
     el.seen = null;
     el.paintTrackPass();
@@ -552,7 +552,7 @@ describe('jelly-slider contracts', () => {
   test('keeps the track pass alive when the surface painter throws', async () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    customElements.define('jelly-slider-bad-surface', class extends JellySlider {
+    customElements.define('jelly-slider-bad-surface', class extends DropletSlider {
       trackCalls = 0;
 
       override paintSurface (): void {
@@ -568,7 +568,7 @@ describe('jelly-slider contracts', () => {
     const host = mount('<jelly-slider-bad-surface></jelly-slider-bad-surface>');
     await settle(8);
 
-    const el     = host.firstElementChild as JellySlider & { trackCalls: number };
+    const el     = host.firstElementChild as DropletSlider & { trackCalls: number };
     const before = el.trackCalls;
 
     el.frame(1 / 60);
@@ -585,11 +585,11 @@ describe('jelly-slider contracts', () => {
 
     HTMLCanvasElement.prototype.getContext = function () { return null; } as typeof original;
 
-    const host = mount('<jelly-slider value="40" min="0" max="100" step="5"></jelly-slider>');
+    const host = mount('<droplet-slider value="40" min="0" max="100" step="5"></droplet-slider>');
 
     HTMLCanvasElement.prototype.getContext = original;
 
-    const el = host.firstElementChild as JellySlider;
+    const el = host.firstElementChild as DropletSlider;
 
     await settle(3);
 

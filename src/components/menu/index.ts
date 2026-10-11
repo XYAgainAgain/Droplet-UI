@@ -22,7 +22,7 @@ import { canonicalizeSize }  from '../../utilities/index.js';
 
 import { ensureThemeTokens } from '../../theme/index.js';
 import { HTMLElementBase }   from '../../element/base.js';
-import { defineStrict, TAGS } from '../../registry/index.js';
+import { anyTag, defineStrict, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import menuStyles            from './menu.css?inline';
@@ -38,7 +38,7 @@ import menuStyles            from './menu.css?inline';
  * @attr {boolean} disabled - Whether this item cannot be picked.
  * @attr {boolean} danger - Style the item as a destructive action.
  */
-export class JellyMenuItem extends HTMLElementBase {
+export class DropletMenuItem extends HTMLElementBase {
 
   static define (options?: DefineOptions): DefineResult {
     return defineMenuItem(options);
@@ -73,7 +73,7 @@ export class JellyMenuItem extends HTMLElementBase {
  *
  * @csspart menu - The floating menu surface.
  */
-export class JellyMenu extends HTMLElementBase {
+export class DropletMenu extends HTMLElementBase {
 
   static define (options?: DefineOptions): DefineResult {
     return defineMenu(options);
@@ -85,7 +85,7 @@ export class JellyMenu extends HTMLElementBase {
 
   // Populated in connectedCallback() / open()
   menu!: HTMLElement;
-  items: JellyMenuItem[] = [];
+  items: DropletMenuItem[] = [];
 
   untrack: (() => void) | null = null;
 
@@ -214,7 +214,7 @@ export class JellyMenu extends HTMLElementBase {
 
     this.isOpen = true;
     this.reflectTrigger();
-    this.items = [...this.querySelectorAll('jelly-menu-item')];
+    this.items = [...this.querySelectorAll<DropletMenuItem>(anyTag('menuItem'))];
 
     this.menu.innerHTML = this.items
       .map((item, i) => `<div class="item" role="menuitem" tabindex="-1" data-i="${i}"
@@ -381,16 +381,16 @@ export class JellyMenu extends HTMLElementBase {
 }
 
 export function defineMenuItem (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.menuItem, JellyMenuItem]], options);
+  return defineStrict([[TAGS.menuItem, DropletMenuItem]], options);
 }
 
 export function defineMenu (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.menuItem, JellyMenuItem], [TAGS.menu, JellyMenu]], options);
+  return defineStrict([[TAGS.menuItem, DropletMenuItem], [TAGS.menu, DropletMenu]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-menu-item': JellyMenuItem;
-    'jelly-menu': JellyMenu;
+    'droplet-menu-item': DropletMenuItem;
+    'droplet-menu': DropletMenu;
   }
 }

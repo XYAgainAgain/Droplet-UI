@@ -4,10 +4,10 @@
  * leaning into its motion and splatting softly against each wall
  */
 
-import { JellyElement } from '../../element/index.js';
+import { DropletElement } from '../../element/index.js';
 import type { Shape }   from '../../element/index.js';
 
-import { JellyBody }    from '../../core/index.js';
+import { DropletBody }    from '../../core/index.js';
 
 import { clamp }        from '../../utilities/index.js';
 import { isRTL }        from '../../utilities/index.js';
@@ -49,7 +49,7 @@ const PROGRESS_SIZES: Record<string, ProgressSize> = {
  * @cssprop [--jelly-accent] - Fill color.
  * @cssprop [--jelly-track] - Empty-track color.
  */
-export class JellyProgress extends JellyElement {
+export class DropletProgress extends DropletElement {
 
   static define (options?: DefineOptions): DefineResult {
     return defineProgress(options);
@@ -62,7 +62,7 @@ export class JellyProgress extends JellyElement {
   phase = 0;
   trackW = 0;
   trackH = 0;
-  blob: JellyBody | null = null;
+  blob: DropletBody | null = null;
   blobW = 0;
   blobH = 0;
   wall = false;
@@ -70,7 +70,7 @@ export class JellyProgress extends JellyElement {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['value', 'max', 'indeterminate', 'size', 'label', ...JellyElement.AXIS_ATTRIBUTES];
+    return ['value', 'max', 'indeterminate', 'size', 'label', ...DropletElement.AXIS_ATTRIBUTES];
   }
 
   // Component styles layered over the shared jelly base styles
@@ -313,11 +313,11 @@ export class JellyProgress extends JellyElement {
 }
 
 export function defineProgress (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.progress, JellyProgress]], options);
+  return defineStrict([[TAGS.progress, DropletProgress]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-progress': JellyProgress;
+    'droplet-progress': DropletProgress;
   }
 }

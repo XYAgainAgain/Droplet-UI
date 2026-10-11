@@ -4,10 +4,10 @@ import { userEvent } from 'vitest/browser';
 import { mount, settle } from '../../testing/index.js';
 
 import { installScopeBridge } from '../../cascade/index.js';
-import { DEFAULT_CONFIG, JellyBody } from '../../core/index.js';
+import { DEFAULT_CONFIG, DropletBody } from '../../core/index.js';
 import { registerPreset } from '../../presets/index.js';
 import { defineAll, RegistrationError } from '../../register.js';
-import { defineButton, JellyButton } from './index.js';
+import { defineButton, DropletButton } from './index.js';
 
 defineAll({ strict: false });
 
@@ -15,8 +15,8 @@ defineAll({ strict: false });
 const reactions = (): Promise<void> => Promise.resolve();
 
 test('upgrades and renders a real inner <button>', async () => {
-  const host = mount('<jelly-button>Go</jelly-button>');
-  const el = host.querySelector('jelly-button') as JellyButton;
+  const host = mount('<droplet-button>Go</droplet-button>');
+  const el = host.querySelector('droplet-button') as DropletButton;
 
   await settle(20);
 
@@ -27,8 +27,8 @@ test('upgrades and renders a real inner <button>', async () => {
 });
 
 test('disabled reflects onto the inner button and back', async () => {
-  const host = mount('<jelly-button disabled>Go</jelly-button>');
-  const el = host.querySelector('jelly-button') as JellyButton;
+  const host = mount('<droplet-button disabled>Go</droplet-button>');
+  const el = host.querySelector('droplet-button') as DropletButton;
 
   await settle(3);
   const inner = el.shadowRoot!.querySelector('button')!;
@@ -42,8 +42,8 @@ test('disabled reflects onto the inner button and back', async () => {
 });
 
 test('variant="mint" paints the mint fill on the canvas', async () => {
-  const host = mount('<jelly-button variant="mint">Go</jelly-button>');
-  const el = host.querySelector('jelly-button') as JellyButton;
+  const host = mount('<droplet-button variant="mint">Go</droplet-button>');
+  const el = host.querySelector('droplet-button') as DropletButton;
 
   await settle(20);
 
@@ -60,8 +60,8 @@ test('variant="mint" paints the mint fill on the canvas', async () => {
 });
 
 test('type="submit" drives the closest light-DOM form', async () => {
-  const host = mount('<form><jelly-button type="submit">Save</jelly-button></form>');
-  const el = host.querySelector('jelly-button') as JellyButton;
+  const host = mount('<form><droplet-button type="submit">Save</droplet-button></form>');
+  const el = host.querySelector('droplet-button') as DropletButton;
 
   await settle(3);
 
@@ -78,8 +78,8 @@ test('type="submit" drives the closest light-DOM form', async () => {
 });
 
 test('does not activate when a pointer is released outside the button', async () => {
-  const host = mount('<jelly-button>Go</jelly-button>');
-  const el = host.querySelector('jelly-button') as JellyButton;
+  const host = mount('<droplet-button>Go</droplet-button>');
+  const el = host.querySelector('droplet-button') as DropletButton;
   const onClick = vi.fn();
 
   el.addEventListener('click', onClick);
@@ -96,27 +96,27 @@ test('does not activate when a pointer is released outside the button', async ()
   host.remove();
 });
 
-describe('jelly-button contracts', () => {
+describe('droplet-button contracts', () => {
 
   test('registers through the helper and is a no-op the second time', () => {
-    expect(defineButton().alreadyDefined).toEqual(['jelly-button']);
+    expect(defineButton().alreadyDefined).toEqual(['droplet-button']);
   });
 
   test('reads feel from the nearest scope and lets the element override it', async () => {
     installScopeBridge(document);
     registerPreset('feel', 'test-stiff', { pressure: 900 }, { override: true });
 
-    const host = mount('<div data-droplet-feel="test-stiff"><jelly-button>A</jelly-button><jelly-button feel="gel">B</jelly-button></div>');
+    const host = mount('<div data-droplet-feel="test-stiff"><droplet-button>A</droplet-button><droplet-button feel="gel">B</droplet-button></div>');
 
     // Read before any frame: the scope and its children were inserted together,
     // so this is the case the bridge's observer has not seen yet
-    const first = host.querySelector('jelly-button') as JellyButton;
+    const first = host.querySelector('droplet-button') as DropletButton;
     expect(first.feel).toBe('test-stiff');
     expect(first.resolvedConfig.pressure).toBe(900);
 
     await settle();
 
-    const [a, b] = host.querySelectorAll('jelly-button') as NodeListOf<JellyButton>;
+    const [a, b] = host.querySelectorAll('droplet-button') as NodeListOf<DropletButton>;
 
     expect(a!.feel).toBe('test-stiff');
     expect(a!.resolvedConfig.pressure).toBe(900);
@@ -129,10 +129,10 @@ describe('jelly-button contracts', () => {
   test('a fractional pass count in a preset does not rebuild the membrane on every resolve', async () => {
     registerPreset('feel', 'test-fractional', { normalBlendPasses: 2.5 }, { override: true });
 
-    const host = mount('<jelly-button feel="test-fractional">F</jelly-button>');
+    const host = mount('<droplet-button feel="test-fractional">F</droplet-button>');
     await settle();
 
-    const el = host.firstElementChild as JellyButton;
+    const el = host.firstElementChild as DropletButton;
 
     expect(el.resolvedConfig.normalBlendPasses).toBe(3);
 
@@ -150,12 +150,12 @@ describe('jelly-button contracts', () => {
   test('builds the membrane once on first shape, seeded from the resolved record', async () => {
     registerPreset('feel', 'test-coarse', { samples: 96 }, { override: true });
 
-    const resize = vi.spyOn(JellyBody.prototype, 'resize');
-    const host   = mount('<jelly-button feel="test-coarse">S</jelly-button>');
+    const resize = vi.spyOn(DropletBody.prototype, 'resize');
+    const host   = mount('<droplet-button feel="test-coarse">S</droplet-button>');
 
     await settle(6);
 
-    const el = host.firstElementChild as JellyButton;
+    const el = host.firstElementChild as DropletButton;
 
     expect(el.resolvedConfig.samples).toBe(96);
     expect(el.body!.config.samples).toBe(96);
@@ -167,10 +167,10 @@ describe('jelly-button contracts', () => {
 
   test('warns once per unknown feel name', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const host = mount('<jelly-button feel="no-such-feel">A</jelly-button><jelly-button feel="no-such-feel">B</jelly-button>');
+    const host = mount('<droplet-button feel="no-such-feel">A</droplet-button><droplet-button feel="no-such-feel">B</droplet-button>');
     await settle();
 
-    const [a] = host.querySelectorAll('jelly-button') as NodeListOf<JellyButton>;
+    const [a] = host.querySelectorAll('droplet-button') as NodeListOf<DropletButton>;
 
     expect(a!.feel).toBe('gel');
     expect(a!.getAttribute('feel')).toBe('no-such-feel');
@@ -182,10 +182,10 @@ describe('jelly-button contracts', () => {
 
   test('warns and falls back to gel for an empty feel attribute', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const host = mount('<jelly-button feel="">E</jelly-button>');
+    const host = mount('<droplet-button feel="">E</droplet-button>');
     await settle();
 
-    const el = host.firstElementChild as JellyButton;
+    const el = host.firstElementChild as DropletButton;
 
     expect(el.feel).toBe('gel');
     expect(el.getAttribute('feel')).toBe('');
@@ -197,13 +197,13 @@ describe('jelly-button contracts', () => {
 
   test('warns once per unknown feel name in each document', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const host = mount('<jelly-button feel="ghost-feel">A</jelly-button>');
+    const host = mount('<droplet-button feel="ghost-feel">A</droplet-button>');
     await settle();
 
     expect(warn).toHaveBeenCalledTimes(1);
 
     const elsewhere = document.implementation.createHTMLDocument('second page');
-    const framed = document.createElement('jelly-button') as JellyButton;
+    const framed = document.createElement('droplet-button') as DropletButton;
 
     // Still this document's element, and its one warning is already spent
     framed.setAttribute('feel', 'ghost-feel');
@@ -220,10 +220,10 @@ describe('jelly-button contracts', () => {
   });
 
   test('applies the quality cap and reflects the canonical alias', async () => {
-    const host = mount('<jelly-button quality="med">Q</jelly-button>');
+    const host = mount('<droplet-button quality="med">Q</droplet-button>');
     await settle();
 
-    const el = host.firstElementChild as JellyButton;
+    const el = host.firstElementChild as DropletButton;
 
     expect(el.quality).toBe('medium');
     expect(el.getAttribute('quality')).toBe('medium');
@@ -240,10 +240,10 @@ describe('jelly-button contracts', () => {
   });
 
   test('leaves an unrecognized quality as written and resolves it as medium', async () => {
-    const host = mount('<jelly-button quality="potato">Q</jelly-button>');
+    const host = mount('<droplet-button quality="potato">Q</droplet-button>');
     await settle();
 
-    const el = host.firstElementChild as JellyButton;
+    const el = host.firstElementChild as DropletButton;
 
     expect(el.getAttribute('quality')).toBe('potato');
     expect(el.quality).toBe('medium');
@@ -252,10 +252,10 @@ describe('jelly-button contracts', () => {
   });
 
   test('validates, copies and applies a raw config override', async () => {
-    const host = mount('<jelly-button>C</jelly-button>');
+    const host = mount('<droplet-button>C</droplet-button>');
     await settle();
 
-    const el = host.firstElementChild as JellyButton;
+    const el = host.firstElementChild as DropletButton;
     const raw = { pressure: 700, samples: 9999 };
 
     el.config = raw;
@@ -275,10 +275,10 @@ describe('jelly-button contracts', () => {
     el.feel = 'gel';
     document.body.appendChild(el);
 
-    customElements.define('jelly-button-not-yet', class extends JellyButton {});
+    customElements.define('jelly-button-not-yet', class extends DropletButton {});
     await settle();
 
-    expect((el as unknown as JellyButton).feel).toBe('gel');
+    expect((el as unknown as DropletButton).feel).toBe('gel');
     expect(el.getAttribute('feel')).toBe('gel');
 
     el.remove();
@@ -289,10 +289,10 @@ describe('jelly-button contracts', () => {
     el.config = { samples: 64 };
     document.body.appendChild(el);
 
-    customElements.define('jelly-button-config-early', class extends JellyButton {});
+    customElements.define('jelly-button-config-early', class extends DropletButton {});
     await settle();
 
-    const button = el as unknown as JellyButton;
+    const button = el as unknown as DropletButton;
     expect(Object.hasOwn(button, 'config')).toBe(false);
     expect(button.resolvedConfig.samples).toBe(64);
 
@@ -300,10 +300,10 @@ describe('jelly-button contracts', () => {
   });
 
   test('hands out config as a frozen copy that cannot be edited around the resolver', async () => {
-    const host = mount('<jelly-button>C</jelly-button>');
+    const host = mount('<droplet-button>C</droplet-button>');
     await settle();
 
-    const el = host.firstElementChild as JellyButton;
+    const el = host.firstElementChild as DropletButton;
     const input = { samples: 72 };
     el.config = input;
     input.samples = 300;
@@ -318,10 +318,10 @@ describe('jelly-button contracts', () => {
 
   test('reflects palette and material and reads them through the cascade', async () => {
     installScopeBridge(document);
-    const host = mount('<div data-droplet-palette="dusk" data-droplet-material="glass"><jelly-button>M</jelly-button></div>');
+    const host = mount('<div data-droplet-palette="dusk" data-droplet-material="glass"><droplet-button>M</droplet-button></div>');
     await settle();
 
-    const el = host.querySelector('jelly-button') as JellyButton;
+    const el = host.querySelector('droplet-button') as DropletButton;
     expect(el.palette).toBe('dusk');
     expect(el.material).toBe('glass');
 
@@ -339,10 +339,10 @@ describe('jelly-button contracts', () => {
 
   test('an invalid element quality still beats the scope and resolves as medium', async () => {
     installScopeBridge(document);
-    const host = mount('<div data-droplet-quality="low"><jelly-button quality="bogus">Q</jelly-button></div>');
+    const host = mount('<div data-droplet-quality="low"><droplet-button quality="bogus">Q</droplet-button></div>');
     await settle();
 
-    const el = host.querySelector('jelly-button') as JellyButton;
+    const el = host.querySelector('droplet-button') as DropletButton;
     expect(el.quality).toBe('medium');
     expect(el.getAttribute('quality')).toBe('bogus');
 
@@ -352,11 +352,11 @@ describe('jelly-button contracts', () => {
   test('trims an element feel attribute like a scope value', async () => {
     registerPreset('feel', 'test-trimmed', { pressure: 777 }, { override: true });
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const host = mount('<jelly-button feel=" test-trimmed ">T</jelly-button>');
+    const host = mount('<droplet-button feel=" test-trimmed ">T</droplet-button>');
     await settle();
 
     try {
-      const el = host.firstElementChild as JellyButton;
+      const el = host.firstElementChild as DropletButton;
       expect(el.feel).toBe('test-trimmed');
       expect(el.resolvedConfig.pressure).toBe(777);
       expect(warn).not.toHaveBeenCalled();
@@ -368,10 +368,10 @@ describe('jelly-button contracts', () => {
 
   test('a scope change that leaves the record unchanged does not wake the body', async () => {
     installScopeBridge(document);
-    const host = mount('<div><jelly-button>W</jelly-button></div>');
+    const host = mount('<div><droplet-button>W</droplet-button></div>');
     await settle(6);
 
-    const el = host.querySelector('jelly-button') as JellyButton;
+    const el = host.querySelector('droplet-button') as DropletButton;
     const wake = vi.spyOn(el, 'requestFrame');
 
     try {
@@ -391,7 +391,7 @@ describe('jelly-button contracts', () => {
     const registry = { get: () => foreign, define: () => {} } as unknown as CustomElementRegistry;
 
     expect(() => defineButton({ registry })).toThrow(RegistrationError);
-    expect(() => JellyButton.define({ registry })).toThrow(RegistrationError);
+    expect(() => DropletButton.define({ registry })).toThrow(RegistrationError);
     expect(() => defineAll({ registry })).toThrow(RegistrationError);
 
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -408,20 +408,20 @@ describe('jelly-button contracts', () => {
     el.quality = 'low';
     document.body.appendChild(el);
 
-    customElements.define('jelly-button-markup-wins', class extends JellyButton {});
+    customElements.define('jelly-button-markup-wins', class extends DropletButton {});
     await settle();
 
     expect(el.getAttribute('quality')).toBe('high');
-    expect((el as unknown as JellyButton).quality).toBe('high');
+    expect((el as unknown as DropletButton).quality).toBe('high');
 
     el.remove();
   });
 
   test('exposes pressed state through :state() and clears it on pointer cancel', async () => {
-    const host = mount('<jelly-button>P</jelly-button>');
+    const host = mount('<droplet-button>P</droplet-button>');
     await settle();
 
-    const el = host.firstElementChild as JellyButton;
+    const el = host.firstElementChild as DropletButton;
 
     el.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true, pointerId: 1, isPrimary: true }));
     await settle();
@@ -435,10 +435,10 @@ describe('jelly-button contracts', () => {
   });
 
   test('clears pressed state on disconnect', async () => {
-    const host = mount('<jelly-button>P</jelly-button>');
+    const host = mount('<droplet-button>P</droplet-button>');
     await settle();
 
-    const el = host.firstElementChild as JellyButton;
+    const el = host.firstElementChild as DropletButton;
 
     el.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true, pointerId: 2, isPrimary: true }));
     await settle();
@@ -452,10 +452,10 @@ describe('jelly-button contracts', () => {
   // :host(:focus-visible) never matches under delegatesFocus in any of the three
   // browsers, so the focus fallback has to land on the delegated control
   test('shows a canvas-free focus indicator when the inner button is keyboard-focused', async () => {
-    const host = mount('<jelly-button data-jelly-nocanvas>F</jelly-button>');
+    const host = mount('<droplet-button data-jelly-nocanvas>F</droplet-button>');
     await settle();
 
-    const el    = host.firstElementChild as JellyButton;
+    const el    = host.firstElementChild as DropletButton;
     const inner = el.shadowRoot!.querySelector('button')!;
 
     await userEvent.tab();
@@ -475,15 +475,15 @@ describe('jelly-button contracts', () => {
 
 });
 
-describe('jelly-button as a native button', () => {
+describe('droplet-button as a native button', () => {
 
-  const inner = (el: JellyButton): HTMLButtonElement => el.shadowRoot!.querySelector('button')!;
+  const inner = (el: DropletButton): HTMLButtonElement => el.shadowRoot!.querySelector('button')!;
 
   test('the host matches :disabled from its own attribute', async () => {
-    const host = mount('<jelly-button disabled>D</jelly-button>');
+    const host = mount('<droplet-button disabled>D</droplet-button>');
     await settle(2);
 
-    const el = host.firstElementChild as JellyButton;
+    const el = host.firstElementChild as DropletButton;
 
     expect(el.matches(':disabled')).toBe(true);
 
@@ -495,12 +495,12 @@ describe('jelly-button as a native button', () => {
   });
 
   test('a disabled fieldset disables it without touching the host attribute', async () => {
-    const host = mount('<form><fieldset><jelly-button type="submit">F</jelly-button></fieldset></form>');
+    const host = mount('<form><fieldset><droplet-button type="submit">F</droplet-button></fieldset></form>');
     await settle(2);
 
     const form     = host.querySelector('form')!;
     const fieldset = host.querySelector('fieldset')!;
-    const el       = host.querySelector('jelly-button') as JellyButton;
+    const el       = host.querySelector('droplet-button') as DropletButton;
     const onSubmit = vi.fn((event: Event) => event.preventDefault());
 
     form.addEventListener('submit', onSubmit);
@@ -533,12 +533,12 @@ describe('jelly-button as a native button', () => {
   test('form="id" picks the owner form over the enclosing one', async () => {
     const host = mount(`
       <form id="jb-owner"></form>
-      <form id="jb-enclosing"><jelly-button type="submit" form="jb-owner">O</jelly-button></form>`);
+      <form id="jb-enclosing"><droplet-button type="submit" form="jb-owner">O</droplet-button></form>`);
     await settle(2);
 
     const owner     = host.querySelector('#jb-owner') as HTMLFormElement;
     const enclosing = host.querySelector('#jb-enclosing') as HTMLFormElement;
-    const el        = host.querySelector('jelly-button') as JellyButton;
+    const el        = host.querySelector('droplet-button') as DropletButton;
     const submitted: string[] = [];
 
     for (const form of [owner, enclosing]) {
@@ -560,12 +560,12 @@ describe('jelly-button as a native button', () => {
     const host = mount(`
       <form action="/default">
         <input name="q" value="jelly">
-        <jelly-button type="submit" name="intent" value="save" formaction="/save" formmethod="post" formtarget="_self">Save</jelly-button>
+        <droplet-button type="submit" name="intent" value="save" formaction="/save" formmethod="post" formtarget="_self">Save</droplet-button>
       </form>`);
     await settle(2);
 
     const form = host.querySelector('form')!;
-    const el   = host.querySelector('jelly-button') as JellyButton;
+    const el   = host.querySelector('droplet-button') as DropletButton;
     const before = form.elements.length;
 
     let submitter: HTMLElement | null = null;
@@ -600,7 +600,7 @@ describe('jelly-button as a native button', () => {
   });
 
   test('without a name the submission carries no submitter entry', async () => {
-    const host = mount('<form><input name="q" value="x"><jelly-button type="submit">S</jelly-button></form>');
+    const host = mount('<form><input name="q" value="x"><droplet-button type="submit">S</droplet-button></form>');
     await settle(2);
 
     const form = host.querySelector('form')!;
@@ -611,18 +611,18 @@ describe('jelly-button as a native button', () => {
       entries = [...new FormData(form, (event as SubmitEvent).submitter).keys()];
     });
 
-    inner(host.querySelector('jelly-button') as JellyButton).click();
+    inner(host.querySelector('droplet-button') as DropletButton).click();
     expect(entries).toEqual(['q']);
 
     host.remove();
   });
 
   test('constraint validation blocks submission unless formnovalidate is set', async () => {
-    const host = mount('<form><input name="r" required><jelly-button type="submit">V</jelly-button></form>');
+    const host = mount('<form><input name="r" required><droplet-button type="submit">V</droplet-button></form>');
     await settle(2);
 
     const form     = host.querySelector('form')!;
-    const el       = host.querySelector('jelly-button') as JellyButton;
+    const el       = host.querySelector('droplet-button') as DropletButton;
     const onSubmit = vi.fn((event: Event) => event.preventDefault());
     const onInvalid = vi.fn();
 
@@ -642,13 +642,13 @@ describe('jelly-button as a native button', () => {
   });
 
   test('type="reset" resets the owner form', async () => {
-    const host = mount('<form><input name="r" value="start"><jelly-button type="reset">R</jelly-button></form>');
+    const host = mount('<form><input name="r" value="start"><droplet-button type="reset">R</droplet-button></form>');
     await settle(2);
 
     const field = host.querySelector('input')!;
 
     field.value = 'edited';
-    inner(host.querySelector('jelly-button') as JellyButton).click();
+    inner(host.querySelector('droplet-button') as DropletButton).click();
 
     expect(field.value).toBe('start');
 
@@ -656,10 +656,10 @@ describe('jelly-button as a native button', () => {
   });
 
   test('reflects the native IDL attributes with native parsing', async () => {
-    const host = mount('<jelly-button>I</jelly-button>');
+    const host = mount('<droplet-button>I</droplet-button>');
     await settle(2);
 
-    const el     = host.firstElementChild as JellyButton;
+    const el     = host.firstElementChild as DropletButton;
     const native = document.createElement('button');
 
     expect(el.type).toBe('button');
@@ -686,7 +686,7 @@ describe('jelly-button as a native button', () => {
     expect(el.type).toBe('button');
     expect(inner(el).type).toBe('button');
 
-    const cases: Array<[keyof JellyButton & keyof HTMLButtonElement, string, string]> = [
+    const cases: Array<[keyof DropletButton & keyof HTMLButtonElement, string, string]> = [
       ['formAction', 'formaction', 'next/page?x=1'],
       ['formMethod', 'formmethod', 'POST'],
       ['formMethod', 'formmethod', 'bogus'],
@@ -711,10 +711,10 @@ describe('jelly-button as a native button', () => {
   });
 
   test('exposes its labels through ElementInternals', async () => {
-    const host = mount('<label for="jb-labelled">Caption</label><jelly-button id="jb-labelled">L</jelly-button>');
+    const host = mount('<label for="jb-labelled">Caption</label><droplet-button id="jb-labelled">L</droplet-button>');
     await settle(2);
 
-    const el = host.querySelector('jelly-button') as JellyButton;
+    const el = host.querySelector('droplet-button') as DropletButton;
 
     expect(el.labels.length).toBe(1);
     expect(el.labels[0]).toBe(host.querySelector('label'));
@@ -728,21 +728,21 @@ describe('jelly-button as a native button', () => {
     el.name     = 'early';
     document.body.appendChild(el);
 
-    customElements.define('jelly-button-native-replay', class extends JellyButton {});
+    customElements.define('jelly-button-native-replay', class extends DropletButton {});
     await settle(2);
 
     expect(el.hasAttribute('disabled')).toBe(true);
     expect(el.getAttribute('name')).toBe('early');
-    expect((el as unknown as JellyButton).shadowRoot!.querySelector('button')!.disabled).toBe(true);
+    expect((el as unknown as DropletButton).shadowRoot!.querySelector('button')!.disabled).toBe(true);
 
     el.remove();
   });
 
   test('forwards aria-busy, aria-label, and aria-describedby onto the inner button', async () => {
-    const host = mount('<p id="jb-hint">Saves a draft</p><jelly-button aria-busy="true" aria-label="Save draft" aria-describedby="jb-hint">S</jelly-button>');
+    const host = mount('<p id="jb-hint">Saves a draft</p><droplet-button aria-busy="true" aria-label="Save draft" aria-describedby="jb-hint">S</droplet-button>');
     await settle(2);
 
-    const el     = host.querySelector('jelly-button') as JellyButton;
+    const el     = host.querySelector('droplet-button') as DropletButton;
     const button = inner(el);
 
     expect(button.getAttribute('aria-busy')).toBe('true');
@@ -759,10 +759,10 @@ describe('jelly-button as a native button', () => {
   });
 
   test('label wins over aria-label, which returns when label is removed', async () => {
-    const host = mount('<jelly-button label="From label" aria-label="From aria">X</jelly-button>');
+    const host = mount('<droplet-button label="From label" aria-label="From aria">X</droplet-button>');
     await settle(2);
 
-    const el = host.firstElementChild as JellyButton;
+    const el = host.firstElementChild as DropletButton;
 
     expect(inner(el).getAttribute('aria-label')).toBe('From label');
 
@@ -779,10 +779,10 @@ describe('jelly-button as a native button', () => {
   });
 
   test('aria-controls becomes an element reference that resolves across the shadow boundary', async () => {
-    const host = mount('<jelly-button aria-controls="jb-panel" aria-expanded="false">T</jelly-button><div id="jb-panel">Panel</div>');
+    const host = mount('<droplet-button aria-controls="jb-panel" aria-expanded="false">T</droplet-button><div id="jb-panel">Panel</div>');
     await settle(2);
 
-    const el     = host.querySelector('jelly-button') as JellyButton;
+    const el     = host.querySelector('droplet-button') as DropletButton;
     const button = inner(el);
 
     expect(button.getAttribute('aria-expanded')).toBe('false');
@@ -802,10 +802,10 @@ describe('jelly-button as a native button', () => {
   });
 
   test('re-resolves IDREFs when the host is reconnected', async () => {
-    const host = mount('<jelly-button aria-controls="jb-late">T</jelly-button>');
+    const host = mount('<droplet-button aria-controls="jb-late">T</droplet-button>');
     await settle(2);
 
-    const el     = host.querySelector('jelly-button') as JellyButton;
+    const el     = host.querySelector('droplet-button') as DropletButton;
     const button = inner(el);
 
     if (!('ariaControlsElements' in button)) {
@@ -826,10 +826,10 @@ describe('jelly-button as a native button', () => {
   });
 
   test('links an IDREF target inserted after connect when the button takes focus', async () => {
-    const host = mount('<jelly-button aria-describedby="jb-focus-late">F</jelly-button>');
+    const host = mount('<droplet-button aria-describedby="jb-focus-late">F</droplet-button>');
     await settle(2);
 
-    const el     = host.querySelector('jelly-button') as JellyButton;
+    const el     = host.querySelector('droplet-button') as DropletButton;
     const button = inner(el);
 
     if (!('ariaDescribedByElements' in button)) {
@@ -848,10 +848,10 @@ describe('jelly-button as a native button', () => {
   });
 
   test('explicitly set host ARIA elements forward onto the inner button, each time they change', async () => {
-    const host = mount('<p>Hint</p><p>Other</p><jelly-button>E</jelly-button>');
+    const host = mount('<p>Hint</p><p>Other</p><droplet-button>E</droplet-button>');
     await settle(2);
 
-    const el              = host.querySelector('jelly-button') as JellyButton & { ariaDescribedByElements: Element[] | null };
+    const el              = host.querySelector('droplet-button') as DropletButton & { ariaDescribedByElements: Element[] | null };
     const button          = inner(el) as HTMLButtonElement & { ariaDescribedByElements?: Element[] | null };
     const [hint, other]   = Array.from(host.querySelectorAll('p'));
 
@@ -876,10 +876,10 @@ describe('jelly-button as a native button', () => {
   });
 
   test('forwards aria-disabled without disabling activation', async () => {
-    const host = mount('<jelly-button aria-disabled="true">A</jelly-button>');
+    const host = mount('<droplet-button aria-disabled="true">A</droplet-button>');
     await settle(2);
 
-    const el      = host.firstElementChild as JellyButton;
+    const el      = host.firstElementChild as DropletButton;
     const onClick = vi.fn();
 
     el.addEventListener('click', onClick);
@@ -898,13 +898,13 @@ describe('jelly-button as a native button', () => {
     const host = mount(`
       <form>
         <input name="r" value="start">
-        <jelly-button type="submit" name="intent" value="go">S</jelly-button>
-        <jelly-button type="reset">R</jelly-button>
+        <droplet-button type="submit" name="intent" value="go">S</droplet-button>
+        <droplet-button type="reset">R</droplet-button>
       </form>`);
     await settle(2);
 
     const form = host.querySelector('form')!;
-    const [submit, reset] = Array.from(host.querySelectorAll('jelly-button')) as JellyButton[];
+    const [submit, reset] = Array.from(host.querySelectorAll('droplet-button')) as DropletButton[];
     const field  = host.querySelector('input')!;
     const clicks = vi.fn();
     let data: FormData | null = null;
@@ -931,12 +931,12 @@ describe('jelly-button as a native button', () => {
   });
 
   test('host.click() does nothing while disabled by attribute or fieldset', async () => {
-    const host = mount('<form><fieldset><jelly-button type="submit">S</jelly-button></fieldset></form>');
+    const host = mount('<form><fieldset><droplet-button type="submit">S</droplet-button></fieldset></form>');
     await settle(2);
 
     const form     = host.querySelector('form')!;
     const fieldset = host.querySelector('fieldset')!;
-    const el       = host.querySelector('jelly-button') as JellyButton;
+    const el       = host.querySelector('droplet-button') as DropletButton;
     const clicks   = vi.fn();
     const onSubmit = vi.fn((event: Event) => event.preventDefault());
 
@@ -965,8 +965,8 @@ describe('jelly-button as a native button', () => {
     const host = mount(`
       <form>
         <input name="r" value="start">
-        <jelly-button type="submit">S</jelly-button>
-        <jelly-button type="reset">R</jelly-button>
+        <droplet-button type="submit">S</droplet-button>
+        <droplet-button type="reset">R</droplet-button>
       </form>`);
     await settle(2);
 
@@ -977,7 +977,7 @@ describe('jelly-button as a native button', () => {
 
     form.addEventListener('submit', onSubmit);
 
-    for (const el of Array.from(host.querySelectorAll('jelly-button')) as JellyButton[]) {
+    for (const el of Array.from(host.querySelectorAll('droplet-button')) as DropletButton[]) {
       el.addEventListener('click', cancel, { once: true });
       field.value = 'edited';
       el.click();
@@ -995,11 +995,11 @@ describe('jelly-button as a native button', () => {
   });
 
   test('a host listener that disables the button or renames it is honored', async () => {
-    const host = mount('<form><jelly-button type="submit" name="intent" value="save">S</jelly-button></form>');
+    const host = mount('<form><droplet-button type="submit" name="intent" value="save">S</droplet-button></form>');
     await settle(2);
 
     const form     = host.querySelector('form')!;
-    const el       = host.querySelector('jelly-button') as JellyButton;
+    const el       = host.querySelector('droplet-button') as DropletButton;
     const received: Array<string | null> = [];
 
     form.addEventListener('submit', (event) => {
@@ -1021,11 +1021,11 @@ describe('jelly-button as a native button', () => {
   });
 
   test('stopPropagation() in a host listener still submits, once dispatch is over', async () => {
-    const host = mount('<form><jelly-button type="submit">S</jelly-button></form>');
+    const host = mount('<form><droplet-button type="submit">S</droplet-button></form>');
     await settle(2);
 
     const form     = host.querySelector('form')!;
-    const el       = host.querySelector('jelly-button') as JellyButton;
+    const el       = host.querySelector('droplet-button') as DropletButton;
     const clicks   = vi.fn((event: Event) => event.stopPropagation());
     const onSubmit = vi.fn((event: Event) => event.preventDefault());
 
@@ -1044,11 +1044,11 @@ describe('jelly-button as a native button', () => {
   });
 
   test('a click on a <label for> submits through the host with one host click', async () => {
-    const host = mount('<form><label for="jb-label-submit">Send</label><jelly-button id="jb-label-submit" type="submit">S</jelly-button></form>');
+    const host = mount('<form><label for="jb-label-submit">Send</label><droplet-button id="jb-label-submit" type="submit">S</droplet-button></form>');
     await settle(2);
 
     const form     = host.querySelector('form')!;
-    const el       = host.querySelector('jelly-button') as JellyButton;
+    const el       = host.querySelector('droplet-button') as DropletButton;
     const clicks   = vi.fn();
     const onSubmit = vi.fn((event: Event) => event.preventDefault());
 
@@ -1065,7 +1065,7 @@ describe('jelly-button as a native button', () => {
   });
 
   test('host.click() before build still dispatches one click', () => {
-    const el     = document.createElement('jelly-button') as JellyButton;
+    const el     = document.createElement('droplet-button') as DropletButton;
     const clicks = vi.fn();
 
     el.addEventListener('click', clicks);
@@ -1075,10 +1075,10 @@ describe('jelly-button as a native button', () => {
   });
 
   test('reassigning a reflected property to its current value writes no attribute', async () => {
-    const host = mount('<jelly-button>I</jelly-button>');
+    const host = mount('<droplet-button>I</droplet-button>');
     await settle(2);
 
-    const el       = host.firstElementChild as JellyButton;
+    const el       = host.firstElementChild as DropletButton;
     const observer = new MutationObserver(() => {});
     const writes: Array<[string, unknown]> = [
       ['name', 'n'], ['value', 'v'], ['type', 'SUBMIT'], ['formAction', 'next'], ['formMethod', 'post'],

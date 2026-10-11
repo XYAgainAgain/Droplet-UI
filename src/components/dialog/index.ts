@@ -43,7 +43,7 @@ import dialogStyles             from './dialog.css?inline';
  * @cssprop [--jelly-dialog-radius=24px] - Corner radius.
  * @cssprop [--jelly-dialog-padding=26px] - Inner padding.
  */
-export class JellyDialog extends HTMLElementBase {
+export class DropletDialog extends HTMLElementBase {
 
   static define (options?: DefineOptions): DefineResult {
     return defineDialog(options);
@@ -276,11 +276,11 @@ export class JellyDialog extends HTMLElementBase {
 }
 
 export function defineDialog (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.dialog, JellyDialog]], options);
+  return defineStrict([[TAGS.dialog, DropletDialog]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-dialog': JellyDialog;
+    'droplet-dialog': DropletDialog;
   }
 }

@@ -2,12 +2,12 @@ import { expect, test } from 'vitest';
 
 import { mount } from '../../testing/index.js';
 
-import type { JellyDialog } from './index.js';
+import type { DropletDialog } from './index.js';
 import '../../testing/define-all.js';
 
 test('opening sets aria-modal and mirrors the heading as the accessible name', () => {
-  const host = mount('<jelly-dialog><h2>Confirm delete</h2><p>Sure?</p></jelly-dialog>');
-  const el = host.querySelector('jelly-dialog') as JellyDialog;
+  const host = mount('<droplet-dialog><h2>Confirm delete</h2><p>Sure?</p></droplet-dialog>');
+  const el = host.querySelector('droplet-dialog') as DropletDialog;
 
   el.showModal();
 
@@ -21,8 +21,8 @@ test('opening sets aria-modal and mirrors the heading as the accessible name', (
 });
 
 test('an explicit label wins over the heading', () => {
-  const host = mount('<jelly-dialog label="Settings"><h2>Ignored</h2></jelly-dialog>');
-  const el = host.querySelector('jelly-dialog') as JellyDialog;
+  const host = mount('<droplet-dialog label="Settings"><h2>Ignored</h2></droplet-dialog>');
+  const el = host.querySelector('droplet-dialog') as DropletDialog;
 
   el.open = true;
 
@@ -34,8 +34,8 @@ test('an explicit label wins over the heading', () => {
 });
 
 test('emits an open event and locks the body scroll while open', () => {
-  const host = mount('<jelly-dialog label="X"><p>Body</p></jelly-dialog>');
-  const el = host.querySelector('jelly-dialog') as JellyDialog;
+  const host = mount('<droplet-dialog label="X"><p>Body</p></droplet-dialog>');
+  const el = host.querySelector('droplet-dialog') as DropletDialog;
 
   let opened = 0;
   el.addEventListener('open', () => { opened++; });

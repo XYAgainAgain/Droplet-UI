@@ -2,12 +2,12 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import type { JellyChip } from './index.js';
+import type { DropletChip } from './index.js';
 import '../../testing/define-all.js';
 
 test('a plain chip renders its label in a span', async () => {
-  const host = mount('<jelly-chip>Design</jelly-chip>');
-  const el = host.querySelector('jelly-chip') as JellyChip;
+  const host = mount('<droplet-chip>Design</droplet-chip>');
+  const el = host.querySelector('droplet-chip') as DropletChip;
 
   await settle(3);
   expect(el.shadowRoot!.querySelector('span.main')).toBeTruthy();
@@ -16,8 +16,8 @@ test('a plain chip renders its label in a span', async () => {
 });
 
 test('selectable chips toggle aria-pressed and fire change', async () => {
-  const host = mount('<jelly-chip selectable>Filter</jelly-chip>');
-  const el = host.querySelector('jelly-chip') as JellyChip;
+  const host = mount('<droplet-chip selectable>Filter</droplet-chip>');
+  const el = host.querySelector('droplet-chip') as DropletChip;
 
   await settle(3);
   let changes = 0;
@@ -34,8 +34,8 @@ test('selectable chips toggle aria-pressed and fire change', async () => {
 });
 
 test('removable chips fire a cancelable remove event', async () => {
-  const host = mount('<jelly-chip removable>Dismiss</jelly-chip>');
-  const el = host.querySelector('jelly-chip') as JellyChip;
+  const host = mount('<droplet-chip removable>Dismiss</droplet-chip>');
+  const el = host.querySelector('droplet-chip') as DropletChip;
 
   await settle(3);
   let removed = 0;

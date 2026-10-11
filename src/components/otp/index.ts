@@ -35,7 +35,7 @@ import otpStyles                from './otp.css?inline';
  * @fires change - When the code becomes complete.
  * @fires complete - With `detail.value` when every box is filled.
  */
-export class JellyOtp extends HTMLElementBase {
+export class DropletOtp extends HTMLElementBase {
 
   static define (options?: DefineOptions): DefineResult {
     return defineOtp(options);
@@ -271,11 +271,11 @@ export class JellyOtp extends HTMLElementBase {
 }
 
 export function defineOtp (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.otp, JellyOtp]], options);
+  return defineStrict([[TAGS.otp, DropletOtp]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-otp': JellyOtp;
+    'droplet-otp': DropletOtp;
   }
 }

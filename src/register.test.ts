@@ -69,12 +69,12 @@ describe('static define', () => {
   it('matches the free helper on every class, and both are strict by default', () => {
     const foreign = class extends HTMLElement {};
     const taken = { get: () => foreign, define: () => {} } as unknown as CustomElementRegistry;
-    const classes = Object.entries(Register).filter(([name, value]) => /^Jelly[A-Z]/.test(name) && typeof value === 'function');
+    const classes = Object.entries(Register).filter(([name, value]) => /^Droplet[A-Z]/.test(name) && typeof value === 'function');
 
     expect(classes).toHaveLength(Object.keys(TAGS).length);
 
     for (const [name, ctor] of classes) {
-      const helper = (Register as Record<string, unknown>)[`define${name.slice('Jelly'.length)}`] as (o: object) => unknown;
+      const helper = (Register as Record<string, unknown>)[`define${name.slice('Droplet'.length)}`] as (o: object) => unknown;
       const viaStatic = recorder();
       const viaHelper = recorder();
 

@@ -6,10 +6,10 @@
  * inline end, so right-to-left pages mirror correctly
  */
 
-import { JellyElement }    from '../../element/index.js';
+import { DropletElement }    from '../../element/index.js';
 import type { Shape }      from '../../element/index.js';
 
-import { JellyBody }       from '../../core/index.js';
+import { DropletBody }       from '../../core/index.js';
 
 import { clamp }           from '../../utilities/index.js';
 import { emit }            from '../../utilities/index.js';
@@ -67,7 +67,7 @@ const SWITCH_SIZES: Record<Size, SwitchSize> = {
  * @cssprop [--jelly-off] - Off-state track color.
  * @cssprop [--jelly-switch-thumb-on] - Thumb color when on.
  */
-export class JellySwitch extends JellyElement {
+export class DropletSwitch extends DropletElement {
 
   static define (options?: DefineOptions): DefineResult {
     return defineSwitch(options);
@@ -83,7 +83,7 @@ export class JellySwitch extends JellyElement {
   // Populated in onBuilt() / onShape()
   input!: HTMLInputElement;
   track!: HTMLElement;
-  thumbBody: JellyBody | null = null;
+  thumbBody: DropletBody | null = null;
 
   // Thumb slide spring (position, velocity, target) plus drag bookkeeping
   thumbX = 0;
@@ -95,7 +95,7 @@ export class JellySwitch extends JellyElement {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['checked', 'disabled', 'label', 'size', 'value', ...JellyElement.AXIS_ATTRIBUTES];
+    return ['checked', 'disabled', 'label', 'size', 'value', ...DropletElement.AXIS_ATTRIBUTES];
   }
 
   constructor () {
@@ -460,11 +460,11 @@ export class JellySwitch extends JellyElement {
 }
 
 export function defineSwitch (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.switch, JellySwitch]], options);
+  return defineStrict([[TAGS.switch, DropletSwitch]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-switch': JellySwitch;
+    'droplet-switch': DropletSwitch;
   }
 }

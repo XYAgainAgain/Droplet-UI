@@ -5,7 +5,7 @@
  */
 
 import { HTMLElementBase } from '../../element/base.js';
-import { defineStrict, TAGS } from '../../registry/index.js';
+import { anyTag, defineStrict, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 // The minimal surface of a parent that re-reads its segments
@@ -24,7 +24,7 @@ interface SegmentParent extends HTMLElement {
  * @attr {boolean} selected - Whether this segment is initially selected.
  * @attr {boolean} disabled - Whether this segment cannot be selected.
  */
-export class JellySegment extends HTMLElementBase {
+export class DropletSegment extends HTMLElementBase {
 
   static define (options?: DefineOptions): DefineResult {
     return defineSegment(options);
@@ -57,22 +57,22 @@ export class JellySegment extends HTMLElementBase {
     this.style.display = 'none';
 
     // Ask the parent control to re-read its options
-    (this.closest('jelly-segmented') as SegmentParent | null)?.sync?.();
+    (this.closest(anyTag('segmented')) as SegmentParent | null)?.sync?.();
   }
 
   // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (): void {
-    (this.closest('jelly-segmented') as SegmentParent | null)?.sync?.();
+    (this.closest(anyTag('segmented')) as SegmentParent | null)?.sync?.();
   }
 
 }
 
 export function defineSegment (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.segment, JellySegment]], options);
+  return defineStrict([[TAGS.segment, DropletSegment]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-segment': JellySegment;
+    'droplet-segment': DropletSegment;
   }
 }

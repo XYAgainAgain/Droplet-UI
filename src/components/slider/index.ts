@@ -7,7 +7,7 @@
  * painted accent fill and the arrow keys all mirror like a native range input
  */
 
-import { JellyElement }         from '../../element/index.js';
+import { DropletElement }         from '../../element/index.js';
 import type { PainterFrame }    from '../../element/index.js';
 import type { Shape }           from '../../element/index.js';
 
@@ -20,8 +20,8 @@ import type { DefineResult }    from '../../registry/index.js';
 
 import type { Resolved }        from '../../resolve/index.js';
 
-import { JellyBody }        from '../../core/index.js';
-import type { JellyConfig } from '../../core/index.js';
+import { DropletBody }        from '../../core/index.js';
+import type { DropletConfig } from '../../core/index.js';
 
 import { canonicalizeSize } from '../../utilities/index.js';
 import { clamp }            from '../../utilities/index.js';
@@ -53,7 +53,7 @@ const SLIDER_SIZES: Record<Size, SliderSize> = {
 
 // The thumb body's component profile: a small, tight drop that stays lively
 // under drag. Resolved through the same feel / quality axes as the track.
-export const THUMB_CONFIG: Partial<JellyConfig> = {
+export const THUMB_CONFIG: Partial<DropletConfig> = {
   membraneSpring:          82,
   membraneDamping:         14,
   waveCoupling:            170,
@@ -90,7 +90,7 @@ export const THUMB_CONFIG: Partial<JellyConfig> = {
  * @cssprop [--jelly-accent] - Filled-track and thumb color.
  * @cssprop [--jelly-track] - Empty-track color.
  */
-export class JellySlider extends JellyElement implements EventListenerObject {
+export class DropletSlider extends DropletElement implements EventListenerObject {
 
   // Participate in native form submission through ElementInternals
   static formAssociated = true;
@@ -98,14 +98,14 @@ export class JellySlider extends JellyElement implements EventListenerObject {
   static override usesResolver = true;
 
   // A value assigned before upgrade has to survive to the first build
-  static override REPLAYED: readonly string[] = ['value', ...JellyElement.REPLAYED];
+  static override REPLAYED: readonly string[] = ['value', ...DropletElement.REPLAYED];
 
   internals: ElementInternals;
 
   // Populated in onBuilt() / onShape()
   input!: HTMLInputElement;
   track!: HTMLElement;
-  thumbBody: JellyBody | null = null;
+  thumbBody: DropletBody | null = null;
 
   thumbRecord: Resolved | undefined = undefined;
 
@@ -132,7 +132,7 @@ export class JellySlider extends JellyElement implements EventListenerObject {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['value', 'min', 'max', 'step', 'label', 'disabled', 'size', ...JellyElement.AXIS_ATTRIBUTES];
+    return ['value', 'min', 'max', 'step', 'label', 'disabled', 'size', ...DropletElement.AXIS_ATTRIBUTES];
   }
 
   constructor () {
@@ -147,7 +147,7 @@ export class JellySlider extends JellyElement implements EventListenerObject {
   }
 
   // The thumb's resolved physics record, on its own track from the main body
-  get thumbConfig (): Readonly<JellyConfig> {
+  get thumbConfig (): Readonly<DropletConfig> {
     return (this.thumbRecord ?? this.resolveThumb()).config;
   }
 
@@ -302,7 +302,7 @@ export class JellySlider extends JellyElement implements EventListenerObject {
       // Born with its resolved record, so the first shape never rebuilds it
       const record = this.thumbRecord ?? this.resolveThumb();
 
-      this.thumbBody = new JellyBody({ width: thumb, height: thumb, radius: thumb / 2, config: { ...record.config } });
+      this.thumbBody = new DropletBody({ width: thumb, height: thumb, radius: thumb / 2, config: { ...record.config } });
       this.seedResolved(this.thumbBody, record);
     } else {
       this.thumbBody.resize(thumb, thumb, thumb / 2);
@@ -565,7 +565,7 @@ export class JellySlider extends JellyElement implements EventListenerObject {
 
     // The shipped paintTrack reads only width / height, so projecting and
     // tracing every surface point is wasted work unless the slot is overridden
-    const custom = this.paintTrack !== JellySlider.prototype.paintTrack;
+    const custom = this.paintTrack !== DropletSlider.prototype.paintTrack;
 
     // Canvas-space points, so a painter drawing frame.path lands on the track
     const points = custom ? body.getSurfacePoints().map((point) => {
@@ -709,11 +709,11 @@ export class JellySlider extends JellyElement implements EventListenerObject {
 }
 
 export function defineSlider (options: DefineOptions = {}): DefineResult {
-  return defineStrict([[TAGS.slider, JellySlider]], options);
+  return defineStrict([[TAGS.slider, DropletSlider]], options);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'jelly-slider': JellySlider;
+    'droplet-slider': DropletSlider;
   }
 }

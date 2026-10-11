@@ -2,12 +2,12 @@ import { expect, test } from 'vitest';
 
 import { mount } from '../../testing/index.js';
 
-import type { JellyDivider } from './index.js';
+import type { DropletDivider } from './index.js';
 import '../../testing/define-all.js';
 
 test('upgrades as a separator with a plain rule', () => {
-  const host = mount('<jelly-divider></jelly-divider>');
-  const el = host.querySelector('jelly-divider') as JellyDivider;
+  const host = mount('<droplet-divider></droplet-divider>');
+  const el = host.querySelector('droplet-divider') as DropletDivider;
 
   expect(el.getAttribute('role')).toBe('separator');
   expect(el.shadowRoot!.querySelector('.line')).toBeTruthy();
@@ -16,8 +16,8 @@ test('upgrades as a separator with a plain rule', () => {
 });
 
 test('renders a labelled rule from slotted text', () => {
-  const host = mount('<jelly-divider>or</jelly-divider>');
-  const el = host.querySelector('jelly-divider') as JellyDivider;
+  const host = mount('<droplet-divider>or</droplet-divider>');
+  const el = host.querySelector('droplet-divider') as DropletDivider;
 
   const labelled = el.shadowRoot!.querySelector('.labelled .label');
   expect(labelled?.textContent).toBe('or');
@@ -26,8 +26,8 @@ test('renders a labelled rule from slotted text', () => {
 });
 
 test('vertical dividers expose aria-orientation', () => {
-  const host = mount('<jelly-divider direction="vertical"></jelly-divider>');
-  const el = host.querySelector('jelly-divider') as JellyDivider;
+  const host = mount('<droplet-divider direction="vertical"></droplet-divider>');
+  const el = host.querySelector('droplet-divider') as DropletDivider;
 
   expect(el.getAttribute('aria-orientation')).toBe('vertical');
 

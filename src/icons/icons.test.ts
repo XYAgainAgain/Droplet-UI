@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest';
 
-import { jellyIcon, ICONS } from './index.js';
+import { dropletIcon, ICONS } from './index.js';
 
 test('renders a sized, decorative SVG by default', () => {
-  const svg = jellyIcon('heart', { size: 18 });
+  const svg = dropletIcon('heart', { size: 18 });
 
   expect(svg.startsWith('<svg')).toBe(true);
   expect(svg).toContain('width="18"');
@@ -13,7 +13,7 @@ test('renders a sized, decorative SVG by default', () => {
 });
 
 test('a label makes the icon meaningful and escapes quotes', () => {
-  const svg = jellyIcon('warning', { label: 'Heads "up"' });
+  const svg = dropletIcon('warning', { label: 'Heads "up"' });
 
   expect(svg).toContain('role="img"');
   expect(svg).toContain('aria-label="Heads &quot;up&quot;"');
@@ -22,7 +22,7 @@ test('a label makes the icon meaningful and escapes quotes', () => {
 
 test('every registered icon renders non-empty SVG markup', () => {
   for (const name of Object.keys(ICONS) as (keyof typeof ICONS)[]) {
-    const svg = jellyIcon(name);
+    const svg = dropletIcon(name);
     expect(svg, name).toContain('<svg');
     expect(svg, name).toContain('</svg>');
   }

@@ -22,10 +22,10 @@ function inner (host: HTMLElement, tag: string, selector: string): CSSStyleDecla
 }
 
 test('data-jelly-motion on <html> switches shadow transitions live', async () => {
-  const host = mount('<jelly-kbd>K</jelly-kbd>');
+  const host = mount('<droplet-kbd>K</droplet-kbd>');
 
   await settle(3);
-  const cap = inner(host, 'jelly-kbd', '.cap');
+  const cap = inner(host, 'droplet-kbd', '.cap');
 
   expect(cap.transitionProperty).toBe(osReduced ? 'none' : 'transform');
 
@@ -43,14 +43,14 @@ test('data-jelly-motion on <html> switches shadow transitions live', async () =>
 
 test('the override also stops animations, including :host()-qualified rules', async () => {
   const host = mount(`
-    <jelly-spinner></jelly-spinner>
-    <jelly-collapsible open><span slot="header">Details</span>Body</jelly-collapsible>
+    <droplet-spinner></droplet-spinner>
+    <droplet-collapsible open><span slot="header">Details</span>Body</droplet-collapsible>
   `);
 
   await settle(3);
-  const rover = inner(host, 'jelly-spinner', '.rover');
-  const panel = inner(host, 'jelly-collapsible', '.inner');
-  const wrap  = inner(host, 'jelly-collapsible', '.wrap');
+  const rover = inner(host, 'droplet-spinner', '.rover');
+  const panel = inner(host, 'droplet-collapsible', '.inner');
+  const wrap  = inner(host, 'droplet-collapsible', '.wrap');
 
   root.setAttribute('data-jelly-motion', 'no-preference');
   expect(rover.animationName).toBe('sp-rove');

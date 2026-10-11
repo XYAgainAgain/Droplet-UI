@@ -5,16 +5,16 @@ import { mount, settle } from '../../testing/index.js';
 
 import { installScopeBridge } from '../../cascade/index.js';
 import { defineAll } from '../../register.js';
-import { defineToaster, jellyToast, JellyToaster } from './index.js';
+import { defineToaster, dropletToast, DropletToaster } from './index.js';
 
 defineAll({ strict: false });
 
-test('jellyToast creates a shared toaster and appends a toast', () => {
-  document.querySelector('jelly-toaster')?.remove();
+test('dropletToast creates a shared toaster and appends a toast', () => {
+  document.querySelector('droplet-toaster')?.remove();
 
-  const el = jellyToast('Saved!', { tone: 'success', duration: 0 });
+  const el = dropletToast('Saved!', { tone: 'success', duration: 0 });
 
-  const toaster = document.querySelector('jelly-toaster') as JellyToaster;
+  const toaster = document.querySelector('droplet-toaster') as DropletToaster;
   expect(toaster).not.toBeNull();
   expect(el.classList.contains('toast')).toBe(true);
   expect(el.querySelector('.toast-text')!.textContent).toBe('Saved!');
@@ -24,19 +24,19 @@ test('jellyToast creates a shared toaster and appends a toast', () => {
 });
 
 test('labels the tone for screen readers', () => {
-  document.querySelector('jelly-toaster')?.remove();
+  document.querySelector('droplet-toaster')?.remove();
 
-  const el = jellyToast('Disk full', { tone: 'danger', duration: 0 });
+  const el = dropletToast('Disk full', { tone: 'danger', duration: 0 });
 
   expect(el.querySelector('.sr-tone')!.textContent).toBe('Error:');
 
-  document.querySelector('jelly-toaster')?.remove();
+  document.querySelector('droplet-toaster')?.remove();
 });
 
 test('clicking the toast removes it', async () => {
-  document.querySelector('jelly-toaster')?.remove();
+  document.querySelector('droplet-toaster')?.remove();
 
-  const el = jellyToast('Dismiss me', { duration: 0 });
+  const el = dropletToast('Dismiss me', { duration: 0 });
   expect(el.isConnected).toBe(true);
 
   el.click();
@@ -45,34 +45,34 @@ test('clicking the toast removes it', async () => {
 
   expect(el.isConnected).toBe(false);
 
-  document.querySelector('jelly-toaster')?.remove();
+  document.querySelector('droplet-toaster')?.remove();
 });
 
-describe('jelly-toaster contracts', () => {
+describe('droplet-toaster contracts', () => {
   it('registers through the helper and is a no-op the second time', () => {
-    expect(defineToaster().alreadyDefined).toEqual(['jelly-toaster']);
-    expect(JellyToaster.define().alreadyDefined).toEqual(['jelly-toaster']);
+    expect(defineToaster().alreadyDefined).toEqual(['droplet-toaster']);
+    expect(DropletToaster.define().alreadyDefined).toEqual(['droplet-toaster']);
   });
 
   it('reads quality from the nearest scope and lets the element attribute win', async () => {
     installScopeBridge(document);
 
     const host = mount(`<div data-droplet-quality="low">
-      <jelly-toaster id="a"></jelly-toaster>
-      <jelly-toaster id="b" quality="hi"></jelly-toaster>
+      <droplet-toaster id="a"></droplet-toaster>
+      <droplet-toaster id="b" quality="hi"></droplet-toaster>
     </div>`);
     await settle();
 
-    expect((host.querySelector('#a') as JellyToaster).quality).toBe('low');
-    expect((host.querySelector('#b') as JellyToaster).quality).toBe('high');
+    expect((host.querySelector('#a') as DropletToaster).quality).toBe('low');
+    expect((host.querySelector('#b') as DropletToaster).quality).toBe('high');
 
     host.remove();
   });
 
   it('reflects the canonical quality keyword and leaves garbage as written', async () => {
-    const host = mount('<jelly-toaster quality="med"></jelly-toaster>');
+    const host = mount('<droplet-toaster quality="med"></droplet-toaster>');
     await settle();
-    const el = host.firstElementChild as JellyToaster;
+    const el = host.firstElementChild as DropletToaster;
 
     expect(el.quality).toBe('medium');
     expect(el.getAttribute('quality')).toBe('medium');
@@ -93,7 +93,7 @@ describe('jelly-toaster contracts', () => {
   });
 
   it('registers the toaster on demand when the tag is not defined', async () => {
-    // A realm that imported the module but never called defineAll(): jellyToast
+    // A realm that imported the module but never called defineAll(): dropletToast
     // has to register the tag itself or push() lands on an unupgraded element.
     const url   = new URL('./index.ts', import.meta.url).href;
     const frame = document.createElement('iframe');
@@ -101,7 +101,7 @@ describe('jelly-toaster contracts', () => {
     frame.srcdoc = `<!doctype html><body><script type="module">
       window.onerror = (m) => { document.documentElement.dataset.ready = 'err:' + m; };
       import(${JSON.stringify(url)}).then((m) => {
-        m.jellyToast('from a bare realm', { duration: 0 });
+        m.dropletToast('from a bare realm', { duration: 0 });
         document.documentElement.dataset.ready = 'yes';
       }).catch((e) => { document.documentElement.dataset.ready = 'err:' + e; });
     <\/script>`;
@@ -112,9 +112,9 @@ describe('jelly-toaster contracts', () => {
     }, { timeout: 5000 });
 
     const inner   = frame.contentDocument!;
-    const toaster = inner.querySelector('jelly-toaster');
+    const toaster = inner.querySelector('droplet-toaster');
 
-    expect(frame.contentWindow!.customElements.get('jelly-toaster')).toBeTruthy();
+    expect(frame.contentWindow!.customElements.get('droplet-toaster')).toBeTruthy();
     expect(toaster!.shadowRoot!.querySelector('.toast-text')!.textContent).toBe('from a bare realm');
 
     frame.remove();
@@ -130,33 +130,33 @@ describe('jelly-toaster contracts', () => {
     markup.quality = 'low';
 
     document.body.append(early, markup);
-    customElements.define(tag, class extends JellyToaster {});
+    customElements.define(tag, class extends DropletToaster {});
     await settle();
 
-    expect((early as unknown as JellyToaster).quality).toBe('low');
+    expect((early as unknown as DropletToaster).quality).toBe('low');
     expect(early.getAttribute('quality')).toBe('low');
-    expect((markup as unknown as JellyToaster).quality).toBe('high');
+    expect((markup as unknown as DropletToaster).quality).toBe('high');
 
     early.remove();
     markup.remove();
   });
 });
 
-describe('jelly-toaster timers', () => {
+describe('droplet-toaster timers', () => {
   // toastOut resolves synchronously under reduced motion, so these tests can
   // assert removal on a short wait instead of the 320 ms exit animation.
   beforeEach(() => {
     document.documentElement.setAttribute('data-jelly-motion', 'reduce');
-    document.querySelector('jelly-toaster')?.remove();
+    document.querySelector('droplet-toaster')?.remove();
   });
 
   afterEach(() => {
     document.documentElement.removeAttribute('data-jelly-motion');
-    document.querySelector('jelly-toaster')?.remove();
+    document.querySelector('droplet-toaster')?.remove();
   });
 
   it('pauses the toast timer while hovered', async () => {
-    const el = jellyToast('hi', { duration: 60 });
+    const el = dropletToast('hi', { duration: 60 });
     el.dispatchEvent(new PointerEvent('pointerenter', { bubbles: true }));
     await new Promise((r) => setTimeout(r, 120));
     expect(el.isConnected).toBe(true);
@@ -166,7 +166,7 @@ describe('jelly-toaster timers', () => {
   });
 
   it('pauses the toast timer while focus is inside', async () => {
-    const el = jellyToast('focus me', { duration: 60 });
+    const el = dropletToast('focus me', { duration: 60 });
     const close = el.querySelector('.close') as HTMLButtonElement;
 
     close.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
@@ -184,7 +184,7 @@ describe('jelly-toaster timers', () => {
   });
 
   it('clears a live timer when the toast is removed', async () => {
-    const el = jellyToast('live', { duration: 60 });
+    const el = dropletToast('live', { duration: 60 });
     const spy = vi.spyOn(el, 'remove');
 
     el.parentNode!.removeChild(el);
@@ -194,7 +194,7 @@ describe('jelly-toaster timers', () => {
   });
 
   it('clears a paused timer when the toast is removed', async () => {
-    const el = jellyToast('paused', { duration: 60 });
+    const el = dropletToast('paused', { duration: 60 });
     el.dispatchEvent(new PointerEvent('pointerenter', { bubbles: true }));
 
     const spy = vi.spyOn(el, 'remove');
@@ -206,8 +206,8 @@ describe('jelly-toaster timers', () => {
   });
 
   it('does not re-arm the timer after a click dismissal', async () => {
-    const el   = jellyToast('bye', { duration: 100 });
-    const rail = (document.querySelector('jelly-toaster') as JellyToaster).shadowRoot!.querySelector('.rail')!;
+    const el   = dropletToast('bye', { duration: 100 });
+    const rail = (document.querySelector('droplet-toaster') as DropletToaster).shadowRoot!.querySelector('.rail')!;
 
     // The click cancels the timer and starts the exit; a pointer crossing the
     // toast during that window must not schedule an untracked second timeout.
@@ -224,8 +224,8 @@ describe('jelly-toaster timers', () => {
   });
 
   it('does not re-arm the timer after it has fired', async () => {
-    const el   = jellyToast('gone', { duration: 60 });
-    const rail = (document.querySelector('jelly-toaster') as JellyToaster).shadowRoot!.querySelector('.rail')!;
+    const el   = dropletToast('gone', { duration: 60 });
+    const rail = (document.querySelector('droplet-toaster') as DropletToaster).shadowRoot!.querySelector('.rail')!;
 
     await new Promise((r) => setTimeout(r, 150));
     expect(el.isConnected).toBe(false);
@@ -245,7 +245,7 @@ describe('jelly-toaster timers', () => {
   });
 
   it('dismisses from the keyboard through the close button', async () => {
-    const el = jellyToast('keyboard', { duration: 0 });
+    const el = dropletToast('keyboard', { duration: 0 });
     const close = el.querySelector('.close') as HTMLButtonElement;
 
     close.focus();
