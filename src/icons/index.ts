@@ -8,7 +8,7 @@
  * at runtime. The paths carry no colour of their own - they render with
  * `currentColor`, so an icon inherits the text colour of wherever it sits.
  *
- *   import { dropletIcon } from './jelly.js';
+ *   import { dropletIcon } from './droplet.js';
  *
  *   button.innerHTML = dropletIcon('heart', { size: 18 });
  *   alertIcon        = dropletIcon('warning', { label: 'Warning' });

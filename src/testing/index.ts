@@ -4,7 +4,7 @@
  * paints, springs and focus moves settle before asserting.
  *
  * This module is deliberately outside the library: the vite build only
- * follows imports from src/jelly.ts, vitest only collects *.test.ts and the
+ * follows imports from src/droplet.ts, vitest only collects *.test.ts and the
  * manifest analyzer only reads src/components/** - so nothing here can leak
  * into the bundle, the test run or the docs.
  */

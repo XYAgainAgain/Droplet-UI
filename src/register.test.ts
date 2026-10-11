@@ -11,7 +11,7 @@ function recorder (): { registry: CustomElementRegistry; seen: string[] } {
 
 describe('defineAll', () => {
   it('is idempotent after the root import has already registered everything', async () => {
-    await import('./jelly.js');
+    await import('./droplet.js');
     const result = defineAll();
     expect(result.defined).toEqual([]);
     expect(result.collisions).toEqual([]);

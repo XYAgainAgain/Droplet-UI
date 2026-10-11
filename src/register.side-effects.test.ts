@@ -24,7 +24,7 @@ test('the root entry skips a library tag another constructor already owns', asyn
   const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
   try {
-    await import('./jelly.js');
+    await import('./droplet.js');
     expect(warn).toHaveBeenCalledTimes(2);
   } finally {
     warn.mockRestore();

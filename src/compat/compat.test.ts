@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import '../jelly.js';
+import '../droplet.js';
 import * as Compat from './index.js';
 import * as Register from '../register.js';
 import { LEGACY_TAGS, TAGS } from '../registry/index.js';
@@ -69,7 +69,7 @@ describe('legacy aliases', () => {
   });
 
   it('keep the Jelly UI root exports and the toast global', async () => {
-    const root = await import('../jelly.js');
+    const root = await import('../droplet.js');
     expect(root.JellyElement).toBe(root.DropletElement);
     expect(root.JellyBody).toBe(root.DropletBody);
     expect(root.jellyToast).toBe(root.dropletToast);

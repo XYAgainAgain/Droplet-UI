@@ -3,7 +3,7 @@
  * drift away. A <jelly-toaster> host is created automatically; place one
  * yourself (optionally with position="bottom") to control stacking.
  *
- *   import { dropletToast } from './src/jelly.js';
+ *   import { dropletToast } from './src/droplet.js';
  *   dropletToast('Saved!', { tone: 'success' });
  */
 

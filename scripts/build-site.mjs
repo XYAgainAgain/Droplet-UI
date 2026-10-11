@@ -10,7 +10,7 @@
  * Layout produced:
  *   _site/index.html                      (from docs/showcase/index.html)
  *   _site/api/index.html                  (from docs/api/index.html)  -> /api
- *   _site/dist/jelly.js                   (the library bundle)
+ *   _site/dist/droplet.js                 (the library bundle; jelly.js re-exports it)
  *   _site/package.js                      (the hosted public entry)
  *   _site/docs/**                         (runtime docs assets)
  *   _site/docs/lottie/lottie_light.min.js (copied from the lottie-web dep)
@@ -38,7 +38,7 @@ const site = join(root, '_site');
 
 const run = (command) => execSync(command, { cwd: root, stdio: 'inherit' });
 
-// 1. Build the library bundle (dist/jelly.js) and regenerate the docs data
+// 1. Build the library bundle (dist/droplet.js) and regenerate the docs data
 //    (custom-elements.json + docs/content/data.js) from the component sources.
 run('npm run build');
 run('npm run docs');

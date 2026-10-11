@@ -1,10 +1,13 @@
 {
-  "name": "jelly-ui",
-  "version": "1.1.0",
-  "description": "A dependency-free Web Components library for soft, tactile product interfaces — real form controls meet soft-body physics.",
+  "name": "droplet-ui",
+  "version": "0.1.0",
+  "description": "A dependency-free Web Components library for soft, tactile interfaces, with real form controls riding soft-body physics. A drop-in fork of Jelly UI.",
   "type": "module",
   "license": "MIT",
-  "author": "Baldvin Mar Smarason <bmson@bmson.com>",
+  "author": "XYAgainAgain",
+  "contributors": [
+    "Baldvin Mar Smarason <bmson@bmson.com> (https://github.com/bmson)"
+  ],
   "packageManager": "npm@12.0.2",
   "allowScripts": {
     "esbuild": true,
@@ -22,13 +25,13 @@
     "dist",
     "custom-elements.json"
   ],
-  "main": "./dist/jelly.js",
-  "module": "./dist/jelly.js",
-  "types": "./dist/jelly.d.ts",
+  "main": "./dist/droplet.js",
+  "module": "./dist/droplet.js",
+  "types": "./dist/droplet.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/jelly.d.ts",
-      "import": "./dist/jelly.js"
+      "types": "./dist/droplet.d.ts",
+      "import": "./dist/droplet.js"
     },
     "./core": {
       "types": "./dist/core.d.ts",

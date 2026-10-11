@@ -1,5 +1,5 @@
 /*
- * The Jelly UI dev server - a tiny, dependency-free static file server
+ * The Droplet UI dev server - a tiny, dependency-free static file server
  * for local preview. ES modules need an HTTP origin, so file:// won't do.
  *
  *   node server.mjs              serve on http://localhost:4173
@@ -108,6 +108,6 @@ createServer(async (request, response) => {
     response.end(status === 404 ? `Not found: ${request.url}` : 'Server error');
   }
 }).listen(PORT, () => {
-  console.log(`Jelly UI dev server -> http://localhost:${PORT}/`);
+  console.log(`Droplet UI dev server -> http://localhost:${PORT}/`);
   console.log(`Showcase on /, API reference on /api - Ctrl+C to stop`);
 });
