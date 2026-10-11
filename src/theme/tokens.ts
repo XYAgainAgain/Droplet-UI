@@ -1,5 +1,5 @@
 /*
- * The Jelly UI design tokens: one small palette expressed as CSS custom
+ * The Droplet UI design tokens: one small palette expressed as CSS custom
  * properties, shared by the DOM and the canvas painter. Two semantic themes
  * (LIGHT / DARK) group colors by role (background / foreground / border); the
  * flattened *_TOKENS maps and PALETTE expose them to JS, and the FOCUS_RING /
@@ -84,7 +84,7 @@ const SKY   = 'oklch(0.7112 0.1559 250.96)';      // #4DA6FF
  * The hues carry only their saturated fill plus the label that sits on it -
  * the soft tints and per-hue text tones were unused and have been dropped.
  * `accent` is the primary interactive fill (azure by default, re-tintable per
- * subtree by <jelly-theme accent="...">).
+ * subtree by <droplet-theme accent="...">).
  */
 
 export const LIGHT: Theme = {
@@ -178,7 +178,7 @@ export const DARK_TOKENS: TokenMap  = flatten(DARK);
 /*
  * Convenience lookup for JS code that needs a concrete color (canvas fills,
  * documented defaults). Keyed by the same suffixes as the CSS tokens, so a
- * component's fallback reads `var(--jelly-color-background-neutral, var(--droplet-color-background-neutral,
+ * component's fallback reads `var(--droplet-color-background-neutral, var(--droplet-color-background-neutral,
  * ${PALETTE['background-neutral']}))`. Always prefer the CSS tokens in styles.
  */
 export const PALETTE: TokenMap = LIGHT_TOKENS;

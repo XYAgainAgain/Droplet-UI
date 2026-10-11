@@ -37,7 +37,7 @@
   will-change:   transform;
 }
 
-/* A quiet close affordance in the top-inner corner, matching jelly-dialog */
+/* A quiet close affordance in the top-inner corner, matching droplet-dialog */
 .close {
   position:         absolute;
   top:              16px;

@@ -4,7 +4,7 @@
  * One live preview per component. Each component is a viewport-height "panel"
  * The attribute table beside the preview shows EVERY option of
  * every attribute at once, rendered with the library's own components
- * (jelly-badge for enums / booleans / numbers, jelly-input for text), so the
+ * (droplet-badge for enums / booleans / numbers, droplet-input for text), so the
  * docs dogfood what they document. Clicking a badge - or typing into a text
  * field - sets that attribute on the live preview and rewrites the HTML
  * snippet; interacting with the preview itself writes back into the table.
@@ -15,7 +15,7 @@
 
 import '../../package.js';
 
-import { jellyToast }       from '../../package.js';
+import { dropletToast }       from '../../package.js';
 
 import { escapeHTML }       from '../shared/common.js';
 import { formatInlineCode } from '../shared/common.js';
@@ -35,7 +35,7 @@ wireThemeToggle(document.getElementById('themeToggle'));
 initLottie(document.getElementById('heroLottie'), './docs/lottie/hero-lottie.json');
 initLottie(document.getElementById('footerLottie'), './docs/lottie/footer-lottie.json');
 
-// The hero and subnav call-to-action buttons are jelly-buttons, not links, so
+// The hero and subnav call-to-action buttons are droplet-buttons, not links, so
 // wire their navigation here: smooth-scroll to the first showcased component,
 // or jump to the API reference page.
 document.querySelector('[data-hero-scroll]')?.addEventListener('click', () => {
@@ -49,6 +49,9 @@ document.querySelector('[data-subnav-showcase]')?.addEventListener('click', () =
 });
 document.querySelector('[data-subnav-api]')?.addEventListener('click', () => {
   window.location.href = './api/';
+});
+document.querySelector('[data-subnav-migration]')?.addEventListener('click', () => {
+  window.location.href = './migration/';
 });
 
 // The showcased components, in group order, minus the child-only elements
@@ -145,27 +148,27 @@ function displayValue (spec, value) {
 }
 
 // The value display for one attribute row, built from the library's own
-// components. A field control is a free-typed jelly-input (text, or a number
+// components. A field control is a free-typed droplet-input (text, or a number
 // spinner) whose input lands on the preview; every other kind (enum, boolean,
-// number) shows ALL of its options at once as selectable jelly-chips - the
+// number) shows ALL of its options at once as selectable droplet-chips - the
 // current one selected (accent), the rest at rest (platinum). Single-select is
 // managed here (updateValue keeps exactly one chip selected per row).
 function valueControl (spec, value) {
   if (isField(spec)) {
     const type = spec.kind === 'number' ? 'number' : 'text';
 
-    return `<jelly-input class="attr-field" data-value="${spec.attr}" size="small" type="${type}"`
+    return `<droplet-input class="attr-field" data-value="${spec.attr}" size="small" type="${type}"`
       + ` value="${escapeHTML(String(value ?? ''))}"`
       + ` placeholder="${escapeHTML(spec.placeholder || '')}"`
-      + ` label="Current ${escapeHTML(spec.attr)}"></jelly-input>`;
+      + ` label="Current ${escapeHTML(spec.attr)}"></droplet-input>`;
   }
 
   const chips = optionsFor(spec, value).map((option) => {
     const selected = String(option) === String(value);
 
-    return `<jelly-chip class="attr-chip" data-opt="${escapeHTML(String(option))}"`
+    return `<droplet-chip class="attr-chip" data-opt="${escapeHTML(String(option))}"`
       + ` shape="square" selectable${selected ? ' selected' : ''}>`
-      + `${escapeHTML(displayValue(spec, option))}</jelly-chip>`;
+      + `${escapeHTML(displayValue(spec, option))}</droplet-chip>`;
   }).join('');
 
   return `<div class="attr-options" data-value="${spec.attr}">${chips}</div>`;
@@ -212,8 +215,8 @@ function formatInner (inner) {
 
 // Build the HTML snippet that mirrors the current attribute values
 function codeFor (item, cfg, state) {
-  if (item.tag === 'jelly-toaster') {
-    return `jellyToast('Saved!', { tone: '${state.tone}' });`;
+  if (item.tag === 'droplet-toaster') {
+    return `dropletToast('Saved!', { tone: '${state.tone}' });`;
   }
 
   const attrs = [];
@@ -278,7 +281,7 @@ function updateValue (panel, attr) {
     return;
   }
 
-  for (const chip of el.querySelectorAll('jelly-chip[data-opt]')) {
+  for (const chip of el.querySelectorAll('droplet-chip[data-opt]')) {
     chip.toggleAttribute('selected', chip.getAttribute('data-opt') === String(value));
   }
 }
@@ -305,7 +308,7 @@ function panelMarkup (item, index) {
 
             <div class="code">
               <div class="code-head">
-                <jelly-button class="copy" size="small" variant="white" data-copy aria-label="Copy the ${item.tag} snippet">Copy</jelly-button>
+                <droplet-button class="copy" size="small" variant="white" data-copy aria-label="Copy the ${item.tag} snippet">Copy</droplet-button>
               </div>
               <pre><code data-code></code></pre>
             </div>
@@ -325,8 +328,8 @@ function panelMarkup (item, index) {
 }
 
 // The attribute table for one component: each row is the attribute name and
-// all of its options, rendered with the library's own components (jelly-badge /
-// jelly-input) so the docs dogfood what they document. No per-row description -
+// all of its options, rendered with the library's own components (droplet-badge /
+// droplet-input) so the docs dogfood what they document. No per-row description -
 // the options speak for themselves.
 function attrsMarkup (item, cfg, state) {
   const rows = cfg.controls.map((spec) => {
@@ -355,8 +358,8 @@ function buildPreview (panel, item, cfg, state) {
 
   let rootHTML;
 
-  if (item.tag === 'jelly-resizable') {
-    rootHTML = `<${item.tag}${attrs} style="height: 220px; width: 100%; overflow: hidden; background: #fff; border: 1px solid var(--jelly-color-border-default, #ECECEF); border-radius: 14px">${inner}</${item.tag}>`;
+  if (item.tag === 'droplet-resizable') {
+    rootHTML = `<${item.tag}${attrs} style="height: 220px; width: 100%; overflow: hidden; background: #fff; border: 1px solid var(--droplet-color-border-default, #ECECEF); border-radius: 14px">${inner}</${item.tag}>`;
   } else {
     rootHTML = `<${item.tag}${attrs}>${inner}</${item.tag}>`;
   }
@@ -374,7 +377,7 @@ function buildPreview (panel, item, cfg, state) {
 
   panel.root = root;
 
-  if (root && item.tag !== 'jelly-toaster') {
+  if (root && item.tag !== 'droplet-toaster') {
     for (const spec of cfg.controls) {
       applyToRoot(root, spec, state[spec.attr], cfg);
     }
@@ -429,12 +432,12 @@ function wirePreview (panel) {
   });
 
   panel.querySelectorAll('[data-toast]').forEach((button) => {
-    button.addEventListener('click', () => jellyToast('Jelly toast', { tone: panel.state.tone }));
+    button.addEventListener('click', () => dropletToast('Droplet toast', { tone: panel.state.tone }));
   });
 
   // Prevent demo links from navigating (a breadcrumb href would jump the page).
   // composedPath() is used rather than event.target so links rendered inside a
-  // component's shadow DOM (jelly-breadcrumbs) are caught too - a shadow click
+  // component's shadow DOM (droplet-breadcrumbs) are caught too - a shadow click
   // retargets event.target to the host, where closest('a') finds nothing.
   panel.querySelector('.stage-inner').addEventListener('click', (event) => {
     if (event.composedPath().some((node) => node instanceof HTMLAnchorElement)) {
@@ -442,7 +445,7 @@ function wirePreview (panel) {
     }
   });
 
-  if (!root || item.tag === 'jelly-toaster') {
+  if (!root || item.tag === 'droplet-toaster') {
     return;
   }
 
@@ -453,13 +456,13 @@ function wirePreview (panel) {
   root.addEventListener('remove', () => setTimeout(() => rebuildPreview(panel), 1500));
   root.addEventListener('dismiss', () => setTimeout(() => rebuildPreview(panel), 400));
 
-  // Fired events tick along the stage edge - real jelly-badges (graphite, so
+  // Fired events tick along the stage edge - real droplet-badges (graphite, so
   // they read as telemetry, distinct from the azure/platinum option badges)
   const ticker = panel.querySelector('.stage-events');
 
   for (const name of (panel.dataset.events || '').split(',').filter(Boolean)) {
     root.addEventListener(name, () => {
-      const chip = document.createElement('jelly-badge');
+      const chip = document.createElement('droplet-badge');
 
       chip.className = 'event-chip';
       chip.setAttribute('variant', 'graphite');
@@ -490,7 +493,7 @@ function setValue (panel, attr, value) {
 
   const spec = panel.specByAttr[attr];
 
-  if (panel.root && panel.item.tag !== 'jelly-toaster') {
+  if (panel.root && panel.item.tag !== 'droplet-toaster') {
     applyToRoot(panel.root, spec, value, panel.cfg);
   }
 

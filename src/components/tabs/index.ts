@@ -1,8 +1,8 @@
 /*
- * Tabbed views. The tab bar is a <jelly-segmented> in tablist mode (a
+ * Tabbed views. The tab bar is a <droplet-segmented> in tablist mode (a
  * sliding jelly pill with real tab semantics); switching bounces the new
- * panel in. Panels are light-DOM <jelly-tab-panel> children and the active
- * one can be driven by a `value` attribute (like jelly-segmented's) as well
+ * panel in. Panels are light-DOM <droplet-tab-panel> children and the active
+ * one can be driven by a `value` attribute (like droplet-segmented's) as well
  * as by the panels' own `active` flags
  */
 
@@ -21,7 +21,7 @@ import { DropletSegmented }       from '../segmented/index.js';
 
 import tabsStyles               from './tabs.css?inline';
 
-// The tab-bar surface tabs drives - jelly-segmented satisfies this structurally
+// The tab-bar surface tabs drives - droplet-segmented satisfies this structurally
 interface TabBar extends HTMLElement {
   value: string;
 }
@@ -29,7 +29,7 @@ interface TabBar extends HTMLElement {
 /**
  * One tab panel: shown when its tab is active, hidden otherwise.
  *
- * @element jelly-tab-panel
+ * @element droplet-tab-panel
  *
  * @slot - The panel content.
  *
@@ -69,9 +69,9 @@ export class DropletTabPanel extends HTMLElementBase {
 /**
  * A tabbed view whose bar is a sliding jelly segmented control.
  *
- * @element jelly-tabs
+ * @element droplet-tabs
  *
- * @slot - The `<jelly-tab-panel>` panels.
+ * @slot - The `<droplet-tab-panel>` panels.
  *
  * @attr {string} value - The active panel's value.
  * @attr {"small"|"medium"|"large"} size - Tab-bar size.

@@ -185,3 +185,24 @@ describe('droplet-collapsible contracts', () => {
     markup.remove();
   });
 });
+
+test('an open chevron rotates in RTL under reduced motion too', async () => {
+  document.documentElement.setAttribute('data-droplet-motion', 'reduce');
+  const host = mount('<div dir="rtl"><droplet-collapsible open><span slot="header">H</span>Body</droplet-collapsible></div>');
+  const el = host.querySelector('droplet-collapsible')!;
+
+  try {
+    await settle(2);
+    const chevron = el.shadowRoot!.querySelector('.chevron')!;
+    const open = new DOMMatrix(getComputedStyle(chevron).transform);
+    expect(Math.round(open.b)).toBe(1);
+
+    el.removeAttribute('open');
+    await settle(1);
+    const closed = new DOMMatrix(getComputedStyle(chevron).transform);
+    expect(closed.a).toBe(-1);
+  } finally {
+    document.documentElement.removeAttribute('data-droplet-motion');
+    host.remove();
+  }
+});

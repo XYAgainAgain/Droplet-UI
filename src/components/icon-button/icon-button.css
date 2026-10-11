@@ -4,7 +4,7 @@
   --droplet-icon-button-font-size: 18px; --jelly-icon-button-font-size: var(--droplet-icon-button-font-size);
   --droplet-icon-button-icon-size: 20px; --jelly-icon-button-icon-size: var(--droplet-icon-button-icon-size);
 
-  /* The ring tracks the button's own fill (see jelly-button) */
+  /* The ring tracks the button's own fill (see droplet-button) */
   --droplet-ring: var(--jelly-fill, var(--droplet-fill, var(--jelly-color-border-focus, var(--droplet-color-border-focus)))); --jelly-ring: var(--droplet-ring);
 }
 

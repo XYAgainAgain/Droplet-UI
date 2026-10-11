@@ -1,5 +1,5 @@
 /*
- * Declarative option data for <jelly-select>: the parent select reads each
+ * Declarative option data for <droplet-select>: the parent select reads each
  * option's value, label and disabled state and renders its own listbox
  * rows, so this element hides itself and never takes part in layout
  */
@@ -14,9 +14,9 @@ interface OptionParent extends HTMLElement {
 }
 
 /**
- * Declarative option data for `<jelly-select>`. Hidden from layout.
+ * Declarative option data for `<droplet-select>`. Hidden from layout.
  *
- * @element jelly-option
+ * @element droplet-option
  *
  * @slot - The option's visible label.
  *

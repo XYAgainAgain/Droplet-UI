@@ -455,7 +455,7 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
     // Theme flips change the computed fill; zoom changes the device pixel
     // ratio without firing the ResizeObserver - both need a repaint
     window.addEventListener('droplet-theme-change', this.onThemeChange);
-    // The theme runtime relays a page's jelly-motion-change under this name
+    // The theme runtime relays a page's droplet-motion-change under this name
     window.addEventListener('droplet-motion-change', this.onMotionChange);
     window.addEventListener('resize', this.onWindowResize, { passive: true });
 

@@ -6,7 +6,7 @@
  * a disabled <fieldset> disables it, form="id" picks its owner, and
  * type="submit" / "reset" drive that owner form. shape="square" swaps the
  * full pill for a smaller, rounded-rectangle radius (same 0.32-of-height
- * ratio as jelly-icon-button's default square).
+ * ratio as droplet-icon-button's default square).
  */
 
 import { DropletElement }   from '../../element/index.js';
@@ -37,7 +37,7 @@ const SUBMITTER_ATTRIBUTES = ['name', 'value', 'formaction', 'formenctype', 'for
 /**
  * A capsule-shaped jelly button with soft-body physics.
  *
- * @element jelly-button
+ * @element droplet-button
  *
  * @slot - The button's label content (text, icons).
  *
@@ -74,12 +74,13 @@ const SUBMITTER_ATTRIBUTES = ['name', 'value', 'formaction', 'formenctype', 'for
  * @fires click - When the button is activated (native event, bubbles composed).
  *
  * @csspart button - The inner native <button>.
- * @csspart jelly - The canvas the soft body is painted on.
+ * @csspart droplet - The canvas the soft body is painted on.
+ * @csspart jelly - The same canvas under its Jelly UI part name.
  *
- * @cssprop [--jelly-button-height=62px] - Control height.
- * @cssprop [--jelly-button-radius=999px] - Corner radius of the painted surface.
- * @cssprop [--jelly-fill] - Surface fill color (usually set by `variant`).
- * @cssprop [--jelly-label] - Label color.
+ * @cssprop [--droplet-button-height=62px] - Control height.
+ * @cssprop [--droplet-button-radius=999px] - Corner radius of the painted surface.
+ * @cssprop [--droplet-fill] - Surface fill color (usually set by `variant`).
+ * @cssprop [--droplet-label] - Label color.
  */
 export class DropletButton extends DropletElement {
 
@@ -154,7 +155,7 @@ export class DropletButton extends DropletElement {
     reflectAttribute(this, 'value', value);
   }
 
-  // Native parity except the default: a bare jelly-button stays type="button"
+  // Native parity except the default: a bare droplet-button stays type="button"
   get type (): ButtonType {
     const type = this.getAttribute('type')?.toLowerCase();
 

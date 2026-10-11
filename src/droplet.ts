@@ -1,6 +1,6 @@
 /*
  * Droplet UI - barrel module. Import this once to register every component,
- * under both its droplet-* tag and its permanent Jelly UI alias.
+ * under both its droplet-* tag and its permanent Droplet UI alias.
  *
  *   import 'droplet-ui';
  *
@@ -32,7 +32,7 @@ export { ICONS }        from './icons/index.js';
 export { dropletIcon }  from './icons/index.js';
 export type { IconName, IconOptions } from './icons/index.js';
 
-// Permanent Jelly UI names, so a package swap breaks no existing import
+// Permanent Droplet UI names, so a package swap breaks no existing import
 export { DropletBody as JellyBody } from './core/index.js';
 export { DropletElement as JellyElement } from './element/index.js';
 export type { DropletBodyOptions as JellyBodyOptions, DropletComponent as JellyComponent, DropletConfig as JellyConfig } from './core/index.js';

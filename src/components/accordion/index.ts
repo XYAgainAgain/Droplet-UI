@@ -1,5 +1,5 @@
 /*
- * A group controller for <jelly-collapsible> items. Add `single` so
+ * A group controller for <droplet-collapsible> items. Add `single` so
  * opening one item bounces the others closed; `size` propagates to every
  * item that hasn't chosen its own
  */
@@ -17,11 +17,11 @@ import type { DefineOptions, DefineResult } from '../../registry/index.js';
 import accordionStyles         from './accordion.css?inline';
 
 /**
- * A group controller for `<jelly-collapsible>` items.
+ * A group controller for `<droplet-collapsible>` items.
  *
- * @element jelly-accordion
+ * @element droplet-accordion
  *
- * @slot - The `<jelly-collapsible>` items.
+ * @slot - The `<droplet-collapsible>` items.
  *
  * @attr {boolean} single - Opening one item closes the others.
  * @attr {"small"|"medium"|"large"} size - Size propagated to the items.

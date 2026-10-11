@@ -17,7 +17,7 @@ import breadcrumbsStyles     from './breadcrumbs.css?inline';
 /**
  * A breadcrumb trail built from light-DOM `<a>` / `<span>` children.
  *
- * @element jelly-breadcrumbs
+ * @element droplet-breadcrumbs
  *
  * @slot - The trail items (the last one is the current page).
  *

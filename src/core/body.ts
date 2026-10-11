@@ -1,5 +1,5 @@
 /*
- * The Jelly UI soft-body membrane simulation: geometry + math helpers, the
+ * The Droplet UI soft-body membrane simulation: geometry + math helpers, the
  * rounded-rectangle membrane builder, and the DropletBody class that wobbles a
  * shape in pure local coordinates. The DOM layer (element) feeds it pointer
  * input and reads back the deformed surface to paint.
@@ -649,7 +649,7 @@ export class DropletBody {
    * A one-shot directional jiggle along an axis: the leading edge (normals
    * aligned with the direction) bulges out and the trailing edge tucks in, so
    * the blob stretches the way it's thrown. Used by the sliding controls and
-   * jelly-alert's shake.
+   * droplet-alert's shake.
    */
   stretchAlong (dirX: number, dirY: number, strength = 1): void {
     const length = Math.hypot(dirX, dirY) || 1;

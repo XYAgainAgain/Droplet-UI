@@ -22,7 +22,7 @@ import variantStyles    from '../../styles/variants.css?inline';
 /**
  * A small status pill / tag / count badge.
  *
- * @element jelly-badge
+ * @element droplet-badge
  *
  * @slot - The badge content (text or a count).
  *
@@ -37,7 +37,7 @@ import variantStyles    from '../../styles/variants.css?inline';
  *
  * @csspart badge - The inner pill.
  *
- * @cssprop [--jelly-badge-radius=999px] - Corner radius of the painted pill.
+ * @cssprop [--droplet-badge-radius=999px] - Corner radius of the painted pill.
  */
 export class DropletBadge extends DropletElement {
 

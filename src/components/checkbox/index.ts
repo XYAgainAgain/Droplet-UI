@@ -23,7 +23,7 @@ import checkboxStyles       from './checkbox.css?inline';
 /**
  * A squishy checkbox backed by a real form-associated native checkbox.
  *
- * @element jelly-checkbox
+ * @element droplet-checkbox
  *
  * @slot - The label text shown beside the box.
  *
@@ -43,9 +43,9 @@ import checkboxStyles       from './checkbox.css?inline';
  * @csspart wrap - The label wrapper.
  * @csspart input - The visually-hidden native checkbox.
  *
- * @cssprop [--jelly-checkbox-size=32px] - Box size.
- * @cssprop [--jelly-on] - Checked fill color.
- * @cssprop [--jelly-checkbox-mark] - Check-mark color.
+ * @cssprop [--droplet-checkbox-size=32px] - Box size.
+ * @cssprop [--droplet-on] - Checked fill color.
+ * @cssprop [--droplet-checkbox-mark] - Check-mark color.
  */
 export class DropletCheckbox extends DropletElement {
 

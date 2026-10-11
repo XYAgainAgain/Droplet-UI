@@ -31,7 +31,7 @@ const REPLAYED = ['open', 'quality', 'palette', 'material'] as const;
 /**
  * A bouncy disclosure section with a springy expand / collapse.
  *
- * @element jelly-collapsible
+ * @element droplet-collapsible
  *
  * @slot header - The clickable header content.
  * @slot - The collapsible panel content.

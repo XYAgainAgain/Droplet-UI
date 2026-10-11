@@ -1,8 +1,8 @@
 /*
  * Loading indicators with a jelly soul. Two types:
  *
- *   <jelly-spinner></jelly-spinner>              a gooey blob gliding between 3 dots
- *   <jelly-spinner type="blob"></jelly-spinner>  a living blob that morphs + spins
+ *   <droplet-spinner></droplet-spinner>              a gooey blob gliding between 3 dots
+ *   <droplet-spinner type="blob"></droplet-spinner>  a living blob that morphs + spins
  *
  * Size with the size attribute (or width/height on the host). Honors
  * prefers-reduced-motion by settling into something calm and static.
@@ -21,7 +21,7 @@ import variantStyles    from '../../styles/variants.css?inline';
 /**
  * A loading spinner: gooey travelling dots (default) or a morphing blob.
  *
- * @element jelly-spinner
+ * @element droplet-spinner
  *
  * @attr {"dots"|"blob"} type - Spinner flavor.
  * @attr {"small"|"medium"|"large"} size - Spinner size.
@@ -30,7 +30,7 @@ import variantStyles    from '../../styles/variants.css?inline';
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
  * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
- * @cssprop [--jelly-fill] - Dot / blob color.
+ * @cssprop [--droplet-fill] - Dot / blob color.
  */
 export class DropletSpinner extends DropletElement {
 

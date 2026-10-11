@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Droplet UI: Migrating From Jelly UI</title>
+    <meta name="description" content="Move from Jelly UI to Droplet UI: change one package specifier, keep every jelly-* tag and --jelly-* token working, and learn the handful of things that changed." />
+    <!-- No favicon: an empty data URI stops the browser requesting /favicon.ico -->
+    <link rel="icon" href="data:," />
+
+    <!-- Apply saved visual preferences before first paint so there is no flash -->
+    <script>
+      const savedMode = localStorage.getItem('droplet-docs-theme') ?? localStorage.getItem('jelly-docs-theme');
+      if (savedMode === 'light' || savedMode === 'dark') {
+        document.documentElement.setAttribute('data-droplet-mode', savedMode);
+      }
+      const savedMotion = localStorage.getItem('droplet-docs-reduced-motion') ?? localStorage.getItem('jelly-docs-reduced-motion');
+      if (savedMotion === 'reduce' || savedMotion === 'no-preference') {
+        document.documentElement.setAttribute('data-droplet-motion', savedMotion);
+      }
+    </script>
+
+    <!-- Authored for its final URL depth, /migration/, like the API page -->
+    <link rel="stylesheet" href="../docs/shared/site.css" />
+    <link rel="stylesheet" href="../docs/migration/migration.css" />
+
+    <link rel="modulepreload" href="../package.js" />
+    <link rel="modulepreload" href="../dist/droplet.js" />
+  </head>
+
+  <body>
+    <a class="skip" href="#swap">Skip to content</a>
+
+    <nav class="subnav" aria-label="Site">
+      <a class="subnav-brand" href="../">Droplet UI <span class="subnav-ver">v0.1</span></a>
+
+      <div class="subnav-links">
+        <droplet-button size="small" variant="platinum" shape="square" data-subnav-showcase>Showcase</droplet-button>
+        <droplet-button size="small" variant="platinum" shape="square" data-subnav-api>API reference</droplet-button>
+        <droplet-button size="small" variant="azure" shape="square" data-subnav-migration aria-current="page">Migration</droplet-button>
+        <droplet-tooltip text="Motion: system setting" placement="bottom" size="small">
+          <droplet-icon-button id="motionToggle" size="small" variant="platinum" shape="square" label="Motion settings"></droplet-icon-button>
+        </droplet-tooltip>
+        <droplet-tooltip text="Theme: system" placement="bottom" size="small">
+          <droplet-icon-button id="themeToggle" size="small" variant="platinum" shape="square" label="Switch theme"></droplet-icon-button>
+        </droplet-tooltip>
+      </div>
+    </nav>
+
+    <main class="page">
+      <header class="intro">
+        <p class="kicker">Migration guide</p>
+        <h1>Migrating From Jelly UI</h1>
+        <p class="lede">
+          Droplet UI is a fork of <a href="https://github.com/jelly-org/ui">Jelly UI</a> by bmson (MIT).
+          Every name the library had under Jelly keeps working, permanently, so the whole migration is
+          one package specifier. This page covers that swap, the short list of things that behave
+          differently, and the complete name tables, generated from the library itself so they cannot drift.
+        </p>
+        <nav class="toc" aria-label="On this page">
+          <ol>
+            <li><a href="#swap">The Swap</a></li>
+            <li><a href="#keeps-working">What Keeps Working</a></li>
+            <li><a href="#differences">What Is Different</a></li>
+            <li><a href="#elements">Element Names</a></li>
+            <li><a href="#tokens">CSS Custom Properties</a></li>
+            <li><a href="#search-replace">Search and Replace</a></li>
+            <li><a href="#new">While You Are Here</a></li>
+          </ol>
+        </nav>
+      </header>
+
+      <section class="block" id="swap" aria-labelledby="swap-h">
+        <h2 id="swap-h">The Swap</h2>
+        <p>
+          Install <code>droplet-ui</code> and point your imports at it. Nothing else has to change on
+          day one: your <code>&lt;jelly-*&gt;</code> markup, <code>--jelly-*</code> tokens, and
+          <code>Jelly*</code> class imports all resolve against the new package.
+        </p>
+        <div class="code">
+          <div class="code-head">
+            <span class="code-title">Terminal</span>
+            <droplet-button class="copy" size="small" variant="white" data-copy aria-label="Copy install command">Copy</droplet-button>
+          </div>
+          <pre><code>npm uninstall jelly-ui
+npm install droplet-ui</code></pre>
+        </div>
+        <div class="code">
+          <div class="code-head">
+            <span class="code-title">Before and after</span>
+            <droplet-button class="copy" size="small" variant="white" data-copy aria-label="Copy import example">Copy</droplet-button>
+          </div>
+          <pre><code>// before
+import { JellyButton, jellyToast } from 'jelly-ui';
+
+// after (the Jelly names still export; rename when you feel like it)
+import { JellyButton, jellyToast } from 'droplet-ui';</code></pre>
+        </div>
+        <p>
+          Prefer to change nothing at all? Alias the old name in <code>package.json</code> and
+          <code>'jelly-ui'</code> keeps resolving, now to Droplet UI:
+        </p>
+        <div class="code">
+          <div class="code-head">
+            <span class="code-title">package.json</span>
+            <droplet-button class="copy" size="small" variant="white" data-copy aria-label="Copy alias example">Copy</droplet-button>
+          </div>
+          <pre><code>{
+  "dependencies": {
+    "jelly-ui": "npm:droplet-ui@^0.1.0"
+  }
+}</code></pre>
+        </div>
+        <p class="note">
+          Droplet UI restarts its version history at 0.1.0. The package is not on npm yet; the
+          specifier above is the one it will ship under.
+        </p>
+      </section>
+
+      <section class="block" id="keeps-working" aria-labelledby="keeps-h">
+        <h2 id="keeps-h">What Keeps Working</h2>
+        <p>
+          These are permanent aliases, not a deprecation window. An existing Jelly UI consumer can swap
+          packages without touching its CSS or markup, and leave it that way.
+        </p>
+        <ul class="keeps">
+          <li>
+            <strong>Every <code>jelly-*</code> tag.</strong> Each one is a thin subclass of its
+            <code>droplet-*</code> element, so <code>el instanceof DropletButton</code> holds for a
+            <code>&lt;jelly-button&gt;</code>, and <code>customElements.get('jelly-button')</code> returns
+            <code>JellyButton</code>. The full list is in <a href="#elements">Element Names</a>.
+          </li>
+          <li>
+            <strong>The root exports</strong> <code>JellyElement</code>, <code>JellyBody</code>,
+            <code>JellyConfig</code>, <code>JellyBodyOptions</code>, <code>JellyComponent</code>,
+            <code>jellyToast</code>, and <code>jellyIcon</code>, plus the <code>window.jellyToast</code> global.
+          </li>
+          <li>
+            <strong>Every <code>--jelly-*</code> custom property, for reads and writes.</strong> Setting a
+            legacy name still styles the component, and reading one (in CSS or through
+            <code>getComputedStyle</code>) still returns the live value. See
+            <a href="#tokens">CSS Custom Properties</a> for the pairs and
+            <a href="#diff-precedence">token precedence</a> for which wins when both are set.
+          </li>
+          <li>
+            <strong><code>data-jelly-mode</code> and <code>data-jelly-motion</code></strong> on
+            <code>&lt;html&gt;</code>. Each is kept in step with its <code>data-droplet-*</code> twin
+            automatically; whichever a page writes last wins, so a page that toggles
+            <code>data-jelly-mode</code> itself keeps working even after <code>setThemeMode()</code>.
+          </li>
+          <li>
+            <strong>The <code>jelly-theme-change</code> and <code>jelly-motion-change</code> events.</strong>
+            Whichever name anyone dispatches, listeners for both the Jelly and Droplet name hear it exactly
+            once, and a page dispatching <code>jelly-theme-change</code> by hand still repaints canvases.
+          </li>
+          <li>
+            <strong>The legacy accent form</strong>:
+            <code>&lt;droplet-theme accent="var(--jelly-color-background-rose)"&gt;</code> works.
+          </li>
+          <li>
+            <strong>The <code>::part(jelly)</code> canvas part.</strong> The canvas now carries
+            <code>part="droplet jelly"</code>, so either selector styles it.
+          </li>
+          <li>
+            <strong><code>dist/jelly.js</code></strong> still exists in the package (see
+            <a href="#diff-dist">below</a> for the one way it changed).
+          </li>
+        </ul>
+      </section>
+
+      <section class="block" id="differences" aria-labelledby="diff-h">
+        <h2 id="diff-h">What Is Different</h2>
+        <p>
+          Seven things, one of them an intentional break. Each is small, and most only show up if your
+          code depended on an internal detail.
+        </p>
+
+        <h3 id="diff-layer">The Cascade Layer Is Named <code>droplet</code></h3>
+        <p>
+          The document token sheet now lives in <code>@layer droplet</code> instead of
+          <code>@layer jelly</code>. This only matters if your own CSS declared a layer order that
+          named <code>jelly</code>. Layer order is fixed by first mention, so an unnamed
+          <code>droplet</code> layer would land <em>after</em> your last declared layer, and the library
+          tokens would start beating your overrides. Add <code>droplet</code> to the list where
+          <code>jelly</code> was.
+        </p>
+        <div class="code">
+          <div class="code-head">
+            <span class="code-title">Your stylesheet</span>
+            <droplet-button class="copy" size="small" variant="white" data-copy aria-label="Copy layer order example">Copy</droplet-button>
+          </div>
+          <pre><code>/* before */
+@layer reset, jelly, app;
+
+/* after: name droplet where jelly was (keeping jelly is harmless) */
+@layer reset, droplet, jelly, app;</code></pre>
+        </div>
+        <p class="note">
+          This is the one deliberate break. The alternative was carrying a misnamed layer forever, and a
+          one-word fix in the layer list seemed the better trade.
+        </p>
+
+        <h3 id="diff-dist">dist/jelly.js Re-Exports dist/droplet.js</h3>
+        <p>
+          <code>dist/jelly.js</code> is now a one-line re-export of <code>dist/droplet.js</code>. If you
+          consume the package through a bundler or import map, nothing changes. If you vendor that single
+          file by copying it into your project, copy <code>droplet.js</code> beside it, or switch your copy
+          to <code>droplet.js</code> directly.
+        </p>
+
+        <h3 id="diff-precedence">Token Precedence Favors the Jelly Name</h3>
+        <p>
+          If a page sets both <code>--jelly-button-height</code> and <code>--droplet-button-height</code> on the
+          same element, the legacy <code>--jelly-*</code> value wins. That keeps a half-migrated page behaving
+          exactly like Jelly UI, but it also means a stray old token can silently override a new one. Migrate
+          a token family in one sweep rather than one name at a time. Reading either name in your own CSS or
+          JS works everywhere (at the root, in dark mode, inside <code>&lt;droplet-theme&gt;</code>), and
+          <code>getComputedStyle(el).getPropertyValue('--jelly-button-height')</code> still returns
+          <code>62px</code>.
+        </p>
+
+        <h3 id="diff-scoped-theme">Canonical Theme Tokens Below the Root Do Not Reach Components Yet</h3>
+        <p>
+          A theme token set under the new name below <code>:root</code> (for example
+          <code>.panel { --droplet-color-background-accent: … }</code>) does not reach the components inside
+          it yet, because the legacy name is linked once on <code>:root</code> and wins. Set theme tokens on
+          <code>:root</code> under either name, use the legacy <code>--jelly-*</code> name for a subtree, or
+          scope the subtree with <code>&lt;droplet-theme&gt;</code>. Component tokens
+          (<code>--jelly-button-height</code>, <code>--jelly-fill</code>, and friends) set on the component
+          itself work under either name, and, exactly as in Jelly UI, do not reach components inside an
+          ancestor or an enclosing component.
+        </p>
+
+        <h3 id="diff-internal">Internally Created Elements Are <code>droplet-*</code></h3>
+        <p>
+          Elements the library creates inside its own shadow roots (the tab bar inside tabs, pagination's
+          buttons) and the toaster that <code>jellyToast()</code> creates are <code>droplet-*</code> now.
+          Only code that reached into a shadow root and queried by tag name would notice.
+        </p>
+
+        <h3 id="diff-console">Console Prefix and uniqueId</h3>
+        <p>
+          Console messages start with <code>[droplet]</code>, and <code>uniqueId()</code>'s default prefix
+          is <code>droplet</code>. Update any log filter or test that matched the old prefix.
+        </p>
+
+        <h3 id="diff-canonical">Canonical Spellings for New Code</h3>
+        <p>
+          Prefer <code>data-droplet-mode</code> and <code>data-droplet-motion</code> (<code>setThemeMode()</code>
+          writes both attributes), and listen for <code>droplet-theme-change</code> and
+          <code>droplet-motion-change</code>. The Jelly spellings keep working and the two names stay in step;
+          these are simply the ones the docs and examples use from here on.
+        </p>
+      </section>
+
+      <section class="block" id="elements" aria-labelledby="elements-h">
+        <h2 id="elements-h">Element Names</h2>
+        <p>
+          Generated from the registry the library ships. Each legacy tag is a subclass of its Droplet
+          element, so <code>instanceof</code> checks against the Droplet class succeed for both.
+        </p>
+        <div class="table-scroll">
+          <table id="elementTable">
+            <caption>Jelly UI tags and classes alongside their Droplet UI equivalents</caption>
+            <thead>
+              <tr>
+                <th scope="col">Jelly tag</th>
+                <th scope="col">Droplet tag</th>
+                <th scope="col">Jelly class</th>
+                <th scope="col">Droplet class</th>
+              </tr>
+            </thead>
+            <tbody><!-- generated from /dist/register.js --></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="block" id="tokens" aria-labelledby="tokens-h">
+        <h2 id="tokens-h">CSS Custom Properties</h2>
+        <p>
+          Every documented token, by component, generated from the same data the
+          <a href="../api/">API reference</a> renders. Both names are read; the Droplet column is the
+          spelling to prefer in new CSS.
+        </p>
+        <div id="tokenGroups"><!-- generated from /docs/content/data.js --></div>
+      </section>
+
+      <section class="block" id="search-replace" aria-labelledby="sr-h">
+        <h2 id="sr-h">Search and Replace</h2>
+        <p>
+          None of this is required, since the old names stay. When you do want the new spellings, run these
+          in order. No codemod ships; the replacements are simple enough that your editor's regex find-and-replace
+          is the right tool.
+        </p>
+        <p class="warn">
+          Review every hit before accepting it. Your own code may use the word <em>jelly</em> for things that
+          have nothing to do with this library, and a blind replace will rename those too.
+        </p>
+        <div class="table-scroll">
+          <table>
+            <caption>Ordered find-and-replace steps for adopting the Droplet UI names</caption>
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Find</th>
+                <th scope="col">Replace</th>
+                <th scope="col">Why this order</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">1</th>
+                <td><code>&lt;jelly-</code> and <code>&lt;/jelly-</code></td>
+                <td><code>&lt;droplet-</code> and <code>&lt;/droplet-</code></td>
+                <td>Tags in markup. Opening and closing tags together so no element is left half renamed.</td>
+              </tr>
+              <tr>
+                <th scope="row">2</th>
+                <td>The regex <code>(?&lt;![-\w])jelly-</code> in CSS selectors (<code>jelly-button</code>, <code>jelly-card &gt; *</code>)</td>
+                <td><code>droplet-</code></td>
+                <td>Selectors in stylesheets and <code>querySelector</code> strings. Do this right after markup so styles and DOM stay matched; the lookbehind leaves <code>--jelly-</code>, <code>data-jelly-</code>, and the event names for their own steps below.</td>
+              </tr>
+              <tr>
+                <th scope="row">3</th>
+                <td><code>--jelly-</code></td>
+                <td><code>--droplet-</code></td>
+                <td>Custom properties. Sweep a whole file at once; mixing both names in one scope lets the old one win.</td>
+              </tr>
+              <tr>
+                <th scope="row">4</th>
+                <td><code>data-jelly-</code></td>
+                <td><code>data-droplet-</code></td>
+                <td>Root attributes and scope attributes, in markup and in the scripts that set them.</td>
+              </tr>
+              <tr>
+                <th scope="row">5</th>
+                <td><code>Jelly([A-Z]\w*)</code> (regex)</td>
+                <td><code>Droplet$1</code></td>
+                <td>Class and type imports (<code>JellyButton</code> → <code>DropletButton</code>). Scope it to import lines first, then follow the references.</td>
+              </tr>
+              <tr>
+                <th scope="row">6</th>
+                <td><code>jellyToast</code></td>
+                <td><code>dropletToast</code></td>
+                <td>The toast helper, including the <code>window.jellyToast</code> global if you use it.</td>
+              </tr>
+              <tr>
+                <th scope="row">7</th>
+                <td><code>jellyIcon</code></td>
+                <td><code>dropletIcon</code></td>
+                <td>The icon helper.</td>
+              </tr>
+              <tr>
+                <th scope="row">8</th>
+                <td><code>jelly-theme-change</code></td>
+                <td><code>droplet-theme-change</code></td>
+                <td>Event listeners. Both events fire, so a missed listener still works.</td>
+              </tr>
+              <tr>
+                <th scope="row">9</th>
+                <td><code>jelly-motion-change</code></td>
+                <td><code>droplet-motion-change</code></td>
+                <td>Pages that dispatch the motion event themselves.</td>
+              </tr>
+              <tr>
+                <th scope="row">10</th>
+                <td><code>@layer jelly</code></td>
+                <td><code>@layer droplet</code></td>
+                <td>Layer order declarations. The one replacement that fixes a real behavior change, see <a href="#diff-layer">above</a>.</td>
+              </tr>
+              <tr>
+                <th scope="row">11</th>
+                <td><code>'jelly-ui'</code></td>
+                <td><code>'droplet-ui'</code></td>
+                <td>The package specifier, last, so everything above was already tested against the new package through the alias.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="block" id="new" aria-labelledby="new-h">
+        <h2 id="new-h">While You Are Here</h2>
+        <p>
+          The rename is the quiet part of the fork. These are the surfaces Droplet UI opens that Jelly UI
+          kept closed, and none of them require renaming anything first.
+        </p>
+        <dl class="features">
+          <div>
+            <dt><code>feel</code> and <code>quality</code> attributes</dt>
+            <dd>
+              Every canvas component now takes <code>feel</code> and <code>quality</code>.
+              <code>palette</code> and <code>material</code> are parsed and reserved for what comes next, and a <code>data-droplet-substance</code> scope axis is reserved beside them.
+            </dd>
+          </div>
+          <div>
+            <dt><code>data-droplet-*</code> scope attributes</dt>
+            <dd>
+              Set a value on any ancestor and it cascades to every component inside, the same way the
+              theme attributes on <code>&lt;html&gt;</code> always have.
+            </dd>
+          </div>
+          <div>
+            <dt>Explicit registration</dt>
+            <dd>
+              <code>droplet-ui/register</code> exports <code>defineAll()</code> and a helper per element
+              (<code>defineButton()</code>, <code>defineDialog()</code>, and so on); <code>droplet-ui/compat</code>
+              exports <code>defineCompat()</code> for the legacy tags. Importing a single component module no
+              longer registers anything. The root import still registers everything under both names.
+            </dd>
+          </div>
+          <div>
+            <dt><code>droplet-ui/core</code></dt>
+            <dd>
+              The spring physics engine (<code>JellyBody</code> and friends) without the DOM.
+            </dd>
+          </div>
+        </dl>
+        <div class="code">
+          <div class="code-head">
+            <span class="code-title">Explicit registration</span>
+            <droplet-button class="copy" size="small" variant="white" data-copy aria-label="Copy registration example">Copy</droplet-button>
+          </div>
+          <pre><code>import { defineButton, defineDialog } from 'droplet-ui/register';
+import { defineCompat }               from 'droplet-ui/compat';
+
+defineButton();
+defineDialog();
+defineCompat(); // only if some markup still says &lt;jelly-*&gt;</code></pre>
+        </div>
+      </section>
+
+      <footer>
+        Droplet UI is a fork of <a href="https://github.com/jelly-org/ui">Jelly UI</a> by bmson, MIT licensed.
+        This is the one page in these docs that names Jelly on purpose, everywhere; the rest of the site
+        uses the Droplet names.
+      </footer>
+    </main>
+
+    <script type="module" src="../docs/migration/index.js"></script>
+  </body>
+</html>

@@ -3,7 +3,7 @@
  * the page scroll, inerts everything behind it and returns focus where
  * it came from on close. Portaled to <body> so no ancestor can clip it.
  *
- *   <jelly-dialog id="d" label="Confirm"><h2>Title</h2><p>…</p></jelly-dialog>
+ *   <droplet-dialog id="d" label="Confirm"><h2>Title</h2><p>…</p></droplet-dialog>
  *   document.getElementById('d').open = true;   // or .showModal()
  */
 
@@ -26,7 +26,7 @@ import dialogStyles             from './dialog.css?inline';
 /**
  * A modal dialog with scroll lock, focus trapping and a spring-in entrance.
  *
- * @element jelly-dialog
+ * @element droplet-dialog
  *
  * @slot - The dialog's content.
  *
@@ -39,9 +39,9 @@ import dialogStyles             from './dialog.css?inline';
  * @csspart backdrop - The dimmed backdrop.
  * @csspart dialog - The dialog surface.
  *
- * @cssprop [--jelly-dialog-width=min(460px, 100%)] - Dialog width.
- * @cssprop [--jelly-dialog-radius=24px] - Corner radius.
- * @cssprop [--jelly-dialog-padding=26px] - Inner padding.
+ * @cssprop [--droplet-dialog-width=min(460px, 100%)] - Dialog width.
+ * @cssprop [--droplet-dialog-radius=24px] - Corner radius.
+ * @cssprop [--droplet-dialog-padding=26px] - Inner padding.
  */
 export class DropletDialog extends HTMLElementBase {
 

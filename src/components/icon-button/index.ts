@@ -3,7 +3,7 @@
  * <button> lives in the shadow DOM for keyboard and assistive-technology
  * support, the label attribute (or aria-label) gives the icon an accessible
  * name and the shape attribute picks the silhouette: "square" (the default,
- * a rounded square - the same word jelly-button and jelly-badge use) or
+ * a rounded square - the same word droplet-button and droplet-badge use) or
  * "circle". The host is form-associated, so a disabled <fieldset> disables it.
  */
 
@@ -26,7 +26,7 @@ import variantStyles         from '../../styles/variants.css?inline';
 /**
  * A compact square or round button sized for a single icon.
  *
- * @element jelly-icon-button
+ * @element droplet-icon-button
  *
  * @slot - The icon (an SVG or emoji).
  *
@@ -46,8 +46,8 @@ import variantStyles         from '../../styles/variants.css?inline';
  *
  * @csspart button - The inner native <button>.
  *
- * @cssprop [--jelly-icon-button-size=48px] - Button diameter / side.
- * @cssprop [--jelly-icon-button-radius=16px] - Corner radius for the square shape.
+ * @cssprop [--droplet-icon-button-size=48px] - Button diameter / side.
+ * @cssprop [--droplet-icon-button-radius=16px] - Corner radius for the square shape.
  */
 export class DropletIconButton extends DropletElement {
 
@@ -98,7 +98,7 @@ export class DropletIconButton extends DropletElement {
     reflectAttribute(this, 'name', value);
   }
 
-  // The disabled attribute or a disabled ancestor fieldset (see jelly-button)
+  // The disabled attribute or a disabled ancestor fieldset (see droplet-button)
   get effectivelyDisabled (): boolean {
     return this.hasAttribute('disabled') || this.matches(':disabled');
   }

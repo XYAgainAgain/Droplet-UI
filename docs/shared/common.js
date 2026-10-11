@@ -3,8 +3,8 @@
  * reference): the theme and reduced-motion toggles
  */
 
-import { jellyIcon }    from '../../package.js';
-import { jellyToast }   from '../../package.js';
+import { dropletIcon }    from '../../package.js';
+import { dropletToast }   from '../../package.js';
 import { setThemeMode } from '../../package.js';
 import { getThemeMode } from '../../package.js';
 import { escapeHTML }   from '../../package.js';
@@ -40,9 +40,9 @@ export function wireThemeToggle (button) {
   const sync = () => {
     const mode = getThemeMode();
 
-    button.innerHTML = jellyIcon(ICON[mode], { size: 17 });
+    button.innerHTML = dropletIcon(ICON[mode], { size: 17 });
     button.setAttribute('label', `Theme: ${NAME[mode]}. Click to change.`);
-    button.closest('jelly-tooltip')?.setAttribute('text', TOOLTIP[mode]);
+    button.closest('droplet-tooltip')?.setAttribute('text', TOOLTIP[mode]);
   };
 
   button.addEventListener('click', () => {
@@ -50,24 +50,27 @@ export function wireThemeToggle (button) {
 
     setThemeMode(next);
 
+    // The Jelly-era key is dropped once a choice is saved under the new one
+    localStorage.removeItem('jelly-docs-theme');
+
     if (next === 'auto') {
-      localStorage.removeItem('jelly-docs-theme');
+      localStorage.removeItem('droplet-docs-theme');
     } else {
-      localStorage.setItem('jelly-docs-theme', next);
+      localStorage.setItem('droplet-docs-theme', next);
     }
 
     sync();
   });
 
   // The OS can flip the resolved mode while in auto; keep the icon in step
-  window.addEventListener('jelly-theme-change', sync);
+  window.addEventListener('droplet-theme-change', sync);
 
   sync();
 }
 
-const MOTION_ATTRIBUTE      = 'data-jelly-motion';
-const MOTION_STORAGE        = 'jelly-docs-reduced-motion';
-const MOTION_NOTICE_STORAGE = 'jelly-docs-reduced-motion-notice-shown';
+const MOTION_ATTRIBUTE      = 'data-droplet-motion';
+const MOTION_STORAGE        = 'droplet-docs-reduced-motion';
+const MOTION_NOTICE_STORAGE = 'droplet-docs-reduced-motion-notice-shown';
 const MOTION_ORDER          = ['system', 'no-preference', 'reduce'];
 
 const MOTION_ICON = {
@@ -110,9 +113,9 @@ export function wireMotionToggle (button) {
   const sync = () => {
     const mode = getMotionMode();
 
-    button.innerHTML = jellyIcon(MOTION_ICON[mode], { size: 17 });
+    button.innerHTML = dropletIcon(MOTION_ICON[mode], { size: 17 });
     button.setAttribute('label', MOTION_LABEL[mode]);
-    button.closest('jelly-tooltip')?.setAttribute('text', MOTION_TOOLTIP[mode]);
+    button.closest('droplet-tooltip')?.setAttribute('text', MOTION_TOOLTIP[mode]);
   };
 
   // This is an OS-preference notice, not feedback for the docs control.
@@ -123,13 +126,15 @@ export function wireMotionToggle (button) {
       return;
     }
 
-    jellyToast('Reduced motion is enabled', { tone: 'info', duration: 0 });
+    dropletToast('Reduced motion is enabled', { tone: 'info', duration: 0 });
     sessionStorage.setItem(MOTION_NOTICE_STORAGE, 'true');
   };
 
   button.addEventListener('click', () => {
     const current = getMotionMode();
     const mode    = MOTION_ORDER[(MOTION_ORDER.indexOf(current) + 1) % MOTION_ORDER.length];
+
+    localStorage.removeItem('jelly-docs-reduced-motion');
 
     if (mode === 'system') {
       document.documentElement.removeAttribute(MOTION_ATTRIBUTE);
@@ -139,7 +144,7 @@ export function wireMotionToggle (button) {
       localStorage.setItem(MOTION_STORAGE, mode);
     }
 
-    window.dispatchEvent(new CustomEvent('jelly-motion-change'));
+    window.dispatchEvent(new CustomEvent('droplet-motion-change'));
     sync();
   });
 

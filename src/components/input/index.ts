@@ -24,7 +24,7 @@ import { readToken } from '../../theme/token-read.js';
 import inputStyles          from './input.css?inline';
 
 // Input types that block implicit submission (HTML "implicit submission"), which are
-// also the text-entry types jelly-input is built for
+// also the text-entry types droplet-input is built for
 const BLOCKING_TYPES = new Set([
   'text', 'search', 'url', 'tel', 'email', 'password', 'date', 'month',
   'week', 'time', 'datetime-local', 'number',
@@ -40,7 +40,7 @@ function fieldType (value: string | null): string {
 /**
  * A single-line text field on a soft jelly surface.
  *
- * @element jelly-input
+ * @element droplet-input
  *
  * @attr {string} value - The default value; the `value` property holds the live value.
  * @attr {string} placeholder - Placeholder text.
@@ -91,9 +91,9 @@ function fieldType (value: string | null): string {
  * @csspart input - The native input element.
  * @csspart ring - The forced-colors focus-ring fallback.
  *
- * @cssprop [--jelly-fill] - Resting surface fill.
- * @cssprop [--jelly-accent] - Focused-border accent color.
- * @cssprop [--jelly-input-radius=16px] - Corner radius of the painted surface.
+ * @cssprop [--droplet-fill] - Resting surface fill.
+ * @cssprop [--droplet-accent] - Focused-border accent color.
+ * @cssprop [--droplet-input-radius=16px] - Corner radius of the painted surface.
  */
 export class DropletInput extends DropletFormField {
 

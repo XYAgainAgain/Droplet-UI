@@ -23,7 +23,7 @@ type ResizableSizes = number[] | { cols: number[]; rows: number[] };
 /**
  * A resizable panel grid with draggable jelly dividers.
  *
- * @element jelly-resizable
+ * @element droplet-resizable
  *
  * @slot - The panes to lay out and resize.
  *

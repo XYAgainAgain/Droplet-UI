@@ -60,7 +60,7 @@ const THUMB_CONFIG: Partial<DropletConfig> = {
 /**
  * A dual-thumb range slider that picks a low / high interval.
  *
- * @element jelly-range
+ * @element droplet-range
  *
  * @attr {number} low - Lower bound of the selection.
  * @attr {number} high - Upper bound of the selection.
@@ -82,8 +82,8 @@ const THUMB_CONFIG: Partial<DropletConfig> = {
  * @csspart track - The track surface.
  * @csspart knob - Each draggable knob.
  *
- * @cssprop [--jelly-accent] - Selected-interval fill and thumb color.
- * @cssprop [--jelly-track] - Empty-track color.
+ * @cssprop [--droplet-accent] - Selected-interval fill and thumb color.
+ * @cssprop [--droplet-track] - Empty-track color.
  */
 export class DropletRange extends DropletElement implements EventListenerObject {
 
@@ -504,7 +504,7 @@ export class DropletRange extends DropletElement implements EventListenerObject 
 
     if (delta === 0 && event.key === 'ArrowUp')   delta = step;
     if (delta === 0 && event.key === 'ArrowDown') delta = -step;
-    // PageUp / PageDown page by the ×10 step, matching jelly-slider's native range
+    // PageUp/PageDown page by the ×10 step, matching droplet-slider's native range
     if (event.key === 'PageUp')   delta = this.step * 10;
     if (event.key === 'PageDown') delta = -this.step * 10;
 

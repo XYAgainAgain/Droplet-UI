@@ -2,7 +2,7 @@
  * A segmented control: a capsule track of mutually exclusive options with
  * a jelly pill that slides between segments, leaning and stretching along
  * its travel. Form-associated and presented as a radiogroup by default -
- * roles="tablist" switches to tab semantics (used by <jelly-tabs>)
+ * roles="tablist" switches to tab semantics (used by <droplet-tabs>)
  */
 
 import { DropletElement }    from '../../element/index.js';
@@ -29,9 +29,9 @@ import segmentedStyles     from './segmented.css?inline';
 /**
  * A segmented control with a sliding jelly pill (radiogroup, or tablist mode).
  *
- * @element jelly-segmented
+ * @element droplet-segmented
  *
- * @slot - The `<jelly-segment>` options.
+ * @slot - The `<droplet-segment>` options.
  *
  * @attr {string} value - The selected segment's value.
  * @attr {boolean} disabled - Disable the whole control.
@@ -162,7 +162,7 @@ export class DropletSegmented extends DropletElement {
   }
 
   /*
-   * Rebuild the shadow buttons from the light-DOM <jelly-segment> children.
+   * Rebuild the shadow buttons from the light-DOM <droplet-segment> children.
    * Runs on connect, on any light-DOM mutation and when the roles or
    * disabled attributes change the rendered semantics.
    */

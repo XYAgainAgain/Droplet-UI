@@ -1,5 +1,5 @@
 /*
- * The native-form half shared by the text controls (jelly-input, jelly-textarea):
+ * The native-form half shared by the text controls (droplet-input, droplet-textarea):
  * a form-associated host whose inner shadow control owns the editing, while the
  * host answers the form - value and default value, constraint validation mirrored
  * from the inner control, reset/disable/restore callbacks, ARIA and label linking.
@@ -64,7 +64,7 @@ function writeLength (el: Element, name: string, value: number): void {
   reflectAttribute(el, name, n);
 }
 
-// Native submit buttons by their own type, jelly-button by its brand; never a foreign element's getters
+// Native submit buttons by their own type, droplet-button by its brand; never a foreign element's getters
 function isSubmitButton (el: Element): boolean {
   if (el instanceof HTMLButtonElement) {
     return el.type === 'submit';
@@ -385,7 +385,7 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     this.onValueApplied();
   }
 
-  // What the form submits for this field; jelly-input's file type overrides it
+  // What the form submits for this field; droplet-input's file type overrides it
   formValue (): string | FormData | null {
     return this.control!.value;
   }
@@ -457,7 +457,7 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     return this.internals.states.has('user-invalid') || (aria !== '' && aria !== 'false');
   }
 
-  // Only jelly-input takes part; a textarea never blocks implicit submission
+  // Only droplet-input takes part; a textarea never blocks implicit submission
   blocksImplicitSubmission (): boolean {
     return false;
   }

@@ -53,10 +53,9 @@ const warnings = [];
 // implementation detail, never part of the documented public surface.
 const isInternalAttribute = (name) => name.startsWith('aria-') || name === 'role';
 
-// CSS parts provided by the JellyElement base class (defined once in
-// element.ts, not re-declared per component), so a canvas component may
-// legitimately document them even though its own JSDoc doesn't repeat them.
-const BASE_PARTS = new Set(['jelly']);
+// CSS parts provided by the DropletElement base class (the canvas answers to both
+// names), so a canvas component may document them without repeating the JSDoc.
+const BASE_PARTS = new Set(['droplet', 'jelly']);
 
 // The manifest names the default slot ""; the docs label it "(default)".
 const normalizeSlot = (name) => (name === '' ? '(default)' : name);

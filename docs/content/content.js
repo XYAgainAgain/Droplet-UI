@@ -1,5 +1,5 @@
 /*
- * Jelly UI documentation content — the hand-authored source, one descriptor
+ * Droplet UI documentation content — the hand-authored source, one descriptor
  * per component. This is the file you EDIT.
  *
  * `npm run docs` reconciles these descriptors against custom-elements.json
@@ -20,9 +20,9 @@ export const GROUP_ORDER = ["Theming","Actions","Forms","Feedback","Surfaces","N
 
 export const COMPONENTS = [
   {
-    "tag": "jelly-theme",
+    "tag": "droplet-theme",
     "group": "Theming",
-    "summary": "A theme provider that scopes the Jelly design tokens to its subtree: force light or dark, follow the OS, or re-tint the accent.",
+    "summary": "A theme provider that scopes the Droplet design tokens to its subtree: force light or dark, follow the OS, or re-tint the accent.",
     "description": "The provider is layout-neutral (`display: contents`). It scopes the complete token set through its shadow-host stylesheet, and canvas-painted components resolve those inherited tokens at draw time, so mode and accent changes repaint the subtree live. Inline token overrides on the provider still take precedence.",
     "attributes": [
       {
@@ -34,7 +34,7 @@ export const COMPONENTS = [
       {
         "name": "accent",
         "type": "palette name | CSS color",
-        "description": "Overrides --jelly-color-background-accent for the subtree. A palette name (e.g. \"mint\") maps through the active token set; any valid CSS color is used directly, including alpha-bearing colors. Invalid colors fall back to the theme accent."
+        "description": "Overrides --droplet-color-background-accent for the subtree. A palette name (e.g. \"mint\") maps through the active token set; any valid CSS color is used directly, including alpha-bearing colors. Invalid colors fall back to the theme accent."
       }
     ],
     "properties": [
@@ -70,24 +70,24 @@ export const COMPONENTS = [
     "parts": [],
     "cssProperties": [
       {
-        "name": "--jelly-color-*",
-        "description": "Every global token can be overridden inline on the provider (e.g. style=\"--jelly-color-background-azure: #4F46E5\")."
+        "name": "--droplet-color-*",
+        "description": "Every global token can be overridden inline on the provider (e.g. style=\"--droplet-color-background-azure: #4F46E5\")."
       }
     ],
     "keyboard": [],
     "examples": [
       {
         "title": "Scoped dark mode",
-        "code": "<jelly-theme mode=\"dark\">\n  <jelly-card style=\"padding: 4px\">\n    <jelly-button variant=\"mint\">Dark-token subtree</jelly-button>\n  </jelly-card>\n</jelly-theme>"
+        "code": "<droplet-theme mode=\"dark\">\n  <droplet-card style=\"padding: 4px\">\n    <droplet-button variant=\"mint\">Dark-token subtree</droplet-button>\n  </droplet-card>\n</droplet-theme>"
       },
       {
         "title": "Custom accent",
-        "code": "<jelly-theme mode=\"auto\" accent=\"#7C3AED\">\n  <jelly-slider value=\"60\"></jelly-slider>\n</jelly-theme>"
+        "code": "<droplet-theme mode=\"auto\" accent=\"#7C3AED\">\n  <droplet-slider value=\"60\"></droplet-slider>\n</droplet-theme>"
       }
     ]
   },
   {
-    "tag": "jelly-button",
+    "tag": "droplet-button",
     "group": "Actions",
     "summary": "A capsule-shaped soft-body button with a real native <button> inside for keyboard and screen-reader support.",
     "description": "The jelly membrane is painted on a canvas behind a shadow-DOM <button>, so activation, focus and ARIA semantics are fully native. Pointer presses dent the membrane under the finger and follow it; Enter/Space squish it from the center. click events bubble out composed and type=\"submit\"/\"reset\" drive the owner <form> (the nearest ancestor, or the one named by form=), submitting with this button's name, value, and form* overrides. The host is form-associated, so :disabled matches it and a disabled <fieldset> disables it.",
@@ -141,7 +141,7 @@ export const COMPONENTS = [
         "name": "shape",
         "type": "\"pill\" | \"square\"",
         "default": "pill",
-        "description": "Membrane silhouette. \"square\" swaps the pill for a smaller rounded-rectangle radius (0.32 × height, matching jelly-icon-button's default square); any other value (or none) keeps the full pill. Observed live — changing it reshapes the membrane in place."
+        "description": "Membrane silhouette. \"square\" swaps the pill for a smaller rounded-rectangle radius (0.32 × height, matching droplet-icon-button's default square); any other value (or none) keeps the full pill. Observed live — changing it reshapes the membrane in place."
       },
       {
         "name": "name",
@@ -216,54 +216,58 @@ export const COMPONENTS = [
         "description": "The inner native <button> element."
       },
       {
+        "name": "droplet",
+        "description": "The canvas the soft body is painted on (from the DropletElement base)."
+      },
+      {
         "name": "jelly",
-        "description": "The canvas the soft body is painted on (from the JellyElement base)."
+        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
       {
-        "name": "--jelly-button-height",
+        "name": "--droplet-button-height",
         "default": "62px (42px small, 72px large)",
         "description": "Height of the inner button."
       },
       {
-        "name": "--jelly-button-radius",
+        "name": "--droplet-button-radius",
         "default": "999px (pill); shape=\"square\" is 0.32 x height",
         "description": "Corner radius of the painted surface (a plain-px value overrides the shape)."
       },
       {
-        "name": "--jelly-button-min-width",
+        "name": "--droplet-button-min-width",
         "default": "168px (42px small, 200px large)",
         "description": "Minimum width of the inner button."
       },
       {
-        "name": "--jelly-button-padding-inline",
+        "name": "--droplet-button-padding-inline",
         "default": "30px (16px small, 38px large)",
         "description": "Logical horizontal padding of the inner button."
       },
       {
-        "name": "--jelly-button-font-size",
+        "name": "--droplet-button-font-size",
         "default": "16px (14px small, 18px large)",
         "description": "Label font size."
       },
       {
-        "name": "--jelly-button-gap",
+        "name": "--droplet-button-gap",
         "default": "9px",
         "description": "Flex gap between slotted icon and label content."
       },
       {
-        "name": "--jelly-fill",
-        "default": "var(--jelly-color-background-accent, #0077CC)",
+        "name": "--droplet-fill",
+        "default": "var(--droplet-color-background-accent, #0077CC)",
         "description": "Consumed shared token: the membrane fill color, set by the variant attribute; override to tint a single button."
       },
       {
-        "name": "--jelly-label",
-        "default": "var(--jelly-color-foreground-on-accent, #FFFFFF)",
+        "name": "--droplet-label",
+        "default": "var(--droplet-color-foreground-on-accent, #FFFFFF)",
         "description": "Consumed shared token: the label text color paired with the fill by the variant attribute."
       },
       {
-        "name": "--jelly-ring",
-        "default": "var(--jelly-fill, var(--jelly-color-border-focus, #0077CC))",
+        "name": "--droplet-ring",
+        "default": "var(--droplet-fill, var(--droplet-color-border-focus, #0077CC))",
         "description": "Consumed shared token: the canvas-painted focus-ring color; defaults to the fill so the ring matches the button."
       }
     ],
@@ -280,20 +284,20 @@ export const COMPONENTS = [
     "examples": [
       {
         "title": "Basic buttons",
-        "code": "<jelly-button>Create account</jelly-button>\n<jelly-button variant=\"rose\" size=\"small\">Delete</jelly-button>\n<jelly-button variant=\"platinum\" size=\"large\" disabled>Unavailable</jelly-button>"
+        "code": "<droplet-button>Create account</droplet-button>\n<droplet-button variant=\"rose\" size=\"small\">Delete</droplet-button>\n<droplet-button variant=\"platinum\" size=\"large\" disabled>Unavailable</droplet-button>"
       },
       {
         "title": "Driving a form",
-        "code": "<form onsubmit=\"event.preventDefault(); this.querySelector('output').value = 'Submitted!'\">\n  <jelly-input name=\"email\" type=\"email\" label=\"Email\" placeholder=\"you@example.com\"></jelly-input>\n  <jelly-button type=\"submit\" variant=\"mint\">Save</jelly-button>\n  <jelly-button type=\"reset\" variant=\"platinum\">Reset</jelly-button>\n  <output></output>\n</form>"
+        "code": "<form onsubmit=\"event.preventDefault(); this.querySelector('output').value = 'Submitted!'\">\n  <droplet-input name=\"email\" type=\"email\" label=\"Email\" placeholder=\"you@example.com\"></droplet-input>\n  <droplet-button type=\"submit\" variant=\"mint\">Save</droplet-button>\n  <droplet-button type=\"reset\" variant=\"platinum\">Reset</droplet-button>\n  <output></output>\n</form>"
       },
       {
         "title": "Full-width block button",
-        "code": "<div style=\"max-width: 360px\">\n  <jelly-button block size=\"large\">Continue</jelly-button>\n</div>"
+        "code": "<div style=\"max-width: 360px\">\n  <droplet-button block size=\"large\">Continue</droplet-button>\n</div>"
       }
     ]
   },
   {
-    "tag": "jelly-icon-button",
+    "tag": "droplet-icon-button",
     "group": "Actions",
     "summary": "A compact square or round soft-body button sized for a single icon, named for screen readers via its label attribute.",
     "description": "A real <button> in the shadow DOM carries keyboard and ARIA semantics while the jelly is painted behind it. shape=\"circle\" reshapes the membrane into a full circle (radius = size / 2) in place — the box size is unchanged, so the canvas never flickers. Give every icon-only button a label so assistive technology has an accessible name.",
@@ -319,7 +323,7 @@ export const COMPONENTS = [
         "name": "shape",
         "type": "\"circle\" | \"square\"",
         "default": "square (rounded, radius = 0.32 × size)",
-        "description": "Membrane silhouette. \"circle\" rounds the soft body to a full circle; \"square\" (or omitting the attribute) keeps the rounded square — the same vocabulary jelly-button and jelly-badge use. Observed live — changing it reshapes the membrane in place."
+        "description": "Membrane silhouette. \"circle\" rounds the soft body to a full circle; \"square\" (or omitting the attribute) keeps the rounded square — the same vocabulary droplet-button and droplet-badge use. Observed live — changing it reshapes the membrane in place."
       },
       {
         "name": "variant",
@@ -367,7 +371,7 @@ export const COMPONENTS = [
     "slots": [
       {
         "name": "(default)",
-        "description": "The icon: an emoji/text glyph or an <svg> (slotted svg is auto-sized via --jelly-icon-button-icon-size)."
+        "description": "The icon: an emoji/text glyph or an <svg> (slotted svg is auto-sized via --droplet-icon-button-icon-size)."
       }
     ],
     "parts": [
@@ -376,44 +380,48 @@ export const COMPONENTS = [
         "description": "The inner native <button> element."
       },
       {
+        "name": "droplet",
+        "description": "The canvas the soft body is painted on (from the DropletElement base)."
+      },
+      {
         "name": "jelly",
-        "description": "The canvas the soft body is painted on (from the JellyElement base)."
+        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
       {
-        "name": "--jelly-icon-button-size",
+        "name": "--droplet-icon-button-size",
         "default": "48px (40px small, 56px large)",
         "description": "Width and height of the inner square button."
       },
       {
-        "name": "--jelly-icon-button-radius",
+        "name": "--droplet-icon-button-radius",
         "default": "16px (13px small, 18px large)",
         "description": "Corner radius of the inner button and its forced-colors focus outline."
       },
       {
-        "name": "--jelly-icon-button-font-size",
+        "name": "--droplet-icon-button-font-size",
         "default": "18px (16px small, 20px large)",
         "description": "Font size for text/emoji icons."
       },
       {
-        "name": "--jelly-icon-button-icon-size",
+        "name": "--droplet-icon-button-icon-size",
         "default": "20px (18px small, 23px large)",
         "description": "Width and height applied to a slotted <svg> icon."
       },
       {
-        "name": "--jelly-fill",
-        "default": "var(--jelly-color-background-accent, #0077CC)",
+        "name": "--droplet-fill",
+        "default": "var(--droplet-color-background-accent, #0077CC)",
         "description": "Consumed shared token: the membrane fill color, set by the variant attribute."
       },
       {
-        "name": "--jelly-label",
-        "default": "var(--jelly-color-foreground-on-accent, #FFFFFF)",
+        "name": "--droplet-label",
+        "default": "var(--droplet-color-foreground-on-accent, #FFFFFF)",
         "description": "Consumed shared token: the icon/glyph color paired with the fill by the variant attribute."
       },
       {
-        "name": "--jelly-ring",
-        "default": "var(--jelly-fill, var(--jelly-color-border-focus, #0077CC))",
+        "name": "--droplet-ring",
+        "default": "var(--droplet-fill, var(--droplet-color-border-focus, #0077CC))",
         "description": "Consumed shared token: the canvas-painted focus-ring color; defaults to the fill so the ring matches the button."
       }
     ],
@@ -430,20 +438,20 @@ export const COMPONENTS = [
     "examples": [
       {
         "title": "Icon buttons with the built-in Fluent icons",
-        "code": "<jelly-icon-button id=\"search\" label=\"Search\"></jelly-icon-button>\n<jelly-icon-button id=\"favorite\" label=\"Favorite\" variant=\"rose\"></jelly-icon-button>\n<jelly-icon-button id=\"settings\" label=\"Settings\" variant=\"graphite\" size=\"large\"></jelly-icon-button>\n\n<script type=\"module\">\n  import { jellyIcon } from './package.js';\n\n  search.innerHTML   = jellyIcon('search');\n  favorite.innerHTML = jellyIcon('heart');\n  settings.innerHTML = jellyIcon('settings');\n</script>"
+        "code": "<droplet-icon-button id=\"search\" label=\"Search\"></droplet-icon-button>\n<droplet-icon-button id=\"favorite\" label=\"Favorite\" variant=\"rose\"></droplet-icon-button>\n<droplet-icon-button id=\"settings\" label=\"Settings\" variant=\"graphite\" size=\"large\"></droplet-icon-button>\n\n<script type=\"module\">\n  import { dropletIcon } from './package.js';\n\n  search.innerHTML   = dropletIcon('search');\n  favorite.innerHTML = dropletIcon('heart');\n  settings.innerHTML = dropletIcon('settings');\n</script>"
       },
       {
         "title": "Circle shape",
-        "code": "<jelly-icon-button id=\"close\" label=\"Close\" shape=\"circle\" variant=\"platinum\"></jelly-icon-button>\n\n<script type=\"module\">\n  import { jellyIcon } from './package.js';\n\n  close.innerHTML = jellyIcon('dismiss', { size: 16 });\n</script>"
+        "code": "<droplet-icon-button id=\"close\" label=\"Close\" shape=\"circle\" variant=\"platinum\"></droplet-icon-button>\n\n<script type=\"module\">\n  import { dropletIcon } from './package.js';\n\n  close.innerHTML = dropletIcon('dismiss', { size: 16 });\n</script>"
       },
       {
         "title": "Any inline SVG works as the icon",
-        "code": "<jelly-icon-button label=\"Custom\">\n  <svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"currentColor\" aria-hidden=\"true\">\n    <path d=\"…\" />\n  </svg>\n</jelly-icon-button>"
+        "code": "<droplet-icon-button label=\"Custom\">\n  <svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"currentColor\" aria-hidden=\"true\">\n    <path d=\"…\" />\n  </svg>\n</droplet-icon-button>"
       }
     ]
   },
   {
-    "tag": "jelly-checkbox",
+    "tag": "droplet-checkbox",
     "group": "Forms",
     "summary": "A squishy, form-associated checkbox with checked and mixed (indeterminate) states, painted as a soft jelly square that pops when toggled.",
     "description": "A visually-hidden native <input type=\"checkbox\"> carries focus, keyboard behavior and the form value (via ElementInternals), while the jelly square is painted on a canvas behind it. The check mark draws itself on with a dash sweep and overshoot; the indeterminate state shows a dash and reports aria-checked=\"mixed\", clearing on any user toggle.",
@@ -553,59 +561,63 @@ export const COMPONENTS = [
         "description": "The visually-hidden native checkbox input."
       },
       {
+        "name": "droplet",
+        "description": "The canvas the jelly square is painted on (from the DropletElement base)."
+      },
+      {
         "name": "jelly",
-        "description": "The canvas the jelly square is painted on."
+        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
       {
-        "name": "--jelly-checkbox-size",
+        "name": "--droplet-checkbox-size",
         "default": "32px",
         "description": "Width and height of the box (28 / 32 / 38 px across sizes)."
       },
       {
-        "name": "--jelly-checkbox-gap",
+        "name": "--droplet-checkbox-gap",
         "default": "11px",
         "description": "Gap between the box and the label text."
       },
       {
-        "name": "--jelly-checkbox-font-size",
+        "name": "--droplet-checkbox-font-size",
         "default": "15.5px",
         "description": "Label font size."
       },
       {
-        "name": "--jelly-checkbox-radius",
+        "name": "--droplet-checkbox-radius",
         "default": "13px",
         "description": "Corner radius used by the forced-colors border and focus-ring fallback."
       },
       {
-        "name": "--jelly-checkbox-stroke-width",
+        "name": "--droplet-checkbox-stroke-width",
         "default": "3.4",
         "description": "Stroke width of the check / dash mark."
       },
       {
-        "name": "--jelly-checkbox-mark",
-        "default": "var(--jelly-color-foreground-on-accent, #FFFFFF)",
+        "name": "--droplet-checkbox-mark",
+        "default": "var(--droplet-color-foreground-on-accent, #FFFFFF)",
         "description": "Color of the check and dash marks; variants pair it with the fill hue."
       },
       {
-        "name": "--jelly-fill",
-        "default": "var(--jelly-color-background-neutral, #DADADA)",
+        "name": "--droplet-fill",
+        "default": "var(--droplet-color-background-neutral, #DADADA)",
         "description": "Unchecked box fill (shared token)."
       },
       {
-        "name": "--jelly-on",
-        "default": "var(--jelly-color-background-accent, #0077CC)",
+        "name": "--droplet-on",
+        "default": "var(--droplet-color-background-accent, #0077CC)",
         "description": "Checked / indeterminate box fill (shared token)."
       },
       {
-        "name": "--jelly-ring",
-        "default": "var(--jelly-on, var(--jelly-color-border-focus, #0077CC))",
+        "name": "--droplet-ring",
+        "default": "var(--droplet-on, var(--droplet-color-border-focus, #0077CC))",
         "description": "Keyboard focus ring color painted on the canvas (shared token)."
       },
       {
-        "name": "--jelly-label",
-        "default": "var(--jelly-color-foreground-muted, #5D6474)",
+        "name": "--droplet-label",
+        "default": "var(--droplet-color-foreground-muted, #5D6474)",
         "description": "Label text color (shared token)."
       }
     ],
@@ -622,20 +634,20 @@ export const COMPONENTS = [
     "examples": [
       {
         "title": "Basic",
-        "code": "<jelly-checkbox checked>Remember me</jelly-checkbox>"
+        "code": "<droplet-checkbox checked>Remember me</droplet-checkbox>"
       },
       {
         "title": "Indeterminate \"select all\"",
-        "code": "<jelly-checkbox indeterminate id=\"all\">Select all</jelly-checkbox>\n<script>\n  document.getElementById('all').addEventListener('change', (e) => {\n    console.log('resolved to', e.target.checked);\n  });\n</script>"
+        "code": "<droplet-checkbox indeterminate id=\"all\">Select all</droplet-checkbox>\n<script>\n  document.getElementById('all').addEventListener('change', (e) => {\n    console.log('resolved to', e.target.checked);\n  });\n</script>"
       },
       {
         "title": "Sizes, variant and form value",
-        "code": "<form>\n  <jelly-checkbox name=\"tos\" value=\"accepted\" size=\"large\" variant=\"mint\">Accept terms</jelly-checkbox>\n</form>"
+        "code": "<form>\n  <droplet-checkbox name=\"tos\" value=\"accepted\" size=\"large\" variant=\"mint\">Accept terms</droplet-checkbox>\n</form>"
       }
     ]
   },
   {
-    "tag": "jelly-input",
+    "tag": "droplet-input",
     "group": "Forms",
     "summary": "A single-line text field on a soft jelly surface: focus lifts and rings the membrane and each keystroke ripples the surface at the caret.",
     "description": "Wraps a real native <input> over the canvas-painted jelly body, so keyboard, IME and assistive-technology behavior are native. Form-associated via ElementInternals, so it submits with a `name` like any built-in field. Caret ripples are measured in the input's own font and are direction-aware, landing under the caret in both LTR and RTL.",
@@ -782,8 +794,12 @@ export const COMPONENTS = [
     ],
     "parts": [
       {
+        "name": "droplet",
+        "description": "The canvas that paints the soft body, fill, border and focus ring (from the DropletElement base)."
+      },
+      {
         "name": "jelly",
-        "description": "The canvas that paints the soft body, fill, border and focus ring (from the JellyElement base)."
+        "description": "The same canvas under its Jelly UI part name."
       },
       {
         "name": "input",
@@ -796,38 +812,38 @@ export const COMPONENTS = [
     ],
     "cssProperties": [
       {
-        "name": "--jelly-input-padding-inline",
+        "name": "--droplet-input-padding-inline",
         "default": "20px (16px small, 24px large)",
         "description": "Inline padding of the text box."
       },
       {
-        "name": "--jelly-input-font-size",
+        "name": "--droplet-input-font-size",
         "default": "16px (14.5px small, 17px large)",
         "description": "Font size of the field text."
       },
       {
-        "name": "--jelly-input-radius",
+        "name": "--droplet-input-radius",
         "default": "16px (14px small, 18px large)",
         "description": "Corner radius of the forced-colors fallback ring (the canvas shape radius is derived from the host height)."
       },
       {
-        "name": "--jelly-fill",
-        "default": "var(--jelly-color-background-muted, #F4F5F7)",
-        "description": "Resting surface fill read by the canvas at paint time; flips with the theme. Focus paints var(--jelly-color-background-surface), disabled paints var(--jelly-color-background-neutral)."
+        "name": "--droplet-fill",
+        "default": "var(--droplet-color-background-muted, #F4F5F7)",
+        "description": "Resting surface fill read by the canvas at paint time; flips with the theme. Focus paints var(--droplet-color-background-surface), disabled paints var(--droplet-color-background-neutral)."
       },
       {
-        "name": "--jelly-label",
-        "default": "var(--jelly-color-foreground-default, #1F2430)",
-        "description": "Text color of the field. Placeholder uses var(--jelly-color-foreground-muted)."
+        "name": "--droplet-label",
+        "default": "var(--droplet-color-foreground-default, #1F2430)",
+        "description": "Text color of the field. Placeholder uses var(--droplet-color-foreground-muted)."
       },
       {
-        "name": "--jelly-accent",
-        "default": "var(--jelly-color-background-accent, #0077CC)",
-        "description": "Focused border and ring hue; retint per subtree via <jelly-theme accent>."
+        "name": "--droplet-accent",
+        "default": "var(--droplet-color-background-accent, #0077CC)",
+        "description": "Focused border and ring hue; retint per subtree via <droplet-theme accent>."
       },
       {
-        "name": "--jelly-ring",
-        "default": "var(--jelly-accent, var(--jelly-color-border-focus, #0077CC))",
+        "name": "--droplet-ring",
+        "default": "var(--droplet-accent, var(--droplet-color-border-focus, #0077CC))",
         "description": "Focus ring color painted on the canvas (softened with color-mix)."
       }
     ],
@@ -848,23 +864,23 @@ export const COMPONENTS = [
     "examples": [
       {
         "title": "Email field in a form",
-        "code": "<form>\n  <jelly-input label=\"Email\" type=\"email\" name=\"email\" placeholder=\"you@example.com\"></jelly-input>\n</form>"
+        "code": "<form>\n  <droplet-input label=\"Email\" type=\"email\" name=\"email\" placeholder=\"you@example.com\"></droplet-input>\n</form>"
       },
       {
         "title": "Invite code without autofill",
-        "code": "<jelly-input size=\"large\" label=\"Invite code\" placeholder=\"Invite code\" no-autofill></jelly-input>"
+        "code": "<droplet-input size=\"large\" label=\"Invite code\" placeholder=\"Invite code\" no-autofill></droplet-input>"
       },
       {
         "title": "RTL field (ripples follow the caret)",
-        "code": "<div dir=\"rtl\">\n  <jelly-input label=\"שם מלא\" placeholder=\"שם מלא\"></jelly-input>\n</div>"
+        "code": "<div dir=\"rtl\">\n  <droplet-input label=\"שם מלא\" placeholder=\"שם מלא\"></droplet-input>\n</div>"
       }
     ]
   },
   {
-    "tag": "jelly-label",
+    "tag": "droplet-label",
     "group": "Forms",
     "summary": "A form label that pairs with any control via `for`: clicking focuses the target and the text becomes its accessible name.",
-    "description": "Idrefs cannot cross shadow roots, so the label pushes its text into the target's `label` attribute — every Jelly form control maps that to an inner aria-label. Required state renders an asterisk plus screen-reader-only \"(required)\" text and sets aria-required on the target.",
+    "description": "Idrefs cannot cross shadow roots, so the label pushes its text into the target's `label` attribute — every Droplet form control maps that to an inner aria-label. Required state renders an asterisk plus screen-reader-only \"(required)\" text and sets aria-required on the target.",
     "attributes": [
       {
         "name": "for",
@@ -906,12 +922,12 @@ export const COMPONENTS = [
     ],
     "cssProperties": [
       {
-        "name": "--jelly-label-font-size",
+        "name": "--droplet-label-font-size",
         "default": "13.5px",
         "description": "Label font size."
       },
       {
-        "name": "--jelly-label-gap",
+        "name": "--droplet-label-gap",
         "default": "5px",
         "description": "Gap before the required marker."
       }
@@ -919,15 +935,15 @@ export const COMPONENTS = [
     "keyboard": [],
     "examples": [
       {
-        "code": "<jelly-label for=\"apiEmail\" required>Email</jelly-label>\n<jelly-input id=\"apiEmail\" placeholder=\"you@example.com\"></jelly-input>"
+        "code": "<droplet-label for=\"apiEmail\" required>Email</droplet-label>\n<droplet-input id=\"apiEmail\" placeholder=\"you@example.com\"></droplet-input>"
       }
     ]
   },
   {
-    "tag": "jelly-option",
+    "tag": "droplet-option",
     "group": "Forms",
-    "summary": "Declarative option data for jelly-select: it carries a value, label text and selected/disabled state, hides itself and lets the parent select render the actual listbox rows.",
-    "description": "The element sets display:none on connect and notifies its closest jelly-select whenever it connects or one of its observed attributes changes, so the select's rows, selection and panel size stay in sync with the light DOM. Its label text is HTML-escaped by the parent before rendering.",
+    "summary": "Declarative option data for droplet-select: it carries a value, label text and selected/disabled state, hides itself and lets the parent select render the actual listbox rows.",
+    "description": "The element sets display:none on connect and notifies its closest droplet-select whenever it connects or one of its observed attributes changes, so the select's rows, selection and panel size stay in sync with the light DOM. Its label text is HTML-escaped by the parent before rendering.",
     "attributes": [
       {
         "name": "value",
@@ -979,12 +995,12 @@ export const COMPONENTS = [
     "examples": [
       {
         "title": "Options inside a select",
-        "code": "<script type=\"module\" src=\"./src/components/select.js\"></script>\n\n<jelly-select placeholder=\"Choose a plan\">\n  <jelly-option value=\"free\">Free</jelly-option>\n  <jelly-option value=\"pro\" selected>Pro plan</jelly-option>\n  <jelly-option disabled>Enterprise (contact sales)</jelly-option>\n</jelly-select>"
+        "code": "<script type=\"module\" src=\"./src/components/select.js\"></script>\n\n<droplet-select placeholder=\"Choose a plan\">\n  <droplet-option value=\"free\">Free</droplet-option>\n  <droplet-option value=\"pro\" selected>Pro plan</droplet-option>\n  <droplet-option disabled>Enterprise (contact sales)</droplet-option>\n</droplet-select>"
       }
     ]
   },
   {
-    "tag": "jelly-otp",
+    "tag": "droplet-otp",
     "group": "Forms",
     "summary": "A one-time-code input: one box per digit with typing, backspace, arrow and paste handling.",
     "description": "Form-associated (the joined code submits like a native field). The digit row is pinned left-to-right even on RTL pages, because codes read that way in every locale. The first box carries autocomplete=\"one-time-code\" so SMS autofill works.",
@@ -1005,7 +1021,7 @@ export const COMPONENTS = [
         "name": "variant",
         "type": "\"azure\" | \"white\" | \"rose\" | \"amber\" | \"mint\" | \"platinum\" | \"graphite\"",
         "default": "(theme accent)",
-        "description": "Caret and focus accent hue, resolved through theme tokens. Without a variant the theme's --jelly-color-background-accent is used."
+        "description": "Caret and focus accent hue, resolved through theme tokens. Without a variant the theme's --droplet-color-background-accent is used."
       },
       {
         "name": "disabled",
@@ -1058,36 +1074,36 @@ export const COMPONENTS = [
     "parts": [],
     "cssProperties": [
       {
-        "name": "--jelly-otp-width",
+        "name": "--droplet-otp-width",
         "default": "44px",
         "description": "Box width."
       },
       {
-        "name": "--jelly-otp-height",
+        "name": "--droplet-otp-height",
         "default": "52px",
         "description": "Box height."
       },
       {
-        "name": "--jelly-otp-gap",
+        "name": "--droplet-otp-gap",
         "default": "9px",
         "description": "Gap between boxes."
       },
       {
-        "name": "--jelly-otp-font-size",
+        "name": "--droplet-otp-font-size",
         "default": "22px",
         "description": "Digit font size."
       },
       {
-        "name": "--jelly-otp-radius",
+        "name": "--droplet-otp-radius",
         "default": "14px",
         "description": "Box corner radius."
       },
       {
-        "name": "--jelly-otp-accent",
+        "name": "--droplet-otp-accent",
         "description": "Caret color (follows variant / accent token)."
       },
       {
-        "name": "--jelly-ring",
+        "name": "--droplet-ring",
         "description": "Focus border and outline color."
       }
     ],
@@ -1111,12 +1127,12 @@ export const COMPONENTS = [
     ],
     "examples": [
       {
-        "code": "<jelly-otp length=\"6\"></jelly-otp>"
+        "code": "<droplet-otp length=\"6\"></droplet-otp>"
       }
     ]
   },
   {
-    "tag": "jelly-radio",
+    "tag": "droplet-radio",
     "group": "Forms",
     "summary": "A jelly radio button; radios sharing a name under the same root form a group with roving tabindex and direction-aware arrow-key navigation.",
     "description": "Because each radio's control lives in its own shadow root, grouping (by the name attribute, scoped to the nearest document or shadow root), selection, roving tabindex and arrow-key navigation are coordinated by the component itself. The selected control pops with a scale spring and the dot lands with an overshoot.",
@@ -1215,54 +1231,58 @@ export const COMPONENTS = [
         "description": "The circular role=\"radio\" element that carries focus."
       },
       {
+        "name": "droplet",
+        "description": "The canvas the jelly circle is painted on (from the DropletElement base)."
+      },
+      {
         "name": "jelly",
-        "description": "The canvas the jelly circle is painted on."
+        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
       {
-        "name": "--jelly-radio-size",
+        "name": "--droplet-radio-size",
         "default": "32px",
         "description": "Diameter of the control (28 / 32 / 38 px across sizes)."
       },
       {
-        "name": "--jelly-radio-dot-size",
+        "name": "--droplet-radio-dot-size",
         "default": "12px",
         "description": "Diameter of the selected dot (10 / 12 / 14 px across sizes)."
       },
       {
-        "name": "--jelly-radio-gap",
+        "name": "--droplet-radio-gap",
         "default": "11px",
         "description": "Gap between the control and the label text."
       },
       {
-        "name": "--jelly-radio-font-size",
+        "name": "--droplet-radio-font-size",
         "default": "15.5px",
         "description": "Label font size."
       },
       {
-        "name": "--jelly-radio-dot-color",
-        "default": "var(--jelly-color-foreground-on-accent, #FFFFFF)",
+        "name": "--droplet-radio-dot-color",
+        "default": "var(--droplet-color-foreground-on-accent, #FFFFFF)",
         "description": "Color of the selected dot; variants pair it with the fill hue."
       },
       {
-        "name": "--jelly-fill",
-        "default": "var(--jelly-color-background-neutral, #DADADA)",
+        "name": "--droplet-fill",
+        "default": "var(--droplet-color-background-neutral, #DADADA)",
         "description": "Unselected control fill (shared token)."
       },
       {
-        "name": "--jelly-on",
-        "default": "var(--jelly-color-background-accent, #0077CC)",
+        "name": "--droplet-on",
+        "default": "var(--droplet-color-background-accent, #0077CC)",
         "description": "Selected control fill (shared token)."
       },
       {
-        "name": "--jelly-ring",
-        "default": "var(--jelly-on, var(--jelly-color-border-focus, #0077CC))",
+        "name": "--droplet-ring",
+        "default": "var(--droplet-on, var(--droplet-color-border-focus, #0077CC))",
         "description": "Keyboard focus ring color painted on the canvas (shared token)."
       },
       {
-        "name": "--jelly-label",
-        "default": "var(--jelly-color-foreground-muted, #5D6474)",
+        "name": "--droplet-label",
+        "default": "var(--droplet-color-foreground-muted, #5D6474)",
         "description": "Label text color (shared token)."
       }
     ],
@@ -1291,18 +1311,18 @@ export const COMPONENTS = [
     "examples": [
       {
         "title": "A named group",
-        "code": "<jelly-radio name=\"plan\" value=\"pro\" checked>Pro</jelly-radio>\n<jelly-radio name=\"plan\" value=\"team\">Team</jelly-radio>\n<jelly-radio name=\"plan\" value=\"enterprise\" disabled>Enterprise</jelly-radio>"
+        "code": "<droplet-radio name=\"plan\" value=\"pro\" checked>Pro</droplet-radio>\n<droplet-radio name=\"plan\" value=\"team\">Team</droplet-radio>\n<droplet-radio name=\"plan\" value=\"enterprise\" disabled>Enterprise</droplet-radio>"
       },
       {
         "title": "Listening for selection",
-        "code": "<div id=\"hues\">\n  <jelly-radio name=\"hue\" value=\"mint\" variant=\"mint\" checked>Mint</jelly-radio>\n  <jelly-radio name=\"hue\" value=\"rose\" variant=\"rose\">Rose</jelly-radio>\n</div>\n<script>\n  document.getElementById('hues').addEventListener('change', (e) => {\n    console.log('picked', e.target.value);\n  });\n</script>"
+        "code": "<div id=\"hues\">\n  <droplet-radio name=\"hue\" value=\"mint\" variant=\"mint\" checked>Mint</droplet-radio>\n  <droplet-radio name=\"hue\" value=\"rose\" variant=\"rose\">Rose</droplet-radio>\n</div>\n<script>\n  document.getElementById('hues').addEventListener('change', (e) => {\n    console.log('picked', e.target.value);\n  });\n</script>"
       }
     ]
   },
   {
-    "tag": "jelly-radio-group",
+    "tag": "droplet-radio-group",
     "group": "Forms",
-    "summary": "A labeled radiogroup container for jelly-radio items with legend, flow layout and size propagation.",
+    "summary": "A labeled radiogroup container for droplet-radio items with legend, flow layout and size propagation.",
     "description": "The radios still group by their shared name attribute; this container adds role=\"radiogroup\" semantics with the legend linked as the accessible name via aria-labelledby, a wrapping flex layout (horizontal by default, vertical with direction=\"vertical\") and propagates its size attribute to child radios that have not set their own.",
     "attributes": [
       {
@@ -1319,7 +1339,7 @@ export const COMPONENTS = [
       {
         "name": "size",
         "type": "'small' | 'medium' | 'large'",
-        "description": "Scales the legend/gaps and is propagated to child jelly-radio elements that did not declare their own size (including radios slotted in later). The sm / md / lg aliases are accepted."
+        "description": "Scales the legend/gaps and is propagated to child droplet-radio elements that did not declare their own size (including radios slotted in later). The sm / md / lg aliases are accepted."
       }
     ],
     "properties": [],
@@ -1328,7 +1348,7 @@ export const COMPONENTS = [
     "slots": [
       {
         "name": "(default)",
-        "description": "The jelly-radio items (other content is allowed but the group semantics target radios)."
+        "description": "The droplet-radio items (other content is allowed but the group semantics target radios)."
       }
     ],
     "parts": [
@@ -1343,28 +1363,28 @@ export const COMPONENTS = [
     ],
     "cssProperties": [
       {
-        "name": "--jelly-radio-group-font-size",
+        "name": "--droplet-radio-group-font-size",
         "default": "13.5px",
         "description": "Legend font size (12 / 13.5 / 15 px across sizes)."
       },
       {
-        "name": "--jelly-radio-group-column-gap",
+        "name": "--droplet-radio-group-column-gap",
         "default": "20px",
         "description": "Inline gap between items (16 / 20 / 24 px across sizes)."
       },
       {
-        "name": "--jelly-radio-group-row-gap",
+        "name": "--droplet-radio-group-row-gap",
         "default": "14px",
         "description": "Block gap between wrapped rows or stacked items (10 / 14 / 16 px across sizes)."
       },
       {
-        "name": "--jelly-radio-group-legend-gap",
+        "name": "--droplet-radio-group-legend-gap",
         "default": "10px",
         "description": "Space between the legend and the items (8 / 10 / 12 px across sizes)."
       },
       {
-        "name": "--jelly-radio-group-legend-color",
-        "default": "var(--jelly-color-foreground-muted, #5D6474)",
+        "name": "--droplet-radio-group-legend-color",
+        "default": "var(--droplet-color-foreground-muted, #5D6474)",
         "description": "Legend text color, themed via token."
       }
     ],
@@ -1377,16 +1397,16 @@ export const COMPONENTS = [
     "examples": [
       {
         "title": "Basic group",
-        "code": "<jelly-radio-group label=\"Plan\">\n  <jelly-radio name=\"plan\" value=\"free\" checked>Free</jelly-radio>\n  <jelly-radio name=\"plan\" value=\"pro\">Pro</jelly-radio>\n  <jelly-radio name=\"plan\" value=\"team\">Team</jelly-radio>\n</jelly-radio-group>"
+        "code": "<droplet-radio-group label=\"Plan\">\n  <droplet-radio name=\"plan\" value=\"free\" checked>Free</droplet-radio>\n  <droplet-radio name=\"plan\" value=\"pro\">Pro</droplet-radio>\n  <droplet-radio name=\"plan\" value=\"team\">Team</droplet-radio>\n</droplet-radio-group>"
       },
       {
         "title": "Size propagates to every radio",
-        "code": "<div style=\"display: grid; gap: 18px\">\n  <jelly-radio-group label=\"Small\" size=\"small\">\n    <jelly-radio name=\"s1\" value=\"a\" checked>Alpha</jelly-radio>\n    <jelly-radio name=\"s1\" value=\"b\">Beta</jelly-radio>\n  </jelly-radio-group>\n  <jelly-radio-group label=\"Large\" size=\"large\">\n    <jelly-radio name=\"s2\" value=\"a\" checked>Alpha</jelly-radio>\n    <jelly-radio name=\"s2\" value=\"b\">Beta</jelly-radio>\n  </jelly-radio-group>\n</div>"
+        "code": "<div style=\"display: grid; gap: 18px\">\n  <droplet-radio-group label=\"Small\" size=\"small\">\n    <droplet-radio name=\"s1\" value=\"a\" checked>Alpha</droplet-radio>\n    <droplet-radio name=\"s1\" value=\"b\">Beta</droplet-radio>\n  </droplet-radio-group>\n  <droplet-radio-group label=\"Large\" size=\"large\">\n    <droplet-radio name=\"s2\" value=\"a\" checked>Alpha</droplet-radio>\n    <droplet-radio name=\"s2\" value=\"b\">Beta</droplet-radio>\n  </droplet-radio-group>\n</div>"
       }
     ]
   },
   {
-    "tag": "jelly-range",
+    "tag": "droplet-range",
     "group": "Forms",
     "summary": "A dual-thumb range slider for picking a low/high interval, with two role=\"slider\" knobs carrying focus and ARIA and jelly thumbs that squish as they drag.",
     "description": "Each thumb is a soft physics body that squishes when grabbed and leans into its travel; the accent fill spans the selected interval. Form-associated — submits its value as \"low,high\". Direction-aware: painting, knob placement (inset-inline-start) and arrow keys all mirror in RTL. Window-level drag listeners exist only for the duration of a drag and are cleaned up on release and on disconnect.",
@@ -1454,7 +1474,7 @@ export const COMPONENTS = [
         "name": "variant",
         "type": "\"azure\" | \"white\" | \"rose\" | \"amber\" | \"mint\" | \"platinum\" | \"graphite\"",
         "default": "(theme accent)",
-        "description": "Accent hue for the interval fill and thumbs, resolved through theme tokens so dark mode adapts. Without a variant the theme's --jelly-color-background-accent is used."
+        "description": "Accent hue for the interval fill and thumbs, resolved through theme tokens so dark mode adapts. Without a variant the theme's --droplet-color-background-accent is used."
       },
       {
         "name": "name",
@@ -1502,34 +1522,38 @@ export const COMPONENTS = [
         "description": "The two invisible role=\"slider\" grab/focus targets riding over the painted thumbs (one per bound, in low/high order)."
       },
       {
+        "name": "droplet",
+        "description": "The canvas the track, interval fill and thumbs are painted on (from the DropletElement base)."
+      },
+      {
         "name": "jelly",
-        "description": "The canvas the track, interval fill and thumbs are painted on (from the JellyElement base)."
+        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
       {
-        "name": "--jelly-range-track-height",
+        "name": "--droplet-range-track-height",
         "default": "12px (9/12/14 per size)",
         "description": "Visual height of the track capsule, set per size attribute."
       },
       {
-        "name": "--jelly-range-thumb-size",
+        "name": "--droplet-range-thumb-size",
         "default": "28px (24/28/34 per size)",
         "description": "Diameter of the knob hit targets, matching the painted thumb bodies."
       },
       {
-        "name": "--jelly-track",
-        "default": "var(--jelly-color-background-neutral, #DADADA)",
+        "name": "--droplet-track",
+        "default": "var(--droplet-color-background-neutral, #DADADA)",
         "description": "Track base color, resolved at paint time so theme flips recolor live."
       },
       {
-        "name": "--jelly-accent",
-        "default": "var(--jelly-color-background-accent, #0077CC)",
+        "name": "--droplet-accent",
+        "default": "var(--droplet-color-background-accent, #0077CC)",
         "description": "Accent color for the interval fill and thumbs; variants override it through theme tokens."
       },
       {
-        "name": "--jelly-ring",
-        "default": "var(--jelly-accent, var(--jelly-color-border-focus, #0077CC))",
+        "name": "--droplet-ring",
+        "default": "var(--droplet-accent, var(--droplet-color-border-focus, #0077CC))",
         "description": "Shared focus-ring token; keyboard focus is painted around the focused thumb in the active variant color at 50% opacity."
       }
     ],
@@ -1558,22 +1582,22 @@ export const COMPONENTS = [
     "examples": [
       {
         "title": "Basic labeled interval",
-        "code": "<jelly-range label=\"Price\" min=\"0\" max=\"500\" low=\"120\" high=\"360\"></jelly-range>"
+        "code": "<droplet-range label=\"Price\" min=\"0\" max=\"500\" low=\"120\" high=\"360\"></droplet-range>"
       },
       {
         "title": "Sizes and variants",
-        "code": "<jelly-range label=\"Threshold\" variant=\"mint\" size=\"large\" step=\"5\" low=\"20\" high=\"70\"></jelly-range>\n<jelly-range label=\"Alert band\" variant=\"rose\" size=\"small\"></jelly-range>"
+        "code": "<droplet-range label=\"Threshold\" variant=\"mint\" size=\"large\" step=\"5\" low=\"20\" high=\"70\"></droplet-range>\n<droplet-range label=\"Alert band\" variant=\"rose\" size=\"small\"></droplet-range>"
       },
       {
         "title": "Reading the interval on commit",
-        "code": "<jelly-range id=\"budget\" label=\"Budget\" min=\"0\" max=\"100\" low=\"25\" high=\"75\"></jelly-range>\n<script type=\"module\">\n  import './package.js';\n  document.getElementById('budget').addEventListener('change', (event) => {\n    const [low, high] = event.target.value.split(',').map(Number);\n    console.log({ low, high });\n  });\n</script>"
+        "code": "<droplet-range id=\"budget\" label=\"Budget\" min=\"0\" max=\"100\" low=\"25\" high=\"75\"></droplet-range>\n<script type=\"module\">\n  import './package.js';\n  document.getElementById('budget').addEventListener('change', (event) => {\n    const [low, high] = event.target.value.split(',').map(Number);\n    console.log({ low, high });\n  });\n</script>"
       }
     ]
   },
   {
-    "tag": "jelly-segment",
+    "tag": "droplet-segment",
     "group": "Forms",
-    "summary": "Declarative data for one option inside <jelly-segmented>; the parent renders the actual control.",
+    "summary": "Declarative data for one option inside <droplet-segmented>; the parent renders the actual control.",
     "attributes": [
       {
         "name": "value",
@@ -1622,15 +1646,15 @@ export const COMPONENTS = [
     "keyboard": [],
     "examples": [
       {
-        "code": "<jelly-segmented>\n  <jelly-segment value=\"on\" selected>On</jelly-segment>\n  <jelly-segment value=\"off\">Off</jelly-segment>\n</jelly-segmented>"
+        "code": "<droplet-segmented>\n  <droplet-segment value=\"on\" selected>On</droplet-segment>\n  <droplet-segment value=\"off\">Off</droplet-segment>\n</droplet-segmented>"
       }
     ]
   },
   {
-    "tag": "jelly-segmented",
+    "tag": "droplet-segmented",
     "group": "Forms",
     "summary": "A capsule track of mutually exclusive options with a jelly pill that slides, leans and stretches between segments.",
-    "description": "Form-associated; presented as a radiogroup by default, or as a real tablist with roles=\"tablist\" (this is how <jelly-tabs> uses it). Options are declarative <jelly-segment> children and can change at any time.",
+    "description": "Form-associated; presented as a radiogroup by default, or as a real tablist with roles=\"tablist\" (this is how <droplet-tabs> uses it). Options are declarative <droplet-segment> children and can change at any time.",
     "attributes": [
       {
         "name": "feel",
@@ -1700,13 +1724,17 @@ export const COMPONENTS = [
     "slots": [
       {
         "name": "(default)",
-        "description": "<jelly-segment> children (hidden data; the control renders them)."
+        "description": "<droplet-segment> children (hidden data; the control renders them)."
       }
     ],
     "parts": [
       {
+        "name": "droplet",
+        "description": "The canvas (from the DropletElement base)."
+      },
+      {
         "name": "jelly",
-        "description": "The canvas."
+        "description": "The same canvas under its Jelly UI part name."
       },
       {
         "name": "wrap",
@@ -1715,40 +1743,40 @@ export const COMPONENTS = [
     ],
     "cssProperties": [
       {
-        "name": "--jelly-track",
+        "name": "--droplet-track",
         "description": "Track fill behind the pill (defaults through the platinum token)."
       },
       {
-        "name": "--jelly-pill",
+        "name": "--droplet-pill",
         "description": "The sliding pill fill (defaults through the accent token)."
       },
       {
-        "name": "--jelly-label",
+        "name": "--droplet-label",
         "description": "Resting segment label color."
       },
       {
-        "name": "--jelly-label-on",
+        "name": "--droplet-label-on",
         "description": "Active segment label color."
       },
       {
-        "name": "--jelly-segmented-font-size",
+        "name": "--droplet-segmented-font-size",
         "default": "14.5px",
         "description": "Segment label size (scales with size)."
       },
       {
-        "name": "--jelly-segmented-min-width",
+        "name": "--droplet-segmented-min-width",
         "description": "Minimum width of each segment."
       },
       {
-        "name": "--jelly-segmented-gap",
+        "name": "--droplet-segmented-gap",
         "description": "Gap between a segment's icon and label."
       },
       {
-        "name": "--jelly-segmented-padding",
+        "name": "--droplet-segmented-padding",
         "description": "Padding around the track."
       },
       {
-        "name": "--jelly-segmented-padding-inline",
+        "name": "--droplet-segmented-padding-inline",
         "description": "Segment horizontal padding."
       }
     ],
@@ -1765,15 +1793,15 @@ export const COMPONENTS = [
     "examples": [
       {
         "title": "Time range picker",
-        "code": "<jelly-segmented value=\"week\">\n  <jelly-segment value=\"day\">Day</jelly-segment>\n  <jelly-segment value=\"week\">Week</jelly-segment>\n  <jelly-segment value=\"month\">Month</jelly-segment>\n</jelly-segmented>"
+        "code": "<droplet-segmented value=\"week\">\n  <droplet-segment value=\"day\">Day</droplet-segment>\n  <droplet-segment value=\"week\">Week</droplet-segment>\n  <droplet-segment value=\"month\">Month</droplet-segment>\n</droplet-segmented>"
       }
     ]
   },
   {
-    "tag": "jelly-select",
+    "tag": "droplet-select",
     "group": "Forms",
     "summary": "A form-associated dropdown on the ARIA combobox/listbox pattern whose trigger and option panel are both soft-body jelly surfaces, with the panel unfolding out of the field — flipping above it when the viewport has no room below.",
-    "description": "The trigger is one canvas-painted jelly body and the option panel is a second one that springs open with an underdamped unfold, revealing rows with a light stagger. Options are declared as light-DOM <jelly-option> children and re-read live through a MutationObserver. Keyboard navigation, aria-expanded/aria-activedescendant, outside-press dismissal, dark-mode theme tokens, RTL layout and native form submission via ElementInternals are all built in.",
+    "description": "The trigger is one canvas-painted jelly body and the option panel is a second one that springs open with an underdamped unfold, revealing rows with a light stagger. Options are declared as light-DOM <droplet-option> children and re-read live through a MutationObserver. Keyboard navigation, aria-expanded/aria-activedescendant, outside-press dismissal, dark-mode theme tokens, RTL layout and native form submission via ElementInternals are all built in.",
     "attributes": [
       {
         "name": "feel",
@@ -1818,13 +1846,13 @@ export const COMPONENTS = [
       },
       {
         "name": "variant",
-        "description": "Accent hue used for the focus ring, focused border, active-row highlight and selected tick: rose, azure, mint, amber, or graphite. Unset, the accent follows the theme's --jelly-color-background-accent.",
+        "description": "Accent hue used for the focus ring, focused border, active-row highlight and selected tick: rose, azure, mint, amber, or graphite. Unset, the accent follows the theme's --droplet-color-background-accent.",
         "type": "string",
         "default": "theme accent"
       },
       {
         "name": "open",
-        "description": "Present while the option panel is open. Managed by the component (read-only state hook for styling); also raises the host's z-index via --jelly-dropdown-z-index.",
+        "description": "Present while the option panel is open. Managed by the component (read-only state hook for styling); also raises the host's z-index via --droplet-dropdown-z-index.",
         "type": "boolean",
         "default": "false"
       },
@@ -1857,13 +1885,17 @@ export const COMPONENTS = [
     "slots": [
       {
         "name": "(default)",
-        "description": "One or more <jelly-option> elements. They are hidden data — the select renders its own listbox rows from their value, label text, selected and disabled state and re-syncs whenever they change."
+        "description": "One or more <droplet-option> elements. They are hidden data — the select renders its own listbox rows from their value, label text, selected and disabled state and re-syncs whenever they change."
       }
     ],
     "parts": [
       {
+        "name": "droplet",
+        "description": "The trigger's canvas surface (painted jelly body), from the shared base class (from the DropletElement base)."
+      },
+      {
         "name": "jelly",
-        "description": "The trigger's canvas surface (painted jelly body), from the shared base class."
+        "description": "The same canvas under its Jelly UI part name."
       },
       {
         "name": "trigger",
@@ -1884,69 +1916,69 @@ export const COMPONENTS = [
     ],
     "cssProperties": [
       {
-        "name": "--jelly-select-padding-inline",
+        "name": "--droplet-select-padding-inline",
         "description": "Inline padding inside the trigger.",
         "default": "18px"
       },
       {
-        "name": "--jelly-select-font-size",
+        "name": "--droplet-select-font-size",
         "description": "Trigger and row font size.",
         "default": "15.5px"
       },
       {
-        "name": "--jelly-select-radius",
+        "name": "--droplet-select-radius",
         "description": "Trigger corner radius (also used by the focus-fallback outline).",
         "default": "16px"
       },
       {
-        "name": "--jelly-select-gap",
+        "name": "--droplet-select-gap",
         "description": "Gap between the value text and the chevron.",
         "default": "10px"
       },
       {
-        "name": "--jelly-select-chevron-size",
+        "name": "--droplet-select-chevron-size",
         "description": "Width and height of the chevron icon.",
         "default": "16px"
       },
       {
-        "name": "--jelly-select-row-height",
+        "name": "--droplet-select-row-height",
         "description": "Height of each option row (also drives the measured panel height).",
         "default": "44px"
       },
       {
-        "name": "--jelly-select-row-padding-inline",
+        "name": "--droplet-select-row-padding-inline",
         "description": "Inline padding inside each option row.",
         "default": "14px"
       },
       {
-        "name": "--jelly-select-row-radius",
+        "name": "--droplet-select-row-radius",
         "description": "Corner radius of the active-row highlight.",
         "default": "11px"
       },
       {
-        "name": "--jelly-dropdown-z-index",
+        "name": "--droplet-dropdown-z-index",
         "description": "z-index applied to the host while the panel is open.",
         "default": "9999"
       },
       {
-        "name": "--jelly-fill",
+        "name": "--droplet-fill",
         "description": "Shared token: resting trigger surface color.",
-        "default": "var(--jelly-color-background-muted, #F4F5F7)"
+        "default": "var(--droplet-color-background-muted, #F4F5F7)"
       },
       {
-        "name": "--jelly-label",
+        "name": "--droplet-label",
         "description": "Shared token: trigger and row text color.",
-        "default": "var(--jelly-color-foreground-default, #1F2430)"
+        "default": "var(--droplet-color-foreground-default, #1F2430)"
       },
       {
-        "name": "--jelly-accent",
+        "name": "--droplet-accent",
         "description": "Shared token: accent for the ring, focused border, active row and tick (set by variant).",
-        "default": "var(--jelly-color-background-accent, #0077CC)"
+        "default": "var(--droplet-color-background-accent, #0077CC)"
       },
       {
-        "name": "--jelly-ring",
+        "name": "--droplet-ring",
         "description": "Shared token: painted focus-ring color.",
-        "default": "var(--jelly-accent, var(--jelly-color-border-focus, #0077CC))"
+        "default": "var(--droplet-accent, var(--droplet-color-border-focus, #0077CC))"
       }
     ],
     "keyboard": [
@@ -1978,20 +2010,20 @@ export const COMPONENTS = [
     "examples": [
       {
         "title": "Basic select with a labelled field",
-        "code": "<script type=\"module\" src=\"./src/components/select.js\"></script>\n\n<jelly-select label=\"Plan\" placeholder=\"Choose a plan\">\n  <jelly-option value=\"free\">Free</jelly-option>\n  <jelly-option value=\"pro\" selected>Pro</jelly-option>\n  <jelly-option value=\"team\" disabled>Team (coming soon)</jelly-option>\n</jelly-select>\n\n<script>\n  document.querySelector('jelly-select')\n    .addEventListener('change', (event) => console.log(event.target.value));\n</script>"
+        "code": "<script type=\"module\" src=\"./src/components/select.js\"></script>\n\n<droplet-select label=\"Plan\" placeholder=\"Choose a plan\">\n  <droplet-option value=\"free\">Free</droplet-option>\n  <droplet-option value=\"pro\" selected>Pro</droplet-option>\n  <droplet-option value=\"team\" disabled>Team (coming soon)</droplet-option>\n</droplet-select>\n\n<script>\n  document.querySelector('droplet-select')\n    .addEventListener('change', (event) => console.log(event.target.value));\n</script>"
       },
       {
         "title": "Sizes and accent variants",
-        "code": "<script type=\"module\" src=\"./src/components/select.js\"></script>\n\n<jelly-select size=\"small\" variant=\"mint\" label=\"Region\" placeholder=\"Region\">\n  <jelly-option value=\"eu\">Europe</jelly-option>\n  <jelly-option value=\"us\">United States</jelly-option>\n</jelly-select>\n\n<jelly-select size=\"large\" variant=\"rose\" label=\"Priority\" value=\"high\">\n  <jelly-option value=\"low\">Low</jelly-option>\n  <jelly-option value=\"high\">High</jelly-option>\n</jelly-select>"
+        "code": "<script type=\"module\" src=\"./src/components/select.js\"></script>\n\n<droplet-select size=\"small\" variant=\"mint\" label=\"Region\" placeholder=\"Region\">\n  <droplet-option value=\"eu\">Europe</droplet-option>\n  <droplet-option value=\"us\">United States</droplet-option>\n</droplet-select>\n\n<droplet-select size=\"large\" variant=\"rose\" label=\"Priority\" value=\"high\">\n  <droplet-option value=\"low\">Low</droplet-option>\n  <droplet-option value=\"high\">High</droplet-option>\n</droplet-select>"
       },
       {
         "title": "Inside a native form (submits like a built-in field)",
-        "code": "<script type=\"module\" src=\"./src/components/select.js\"></script>\n\n<form onsubmit=\"event.preventDefault(); alert(new FormData(this).get('tier'))\">\n  <jelly-select name=\"tier\" label=\"Tier\" placeholder=\"Pick a tier\">\n    <jelly-option value=\"starter\">Starter</jelly-option>\n    <jelly-option value=\"business\" selected>Business</jelly-option>\n  </jelly-select>\n  <button type=\"submit\">Submit</button>\n</form>"
+        "code": "<script type=\"module\" src=\"./src/components/select.js\"></script>\n\n<form onsubmit=\"event.preventDefault(); alert(new FormData(this).get('tier'))\">\n  <droplet-select name=\"tier\" label=\"Tier\" placeholder=\"Pick a tier\">\n    <droplet-option value=\"starter\">Starter</droplet-option>\n    <droplet-option value=\"business\" selected>Business</droplet-option>\n  </droplet-select>\n  <button type=\"submit\">Submit</button>\n</form>"
       }
     ]
   },
   {
-    "tag": "jelly-slider",
+    "tag": "droplet-slider",
     "group": "Forms",
     "summary": "A single-value range slider whose accent thumb is a squishy jelly body, backed by a hidden native range input for semantics and form participation.",
     "description": "A hidden native <input type=\"range\"> owns the value, keyboard semantics and form participation while the thumb — a soft physics body — squishes when grabbed, leans into its travel and carries a variant-colored focus ring. Direction-aware: in RTL layouts the value origin, painted accent fill and arrow keys mirror like a native range input. In forced-colors mode the component hands interaction back to the fully styleable native input.",
@@ -2053,7 +2085,7 @@ export const COMPONENTS = [
         "name": "variant",
         "type": "\"azure\" | \"white\" | \"rose\" | \"amber\" | \"mint\" | \"platinum\" | \"graphite\"",
         "default": "(theme accent)",
-        "description": "Accent hue for the fill and thumb, resolved through theme tokens so dark mode adapts. Without a variant the theme's --jelly-color-background-accent is used."
+        "description": "Accent hue for the fill and thumb, resolved through theme tokens so dark mode adapts. Without a variant the theme's --droplet-color-background-accent is used."
       },
       {
         "name": "name",
@@ -2101,29 +2133,33 @@ export const COMPONENTS = [
         "description": "The drag-surface strip aligned to the painted track (touch-action: none; pointer target extended to 24px tall)."
       },
       {
+        "name": "droplet",
+        "description": "The canvas the track, accent fill and thumb are painted on (from the DropletElement base)."
+      },
+      {
         "name": "jelly",
-        "description": "The canvas the track, accent fill and thumb are painted on (from the JellyElement base)."
+        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
       {
-        "name": "--jelly-slider-track-height",
+        "name": "--droplet-slider-track-height",
         "default": "12px (9/12/14 per size)",
         "description": "Visual height of the track capsule; the smoke-tested size scale sets it per size attribute."
       },
       {
-        "name": "--jelly-track",
-        "default": "var(--jelly-color-background-neutral, #DADADA)",
+        "name": "--droplet-track",
+        "default": "var(--droplet-color-background-neutral, #DADADA)",
         "description": "Track base color, resolved at paint time so theme flips recolor live."
       },
       {
-        "name": "--jelly-accent",
-        "default": "var(--jelly-color-background-accent, #0077CC)",
+        "name": "--droplet-accent",
+        "default": "var(--droplet-color-background-accent, #0077CC)",
         "description": "Accent color for the value fill and the thumb; variants override it through theme tokens."
       },
       {
-        "name": "--jelly-ring",
-        "default": "var(--jelly-accent, var(--jelly-color-border-focus, #0077CC))",
+        "name": "--droplet-ring",
+        "default": "var(--droplet-accent, var(--droplet-color-border-focus, #0077CC))",
         "description": "Shared focus-ring token; keyboard focus is painted around the thumb in the active variant color at 50% opacity."
       }
     ],
@@ -2148,20 +2184,20 @@ export const COMPONENTS = [
     "examples": [
       {
         "title": "Basic labeled slider",
-        "code": "<jelly-slider label=\"Volume\" min=\"0\" max=\"100\" value=\"40\"></jelly-slider>"
+        "code": "<droplet-slider label=\"Volume\" min=\"0\" max=\"100\" value=\"40\"></droplet-slider>"
       },
       {
         "title": "Sizes and variants",
-        "code": "<jelly-slider label=\"Warmth\" variant=\"amber\" size=\"small\" step=\"5\" value=\"25\"></jelly-slider>\n<jelly-slider label=\"Growth\" variant=\"mint\" size=\"large\" value=\"70\"></jelly-slider>"
+        "code": "<droplet-slider label=\"Warmth\" variant=\"amber\" size=\"small\" step=\"5\" value=\"25\"></droplet-slider>\n<droplet-slider label=\"Growth\" variant=\"mint\" size=\"large\" value=\"70\"></droplet-slider>"
       },
       {
         "title": "In a form, reacting to commits",
-        "code": "<form id=\"mix\">\n  <jelly-slider name=\"volume\" label=\"Volume\" value=\"60\"></jelly-slider>\n</form>\n<script type=\"module\">\n  import './package.js';\n  document.querySelector('jelly-slider').addEventListener('change', (event) => {\n    console.log('committed', event.target.value);\n  });\n</script>"
+        "code": "<form id=\"mix\">\n  <droplet-slider name=\"volume\" label=\"Volume\" value=\"60\"></droplet-slider>\n</form>\n<script type=\"module\">\n  import './package.js';\n  document.querySelector('droplet-slider').addEventListener('change', (event) => {\n    console.log('committed', event.target.value);\n  });\n</script>"
       }
     ]
   },
   {
-    "tag": "jelly-switch",
+    "tag": "droplet-switch",
     "group": "Forms",
     "summary": "A draggable jelly switch: a capsule track whose thumb stretches like a liquid drop and whose color crossfades between off and on.",
     "description": "A visually-hidden native checkbox with role=\"switch\" carries focus, keyboard and the form value; the track and thumb are two coupled physics bodies painted on canvas. The thumb can be tapped or dragged past the midpoint; \"on\" always travels toward the inline end, so RTL pages mirror the travel, the drag release decision and the color progress.",
@@ -2264,59 +2300,63 @@ export const COMPONENTS = [
         "description": "The capsule drag surface the canvas paints behind."
       },
       {
+        "name": "droplet",
+        "description": "The canvas the track and thumb bodies are painted on (from the DropletElement base)."
+      },
+      {
         "name": "jelly",
-        "description": "The canvas the track and thumb bodies are painted on."
+        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
       {
-        "name": "--jelly-switch-width",
+        "name": "--droplet-switch-width",
         "default": "62px",
         "description": "Track width (50 / 62 / 74 px across sizes)."
       },
       {
-        "name": "--jelly-switch-height",
+        "name": "--droplet-switch-height",
         "default": "34px",
         "description": "Track height (28 / 34 / 40 px across sizes)."
       },
       {
-        "name": "--jelly-switch-gap",
+        "name": "--droplet-switch-gap",
         "default": "12px",
         "description": "Gap between the track and the label text."
       },
       {
-        "name": "--jelly-switch-font-size",
+        "name": "--droplet-switch-font-size",
         "default": "15.5px",
         "description": "Label font size."
       },
       {
-        "name": "--jelly-off",
-        "default": "var(--jelly-color-background-neutral, #DADADA)",
+        "name": "--droplet-off",
+        "default": "var(--droplet-color-background-neutral, #DADADA)",
         "description": "Track color at the off end of the crossfade (shared token; any CSS color works)."
       },
       {
-        "name": "--jelly-on",
-        "default": "var(--jelly-color-background-accent, #0077CC)",
+        "name": "--droplet-on",
+        "default": "var(--droplet-color-background-accent, #0077CC)",
         "description": "Track color at the on end of the crossfade (shared token; any CSS color works)."
       },
       {
-        "name": "--jelly-switch-thumb-off",
-        "default": "var(--jelly-color-background-white, #FFFFFF)",
+        "name": "--droplet-switch-thumb-off",
+        "default": "var(--droplet-color-background-white, #FFFFFF)",
         "description": "Thumb foreground over the off track."
       },
       {
-        "name": "--jelly-switch-thumb-on",
-        "default": "var(--jelly-color-foreground-on-accent, #FFFFFF)",
+        "name": "--droplet-switch-thumb-on",
+        "default": "var(--droplet-color-foreground-on-accent, #FFFFFF)",
         "description": "Thumb foreground over the on track; explicit variants replace it with their paired on-color."
       },
       {
-        "name": "--jelly-ring",
-        "default": "var(--jelly-on, var(--jelly-color-border-focus, #0077CC))",
+        "name": "--droplet-ring",
+        "default": "var(--droplet-on, var(--droplet-color-border-focus, #0077CC))",
         "description": "Keyboard focus ring color painted on the canvas (shared token)."
       },
       {
-        "name": "--jelly-label",
-        "default": "var(--jelly-color-foreground-muted, #5D6474)",
+        "name": "--droplet-label",
+        "default": "var(--droplet-color-foreground-muted, #5D6474)",
         "description": "Label text color (shared token)."
       }
     ],
@@ -2333,23 +2373,23 @@ export const COMPONENTS = [
     "examples": [
       {
         "title": "Basic",
-        "code": "<jelly-switch checked>Wi-Fi</jelly-switch>"
+        "code": "<droplet-switch checked>Wi-Fi</droplet-switch>"
       },
       {
         "title": "Sizes and variants",
-        "code": "<jelly-switch size=\"small\" variant=\"azure\">Bluetooth</jelly-switch>\n<jelly-switch size=\"large\" variant=\"rose\" checked>Do not disturb</jelly-switch>"
+        "code": "<droplet-switch size=\"small\" variant=\"azure\">Bluetooth</droplet-switch>\n<droplet-switch size=\"large\" variant=\"rose\" checked>Do not disturb</droplet-switch>"
       },
       {
         "title": "RTL mirroring and change events",
-        "code": "<div dir=\"rtl\">\n  <jelly-switch id=\"sw\" checked>الإشعارات</jelly-switch>\n</div>\n<script>\n  document.getElementById('sw').addEventListener('change', (e) => {\n    console.log('now', e.target.checked ? 'on' : 'off');\n  });\n</script>"
+        "code": "<div dir=\"rtl\">\n  <droplet-switch id=\"sw\" checked>الإشعارات</droplet-switch>\n</div>\n<script>\n  document.getElementById('sw').addEventListener('change', (e) => {\n    console.log('now', e.target.checked ? 'on' : 'off');\n  });\n</script>"
       }
     ]
   },
   {
-    "tag": "jelly-textarea",
+    "tag": "droplet-textarea",
     "group": "Forms",
     "summary": "A multi-line text field on a jelly surface that auto-grows between a min and max height while the membrane follows, rippling at the caret as you type.",
-    "description": "Wraps a real native <textarea> over the canvas jelly body. The control auto-sizes to its content (capped by --jelly-textarea-max-height) and a private ResizeObserver keeps the physics shape in sync. Caret position is measured with a hidden layout mirror that replicates font, width, padding, wrapping and direction, so the ripple lands on the caret even across wrapped lines and in RTL. Form-associated via ElementInternals.",
+    "description": "Wraps a real native <textarea> over the canvas jelly body. The control auto-sizes to its content (capped by --droplet-textarea-max-height) and a private ResizeObserver keeps the physics shape in sync. Caret position is measured with a hidden layout mirror that replicates font, width, padding, wrapping and direction, so the ripple lands on the caret even across wrapped lines and in RTL. Form-associated via ElementInternals.",
     "attributes": [
       {
         "name": "feel",
@@ -2472,8 +2512,12 @@ export const COMPONENTS = [
     ],
     "parts": [
       {
+        "name": "droplet",
+        "description": "The canvas that paints the soft body, fill, border and focus ring (from the DropletElement base)."
+      },
+      {
         "name": "jelly",
-        "description": "The canvas that paints the soft body, fill, border and focus ring (from the JellyElement base)."
+        "description": "The same canvas under its Jelly UI part name."
       },
       {
         "name": "textarea",
@@ -2486,53 +2530,53 @@ export const COMPONENTS = [
     ],
     "cssProperties": [
       {
-        "name": "--jelly-textarea-padding-inline",
+        "name": "--droplet-textarea-padding-inline",
         "default": "20px (16px small, 24px large)",
         "description": "Inline padding of the text box."
       },
       {
-        "name": "--jelly-textarea-padding-block",
+        "name": "--droplet-textarea-padding-block",
         "default": "16px (13px small, 18px large)",
         "description": "Block padding of the text box."
       },
       {
-        "name": "--jelly-textarea-font-size",
+        "name": "--droplet-textarea-font-size",
         "default": "15.5px (14px small, 16.5px large)",
         "description": "Font size of the field text."
       },
       {
-        "name": "--jelly-textarea-radius",
+        "name": "--droplet-textarea-radius",
         "default": "18px (15px small, 20px large)",
         "description": "Corner radius of the forced-colors fallback ring (the canvas shape radius is derived from the height)."
       },
       {
-        "name": "--jelly-textarea-min-height",
+        "name": "--droplet-textarea-min-height",
         "default": "96px (76px small, 124px large)",
         "description": "Minimum control height before auto-growing."
       },
       {
-        "name": "--jelly-textarea-max-height",
+        "name": "--droplet-textarea-max-height",
         "default": "240px (200px small, 300px large)",
         "description": "Height cap; past it the content scrolls instead of growing."
       },
       {
-        "name": "--jelly-fill",
-        "default": "var(--jelly-color-background-muted, #F4F5F7)",
-        "description": "Resting surface fill read by the canvas at paint time; flips with the theme. Focus paints var(--jelly-color-background-surface), disabled paints var(--jelly-color-background-neutral)."
+        "name": "--droplet-fill",
+        "default": "var(--droplet-color-background-muted, #F4F5F7)",
+        "description": "Resting surface fill read by the canvas at paint time; flips with the theme. Focus paints var(--droplet-color-background-surface), disabled paints var(--droplet-color-background-neutral)."
       },
       {
-        "name": "--jelly-label",
-        "default": "var(--jelly-color-foreground-default, #1F2430)",
-        "description": "Text color of the field. Placeholder uses var(--jelly-color-foreground-muted)."
+        "name": "--droplet-label",
+        "default": "var(--droplet-color-foreground-default, #1F2430)",
+        "description": "Text color of the field. Placeholder uses var(--droplet-color-foreground-muted)."
       },
       {
-        "name": "--jelly-accent",
-        "default": "var(--jelly-color-background-accent, #0077CC)",
-        "description": "Focused border and ring hue; retint per subtree via <jelly-theme accent>."
+        "name": "--droplet-accent",
+        "default": "var(--droplet-color-background-accent, #0077CC)",
+        "description": "Focused border and ring hue; retint per subtree via <droplet-theme accent>."
       },
       {
-        "name": "--jelly-ring",
-        "default": "var(--jelly-accent, var(--jelly-color-border-focus, #0077CC))",
+        "name": "--droplet-ring",
+        "default": "var(--droplet-accent, var(--droplet-color-border-focus, #0077CC))",
         "description": "Focus ring color painted on the canvas (softened with color-mix)."
       }
     ],
@@ -2553,20 +2597,20 @@ export const COMPONENTS = [
     "examples": [
       {
         "title": "Auto-growing notes field",
-        "code": "<jelly-textarea label=\"Notes\" placeholder=\"Notes\" rows=\"4\"></jelly-textarea>"
+        "code": "<droplet-textarea label=\"Notes\" placeholder=\"Notes\" rows=\"4\"></droplet-textarea>"
       },
       {
         "title": "Capped height with a custom max",
-        "code": "<jelly-textarea size=\"large\" label=\"Feedback\" name=\"feedback\" no-autofill\n  style=\"--jelly-textarea-max-height: 220px\"></jelly-textarea>"
+        "code": "<droplet-textarea size=\"large\" label=\"Feedback\" name=\"feedback\" no-autofill\n  style=\"--droplet-textarea-max-height: 220px\"></droplet-textarea>"
       },
       {
         "title": "RTL textarea (caret ripple mirrors)",
-        "code": "<div dir=\"rtl\">\n  <jelly-textarea label=\"הערות\" placeholder=\"הערות\" rows=\"3\"></jelly-textarea>\n</div>"
+        "code": "<div dir=\"rtl\">\n  <droplet-textarea label=\"הערות\" placeholder=\"הערות\" rows=\"3\"></droplet-textarea>\n</div>"
       }
     ]
   },
   {
-    "tag": "jelly-alert",
+    "tag": "droplet-alert",
     "group": "Feedback",
     "summary": "A callout banner on a jelly surface with four tones and an optional dismiss button.",
     "attributes": [
@@ -2634,8 +2678,12 @@ export const COMPONENTS = [
         "description": "The dismiss button."
       },
       {
+        "name": "droplet",
+        "description": "The canvas (from the DropletElement base)."
+      },
+      {
         "name": "jelly",
-        "description": "The canvas."
+        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
@@ -2644,40 +2692,40 @@ export const COMPONENTS = [
         "description": "The tone hue (set by the tone attribute)."
       },
       {
-        "name": "--jelly-fill",
+        "name": "--droplet-fill",
         "description": "Banner surface (defaults through the surface token)."
       },
       {
-        "name": "--jelly-alert-radius",
+        "name": "--droplet-alert-radius",
         "default": "16px",
         "description": "Corner radius (also shapes the jelly)."
       },
       {
-        "name": "--jelly-alert-border",
+        "name": "--droplet-alert-border",
         "description": "Edge colour, a stronger wash of the tone by default."
       },
       {
-        "name": "--jelly-alert-icon",
+        "name": "--droplet-alert-icon",
         "default": "22px",
         "description": "Tone icon size."
       },
       {
-        "name": "--jelly-alert-close",
+        "name": "--droplet-alert-close",
         "default": "24px",
         "description": "Dismiss button size."
       },
       {
-        "name": "--jelly-alert-gap",
+        "name": "--droplet-alert-gap",
         "default": "12px",
         "description": "Gap between icon, body and dismiss."
       },
       {
-        "name": "--jelly-alert-padding-block",
+        "name": "--droplet-alert-padding-block",
         "default": "15px",
         "description": "Vertical padding."
       },
       {
-        "name": "--jelly-alert-padding-inline",
+        "name": "--droplet-alert-padding-inline",
         "default": "16px",
         "description": "Horizontal padding."
       }
@@ -2690,12 +2738,12 @@ export const COMPONENTS = [
     ],
     "examples": [
       {
-        "code": "<jelly-alert tone=\"success\"><strong>Saved!</strong> Your changes are live.</jelly-alert>\n<jelly-alert tone=\"danger\" dismissible>Something broke.</jelly-alert>"
+        "code": "<droplet-alert tone=\"success\"><strong>Saved!</strong> Your changes are live.</droplet-alert>\n<droplet-alert tone=\"danger\" dismissible>Something broke.</droplet-alert>"
       }
     ]
   },
   {
-    "tag": "jelly-badge",
+    "tag": "droplet-badge",
     "group": "Feedback",
     "summary": "A small jelly badge / tag / status pill that pops whenever its text changes.",
     "attributes": [
@@ -2732,7 +2780,7 @@ export const COMPONENTS = [
         "name": "shape",
         "type": "\"pill\" | \"square\"",
         "default": "pill",
-        "description": "Membrane silhouette. \"square\" swaps the pill for a smaller rounded-rectangle radius (0.32 × height, matching jelly-icon-button's default square); any other value (or none) keeps the full pill. Observed live — changing it reshapes the membrane in place."
+        "description": "Membrane silhouette. \"square\" swaps the pill for a smaller rounded-rectangle radius (0.32 × height, matching droplet-icon-button's default square); any other value (or none) keeps the full pill. Observed live — changing it reshapes the membrane in place."
       },
       {
         "name": "instant",
@@ -2760,21 +2808,25 @@ export const COMPONENTS = [
         "description": "The pill content span."
       },
       {
+        "name": "droplet",
+        "description": "The canvas (from the DropletElement base)."
+      },
+      {
         "name": "jelly",
-        "description": "The canvas."
+        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
       {
-        "name": "--jelly-fill",
+        "name": "--droplet-fill",
         "description": "Pill fill (set by variant)."
       },
       {
-        "name": "--jelly-label",
+        "name": "--droplet-label",
         "description": "Text color (set by variant)."
       },
       {
-        "name": "--jelly-badge-radius",
+        "name": "--droplet-badge-radius",
         "default": "999px (pill); 8px for shape=\"square\"",
         "description": "Corner radius of the painted pill (a plain-px value overrides the shape)."
       }
@@ -2782,12 +2834,12 @@ export const COMPONENTS = [
     "keyboard": [],
     "examples": [
       {
-        "code": "<jelly-badge variant=\"rose\" live>3</jelly-badge>\n<jelly-badge variant=\"mint\">Live</jelly-badge>"
+        "code": "<droplet-badge variant=\"rose\" live>3</droplet-badge>\n<droplet-badge variant=\"mint\">Live</droplet-badge>"
       }
     ]
   },
   {
-    "tag": "jelly-progress",
+    "tag": "droplet-progress",
     "group": "Feedback",
     "summary": "A progress bar with a jelly fill whose leading edge wobbles as it advances; indeterminate mode sends a blob bouncing wall to wall.",
     "description": "Proper progressbar ARIA (valuemin/max/now, valuetext while indeterminate). The fill grows from the inline-start edge, so it mirrors on RTL pages. Reduced motion swaps the travelling blob for a calm static one.",
@@ -2855,29 +2907,33 @@ export const COMPONENTS = [
     "slots": [],
     "parts": [
       {
+        "name": "droplet",
+        "description": "The canvas (from the DropletElement base)."
+      },
+      {
         "name": "jelly",
-        "description": "The canvas."
+        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
       {
-        "name": "--jelly-track",
+        "name": "--droplet-track",
         "description": "Track base color (defaults through the platinum token)."
       },
       {
-        "name": "--jelly-accent",
+        "name": "--droplet-accent",
         "description": "Fill color (defaults through the accent token)."
       }
     ],
     "keyboard": [],
     "examples": [
       {
-        "code": "<jelly-progress value=\"60\"></jelly-progress>\n<jelly-progress indeterminate variant=\"mint\"></jelly-progress>"
+        "code": "<droplet-progress value=\"60\"></droplet-progress>\n<droplet-progress indeterminate variant=\"mint\"></droplet-progress>"
       }
     ]
   },
   {
-    "tag": "jelly-skeleton",
+    "tag": "droplet-skeleton",
     "group": "Feedback",
     "summary": "A loading placeholder that gently breathes — a soft jelly wobble instead of a shimmer.",
     "description": "Each instance randomizes its sweep phase and speed so a page of skeletons never pulses in lock-step. role=\"status\" with aria-busy.",
@@ -2907,25 +2963,29 @@ export const COMPONENTS = [
     "slots": [],
     "parts": [
       {
+        "name": "droplet",
+        "description": "The canvas (from the DropletElement base)."
+      },
+      {
         "name": "jelly",
-        "description": "The canvas."
+        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
       {
-        "name": "--jelly-fill",
+        "name": "--droplet-fill",
         "description": "Placeholder fill (defaults through the platinum token, so it dims in dark mode)."
       }
     ],
     "keyboard": [],
     "examples": [
       {
-        "code": "<jelly-skeleton style=\"width: 220px; height: 16px\"></jelly-skeleton>\n<jelly-skeleton shape=\"circle\" style=\"width: 44px; height: 44px\"></jelly-skeleton>"
+        "code": "<droplet-skeleton style=\"width: 220px; height: 16px\"></droplet-skeleton>\n<droplet-skeleton shape=\"circle\" style=\"width: 44px; height: 44px\"></droplet-skeleton>"
       }
     ]
   },
   {
-    "tag": "jelly-spinner",
+    "tag": "droplet-spinner",
     "group": "Feedback",
     "summary": "Loading indicators with a jelly soul: a gooey blob gliding between three dots, or a living blob that morphs and spins.",
     "attributes": [
@@ -2972,28 +3032,32 @@ export const COMPONENTS = [
     "slots": [],
     "parts": [
       {
+        "name": "droplet",
+        "description": "The canvas (blob type) (from the DropletElement base)."
+      },
+      {
         "name": "jelly",
-        "description": "The canvas (blob type)."
+        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
       {
-        "name": "--jelly-fill",
+        "name": "--droplet-fill",
         "description": "Blob / dots fill (set by variant)."
       }
     ],
     "keyboard": [],
     "examples": [
       {
-        "code": "<jelly-spinner></jelly-spinner>\n<jelly-spinner type=\"blob\" variant=\"mint\"></jelly-spinner>"
+        "code": "<droplet-spinner></droplet-spinner>\n<droplet-spinner type=\"blob\" variant=\"mint\"></droplet-spinner>"
       }
     ]
   },
   {
-    "tag": "jelly-toaster",
+    "tag": "droplet-toaster",
     "group": "Feedback",
-    "summary": "Bubbly toast notifications that pop in from the inline-end and drift away — usually driven through the jellyToast() helper.",
-    "description": "jellyToast(message, { tone, duration }) creates a shared <jelly-toaster> on <body> automatically; place one yourself to control stacking. The rail is an aria-live region and every toast carries a spoken tone prefix, so tone is never color-only. Each toast has a keyboard-reachable dismiss button and also dismisses on click or after its duration.",
+    "summary": "Bubbly toast notifications that pop in from the inline-end and drift away — usually driven through the dropletToast() helper.",
+    "description": "dropletToast(message, { tone, duration }) creates a shared <droplet-toaster> on <body> automatically; place one yourself to control stacking. The rail is an aria-live region and every toast carries a spoken tone prefix, so tone is never color-only. Each toast has a keyboard-reachable dismiss button and also dismisses on click or after its duration.",
     "attributes": [
       {
         "name": "quality",
@@ -3012,7 +3076,7 @@ export const COMPONENTS = [
     "methods": [
       {
         "signature": "push(message, { tone = \"info\", duration = 3500 })",
-        "description": "Adds a toast; returns its element. duration 0 keeps it until dismissed. Also available globally as jellyToast(message, options)."
+        "description": "Adds a toast; returns its element. duration 0 keeps it until dismissed. Also available globally as dropletToast(message, options)."
       }
     ],
     "events": [],
@@ -3033,12 +3097,12 @@ export const COMPONENTS = [
     ],
     "cssProperties": [
       {
-        "name": "--jelly-toast-radius",
+        "name": "--droplet-toast-radius",
         "default": "999px",
         "description": "Toast pill corner radius."
       },
       {
-        "name": "--jelly-toast-font-size",
+        "name": "--droplet-toast-font-size",
         "default": "14px",
         "description": "Toast text size."
       }
@@ -3052,14 +3116,14 @@ export const COMPONENTS = [
     "examples": [
       {
         "title": "Fire a toast",
-        "code": "<jelly-button onclick=\"jellyToast('Saved!', { tone: 'success' })\">Toast</jelly-button>"
+        "code": "<droplet-button onclick=\"dropletToast('Saved!', { tone: 'success' })\">Toast</droplet-button>"
       }
     ]
   },
   {
-    "tag": "jelly-accordion",
+    "tag": "droplet-accordion",
     "group": "Surfaces",
-    "summary": "Groups <jelly-collapsible> items; `single` mode bounces the others closed when one opens.",
+    "summary": "Groups <droplet-collapsible> items; `single` mode bounces the others closed when one opens.",
     "attributes": [
       {
         "name": "single",
@@ -3089,13 +3153,13 @@ export const COMPONENTS = [
     "slots": [
       {
         "name": "(default)",
-        "description": "<jelly-collapsible> items."
+        "description": "<droplet-collapsible> items."
       }
     ],
     "parts": [],
     "cssProperties": [
       {
-        "name": "--jelly-accordion-radius",
+        "name": "--droplet-accordion-radius",
         "default": "12px",
         "description": "Corner radius of the grouped items."
       }
@@ -3103,12 +3167,12 @@ export const COMPONENTS = [
     "keyboard": [],
     "examples": [
       {
-        "code": "<jelly-accordion single>\n  <jelly-collapsible open><span slot=\"header\">Motion</span>Soft and contained.</jelly-collapsible>\n  <jelly-collapsible><span slot=\"header\">Forms</span>Native and composed.</jelly-collapsible>\n</jelly-accordion>"
+        "code": "<droplet-accordion single>\n  <droplet-collapsible open><span slot=\"header\">Motion</span>Soft and contained.</droplet-collapsible>\n  <droplet-collapsible><span slot=\"header\">Forms</span>Native and composed.</droplet-collapsible>\n</droplet-accordion>"
       }
     ]
   },
   {
-    "tag": "jelly-card",
+    "tag": "droplet-card",
     "group": "Surfaces",
     "summary": "A jelly surface container; add `squish` to make it press in like a soft cushion and act as a button.",
     "attributes": [
@@ -3162,27 +3226,31 @@ export const COMPONENTS = [
         "description": "The padded content box."
       },
       {
+        "name": "droplet",
+        "description": "The canvas (from the DropletElement base)."
+      },
+      {
         "name": "jelly",
-        "description": "The canvas."
+        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
       {
-        "name": "--jelly-fill",
+        "name": "--droplet-fill",
         "description": "Card surface (defaults through the surface token)."
       },
       {
-        "name": "--jelly-radius",
+        "name": "--droplet-radius",
         "default": "22px",
         "description": "Corner radius (also shapes the jelly)."
       },
       {
-        "name": "--jelly-card-padding-block",
+        "name": "--droplet-card-padding-block",
         "default": "22px",
         "description": "Vertical padding."
       },
       {
-        "name": "--jelly-card-padding-inline",
+        "name": "--droplet-card-padding-inline",
         "default": "24px",
         "description": "Horizontal padding."
       }
@@ -3195,16 +3263,16 @@ export const COMPONENTS = [
     ],
     "examples": [
       {
-        "code": "<jelly-card style=\"max-width: 360px\"><h3>Title</h3><p>Cards keep their jelly under the content.</p></jelly-card>"
+        "code": "<droplet-card style=\"max-width: 360px\"><h3>Title</h3><p>Cards keep their jelly under the content.</p></droplet-card>"
       },
       {
         "title": "Pressable",
-        "code": "<jelly-card squish style=\"max-width: 240px\">Tap me</jelly-card>"
+        "code": "<droplet-card squish style=\"max-width: 240px\">Tap me</droplet-card>"
       }
     ]
   },
   {
-    "tag": "jelly-chip",
+    "tag": "droplet-chip",
     "group": "Surfaces",
     "summary": "A small jelly capsule: static label, toggleable filter, or removable tag.",
     "description": "Selecting bulges the jelly out and crossfades the fill toward the accent; removing fires a cancelable `remove` event, then collapses the chip's width so neighbours slide in organically.",
@@ -3252,7 +3320,7 @@ export const COMPONENTS = [
         "name": "shape",
         "type": "\"pill\" | \"square\"",
         "default": "pill",
-        "description": "Membrane silhouette. \"square\" swaps the pill for a smaller rounded-rectangle radius (matching jelly-button and jelly-badge); any other value (or none) keeps the full pill. Observed live."
+        "description": "Membrane silhouette. \"square\" swaps the pill for a smaller rounded-rectangle radius (matching droplet-button and droplet-badge); any other value (or none) keeps the full pill. Observed live."
       },
       {
         "name": "disabled",
@@ -3305,29 +3373,33 @@ export const COMPONENTS = [
         "description": "The ✕ button."
       },
       {
+        "name": "droplet",
+        "description": "The canvas (from the DropletElement base)."
+      },
+      {
         "name": "jelly",
-        "description": "The canvas."
+        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
       {
-        "name": "--jelly-fill",
+        "name": "--droplet-fill",
         "description": "Resting fill (platinum token)."
       },
       {
-        "name": "--jelly-on",
+        "name": "--droplet-on",
         "description": "Selected fill (accent token, or the variant hue)."
       },
       {
-        "name": "--jelly-label",
+        "name": "--droplet-label",
         "description": "Resting label color."
       },
       {
-        "name": "--jelly-label-on",
+        "name": "--droplet-label-on",
         "description": "Selected label color."
       },
       {
-        "name": "--jelly-chip-radius",
+        "name": "--droplet-chip-radius",
         "default": "999px (pill); 9-13px for shape=\"square\"",
         "description": "Corner radius of the painted chip (a plain-px value overrides the shape)."
       }
@@ -3340,12 +3412,12 @@ export const COMPONENTS = [
     ],
     "examples": [
       {
-        "code": "<jelly-chip>Design</jelly-chip>\n<jelly-chip selectable selected variant=\"mint\">Filter</jelly-chip>\n<jelly-chip removable>Dismiss me</jelly-chip>"
+        "code": "<droplet-chip>Design</droplet-chip>\n<droplet-chip selectable selected variant=\"mint\">Filter</droplet-chip>\n<droplet-chip removable>Dismiss me</droplet-chip>"
       }
     ]
   },
   {
-    "tag": "jelly-collapsible",
+    "tag": "droplet-collapsible",
     "group": "Surfaces",
     "summary": "A bouncy disclosure section: a header button springs its panel open and closed.",
     "description": "Proper disclosure semantics (aria-expanded, aria-controls, a named region) and exactly one `toggle` event per real state change. The chevron mirrors in RTL.",
@@ -3410,17 +3482,17 @@ export const COMPONENTS = [
     ],
     "cssProperties": [
       {
-        "name": "--jelly-collapsible-padding-block",
+        "name": "--droplet-collapsible-padding-block",
         "default": "13px",
         "description": "Header vertical padding."
       },
       {
-        "name": "--jelly-collapsible-padding-inline",
+        "name": "--droplet-collapsible-padding-inline",
         "default": "14px",
         "description": "Header horizontal padding."
       },
       {
-        "name": "--jelly-collapsible-radius",
+        "name": "--droplet-collapsible-radius",
         "default": "12px",
         "description": "Header corner radius."
       }
@@ -3433,12 +3505,12 @@ export const COMPONENTS = [
     ],
     "examples": [
       {
-        "code": "<jelly-collapsible open>\n  <span slot=\"header\">What moves?</span>\n  The surface, not the text.\n</jelly-collapsible>"
+        "code": "<droplet-collapsible open>\n  <span slot=\"header\">What moves?</span>\n  The surface, not the text.\n</droplet-collapsible>"
       }
     ]
   },
   {
-    "tag": "jelly-divider",
+    "tag": "droplet-divider",
     "group": "Surfaces",
     "summary": "A hairline separator: horizontal, vertical, or labelled.",
     "attributes": [
@@ -3483,16 +3555,16 @@ export const COMPONENTS = [
     "parts": [],
     "cssProperties": [
       {
-        "name": "--jelly-divider",
+        "name": "--droplet-divider",
         "description": "Line color (line token)."
       },
       {
-        "name": "--jelly-divider-font-size",
+        "name": "--droplet-divider-font-size",
         "default": "12px",
         "description": "Label font size."
       },
       {
-        "name": "--jelly-divider-gap",
+        "name": "--droplet-divider-gap",
         "default": "14px",
         "description": "Gap between line and label."
       }
@@ -3501,20 +3573,20 @@ export const COMPONENTS = [
     "examples": [
       {
         "title": "Horizontal rule",
-        "code": "<div style=\"width: 260px; display: grid; gap: 14px\">\n  Above the line\n  <jelly-divider></jelly-divider>\n  Below the line\n</div>"
+        "code": "<div style=\"width: 260px; display: grid; gap: 14px\">\n  Above the line\n  <droplet-divider></droplet-divider>\n  Below the line\n</div>"
       },
       {
         "title": "Labelled",
-        "code": "<div style=\"width: 260px\">\n  <jelly-divider>or</jelly-divider>\n</div>"
+        "code": "<div style=\"width: 260px\">\n  <droplet-divider>or</droplet-divider>\n</div>"
       },
       {
         "title": "Vertical",
-        "code": "<div style=\"display: flex; align-items: center; gap: 14px; height: 44px\">\n  Left\n  <jelly-divider direction=\"vertical\"></jelly-divider>\n  Right\n</div>"
+        "code": "<div style=\"display: flex; align-items: center; gap: 14px; height: 44px\">\n  Left\n  <droplet-divider direction=\"vertical\"></droplet-divider>\n  Right\n</div>"
       }
     ]
   },
   {
-    "tag": "jelly-kbd",
+    "tag": "droplet-kbd",
     "group": "Surfaces",
     "summary": "A jelly keyboard key: poke it, or bind it to a real key so it depresses whenever that key is held.",
     "attributes": [
@@ -3562,17 +3634,21 @@ export const COMPONENTS = [
         "description": "The keycap (travels down 2px while pressed)."
       },
       {
+        "name": "droplet",
+        "description": "The canvas (from the DropletElement base)."
+      },
+      {
         "name": "jelly",
-        "description": "The canvas."
+        "description": "The same canvas under its Jelly UI part name."
       }
     ],
     "cssProperties": [
       {
-        "name": "--jelly-fill",
+        "name": "--droplet-fill",
         "description": "Cap fill (platinum token)."
       },
       {
-        "name": "--jelly-label",
+        "name": "--droplet-label",
         "description": "Legend color."
       }
     ],
@@ -3588,12 +3664,12 @@ export const COMPONENTS = [
     ],
     "examples": [
       {
-        "code": "<jelly-kbd key=\"Meta\">⌘</jelly-kbd><jelly-kbd key=\"Meta+k\">K</jelly-kbd>"
+        "code": "<droplet-kbd key=\"Meta\">⌘</droplet-kbd><droplet-kbd key=\"Meta+k\">K</droplet-kbd>"
       }
     ]
   },
   {
-    "tag": "jelly-breadcrumbs",
+    "tag": "droplet-breadcrumbs",
     "group": "Navigation",
     "summary": "A breadcrumb trail built from light-DOM children; the last item is the current page.",
     "description": "Rebuilds automatically when items change. The separator chevron mirrors in RTL and the trail is a labelled <nav> with aria-current on the last crumb.",
@@ -3622,12 +3698,12 @@ export const COMPONENTS = [
     "parts": [],
     "cssProperties": [
       {
-        "name": "--jelly-breadcrumbs-font-size",
+        "name": "--droplet-breadcrumbs-font-size",
         "default": "13.5px",
         "description": "Crumb font size."
       },
       {
-        "name": "--jelly-breadcrumbs-radius",
+        "name": "--droplet-breadcrumbs-radius",
         "default": "9px",
         "description": "Hover pill radius."
       }
@@ -3635,12 +3711,12 @@ export const COMPONENTS = [
     "keyboard": [],
     "examples": [
       {
-        "code": "<jelly-breadcrumbs>\n  <a href=\"#\">Home</a><a href=\"#\">Library</a><span>Switch</span>\n</jelly-breadcrumbs>"
+        "code": "<droplet-breadcrumbs>\n  <a href=\"#\">Home</a><a href=\"#\">Library</a><span>Switch</span>\n</droplet-breadcrumbs>"
       }
     ]
   },
   {
-    "tag": "jelly-pagination",
+    "tag": "droplet-pagination",
     "group": "Navigation",
     "summary": "Page navigation built from jelly buttons, with a windowed page list and direction-aware arrows.",
     "attributes": [
@@ -3692,7 +3768,7 @@ export const COMPONENTS = [
     "parts": [],
     "cssProperties": [
       {
-        "name": "--jelly-pagination-gap",
+        "name": "--droplet-pagination-gap",
         "default": "7px",
         "description": "Gap between buttons."
       }
@@ -3700,17 +3776,17 @@ export const COMPONENTS = [
     "keyboard": [
       {
         "keys": "Tab + Enter / Space",
-        "description": "Standard button navigation (each page is a jelly-button)."
+        "description": "Standard button navigation (each page is a droplet-button)."
       }
     ],
     "examples": [
       {
-        "code": "<jelly-pagination total=\"12\" page=\"3\"></jelly-pagination>"
+        "code": "<droplet-pagination total=\"12\" page=\"3\"></droplet-pagination>"
       }
     ]
   },
   {
-    "tag": "jelly-resizable",
+    "tag": "droplet-resizable",
     "group": "Navigation",
     "summary": "A resizable panel grid: drag the jelly dividers, or resize from the keyboard.",
     "description": "Dividers follow the window-splitter pattern — focusable separators with live aria-valuenow (percent of the first pane). Horizontal drags and arrow keys respect reading direction.",
@@ -3756,11 +3832,11 @@ export const COMPONENTS = [
     ],
     "cssProperties": [
       {
-        "name": "--jelly-resizable-handle",
+        "name": "--droplet-resizable-handle",
         "description": "Divider handle color (platinum token)."
       },
       {
-        "name": "--jelly-resizable-handle-active",
+        "name": "--droplet-resizable-handle-active",
         "description": "Hover / drag handle color (accent token)."
       }
     ],
@@ -3773,22 +3849,22 @@ export const COMPONENTS = [
     "examples": [
       {
         "title": "Side by side",
-        "code": "<jelly-resizable style=\"height: 220px; width: 100%; border: 1px solid var(--jelly-color-border-default, #ECECEF); border-radius: 14px\">\n  <div style=\"padding: 14px\">Left</div>\n  <div style=\"padding: 14px\">Middle</div>\n  <div style=\"padding: 14px\">Right</div>\n</jelly-resizable>"
+        "code": "<droplet-resizable style=\"height: 220px; width: 100%; border: 1px solid var(--droplet-color-border-default, #ECECEF); border-radius: 14px\">\n  <div style=\"padding: 14px\">Left</div>\n  <div style=\"padding: 14px\">Middle</div>\n  <div style=\"padding: 14px\">Right</div>\n</droplet-resizable>"
       },
       {
         "title": "Stacked",
-        "code": "<jelly-resizable direction=\"vertical\" style=\"height: 260px; width: 100%; border: 1px solid var(--jelly-color-border-default, #ECECEF); border-radius: 14px\">\n  <div style=\"padding: 14px\">Top</div>\n  <div style=\"padding: 14px\">Bottom</div>\n</jelly-resizable>"
+        "code": "<droplet-resizable direction=\"vertical\" style=\"height: 260px; width: 100%; border: 1px solid var(--droplet-color-border-default, #ECECEF); border-radius: 14px\">\n  <div style=\"padding: 14px\">Top</div>\n  <div style=\"padding: 14px\">Bottom</div>\n</droplet-resizable>"
       },
       {
         "title": "Two axes",
-        "code": "<jelly-resizable direction=\"both\" style=\"height: 280px; width: 100%; border: 1px solid var(--jelly-color-border-default, #ECECEF); border-radius: 14px\">\n  <div style=\"padding: 14px\">One</div>\n  <div style=\"padding: 14px\">Two</div>\n  <div style=\"padding: 14px\">Three</div>\n  <div style=\"padding: 14px\">Four</div>\n</jelly-resizable>"
+        "code": "<droplet-resizable direction=\"both\" style=\"height: 280px; width: 100%; border: 1px solid var(--droplet-color-border-default, #ECECEF); border-radius: 14px\">\n  <div style=\"padding: 14px\">One</div>\n  <div style=\"padding: 14px\">Two</div>\n  <div style=\"padding: 14px\">Three</div>\n  <div style=\"padding: 14px\">Four</div>\n</droplet-resizable>"
       }
     ]
   },
   {
-    "tag": "jelly-tab-panel",
+    "tag": "droplet-tab-panel",
     "group": "Navigation",
-    "summary": "One panel inside <jelly-tabs>: shown when its tab is active, hidden otherwise.",
+    "summary": "One panel inside <droplet-tabs>: shown when its tab is active, hidden otherwise.",
     "attributes": [
       {
         "name": "label",
@@ -3799,7 +3875,7 @@ export const COMPONENTS = [
         "name": "value",
         "type": "string",
         "default": "(index)",
-        "description": "The value reported by jelly-tabs."
+        "description": "The value reported by droplet-tabs."
       },
       {
         "name": "active",
@@ -3827,15 +3903,15 @@ export const COMPONENTS = [
     "keyboard": [],
     "examples": [
       {
-        "code": "<jelly-tab-panel label=\"Overview\" active>…</jelly-tab-panel>"
+        "code": "<droplet-tab-panel label=\"Overview\" active>…</droplet-tab-panel>"
       }
     ]
   },
   {
-    "tag": "jelly-tabs",
+    "tag": "droplet-tabs",
     "group": "Navigation",
     "summary": "Tabbed views: a sliding jelly pill tab bar with real tablist semantics and panels that bounce in.",
-    "description": "The tab bar is a <jelly-segmented roles=\"tablist\">, so tabs are announced as tabs with aria-selected. Panels are light-DOM <jelly-tab-panel> children; each panel is named after its tab label.",
+    "description": "The tab bar is a <droplet-segmented roles=\"tablist\">, so tabs are announced as tabs with aria-selected. Panels are light-DOM <droplet-tab-panel> children; each panel is named after its tab label.",
     "attributes": [
       {
         "name": "value",
@@ -3872,13 +3948,13 @@ export const COMPONENTS = [
     "slots": [
       {
         "name": "(default)",
-        "description": "<jelly-tab-panel> children."
+        "description": "<droplet-tab-panel> children."
       }
     ],
     "parts": [
       {
         "name": "tabs",
-        "description": "The inner jelly-segmented tab bar."
+        "description": "The inner droplet-segmented tab bar."
       }
     ],
     "cssProperties": [],
@@ -3894,12 +3970,12 @@ export const COMPONENTS = [
     ],
     "examples": [
       {
-        "code": "<jelly-tabs>\n  <jelly-tab-panel label=\"Overview\" active>Project summary.</jelly-tab-panel>\n  <jelly-tab-panel label=\"Activity\">Recent events.</jelly-tab-panel>\n</jelly-tabs>"
+        "code": "<droplet-tabs>\n  <droplet-tab-panel label=\"Overview\" active>Project summary.</droplet-tab-panel>\n  <droplet-tab-panel label=\"Activity\">Recent events.</droplet-tab-panel>\n</droplet-tabs>"
       }
     ]
   },
   {
-    "tag": "jelly-dialog",
+    "tag": "droplet-dialog",
     "group": "Overlays",
     "summary": "A modal dialog that springs in with a jello pop, locks the page and returns focus on close.",
     "description": "While open it portals itself to <body>, freezes background scroll, inerts everything behind it (a true focus trap for keyboard and screen readers) and restores it all on close — even if removed mid-open. Named by its label attribute or its first heading.",
@@ -3962,17 +4038,17 @@ export const COMPONENTS = [
     ],
     "cssProperties": [
       {
-        "name": "--jelly-dialog-radius",
+        "name": "--droplet-dialog-radius",
         "default": "24px",
         "description": "Surface corner radius."
       },
       {
-        "name": "--jelly-dialog-padding",
+        "name": "--droplet-dialog-padding",
         "default": "26px",
         "description": "Surface padding."
       },
       {
-        "name": "--jelly-dialog-width",
+        "name": "--droplet-dialog-width",
         "default": "min(460px, 100%)",
         "description": "Surface width."
       }
@@ -3989,12 +4065,12 @@ export const COMPONENTS = [
     ],
     "examples": [
       {
-        "code": "<jelly-button size=\"small\" onclick=\"this.nextElementSibling.open = true\">Open dialog</jelly-button>\n<jelly-dialog label=\"Example\">\n  <h2>Hello</h2>\n  <p>Escape, the ✕, or the backdrop closes me.</p>\n</jelly-dialog>"
+        "code": "<droplet-button size=\"small\" onclick=\"this.nextElementSibling.open = true\">Open dialog</droplet-button>\n<droplet-dialog label=\"Example\">\n  <h2>Hello</h2>\n  <p>Escape, the ✕, or the backdrop closes me.</p>\n</droplet-dialog>"
       }
     ]
   },
   {
-    "tag": "jelly-drawer",
+    "tag": "droplet-drawer",
     "group": "Overlays",
     "summary": "A floating slide-in sheet with a springy overshoot, from the inline-end, inline-start, or bottom.",
     "description": "side accepts logical end (default) / start — which mirror in RTL — plus physical right / left / bottom. Same modal plumbing as the dialog: portal, scroll lock, inert background, focus restore.",
@@ -4063,12 +4139,12 @@ export const COMPONENTS = [
     ],
     "cssProperties": [
       {
-        "name": "--jelly-drawer-radius",
+        "name": "--droplet-drawer-radius",
         "default": "24px",
         "description": "Sheet corner radius."
       },
       {
-        "name": "--jelly-drawer-padding",
+        "name": "--droplet-drawer-padding",
         "default": "22px",
         "description": "Sheet padding."
       }
@@ -4081,15 +4157,15 @@ export const COMPONENTS = [
     ],
     "examples": [
       {
-        "code": "<jelly-button size=\"small\" onclick=\"this.nextElementSibling.open = true\">Open drawer</jelly-button>\n<jelly-drawer label=\"Navigation\">\n  <h3>Drawer</h3>\n  <p>I float in from the inline-end.</p>\n</jelly-drawer>"
+        "code": "<droplet-button size=\"small\" onclick=\"this.nextElementSibling.open = true\">Open drawer</droplet-button>\n<droplet-drawer label=\"Navigation\">\n  <h3>Drawer</h3>\n  <p>I float in from the inline-end.</p>\n</droplet-drawer>"
       }
     ]
   },
   {
-    "tag": "jelly-menu",
+    "tag": "droplet-menu",
     "group": "Overlays",
     "summary": "A dropdown action menu with roving focus, typeahead keyboard support and declarative light-DOM items.",
-    "description": "Items are <jelly-menu-item> children, re-read on every open so dynamic additions always appear. Focus roves between rows (arrows wrap and skip disabled items); Escape or Tab closes and returns focus to the trigger.",
+    "description": "Items are <droplet-menu-item> children, re-read on every open so dynamic additions always appear. Focus roves between rows (arrows wrap and skip disabled items); Escape or Tab closes and returns focus to the trigger.",
     "attributes": [
       {
         "name": "placement",
@@ -4149,7 +4225,7 @@ export const COMPONENTS = [
       },
       {
         "name": "(default)",
-        "description": "<jelly-menu-item> children."
+        "description": "<droplet-menu-item> children."
       }
     ],
     "parts": [
@@ -4160,37 +4236,37 @@ export const COMPONENTS = [
     ],
     "cssProperties": [
       {
-        "name": "--jelly-menu-min-width",
+        "name": "--droplet-menu-min-width",
         "default": "190px",
         "description": "Menu minimum width."
       },
       {
-        "name": "--jelly-menu-item-height",
+        "name": "--droplet-menu-item-height",
         "default": "40px",
         "description": "Row height."
       },
       {
-        "name": "--jelly-menu-radius",
+        "name": "--droplet-menu-radius",
         "default": "15px",
         "description": "Panel corner radius."
       },
       {
-        "name": "--jelly-menu-padding",
+        "name": "--droplet-menu-padding",
         "default": "7px",
         "description": "Padding around the row list."
       },
       {
-        "name": "--jelly-menu-font-size",
+        "name": "--droplet-menu-font-size",
         "default": "14.5px",
         "description": "Row text size."
       },
       {
-        "name": "--jelly-menu-item-padding-inline",
+        "name": "--droplet-menu-item-padding-inline",
         "default": "12px",
         "description": "Row horizontal padding."
       },
       {
-        "name": "--jelly-menu-item-radius",
+        "name": "--droplet-menu-item-radius",
         "default": "9px",
         "description": "Row corner radius."
       }
@@ -4215,14 +4291,14 @@ export const COMPONENTS = [
     ],
     "examples": [
       {
-        "code": "<jelly-menu>\n  <jelly-button slot=\"trigger\" size=\"small\">Actions</jelly-button>\n  <jelly-menu-item value=\"edit\">Edit</jelly-menu-item>\n  <jelly-menu-item value=\"duplicate\">Duplicate</jelly-menu-item>\n  <jelly-menu-item value=\"delete\" danger>Delete</jelly-menu-item>\n</jelly-menu>"
+        "code": "<droplet-menu>\n  <droplet-button slot=\"trigger\" size=\"small\">Actions</droplet-button>\n  <droplet-menu-item value=\"edit\">Edit</droplet-menu-item>\n  <droplet-menu-item value=\"duplicate\">Duplicate</droplet-menu-item>\n  <droplet-menu-item value=\"delete\" danger>Delete</droplet-menu-item>\n</droplet-menu>"
       }
     ]
   },
   {
-    "tag": "jelly-menu-item",
+    "tag": "droplet-menu-item",
     "group": "Overlays",
-    "summary": "One entry inside <jelly-menu>: declarative value, disabled and danger states.",
+    "summary": "One entry inside <droplet-menu>: declarative value, disabled and danger states.",
     "attributes": [
       {
         "name": "value",
@@ -4266,12 +4342,12 @@ export const COMPONENTS = [
     "keyboard": [],
     "examples": [
       {
-        "code": "<jelly-menu-item value=\"delete\" danger>Delete</jelly-menu-item>"
+        "code": "<droplet-menu-item value=\"delete\" danger>Delete</droplet-menu-item>"
       }
     ]
   },
   {
-    "tag": "jelly-popover",
+    "tag": "droplet-popover",
     "group": "Overlays",
     "summary": "A click-triggered floating panel: non-modal, anchored to its trigger, dismissed by Escape or clicking outside.",
     "description": "Focus moves into the panel on open and returns to the trigger on close. The trigger is resolved live from its slot, so swapping it never leaves a stale reference.",
@@ -4345,12 +4421,12 @@ export const COMPONENTS = [
     ],
     "cssProperties": [
       {
-        "name": "--jelly-popover-min-width",
+        "name": "--droplet-popover-min-width",
         "default": "180px",
         "description": "Panel minimum width."
       },
       {
-        "name": "--jelly-popover-radius",
+        "name": "--droplet-popover-radius",
         "default": "16px",
         "description": "Panel corner radius."
       }
@@ -4363,12 +4439,12 @@ export const COMPONENTS = [
     ],
     "examples": [
       {
-        "code": "<jelly-popover placement=\"bottom\" label=\"Options\">\n  <jelly-button slot=\"trigger\" size=\"small\">Options</jelly-button>\n  <div slot=\"content\">Anything can live here.</div>\n</jelly-popover>"
+        "code": "<droplet-popover placement=\"bottom\" label=\"Options\">\n  <droplet-button slot=\"trigger\" size=\"small\">Options</droplet-button>\n  <div slot=\"content\">Anything can live here.</div>\n</droplet-popover>"
       }
     ]
   },
   {
-    "tag": "jelly-tooltip",
+    "tag": "droplet-tooltip",
     "group": "Overlays",
     "summary": "A lightweight tooltip that anchors a themed bubble over its trigger on hover or keyboard focus.",
     "description": "The tooltip text is exposed as the trigger's accessible description via ARIA reflection (idrefs can't cross shadow roots). Escape dismisses without moving the pointer (WCAG 1.4.13). The bubble inverts with the theme and stays AA in both modes.",
@@ -4416,34 +4492,34 @@ export const COMPONENTS = [
     "parts": [],
     "cssProperties": [
       {
-        "name": "--jelly-tooltip-background",
+        "name": "--droplet-tooltip-background",
         "description": "Bubble fill (defaults to the text token, inverting per theme)."
       },
       {
-        "name": "--jelly-tooltip-max-width",
+        "name": "--droplet-tooltip-max-width",
         "default": "240px",
         "description": "Bubble wrap width."
       },
       {
-        "name": "--jelly-tooltip-color",
+        "name": "--droplet-tooltip-color",
         "description": "Bubble text colour (defaults to the surface token)."
       },
       {
-        "name": "--jelly-tooltip-radius",
+        "name": "--droplet-tooltip-radius",
         "default": "11px",
         "description": "Bubble corner radius."
       },
       {
-        "name": "--jelly-tooltip-font-size",
+        "name": "--droplet-tooltip-font-size",
         "default": "12.5px",
         "description": "Bubble text size."
       },
       {
-        "name": "--jelly-tooltip-padding-block",
+        "name": "--droplet-tooltip-padding-block",
         "description": "Bubble vertical padding."
       },
       {
-        "name": "--jelly-tooltip-padding-inline",
+        "name": "--droplet-tooltip-padding-inline",
         "description": "Bubble horizontal padding."
       }
     ],
@@ -4455,7 +4531,7 @@ export const COMPONENTS = [
     ],
     "examples": [
       {
-        "code": "<jelly-tooltip text=\"Copy link\" placement=\"top\">\n  <jelly-icon-button id=\"copy\" label=\"Copy\"></jelly-icon-button>\n</jelly-tooltip>\n\n<script type=\"module\">\n  import { jellyIcon } from './package.js';\n\n  copy.innerHTML = jellyIcon('link', { size: 18 });\n</script>"
+        "code": "<droplet-tooltip text=\"Copy link\" placement=\"top\">\n  <droplet-icon-button id=\"copy\" label=\"Copy\"></droplet-icon-button>\n</droplet-tooltip>\n\n<script type=\"module\">\n  import { dropletIcon } from './package.js';\n\n  copy.innerHTML = dropletIcon('link', { size: 18 });\n</script>"
       }
     ]
   }

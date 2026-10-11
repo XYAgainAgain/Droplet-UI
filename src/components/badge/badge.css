@@ -16,7 +16,7 @@
 }
 
 /* A smaller, rounded-rectangle radius instead of the full pill - holds
-   the same 0.32-of-height ratio as jelly-icon-button's default square */
+   the same 0.32-of-height ratio as droplet-icon-button's default square */
 :host([shape="square"]) { --droplet-badge-radius: 8px; --jelly-badge-radius: var(--droplet-badge-radius); }
 :host([shape="square"][size="small"]) { --droplet-badge-radius: 6px; --jelly-badge-radius: var(--droplet-badge-radius); }
 :host([shape="square"][size="large"]) { --droplet-badge-radius: 10px; --jelly-badge-radius: var(--droplet-badge-radius); }

@@ -57,9 +57,10 @@ function resolvePath (url) {
 
   // Mirror the site layout the deploy build (scripts/build-site.mjs) produces,
   // served straight from the source tree so docs edits are live:
-  //   /                                 -> the showcase page
-  //   /api, /api/                       -> the API reference (served at /api)
-  //   /docs/lottie/lottie_light.min.js  -> the lottie-web dependency's player
+  //   /                                 → the showcase page
+  //   /api, /api/                       → the API reference (served at /api)
+  //   /migration, /migration/           → the Jelly UI migration guide
+  //   /docs/lottie/lottie_light.min.js  → the lottie-web dependency's player
   //                                        (the build copies this file into _site)
   if (path === '/') {
     return join(ROOT, 'docs', 'showcase', 'index.html');
@@ -67,6 +68,10 @@ function resolvePath (url) {
 
   if (path === '/api' || path === '/api/') {
     return join(ROOT, 'docs', 'api', 'index.html');
+  }
+
+  if (path === '/migration' || path === '/migration/') {
+    return join(ROOT, 'docs', 'migration', 'index.html');
   }
 
   if (path === '/docs/lottie/lottie_light.min.js') {
@@ -109,5 +114,5 @@ createServer(async (request, response) => {
   }
 }).listen(PORT, () => {
   console.log(`Droplet UI dev server -> http://localhost:${PORT}/`);
-  console.log(`Showcase on /, API reference on /api - Ctrl+C to stop`);
+  console.log(`Showcase on /, API reference on /api, migration guide on /migration - Ctrl+C to stop`);
 });

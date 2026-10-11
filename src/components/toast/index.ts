@@ -1,6 +1,6 @@
 /*
  * Toasts - bubbly notifications that pop in from the inline-end and
- * drift away. A <jelly-toaster> host is created automatically; place one
+ * drift away. A <droplet-toaster> host is created automatically; place one
  * yourself (optionally with position="bottom") to control stacking.
  *
  *   import { dropletToast } from './src/droplet.js';
@@ -53,7 +53,7 @@ const TONES: Record<ToastTone, { color: string; spoken: string }> = {
 /**
  * The toast host: stacks and animates transient notifications.
  *
- * @element jelly-toaster
+ * @element droplet-toaster
  *
  * @attr {"top"|"bottom"} position - Which edge toasts stack from.
  * @attr {"low"|"medium"|"high"} quality - Rendering budget; inherited from `data-droplet-quality`.

@@ -43,7 +43,7 @@ const SWITCH_SIZES: Record<Size, SwitchSize> = {
 /**
  * A draggable, form-associated switch with a soft-body thumb and track.
  *
- * @element jelly-switch
+ * @element droplet-switch
  *
  * @slot - The label text shown beside the switch.
  *
@@ -63,9 +63,9 @@ const SWITCH_SIZES: Record<Size, SwitchSize> = {
  * @csspart track - The capsule track drag surface.
  * @csspart input - The visually-hidden native checkbox (role="switch").
  *
- * @cssprop [--jelly-on] - On-state track color.
- * @cssprop [--jelly-off] - Off-state track color.
- * @cssprop [--jelly-switch-thumb-on] - Thumb color when on.
+ * @cssprop [--droplet-on] - On-state track color.
+ * @cssprop [--droplet-off] - Off-state track color.
+ * @cssprop [--droplet-switch-thumb-on] - Thumb color when on.
  */
 export class DropletSwitch extends DropletElement {
 
@@ -181,7 +181,7 @@ export class DropletSwitch extends DropletElement {
 
   // The thumb stays white as it slides (off and on both default to the white
   // token), like a physical knob, so it reads consistently across themes and
-  // accents. Variants can still override --jelly-switch-thumb-on for contrast.
+  // accents. Variants can still override --droplet-switch-thumb-on for contrast.
   thumbFill (): string {
     return this.mixColor(
       'var(--jelly-switch-thumb-off, var(--droplet-switch-thumb-off))',

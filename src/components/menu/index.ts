@@ -4,11 +4,11 @@
  * focus to the trigger. Items are declarative light-DOM children and can
  * be added or removed at any time.
  *
- *   <jelly-menu>
- *     <jelly-button slot="trigger">Actions</jelly-button>
- *     <jelly-menu-item value="edit">Edit</jelly-menu-item>
- *     <jelly-menu-item value="del" danger>Delete</jelly-menu-item>
- *   </jelly-menu>
+ *   <droplet-menu>
+ *     <droplet-button slot="trigger">Actions</droplet-button>
+ *     <droplet-menu-item value="edit">Edit</droplet-menu-item>
+ *     <droplet-menu-item value="del" danger>Delete</droplet-menu-item>
+ *   </droplet-menu>
  */
 
 import { placeAnchored }     from '../../anchor/index.js';
@@ -30,7 +30,7 @@ import menuStyles            from './menu.css?inline';
 /**
  * One declarative menu entry (value, disabled, danger). Rendered by the parent.
  *
- * @element jelly-menu-item
+ * @element droplet-menu-item
  *
  * @slot - The item's label content.
  *
@@ -59,10 +59,10 @@ export class DropletMenuItem extends HTMLElementBase {
 /**
  * A dropdown action menu with roving focus.
  *
- * @element jelly-menu
+ * @element droplet-menu
  *
  * @slot trigger - The menu button.
- * @slot - The `<jelly-menu-item>` entries.
+ * @slot - The `<droplet-menu-item>` entries.
  *
  * @attr {"top"|"bottom"|"left"|"right"|"start"|"end"} placement - Preferred side.
  * @attr {"small"|"medium"|"large"} size - Menu size.

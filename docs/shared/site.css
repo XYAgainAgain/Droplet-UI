@@ -2,36 +2,36 @@
  * Shared page chrome for both docs pages (the showcase and the API
  * reference): design tokens, the pre-upgrade placeholders that stop load
  * flicker, the sticky header and the code blocks. Page-specific styles
- * live in docs/showcase.css and docs/reference.css.
+ * live in docs/showcase/showcase.css and docs/api/reference.css.
  *
- * Colors resolve through the Jelly theme tokens once the library loads;
+ * Colors resolve through the Droplet theme tokens once the library loads;
  * light-dark() fallbacks keep the first paint correct.
  */
 
 :root {
   color-scheme: light dark;
 
-  --bg:      var(--jelly-color-background-default, light-dark(#FFFFFF, #181B1D));
-  --surface: var(--jelly-color-background-surface,    light-dark(#FFFFFF, #1E222A));
-  --text:    var(--jelly-color-foreground-default,       light-dark(#1F2430, #F2F3F7));
-  --muted:   var(--jelly-color-foreground-muted, light-dark(#5D6474, #A9B1C2));
-  --line:    var(--jelly-color-border-default,       light-dark(#ECECEF, #343A46));
-  --accent:  var(--jelly-color-background-accent,     light-dark(#0077CC, #4DA6FF));
-  --field:   var(--jelly-color-background-muted,      light-dark(#F4F5F7, #262B34));
+  --bg:      var(--droplet-color-background-default, light-dark(#FFFFFF, #181B1D));
+  --surface: var(--droplet-color-background-surface,    light-dark(#FFFFFF, #1E222A));
+  --text:    var(--droplet-color-foreground-default,       light-dark(#1F2430, #F2F3F7));
+  --muted:   var(--droplet-color-foreground-muted, light-dark(#5D6474, #A9B1C2));
+  --line:    var(--droplet-color-border-default,       light-dark(#ECECEF, #343A46));
+  --accent:  var(--droplet-color-background-accent,     light-dark(#0077CC, #4DA6FF));
+  --field:   var(--droplet-color-background-muted,      light-dark(#F4F5F7, #262B34));
 
   /* Route the docs type through the library font tokens so a re-theme flows
      into the site chrome too; the fallbacks mirror theme.js exactly. */
-  --display: var(--jelly-font-display, ui-rounded, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", sans-serif);
-  --body:    var(--jelly-font-text,    system-ui, -apple-system, "Segoe UI", sans-serif);
-  --mono:    var(--jelly-font-mono,     ui-monospace, "SF Mono", Menlo, monospace);
+  --display: var(--droplet-font-display, ui-rounded, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", sans-serif);
+  --body:    var(--droplet-font-text,    system-ui, -apple-system, "Segoe UI", sans-serif);
+  --mono:    var(--droplet-font-mono,     ui-monospace, "SF Mono", Menlo, monospace);
 
-  /* The shared top bar's height: a 42px small jelly-button plus the same 8px
+  /* The shared top bar's height: a 42px small droplet-button plus the same 8px
      of air above and below it as sits between the buttons */
   --header-h: 58px;
 }
 
-:root[data-jelly-mode="light"] { color-scheme: light; }
-:root[data-jelly-mode="dark"]  { color-scheme: dark; }
+:root[data-droplet-mode="light"] { color-scheme: light; }
+:root[data-droplet-mode="dark"]  { color-scheme: dark; }
 
 * { box-sizing: border-box; }
 
@@ -47,11 +47,11 @@
    (`:not(:defined)` matches only un-upgraded custom elements.) */
 :not(:defined) { visibility: hidden; }
 
-jelly-button:not(:defined)      { display: inline-block; min-width: 168px; height: 62px; }
-jelly-switch:not(:defined)      { display: inline-flex;  align-items: center; min-height: 39px; padding-inline-start: 74px; font: 600 15.5px/1 var(--body); }
-jelly-chip:not(:defined)        { display: inline-flex;  align-items: center; min-height: 36px; padding-inline: 17px; font: 600 14px/1 var(--body); }
-jelly-badge:not(:defined)       { display: inline-flex;  align-items: center; min-height: 30px; padding-inline: 12px; font: 640 14px/1 var(--body); }
-jelly-icon-button:not(:defined) { display: inline-block; width: 40px; height: 40px; }
+droplet-button:not(:defined)      { display: inline-block; min-width: 168px; height: 62px; }
+droplet-switch:not(:defined)      { display: inline-flex;  align-items: center; min-height: 39px; padding-inline-start: 74px; font: 600 15.5px/1 var(--body); }
+droplet-chip:not(:defined)        { display: inline-flex;  align-items: center; min-height: 36px; padding-inline: 17px; font: 600 14px/1 var(--body); }
+droplet-badge:not(:defined)       { display: inline-flex;  align-items: center; min-height: 30px; padding-inline: 12px; font: 640 14px/1 var(--body); }
+droplet-icon-button:not(:defined) { display: inline-block; width: 40px; height: 40px; }
 
 html {
   scroll-behavior:    smooth;
@@ -59,10 +59,10 @@ html {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root:not([data-jelly-motion="no-preference"]) { scroll-behavior: auto; }
+  :root:not([data-droplet-motion="no-preference"]) { scroll-behavior: auto; }
 }
 
-:root[data-jelly-motion="reduce"] { scroll-behavior: auto; }
+:root[data-droplet-motion="reduce"] { scroll-behavior: auto; }
 
 body {
   margin:      0;
@@ -89,14 +89,14 @@ code { font-family: var(--mono); font-size: 0.92em; }
 .skip:focus { top: 12px; }
 
 @media (prefers-reduced-motion: reduce) {
-  :root:not([data-jelly-motion="no-preference"]) .skip { transition: none; }
+  :root:not([data-droplet-motion="no-preference"]) .skip { transition: none; }
 }
 
-:root[data-jelly-motion="reduce"] .skip { transition: none; }
+:root[data-droplet-motion="reduce"] .skip { transition: none; }
 
 /* ============================ Top bar ============================
    One slim full-width bar shared by both pages: the brand on the left, real
-   jelly-buttons (square shape) for the page links plus the preference toggles
+   droplet-buttons (square shape) for the page links plus the preference toggles
    on the right. It is sticky, so the hero can run to the very top of the
    showcase before the bar pins; on the reference it simply pins from the
    start. The vertical air above/below the 42px buttons equals the 8px gap
@@ -104,7 +104,7 @@ code { font-family: var(--mono); font-size: 0.92em; }
 .subnav {
   position:        sticky;
   top:             0;
-  /* Above component popovers (jelly-select/menu/popover use z-index 9999) so an
+  /* Above component popovers (droplet-select/menu/popover use z-index 9999) so an
      open dropdown scrolls under the sticky bar instead of over it. */
   z-index:         10000;
   display:         flex;
@@ -165,13 +165,13 @@ code { font-family: var(--mono); font-size: 0.92em; }
   border-bottom:   1px solid var(--line);
 }
 
-/* The copy control is a real jelly-button (it jiggles on press like every
+/* The copy control is a real droplet-button (it jiggles on press like every
    other control); just make it compact enough for the slim toolbar. */
 .code .copy {
-  --jelly-button-height:         32px;
-  --jelly-button-min-width:      64px;
-  --jelly-button-padding-inline: 14px;
-  --jelly-button-font-size:      12.5px;
+  --droplet-button-height:         32px;
+  --droplet-button-min-width:      64px;
+  --droplet-button-padding-inline: 14px;
+  --droplet-button-font-size:      12.5px;
 }
 
 .code pre {

@@ -3,10 +3,10 @@
  * trigger, dismissed by Escape or clicking outside. Focus moves into the
  * panel on open and returns to the trigger on close.
  *
- *   <jelly-popover placement="bottom" label="Options">
- *     <jelly-button slot="trigger">Options</jelly-button>
+ *   <droplet-popover placement="bottom" label="Options">
+ *     <droplet-button slot="trigger">Options</droplet-button>
  *     <div slot="content">Anything…</div>
- *   </jelly-popover>
+ *   </droplet-popover>
  */
 
 import { placeAnchored }     from '../../anchor/index.js';
@@ -28,7 +28,7 @@ import popoverStyles         from './popover.css?inline';
 /**
  * A click-triggered, non-modal floating panel anchored to its trigger.
  *
- * @element jelly-popover
+ * @element droplet-popover
  *
  * @slot trigger - The element that toggles the panel.
  * @slot content - The panel's content.

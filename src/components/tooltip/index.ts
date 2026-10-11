@@ -3,9 +3,9 @@
  * its trigger element on hover or keyboard focus. Escape dismisses it
  * without moving the pointer (WCAG 1.4.13).
  *
- *   <jelly-tooltip text="Copy link" placement="top">
- *     <jelly-icon-button label="Copy">🔗</jelly-icon-button>
- *   </jelly-tooltip>
+ *   <droplet-tooltip text="Copy link" placement="top">
+ *     <droplet-icon-button label="Copy">🔗</droplet-icon-button>
+ *   </droplet-tooltip>
  */
 
 import { placeAnchored }     from '../../anchor/index.js';
@@ -26,7 +26,7 @@ import tooltipStyles         from './tooltip.css?inline';
 /**
  * An accessible tooltip that anchors a bubble over its trigger.
  *
- * @element jelly-tooltip
+ * @element droplet-tooltip
  *
  * @slot - The trigger element the tooltip describes.
  * @slot content - Rich tooltip content (an alternative to the text attribute).

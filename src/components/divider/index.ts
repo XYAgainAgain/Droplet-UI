@@ -16,7 +16,7 @@ import dividerStyles         from './divider.css?inline';
 /**
  * A hairline separator, optionally labelled.
  *
- * @element jelly-divider
+ * @element droplet-divider
  *
  * @slot - Optional label text shown in the middle of the rule.
  *
@@ -24,7 +24,7 @@ import dividerStyles         from './divider.css?inline';
  * @attr {string} content - Label text (alternative to slotted text).
  * @attr {"small"|"medium"|"large"} size - Label typography scale.
  *
- * @cssprop [--jelly-divider] - Line color.
+ * @cssprop [--droplet-divider] - Line color.
  */
 export class DropletDivider extends HTMLElementBase {
 

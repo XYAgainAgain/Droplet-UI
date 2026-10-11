@@ -14,7 +14,7 @@ import kbdStyles         from './kbd.css?inline';
 // Input types that take no text, so a keystroke there is not typing
 const NON_TEXT_INPUTS = new Set(['button', 'checkbox', 'color', 'file', 'image', 'radio', 'range', 'reset', 'submit']);
 
-// composedPath()[0] reaches past shadow retargeting to the field inside jelly-input and friends
+// composedPath()[0] reaches past shadow retargeting to the field inside droplet-input and friends
 function isTyping (event: KeyboardEvent): boolean {
   const target = event.composedPath()[0] as HTMLElement | undefined;
 
@@ -103,7 +103,7 @@ function shortcutsOff (el: Element): boolean {
  * The typing guard cannot see an editable control inside a closed shadow root; a component
  * with one should set `data-droplet-shortcuts="off"` on its host while editing.
  *
- * @element jelly-kbd
+ * @element droplet-kbd
  *
  * @slot - The key label (a letter, symbol or icon).
  *

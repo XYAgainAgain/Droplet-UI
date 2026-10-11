@@ -1,5 +1,5 @@
 /*
- * Declarative data for one option inside <jelly-segmented>. The parent
+ * Declarative data for one option inside <droplet-segmented>. The parent
  * reads its value, label and disabled state and renders the actual
  * control, so the segment element stays out of the layout entirely
  */
@@ -14,9 +14,9 @@ interface SegmentParent extends HTMLElement {
 }
 
 /**
- * Declarative data for one option inside `<jelly-segmented>`. Hidden from layout.
+ * Declarative data for one option inside `<droplet-segmented>`. Hidden from layout.
  *
- * @element jelly-segment
+ * @element droplet-segment
  *
  * @slot - The segment's visible label.
  *

@@ -1,5 +1,5 @@
 /*
- * A labeled container for <jelly-radio> items. The radios still group by
+ * A labeled container for <droplet-radio> items. The radios still group by
  * their shared `name`; this adds the radiogroup semantics, a legend linked
  * as the group's accessible name, the flow layout and size propagation to
  * the child radios. direction="vertical" stacks the items (the default is
@@ -19,12 +19,12 @@ import { DropletRadio }        from '../radio/index.js';
 import radioGroupStyles      from './radio-group.css?inline';
 
 /**
- * A labelled container that gives its `<jelly-radio>` children radiogroup
+ * A labelled container that gives its `<droplet-radio>` children radiogroup
  * semantics, a legend and shared sizing.
  *
- * @element jelly-radio-group
+ * @element droplet-radio-group
  *
- * @slot - The `<jelly-radio>` items.
+ * @slot - The `<droplet-radio>` items.
  *
  * @attr {string} label - The group's legend / accessible name.
  * @attr {"horizontal"|"vertical"} direction - Item flow direction.

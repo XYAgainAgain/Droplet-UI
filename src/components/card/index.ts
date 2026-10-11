@@ -21,7 +21,7 @@ import cardStyles        from './card.css?inline';
  * A soft jelly surface container. With `squish` it presses in like a
  * cushion and behaves as a button.
  *
- * @element jelly-card
+ * @element droplet-card
  *
  * @slot - The card's content.
  *
@@ -34,8 +34,8 @@ import cardStyles        from './card.css?inline';
  *
  * @csspart card - The padded content surface.
  *
- * @cssprop [--jelly-fill] - Surface fill.
- * @cssprop [--jelly-radius=22px] - Corner radius of the painted surface.
+ * @cssprop [--droplet-fill] - Surface fill.
+ * @cssprop [--droplet-radius=22px] - Corner radius of the painted surface.
  */
 export class DropletCard extends DropletElement {
 

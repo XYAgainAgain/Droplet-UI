@@ -55,7 +55,7 @@ no longer exposes (or miss a new one), so the reference can't silently drift.
    The control shorthands (`bool`, `size`, `variant`, `pick`, `numField`, `text`)
    are defined at the top of the file. Every control's options render at once
    as clickable badges (text controls as an editable field). Components that
-   should not get their own panel (child-only elements like `jelly-option`)
+   should not get their own panel (child-only elements like `droplet-option`)
    go in `NO_PANEL` instead — documented on the reference,
    skipped by the showcase.
 3. **Reload.** Each panel is one section; nothing else to wire.
@@ -82,14 +82,14 @@ nothing is vendored.
 
 ## Icons
 
-The site (and `jelly-alert`) use the Fluent System Icons. Each glyph is a
+The site (and `droplet-alert`) use the Fluent System Icons. Each glyph is a
 standalone 24×24 file under `src/icons/*.svg`, imported as a raw string and
 registered in `src/icons/index.ts`. To use one anywhere:
 
 ```js
-import { jellyIcon } from '../../package.js';
+import { dropletIcon } from '../../package.js';
 
-element.innerHTML = jellyIcon('heart', { size: 18 });
+element.innerHTML = dropletIcon('heart', { size: 18 });
 ```
 
 To add a new icon, drop its 24×24 SVG from
@@ -100,6 +100,6 @@ it to the `ICONS` map — its name joins the typed `IconName` union automaticall
 ## Publishing
 
 Push to `main` — `.github/workflows/deploy-pages.yml` type-checks, tests and
-**builds** the site with `npm run build:site` (which builds `dist/jelly.js`,
+**builds** the site with `npm run build:site` (which builds `dist/droplet.js`,
 regenerates the docs data, and assembles a clean `_site/`), then deploys only
 `_site/` to GitHub Pages.

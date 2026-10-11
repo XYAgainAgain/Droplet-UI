@@ -6,10 +6,10 @@
  * Keyboard navigation, ARIA (aria-expanded / aria-activedescendant) and
  * native form participation are all wired up.
  *
- *   <jelly-select label="Plan" placeholder="Choose a plan">
- *     <jelly-option value="free">Free</jelly-option>
- *     <jelly-option value="pro" selected>Pro</jelly-option>
- *   </jelly-select>
+ *   <droplet-select label="Plan" placeholder="Choose a plan">
+ *     <droplet-option value="free">Free</droplet-option>
+ *     <droplet-option value="pro" selected>Pro</droplet-option>
+ *   </droplet-select>
  */
 
 import { DropletElement }     from '../../element/index.js';
@@ -53,9 +53,9 @@ const VIEWPORT_MARGIN = 8;
 /**
  * A dropdown select built on the combobox / listbox pattern.
  *
- * @element jelly-select
+ * @element droplet-select
  *
- * @slot - The `<jelly-option>` choices.
+ * @slot - The `<droplet-option>` choices.
  *
  * @attr {string} value - The selected option's value.
  * @attr {string} label - Accessible name for the trigger.
@@ -677,7 +677,7 @@ export class DropletSelect extends DropletElement {
   /*
    * Show the painted ring whenever the trigger is focused or the panel is
    * open - including pointer focus - so the dropdown gets the same ring as
-   * jelly-input rather than only lighting up on keyboard (:focus-visible) focus
+   * droplet-input rather than only lighting up on keyboard (:focus-visible) focus
    */
   override focusRing (): Ring | null {
     if (!this.focused && !this.isOpen) {

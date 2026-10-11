@@ -3,20 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Jelly UI — API Reference</title>
-    <meta name="description" content="The complete Jelly UI API reference: every attribute, property, method, event, slot, shadow part, CSS custom property and keyboard map." />
+    <title>Droplet UI: API Reference</title>
+    <meta name="description" content="The complete Droplet UI API reference: every attribute, property, method, event, slot, shadow part, CSS custom property and keyboard map." />
     <!-- No favicon: an empty data URI stops the browser requesting /favicon.ico -->
     <link rel="icon" href="data:," />
 
     <!-- Apply saved visual preferences before first paint so there is no flash -->
     <script>
-      const savedMode = localStorage.getItem('jelly-docs-theme');
+      const savedMode = localStorage.getItem('droplet-docs-theme') ?? localStorage.getItem('jelly-docs-theme');
       if (savedMode === 'light' || savedMode === 'dark') {
-        document.documentElement.setAttribute('data-jelly-mode', savedMode);
+        document.documentElement.setAttribute('data-droplet-mode', savedMode);
       }
-      const savedMotion = localStorage.getItem('jelly-docs-reduced-motion');
+      const savedMotion = localStorage.getItem('droplet-docs-reduced-motion') ?? localStorage.getItem('jelly-docs-reduced-motion');
       if (savedMotion === 'reduce' || savedMotion === 'no-preference') {
-        document.documentElement.setAttribute('data-jelly-motion', savedMotion);
+        document.documentElement.setAttribute('data-droplet-motion', savedMotion);
       }
     </script>
 
@@ -29,7 +29,7 @@
          bundle here fetches it in parallel so the components register sooner.
          Deleting these lines changes nothing except first-load speed. -->
     <link rel="modulepreload" href="../package.js" />
-    <link rel="modulepreload" href="../dist/jelly.js" />
+    <link rel="modulepreload" href="../dist/droplet.js" />
   </head>
 
   <body>
@@ -38,20 +38,21 @@
     <!-- The shared top bar (styles in site.css) — the same bar the showcase
          uses, plus the mobile-only sidebar toggle -->
     <nav class="subnav" aria-label="Site">
-      <a class="subnav-brand" href="../">Jelly UI <span class="subnav-ver">v1.1</span></a>
+      <a class="subnav-brand" href="../">Droplet UI <span class="subnav-ver">v1.1</span></a>
 
-      <jelly-button id="navToggle" size="small" variant="platinum" shape="square"
-                    aria-expanded="false" aria-controls="sidebar">Components ▾</jelly-button>
+      <droplet-button id="navToggle" size="small" variant="platinum" shape="square"
+                    aria-expanded="false" aria-controls="sidebar">Components ▾</droplet-button>
 
       <div class="subnav-links">
-        <jelly-button size="small" variant="platinum" shape="square" data-subnav-showcase>Showcase</jelly-button>
-        <jelly-button size="small" variant="azure" shape="square" data-subnav-api aria-current="page">API reference</jelly-button>
-        <jelly-tooltip text="Motion: system setting" placement="bottom" size="small">
-          <jelly-icon-button id="motionToggle" size="small" variant="platinum" shape="square" label="Motion settings"></jelly-icon-button>
-        </jelly-tooltip>
-        <jelly-tooltip text="Theme: system" placement="bottom" size="small">
-          <jelly-icon-button id="themeToggle" size="small" variant="platinum" shape="square" label="Switch theme"></jelly-icon-button>
-        </jelly-tooltip>
+        <droplet-button size="small" variant="platinum" shape="square" data-subnav-showcase>Showcase</droplet-button>
+        <droplet-button size="small" variant="azure" shape="square" data-subnav-api aria-current="page">API reference</droplet-button>
+        <droplet-button size="small" variant="platinum" shape="square" data-subnav-migration>Migration</droplet-button>
+        <droplet-tooltip text="Motion: system setting" placement="bottom" size="small">
+          <droplet-icon-button id="motionToggle" size="small" variant="platinum" shape="square" label="Motion settings"></droplet-icon-button>
+        </droplet-tooltip>
+        <droplet-tooltip text="Theme: system" placement="bottom" size="small">
+          <droplet-icon-button id="themeToggle" size="small" variant="platinum" shape="square" label="Switch theme"></droplet-icon-button>
+        </droplet-tooltip>
       </div>
     </nav>
 
@@ -74,7 +75,7 @@
         <div id="sections"><!-- generated from docs/content/data.js --></div>
 
         <footer>
-          Jelly UI — dependency-free Web Components, one script tag to consume.
+          Droplet UI — dependency-free Web Components, one script tag to consume.
           To document a component, edit its descriptor in <code>docs/content.js</code>
           and run <code>npm run docs</code> — it reconciles the prose against the
           component TypeScript and regenerates this page's data.

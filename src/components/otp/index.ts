@@ -22,7 +22,7 @@ import otpStyles                from './otp.css?inline';
 /**
  * A one-time-code input with one box per digit.
  *
- * @element jelly-otp
+ * @element droplet-otp
  *
  * @attr {number} length - Number of digit boxes (defaults to 6).
  * @attr {string} label - Accessible name for the group.

@@ -18,7 +18,7 @@
 :host([size="large"]) { height: 42px; font-size: 15.5px; }
 
 /* A smaller, rounded-rectangle radius instead of the full pill - the same
-   shape="square" vocabulary jelly-button and jelly-badge use */
+   shape="square" vocabulary droplet-button and droplet-badge use */
 :host([shape="square"]) { --droplet-chip-radius: 11px; --jelly-chip-radius: var(--droplet-chip-radius); }
 :host([shape="square"][size="small"]) { --droplet-chip-radius: 9px; --jelly-chip-radius: var(--droplet-chip-radius); }
 :host([shape="square"][size="large"]) { --droplet-chip-radius: 13px; --jelly-chip-radius: var(--droplet-chip-radius); }

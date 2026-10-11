@@ -36,7 +36,7 @@ const PROGRESS_SIZES: Record<string, ProgressSize> = {
  * A progress bar with a wobbling jelly fill, or a travelling blob when
  * indeterminate.
  *
- * @element jelly-progress
+ * @element droplet-progress
  *
  * @attr {number} value - Current value.
  * @attr {number} max - Maximum value (defaults to 100).
@@ -47,8 +47,8 @@ const PROGRESS_SIZES: Record<string, ProgressSize> = {
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
  * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
- * @cssprop [--jelly-accent] - Fill color.
- * @cssprop [--jelly-track] - Empty-track color.
+ * @cssprop [--droplet-accent] - Fill color.
+ * @cssprop [--droplet-track] - Empty-track color.
  */
 export class DropletProgress extends DropletElement {
 

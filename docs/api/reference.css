@@ -12,7 +12,7 @@ html { scroll-padding-top: calc(var(--header-h) + 16px); }
 
 body { font-size: 15.5px; }
 
-/* The sidebar toggle (a jelly-button) only exists on narrow screens */
+/* The sidebar toggle (a droplet-button) only exists on narrow screens */
 #navToggle { display: none; }
 
 /* ============================ Layout ============================ */
@@ -167,7 +167,7 @@ footer {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root:not([data-jelly-motion="no-preference"]) .sidebar { transition: none; }
+  :root:not([data-droplet-motion="no-preference"]) .sidebar { transition: none; }
 }
 
-:root[data-jelly-motion="reduce"] .sidebar { transition: none; }
+:root[data-droplet-motion="reduce"] .sidebar { transition: none; }

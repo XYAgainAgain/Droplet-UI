@@ -14,13 +14,13 @@ import skeletonStyles    from './skeleton.css?inline';
 /**
  * A soft loading placeholder that gently breathes.
  *
- * @element jelly-skeleton
+ * @element droplet-skeleton
  *
  * @attr {"line"|"rect"|"square"|"circle"} shape - Placeholder silhouette preset.
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
  * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
- * @cssprop [--jelly-fill] - Placeholder fill color.
+ * @cssprop [--droplet-fill] - Placeholder fill color.
  */
 export class DropletSkeleton extends DropletElement {
 

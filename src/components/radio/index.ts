@@ -28,7 +28,7 @@ import radioStyles          from './radio.css?inline';
  * A jelly radio button. Radios sharing a `name` under one root form a group
  * with roving-tabindex and arrow-key navigation.
  *
- * @element jelly-radio
+ * @element droplet-radio
  *
  * @slot - The label text shown beside the control.
  *
@@ -47,9 +47,9 @@ import radioStyles          from './radio.css?inline';
  * @csspart wrap - The label wrapper.
  * @csspart control - The focusable radio control.
  *
- * @cssprop [--jelly-radio-size=32px] - Control size.
- * @cssprop [--jelly-on] - Selected fill color.
- * @cssprop [--jelly-radio-dot-color] - Center dot color.
+ * @cssprop [--droplet-radio-size=32px] - Control size.
+ * @cssprop [--droplet-on] - Selected fill color.
+ * @cssprop [--droplet-radio-dot-color] - Center dot color.
  */
 export class DropletRadio extends DropletElement {
 

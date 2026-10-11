@@ -20,13 +20,16 @@ import { GROUP_ORDER }      from '../content/data.js';
 wireMotionToggle(document.getElementById('motionToggle'));
 wireThemeToggle(document.getElementById('themeToggle'));
 
-// The shared top bar's page links are jelly-buttons, not anchors - wire their
+// The shared top bar's page links are droplet-buttons, not anchors - wire their
 // navigation (the same handlers the showcase page installs for its bar)
 document.querySelector('[data-subnav-showcase]')?.addEventListener('click', () => {
   window.location.href = '../';
 });
 document.querySelector('[data-subnav-api]')?.addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+document.querySelector('[data-subnav-migration]')?.addEventListener('click', () => {
+  window.location.href = '../migration/';
 });
 
 /* ---- Rendering --------------------------------------------------------- */
@@ -82,7 +85,7 @@ function exampleBlock (example, index, tag) {
       ${title}
       <div class="code">
         <div class="code-head">
-          <jelly-button class="copy" size="small" variant="white" data-copy aria-label="Copy example ${index + 1} for ${tag}">Copy</jelly-button>
+          <droplet-button class="copy" size="small" variant="white" data-copy aria-label="Copy example ${index + 1} for ${tag}">Copy</droplet-button>
         </div>
         <pre><code>${escapeHTML(example.code.trim())}</code></pre>
       </div>

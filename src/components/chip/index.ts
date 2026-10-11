@@ -21,7 +21,7 @@ import chipStyles        from './chip.css?inline';
 /**
  * A small jelly capsule / tag. Optionally selectable or removable.
  *
- * @element jelly-chip
+ * @element droplet-chip
  *
  * @slot - The chip label.
  *

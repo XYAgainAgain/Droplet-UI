@@ -3,23 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Jelly UI — Soft Web Components</title>
+    <title>Droplet UI: Soft Web Components</title>
     <meta
       name="description"
-      content="Jelly UI is a dependency-free Web Components library for tactile product interfaces: soft-body physics, real form controls, dark mode, RTL and WCAG AA accessibility."
+      content="Droplet UI is a dependency-free Web Components library for tactile product interfaces: soft-body physics, real form controls, dark mode, RTL and WCAG AA accessibility."
     />
     <!-- No favicon: an empty data URI stops the browser requesting /favicon.ico -->
     <link rel="icon" href="data:," />
 
     <!-- Apply saved visual preferences before first paint so there is no flash -->
     <script>
-      const savedMode = localStorage.getItem('jelly-docs-theme');
+      const savedMode = localStorage.getItem('droplet-docs-theme') ?? localStorage.getItem('jelly-docs-theme');
       if (savedMode === 'light' || savedMode === 'dark') {
-        document.documentElement.setAttribute('data-jelly-mode', savedMode);
+        document.documentElement.setAttribute('data-droplet-mode', savedMode);
       }
-      const savedMotion = localStorage.getItem('jelly-docs-reduced-motion');
+      const savedMotion = localStorage.getItem('droplet-docs-reduced-motion') ?? localStorage.getItem('jelly-docs-reduced-motion');
       if (savedMotion === 'reduce' || savedMotion === 'no-preference') {
-        document.documentElement.setAttribute('data-jelly-motion', savedMotion);
+        document.documentElement.setAttribute('data-droplet-motion', savedMotion);
       }
     </script>
 
@@ -32,7 +32,7 @@
          the bundle here fetches it in parallel so the components register
          sooner. Deleting these lines changes nothing except first-load speed. -->
     <link rel="modulepreload" href="./package.js" />
-    <link rel="modulepreload" href="./dist/jelly.js" />
+    <link rel="modulepreload" href="./dist/droplet.js" />
   </head>
 
   <body>
@@ -54,29 +54,29 @@
           <div class="hero-copy">
             <h1>It's okay to be<br />a little jelly</h1>
             <p class="lede">
-              Jelly UI is a dependency-free Web Components library for soft, tactile product
+              Droplet UI is a dependency-free Web Components library for soft, tactile product
               interfaces. Real form controls meet soft-body physics, with dark mode,
               right-to-left support and WCAG AA color tokens built in.
             </p>
 
             <div class="hero-stats" role="list" aria-label="Library highlights">
-              <jelly-badge role="listitem" variant="white" size="large" outline>0 dependencies</jelly-badge>
-              <jelly-badge role="listitem" variant="white" size="large" outline data-stat-count>40 custom elements</jelly-badge>
-              <jelly-badge role="listitem" variant="white" size="large" outline>1 script tag</jelly-badge>
-              <jelly-badge role="listitem" variant="white" size="large" outline>WCAG AA</jelly-badge>
-              <jelly-badge role="listitem" variant="white" size="large" outline>Dark mode</jelly-badge>
-              <jelly-badge role="listitem" variant="white" size="large" outline>RTL</jelly-badge>
+              <droplet-badge role="listitem" variant="white" size="large" outline>0 dependencies</droplet-badge>
+              <droplet-badge role="listitem" variant="white" size="large" outline data-stat-count>40 custom elements</droplet-badge>
+              <droplet-badge role="listitem" variant="white" size="large" outline>1 script tag</droplet-badge>
+              <droplet-badge role="listitem" variant="white" size="large" outline>WCAG AA</droplet-badge>
+              <droplet-badge role="listitem" variant="white" size="large" outline>Dark mode</droplet-badge>
+              <droplet-badge role="listitem" variant="white" size="large" outline>RTL</droplet-badge>
             </div>
 
             <div class="hero-links">
-              <jelly-button variant="mint" size="large" shape="square" data-hero-scroll style="--jelly-fill: #2ABC74;">Scroll the showcase ↓</jelly-button>
-              <jelly-button
+              <droplet-button variant="mint" size="large" shape="square" data-hero-scroll style="--droplet-fill: #2ABC74;">Scroll the showcase ↓</droplet-button>
+              <droplet-button
                 class="hero-ghost"
                 size="large"
                 shape="square"
                 data-hero-api
-                style="--jelly-fill: color-mix(in srgb, #FFFFFF 26%, var(--jelly-color-background-azure, #0077CC)); --jelly-label: #FFFFFF;"
-              >Read the API reference →</jelly-button>
+                style="--droplet-fill: color-mix(in srgb, #FFFFFF 26%, var(--droplet-color-background-azure, #0077CC)); --droplet-label: #FFFFFF;"
+              >Read the API reference →</droplet-button>
             </div>
 
             <div class="quickstart">
@@ -84,11 +84,11 @@
                 <i></i><i></i><i></i>
                 <code>index.html</code>
               </div>
-              <pre><code>&lt;script type="module" src="https://jelly-ui.com/package.js"&gt;&lt;/script&gt;
+              <pre><code>&lt;script type="module" src="/package.js"&gt;&lt;/script&gt;
 
-&lt;jelly-theme mode="auto"&gt;
-  &lt;jelly-button variant="mint"&gt;Publish&lt;/jelly-button&gt;
-&lt;/jelly-theme&gt;</code></pre>
+&lt;droplet-theme mode="auto"&gt;
+  &lt;droplet-button variant="mint"&gt;Publish&lt;/droplet-button&gt;
+&lt;/droplet-theme&gt;</code></pre>
             </div>
           </div>
         </div>
@@ -103,17 +103,18 @@
       <!-- The shared top bar (styles in site.css): sits just below the hero
           and sticks to the top while scrolling the showcase -->
       <nav class="subnav" aria-label="Site">
-        <a class="subnav-brand" href="#top">Jelly UI <span class="subnav-ver">v1.1</span></a>
+        <a class="subnav-brand" href="#top">Droplet UI <span class="subnav-ver">v1.1</span></a>
 
         <div class="subnav-links">
-          <jelly-button size="small" variant="azure" shape="square" data-subnav-showcase aria-current="page">Showcase</jelly-button>
-          <jelly-button size="small" variant="platinum" shape="square" data-subnav-api>API reference</jelly-button>
-          <jelly-tooltip text="Motion: system setting" placement="bottom" size="small">
-            <jelly-icon-button id="motionToggle" size="small" variant="platinum" shape="square" label="Motion settings"></jelly-icon-button>
-          </jelly-tooltip>
-          <jelly-tooltip text="Theme: system" placement="bottom" size="small">
-            <jelly-icon-button id="themeToggle" size="small" variant="platinum" shape="square" label="Switch theme"></jelly-icon-button>
-          </jelly-tooltip>
+          <droplet-button size="small" variant="azure" shape="square" data-subnav-showcase aria-current="page">Showcase</droplet-button>
+          <droplet-button size="small" variant="platinum" shape="square" data-subnav-api>API reference</droplet-button>
+          <droplet-button size="small" variant="platinum" shape="square" data-subnav-migration>Migration</droplet-button>
+          <droplet-tooltip text="Motion: system setting" placement="bottom" size="small">
+            <droplet-icon-button id="motionToggle" size="small" variant="platinum" shape="square" label="Motion settings"></droplet-icon-button>
+          </droplet-tooltip>
+          <droplet-tooltip text="Theme: system" placement="bottom" size="small">
+            <droplet-icon-button id="themeToggle" size="small" variant="platinum" shape="square" label="Switch theme"></droplet-icon-button>
+          </droplet-tooltip>
         </div>
       </nav>
 
@@ -127,11 +128,13 @@
 
         <h2>You made it to the end.</h2>
         <p>
-          Jelly UI is free, MIT-licensed and built in the open by
+          Droplet UI is free and MIT-licensed, a fork of
+          <a href="https://github.com/jelly-org/ui" target="_blank" rel="noopener noreferrer">Jelly UI</a>
+          built in the open by
           <a href="https://bmson.com" target="_blank" rel="noopener noreferrer">bmson.com</a>.
           <br>
-          You can help keep it wobbling by
-          <a href="https://github.com/sponsors/jelly-org" target="_blank" rel="noopener noreferrer">sponsoring</a>.
+          You can help keep the original wobbling by
+          <a href="https://github.com/sponsors/jelly-org" target="_blank" rel="noopener noreferrer">sponsoring</a> its author.
         </p>
       </footer>
     </main>

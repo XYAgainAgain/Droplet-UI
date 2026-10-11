@@ -1,5 +1,5 @@
 /*
- * Shared utilities for every Jelly UI component, split by concern into
+ * Shared utilities for every Droplet UI component, split by concern into
  * dom / size / keyboard / motion / aria. This barrel re-exports the whole surface,
  * so consumers keep importing from one place.
  *

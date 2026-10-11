@@ -128,14 +128,12 @@
   @container not style(--droplet-motion: no-preference) {
     :is(.wrap, .chevron, .content) { transition: none; }
     :host([open]) .inner { animation: none; }
-    :host(:dir(rtl)) .chevron { transform: scaleX(-1); }
   }
 }
 
 @container style(--droplet-motion: reduce) {
   :is(.wrap, .chevron, .content) { transition: none; }
   :host([open]) .inner { animation: none; }
-  :host(:dir(rtl)) .chevron { transform: scaleX(-1); }
 }
 
 @media (forced-colors: active) {

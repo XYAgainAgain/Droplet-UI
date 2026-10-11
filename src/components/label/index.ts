@@ -1,7 +1,7 @@
 /*
  * A form label that pairs with any control via `for`: clicking it focuses
  * the target and - because idrefs cannot cross shadow roots - it also
- * pushes its text into the target's `label` attribute so Jelly form
+ * pushes its text into the target's `label` attribute so Droplet form
  * controls gain a real accessible name
  */
 
@@ -18,7 +18,7 @@ import labelStyles           from './label.css?inline';
  * A form label that focuses its `for` target and gives it an accessible
  * name across shadow roots.
  *
- * @element jelly-label
+ * @element droplet-label
  *
  * @slot - The label text.
  *
@@ -108,7 +108,7 @@ export class DropletLabel extends HTMLElementBase {
   }
 
   /*
-   * Give the target an accessible name and required state. Jelly form
+   * Give the target an accessible name and required state. Droplet form
    * controls map their `label` attribute to an inner aria-label, which
    * works across shadow roots where aria-labelledby idrefs cannot.
    */

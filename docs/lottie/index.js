@@ -1,7 +1,7 @@
 /*
  * Lazy Lottie illustrations for the docs pages.
  *
- * Kept deliberately at arm's length from the library: Jelly UI itself ships
+ * Kept deliberately at arm's length from the library: Droplet UI itself ships
  * zero dependencies, so the Lottie player (the lottie-web dev dependency's
  * light SVG build) and each animation JSON are loaded lazily - on idle, once
  * the container nears the viewport - and only for these decorative panels.
@@ -90,7 +90,7 @@ function render (container, animationURL) {
 
       animation.addEventListener('DOMLoaded', syncMotion);
       matchMedia('(prefers-reduced-motion: reduce)').addEventListener?.('change', syncMotion);
-      window.addEventListener('jelly-motion-change', syncMotion);
+      window.addEventListener('droplet-motion-change', syncMotion);
     })
     .catch(() => {
       // No animation is fine - the page stands on its own

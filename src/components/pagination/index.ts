@@ -28,7 +28,7 @@ interface PageButtonOptions {
 /**
  * Page navigation built from jelly buttons, with a windowed page list.
  *
- * @element jelly-pagination
+ * @element droplet-pagination
  *
  * @attr {number} total - Total page count.
  * @attr {number} page - The current page (1-based).

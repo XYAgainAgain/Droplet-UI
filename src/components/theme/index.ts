@@ -1,23 +1,23 @@
 /*
- * A theme provider that scopes Jelly UI design tokens to its subtree,
+ * A theme provider that scopes Droplet UI design tokens to its subtree,
  * so consumers can force light or dark mode, follow the operating system,
  * or re-tint the accent for a section of the page - without touching the
  * rest of the document
  *
- * <jelly-theme mode="dark">
- *   <jelly-button>I render on dark tokens</jelly-button>
- * </jelly-theme>
+ * <droplet-theme mode="dark">
+ *   <droplet-button>I render on dark tokens</droplet-button>
+ * </droplet-theme>
  *
- * <jelly-theme mode="auto" accent="#7C3AED">
- *   <jelly-slider></jelly-slider>
- * </jelly-theme>
+ * <droplet-theme mode="auto" accent="#7C3AED">
+ *   <droplet-slider></droplet-slider>
+ * </droplet-theme>
  *
  * The provider is display: contents, so it never affects layout. Any
  * individual token can also be overridden inline - the resolved token set
  * is applied through the shadow :host rule, so a consumer's inline style
  * wins over it:
  *
- * <jelly-theme style="--jelly-color-background-azure: #4F46E5">…</jelly-theme>
+ * <droplet-theme style="--droplet-color-background-azure: #4F46E5">…</droplet-theme>
  */
 
 import { ensureThemeTokens } from '../../theme/index.js';
@@ -77,7 +77,7 @@ function readableOn (color: string, backdrop: string): string {
 /**
  * A theme provider that scopes the design tokens to its subtree.
  *
- * @element jelly-theme
+ * @element droplet-theme
  *
  * @slot - The subtree the theme applies to.
  *
@@ -197,7 +197,7 @@ export class DropletTheme extends HTMLElementBase {
    * subtree - including canvas-painted components that read computed tokens -
    * picks up the theme through normal CSS inheritance. Writing it as a :host
    * selector rule (rather than inline styles on the host) means a consumer's
-   * own inline `style="--droplet-color-…"` (or `--jelly-color-…`) still wins.
+   * own inline `style="--droplet-color-…"` (or `--droplet-color-…`) still wins.
    */
   sync (): void {
     if (!this.tokenStyle) {

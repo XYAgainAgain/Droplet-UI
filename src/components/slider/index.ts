@@ -66,7 +66,7 @@ export const THUMB_CONFIG: Partial<DropletConfig> = {
 /**
  * A single-value range slider with a squishy jelly thumb.
  *
- * @element jelly-slider
+ * @element droplet-slider
  *
  * @attr {number} value - Current value (defaults to 50).
  * @attr {number} min - Minimum value (defaults to 0).
@@ -87,8 +87,8 @@ export const THUMB_CONFIG: Partial<DropletConfig> = {
  * @csspart track - The track drag surface.
  * @csspart input - The visually-hidden native range input.
  *
- * @cssprop [--jelly-accent] - Filled-track and thumb color.
- * @cssprop [--jelly-track] - Empty-track color.
+ * @cssprop [--droplet-accent] - Filled-track and thumb color.
+ * @cssprop [--droplet-track] - Empty-track color.
  */
 export class DropletSlider extends DropletElement implements EventListenerObject {
 

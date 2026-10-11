@@ -10,13 +10,14 @@
  * Layout produced:
  *   _site/index.html                      (from docs/showcase/index.html)
  *   _site/api/index.html                  (from docs/api/index.html)  -> /api
+ *   _site/migration/index.html            (from docs/migration/index.html)  -> /migration
  *   _site/dist/droplet.js                 (the library bundle; jelly.js re-exports it)
  *   _site/package.js                      (the hosted public entry)
  *   _site/docs/**                         (runtime docs assets)
  *   _site/docs/lottie/lottie_light.min.js (copied from the lottie-web dep)
  *
- * The two HTML pages are authored for their final URL depth (showcase at /,
- * api at /api/), so copying is enough - no path rewriting.
+ * The three HTML pages are authored for their final URL depth (showcase at /,
+ * api at /api/, migration at /migration/), so copying is enough - no path rewriting.
  *
  *   node scripts/build-site.mjs      (or: npm run build:site)
  */
@@ -58,6 +59,7 @@ const skip = new Set([
   join(root, 'docs', 'content', 'content.js'),
   join(root, 'docs', 'showcase', 'index.html'),
   join(root, 'docs', 'api', 'index.html'),
+  join(root, 'docs', 'migration', 'index.html'),
 ]);
 
 cpSync(join(root, 'docs'), join(site, 'docs'), {
@@ -65,10 +67,12 @@ cpSync(join(root, 'docs'), join(site, 'docs'), {
   filter: (src) => !skip.has(src),
 });
 
-// 5. The two pages at their public URLs: showcase -> /, api -> /api/
+// 5. The pages at their public URLs: showcase → /, api → /api/, migration → /migration/
 copyFileSync(join(root, 'docs', 'showcase', 'index.html'), join(site, 'index.html'));
 mkdirSync(join(site, 'api'), { recursive: true });
 copyFileSync(join(root, 'docs', 'api', 'index.html'), join(site, 'api', 'index.html'));
+mkdirSync(join(site, 'migration'), { recursive: true });
+copyFileSync(join(root, 'docs', 'migration', 'index.html'), join(site, 'migration', 'index.html'));
 
 // 6. The Lottie player, sourced from the lottie-web dependency (never vendored)
 copyFileSync(

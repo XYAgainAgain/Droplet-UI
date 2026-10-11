@@ -30,7 +30,7 @@ const MIRRORED_STYLES = [
 /**
  * A multi-line text field that auto-grows with its content.
  *
- * @element jelly-textarea
+ * @element droplet-textarea
  *
  * @attr {string} value - The default value; the `value` property holds the live value.
  * @attr {string} placeholder - Placeholder text.
@@ -72,8 +72,8 @@ const MIRRORED_STYLES = [
  * @csspart textarea - The native textarea element.
  * @csspart ring - The forced-colors focus-ring fallback.
  *
- * @cssprop [--jelly-textarea-max-height=240px] - Cap for the auto-grow height.
- * @cssprop [--jelly-fill] - Resting surface fill.
+ * @cssprop [--droplet-textarea-max-height=240px] - Cap for the auto-grow height.
+ * @cssprop [--droplet-fill] - Resting surface fill.
  */
 export class DropletTextarea extends DropletFormField {
 

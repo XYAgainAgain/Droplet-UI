@@ -29,7 +29,7 @@ const TONE_ICONS: Record<string, IconName> = {
 /**
  * A callout banner with four tones and an optional dismiss button.
  *
- * @element jelly-alert
+ * @element droplet-alert
  *
  * @slot - The alert message.
  *

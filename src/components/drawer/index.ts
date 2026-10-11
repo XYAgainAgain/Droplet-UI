@@ -4,7 +4,7 @@
  * plus physical right / left / bottom. The sheet sits inset from the
  * edges (so it reads as a floating panel) and wobbles into place.
  *
- *   <jelly-drawer id="d" side="end"><nav>…</nav></jelly-drawer>
+ *   <droplet-drawer id="d" side="end"><nav>…</nav></droplet-drawer>
  *   document.getElementById('d').open = true;
  */
 
@@ -34,7 +34,7 @@ interface SlideFrames {
 /**
  * A floating, modal slide-in drawer with a springy entrance.
  *
- * @element jelly-drawer
+ * @element droplet-drawer
  *
  * @slot - The drawer's content.
  *
@@ -49,8 +49,8 @@ interface SlideFrames {
  * @csspart sheet - The drawer surface.
  * @csspart close - The close button.
  *
- * @cssprop [--jelly-drawer-padding=22px] - Inner padding.
- * @cssprop [--jelly-drawer-radius=24px] - Corner radius.
+ * @cssprop [--droplet-drawer-padding=22px] - Inner padding.
+ * @cssprop [--droplet-drawer-radius=24px] - Corner radius.
  */
 export class DropletDrawer extends HTMLElementBase {
 
