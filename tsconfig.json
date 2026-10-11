@@ -27,5 +27,5 @@
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src", "vite.config.ts", "vitest.config.ts", "scripts"]
+  "include": ["src", "vite.config.ts", "vite.esm.config.ts", "vitest.config.ts", "scripts"]
 }

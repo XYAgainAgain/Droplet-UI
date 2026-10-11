@@ -7,7 +7,7 @@ import '../../package.js';
 
 import { escapeHTML, wireMotionToggle, wireThemeToggle } from '../shared/common.js';
 
-import * as registry        from '../../dist/register.js';
+import * as registry        from '../../dist/droplet.js';
 import { COMPONENTS }       from '../content/data.js';
 
 wireMotionToggle(document.getElementById('motionToggle'));

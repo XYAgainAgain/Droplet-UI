@@ -1,12 +1,12 @@
-import { rename, writeFile } from 'node:fs/promises';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import type { EnvironmentOptions } from 'vite';
 import dts from 'vite-plugin-dts';
 
-// Each entry is its own environment and build pass: one multi-entry lib build would
-// hoist what the entries share into a split chunk, and dist/droplet.js must stay one file.
-function libEnvironment (name: string, entry: string, emptyOutDir: boolean): EnvironmentOptions {
+// The single-file bundle for script tags and vendoring; the package entries resolve
+// to the module tree vite.esm.config.ts builds into dist/esm.
+function libEnvironment (name: string, entry: string): EnvironmentOptions {
   return {
     consumer: 'client',
     build: {
@@ -18,7 +18,7 @@ function libEnvironment (name: string, entry: string, emptyOutDir: boolean): Env
       },
       sourcemap: true,
       cssMinify: 'esbuild',
-      emptyOutDir,
+      emptyOutDir: false,
     },
   };
 }
@@ -28,34 +28,21 @@ function libEnvironment (name: string, entry: string, emptyOutDir: boolean): Env
 async function writeLegacyStub (): Promise<void> {
   const stub = "export * from './droplet.js';\n";
 
+  await mkdir(resolve('dist'), { recursive: true });
   await writeFile(resolve('dist/jelly.js'), stub);
   await writeFile(resolve('dist/jelly.d.ts'), stub);
 }
 
 export default defineConfig({
   environments: {
-    register: libEnvironment('register', 'src/register.ts', true),
-    core: libEnvironment('core', 'src/core/index.ts', false),
-    compat: libEnvironment('compat', 'src/compat/index.ts', false),
-    droplet: libEnvironment('droplet', 'src/droplet.ts', false),
+    droplet: libEnvironment('droplet', 'src/droplet.ts'),
   },
   builder: {
     buildApp: async (builder) => {
-      // Watch mode returns from build() before anything is written, which the
-      // rename below cannot survive, so it keeps the pre-fork single-entry shape.
-      if (builder.config.build.watch) {
-        await builder.build(builder.environments['droplet']!);
-        await writeLegacyStub();
-        return;
+      // The module tree and the stub share dist, so it is cleared once per full build
+      if (!builder.config.build.watch) {
+        await rm(resolve('dist'), { recursive: true, force: true, maxRetries: 5 });
       }
-      // vite-plugin-dts has no per-entry name for a bundled declaration: it writes
-      // to package.json "types", so each pass yields dist/droplet.d.ts to rename.
-      await builder.build(builder.environments['register']!);
-      await rename(resolve('dist/droplet.d.ts'), resolve('dist/register.d.ts'));
-      await builder.build(builder.environments['core']!);
-      await rename(resolve('dist/droplet.d.ts'), resolve('dist/core.d.ts'));
-      await builder.build(builder.environments['compat']!);
-      await rename(resolve('dist/droplet.d.ts'), resolve('dist/compat.d.ts'));
       await builder.build(builder.environments['droplet']!);
       await writeLegacyStub();
     },

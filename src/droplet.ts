@@ -1,6 +1,6 @@
 /*
  * Droplet UI - barrel module. Import this once to register every component,
- * under both its droplet-* tag and its permanent Droplet UI alias.
+ * under both its droplet-* tag and its permanent Jelly UI alias.
  *
  *   import 'droplet-ui';
  *
@@ -32,14 +32,16 @@ export { ICONS }        from './icons/index.js';
 export { dropletIcon }  from './icons/index.js';
 export type { IconName, IconOptions } from './icons/index.js';
 
-// Permanent Droplet UI names, so a package swap breaks no existing import
+// Permanent Jelly UI names, so a package swap breaks no existing import
 export { DropletBody as JellyBody } from './core/index.js';
 export { DropletElement as JellyElement } from './element/index.js';
 export type { DropletBodyOptions as JellyBodyOptions, DropletComponent as JellyComponent, DropletConfig as JellyConfig } from './core/index.js';
 export { dropletToast as jellyToast } from './components/toast/index.js';
 export { dropletIcon as jellyIcon } from './icons/index.js';
 
-export { defineAll, defineCompat };
+// Every element class and define helper, canonical and legacy, from one import
+export * from './register.js';
+export * from './compat/index.js';
 
 // The root must never break a page over a foreign tag, so it warns and skips
 // instead of throwing; legacy tags register after the canonical ones

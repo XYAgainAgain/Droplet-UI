@@ -11,7 +11,7 @@
  *   _site/index.html                      (from docs/showcase/index.html)
  *   _site/api/index.html                  (from docs/api/index.html)  -> /api
  *   _site/migration/index.html            (from docs/migration/index.html)  -> /migration
- *   _site/dist/droplet.js                 (the library bundle; jelly.js re-exports it)
+ *   _site/dist/droplet.js                 (the single-file bundle; jelly.js re-exports it)
  *   _site/package.js                      (the hosted public entry)
  *   _site/docs/**                         (runtime docs assets)
  *   _site/docs/lottie/lottie_light.min.js (copied from the lottie-web dep)
@@ -48,8 +48,11 @@ run('npm run docs');
 rmSync(site, { recursive: true, force: true });
 mkdirSync(site, { recursive: true });
 
-// 3. The library bundle + the hosted public entry point
-cpSync(join(root, 'dist'), join(site, 'dist'), { recursive: true });
+// 3. The single-file bundle + the hosted public entry point; the module tree is for packages
+mkdirSync(join(site, 'dist'), { recursive: true });
+for (const file of ['droplet.js', 'droplet.js.map', 'jelly.js']) {
+  copyFileSync(join(root, 'dist', file), join(site, 'dist', file));
+}
 copyFileSync(join(root, 'package.js'), join(site, 'package.js'));
 
 // 4. The runtime docs assets. Skip the build-time-only content source and the
@@ -86,4 +89,4 @@ if (existsSync(join(root, 'CNAME'))) {
   copyFileSync(join(root, 'CNAME'), join(site, 'CNAME'));
 }
 
-console.log('✓ Built _site/ — index.html, api/, dist/, package.js, docs/, lottie player');
+console.log('✓ Built _site/ — index.html, api/, migration/, dist/, package.js, docs/, lottie player');
