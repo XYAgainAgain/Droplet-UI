@@ -2,12 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import './index.js';
-import '../icon-button/index.js';
-import { defineAll } from '../../register.js';
 import type { JellyPopover } from './index.js';
-
-defineAll({ strict: false });
+import '../../testing/define-all.js';
 
 function makePopover (): { host: HTMLDivElement; el: JellyPopover } {
   const host = mount(`

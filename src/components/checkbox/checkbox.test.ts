@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import './index.js';
 import type { JellyCheckbox } from './index.js';
+import '../../testing/define-all.js';
 
 test('upgrades with a hidden native checkbox', async () => {
   const host = mount('<jelly-checkbox>Remember me</jelly-checkbox>');

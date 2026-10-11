@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import './index.js';
 import type { JellyProgress } from './index.js';
+import '../../testing/define-all.js';
 
 test('upgrades as a progressbar and mirrors value into ARIA', async () => {
   const host = mount('<jelly-progress value="60" max="100"></jelly-progress>');

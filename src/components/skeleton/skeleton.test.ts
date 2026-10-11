@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import './index.js';
 import type { JellySkeleton } from './index.js';
+import '../../testing/define-all.js';
 
 test('upgrades as a busy status placeholder with a canvas', async () => {
   const host = mount('<jelly-skeleton></jelly-skeleton>');

@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import './index.js';
 import type { JellyBadge } from './index.js';
+import '../../testing/define-all.js';
 
 test('upgrades and renders its slotted content', async () => {
   const host = mount('<jelly-badge>3</jelly-badge>');

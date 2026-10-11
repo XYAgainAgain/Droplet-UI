@@ -56,6 +56,7 @@ import type { Ring }             from './types.js';
 import type { Border }           from './types.js';
 import type { PaintOptions }     from './types.js';
 import type { WirePressOptions } from './types.js';
+import { LOG_PREFIX }            from '../registry/tags.js';
 
 // Re-export the shape / paint / wiring types so consumers import them from here
 export type { RGBA, Shape, Ring, Border, PaintOptions, WirePressOptions } from './types.js';
@@ -78,6 +79,9 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
   // subclasses spread this list so a new axis reaches every component
   static REPLAYED: readonly string[] = ['feel', 'quality', 'palette', 'material', 'config'];
 
+  // Spread into a converted component's observedAttributes
+  static AXIS_ATTRIBUTES: readonly string[] = ['feel', 'quality'];
+
   body: JellyBody | null = null;
   built = false;
   dpr = 1;
@@ -90,6 +94,9 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
   resolvedRecord: Resolved | undefined = undefined;
   configWarned: Set<string> | undefined = undefined;
   scopeUnsubscribe: (() => void) | null = null;
+
+  // Membranes beyond the main body, each with its own component profile
+  extraBodies = new Map<JellyBody, Partial<JellyConfig>>();
 
   // The stored copy is frozen, so editing it in place cannot skip validation or
   // the resolver; the resolved record is read through resolvedConfig (resolver.md)
@@ -177,7 +184,7 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
 
       if (!this.configWarned.has(key)) {
         this.configWarned.add(key);
-        console.warn(`[jelly] config.${key} is not a finite JellyConfig field; ignoring`, this);
+        console.warn(`${LOG_PREFIX} config.${key} is not a finite JellyConfig field; ignoring`, this);
       }
     }
 
@@ -204,7 +211,42 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
 
     this.applyResolved(next);
 
+    for (const [body, profile] of this.extraBodies) {
+      this.applyResolved(this.resolveFor(profile), body);
+    }
+
     return next;
+  }
+
+  // The axis half of attributeChangedCallback, shared so no component re-spells it;
+  // true when the change was an axis and is fully handled
+  axisAttributeChanged (name: string): boolean {
+    if (name !== 'feel' && name !== 'quality') {
+      return false;
+    }
+
+    if (name === 'quality') {
+      canonicalizeQualityAttribute(this);
+    }
+
+    this.resolve();
+    return true;
+  }
+
+  // A membrane beyond the main body, born with its resolved record and kept on it
+  // through every re-resolve; profile is its own layer, like profile() for the main body
+  createBody (shape: Shape, profile: Partial<JellyConfig> = {}): JellyBody {
+    if (!this.usesResolver) {
+      return new JellyBody({ ...shape, config: { ...profile } });
+    }
+
+    const record = this.resolveFor(profile);
+    const body   = new JellyBody({ ...shape, config: { ...record.config } });
+
+    this.seedResolved(body, record);
+    this.extraBodies.set(body, profile);
+
+    return body;
   }
 
   resolution (): Resolved {
@@ -620,7 +662,7 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
     try {
       this.frame(0);
     } catch (error) {
-      console.error('Jelly UI paint error', error);
+      console.error(`${LOG_PREFIX} paint error`, error);
     }
 
     this.requestFrame();
@@ -745,7 +787,7 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
         painted = true;
       } catch (error) {
         this.painterFailed = true;
-        console.error('Jelly UI painter error', error);
+        console.error(`${LOG_PREFIX} painter error`, error);
       } finally {
         ctx.restore();
       }
@@ -777,7 +819,7 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
     }
 
     this.asyncPainterWarned = true;
-    console.warn('Jelly UI: paintSurface() is synchronous; the returned promise is ignored', this);
+    console.warn(`${LOG_PREFIX} paintSurface() is synchronous; the returned promise is ignored`, this);
   }
 
   // The standard frame: advance physics, repaint, sleep when at rest

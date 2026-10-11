@@ -12,6 +12,8 @@ import { emit }          from '../../utilities/index.js';
 import { triggerHaptic } from '../../utilities/index.js';
 
 import { variantColors } from '../../theme/index.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import chipStyles        from './chip.css?inline';
 
@@ -29,6 +31,8 @@ import chipStyles        from './chip.css?inline';
  * @attr {"pill"|"square"} shape - Full pill (default) or rounded-square.
  * @attr {"small"|"medium"|"large"} size - Chip size.
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Selected fill hue.
+ * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
+ * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
  * @fires change - When a selectable chip toggles.
  * @fires remove - Cancelable; fires before a removable chip animates out.
@@ -38,6 +42,12 @@ import chipStyles        from './chip.css?inline';
  * @csspart remove - The ✕ remove button.
  */
 export class JellyChip extends JellyElement {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineChip(options);
+  }
+
+  static override usesResolver = true;
 
   // Theme flips repaint so the crossfade re-resolves against the new tokens
   onThemeFlip = (): void => {
@@ -51,7 +61,7 @@ export class JellyChip extends JellyElement {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['selected', 'disabled', 'selectable', 'removable', 'variant', 'shape'];
+    return ['selected', 'disabled', 'selectable', 'removable', 'variant', 'shape', ...JellyElement.AXIS_ATTRIBUTES];
   }
 
   // Lifecycle method: Called automatically when the element is appended to the DOM
@@ -279,6 +289,10 @@ export class JellyChip extends JellyElement {
 
   // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
+    if (this.axisAttributeChanged(name)) {
+      return;
+    }
+
     if (!this.built) {
       return;
     }
@@ -349,8 +363,9 @@ export class JellyChip extends JellyElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-chip', JellyChip);
+export function defineChip (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.chip, JellyChip]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

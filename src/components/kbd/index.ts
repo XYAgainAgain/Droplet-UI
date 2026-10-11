@@ -6,6 +6,8 @@
 
 import { JellyElement } from '../../element/index.js';
 import type { Shape }   from '../../element/index.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import kbdStyles         from './kbd.css?inline';
 
@@ -108,10 +110,18 @@ function shortcutsOff (el: Element): boolean {
  * @attr {string} key - A `KeyboardEvent.key` value to mirror document-wide, optionally led by modifiers (`Meta+k`, `Control+Shift+p`). Skipped while typing in a field, with Ctrl, Alt, or Meta held that the value does not name, or inside a `data-droplet-shortcuts="off"` scope (WCAG 2.1.4).
  * @attr {boolean} decorative - A display-only hint: no role and no tab stop, so it can sit inside a button whose accessible name still includes the key text.
  * @attr {"small"|"medium"|"large"} size - Keycap size.
+ * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
+ * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
  * @csspart cap - The keycap surface.
  */
 export class JellyKbd extends JellyElement implements EventListenerObject {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineKbd(options);
+  }
+
+  static override usesResolver = true;
 
   onDocumentKeyDown: ((event: KeyboardEvent) => void) | null = null;
   onDocumentKeyUp: ((event: KeyboardEvent) => void) | null = null;
@@ -122,7 +132,7 @@ export class JellyKbd extends JellyElement implements EventListenerObject {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['key', 'decorative'];
+    return ['key', 'decorative', ...JellyElement.AXIS_ATTRIBUTES];
   }
 
   // Reflects the decorative attribute
@@ -171,6 +181,10 @@ export class JellyKbd extends JellyElement implements EventListenerObject {
 
   // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
+    if (this.axisAttributeChanged(name)) {
+      return;
+    }
+
     if (!this.built) {
       return;
     }
@@ -359,8 +373,9 @@ export class JellyKbd extends JellyElement implements EventListenerObject {
 
 }
 
-// Register the custom element
-customElements.define('jelly-kbd', JellyKbd);
+export function defineKbd (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.kbd, JellyKbd]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

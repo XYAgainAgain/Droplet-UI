@@ -2,8 +2,8 @@ import { expect, test, vi } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import './index.js';
 import type { JellyIconButton } from './index.js';
+import '../../testing/define-all.js';
 
 test('upgrades with a labelled inner button', async () => {
   const host = mount('<jelly-icon-button label="Search">🔍</jelly-icon-button>');

@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import './index.js';
 import type { JellySelect } from './index.js';
+import '../../testing/define-all.js';
 
 test('renders one listbox row per option and honors the selected attribute', async () => {
   const host = mount(`

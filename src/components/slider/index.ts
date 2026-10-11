@@ -12,10 +12,9 @@ import type { PainterFrame }    from '../../element/index.js';
 import type { Shape }           from '../../element/index.js';
 
 import { buildFrame }           from '../../element/painter.js';
-import { canonicalizeQualityAttribute } from '../../element/configure.js';
 
-import { defineElements }       from '../../registry/index.js';
-import { TAGS }                 from '../../registry/index.js';
+import { defineStrict }         from '../../registry/index.js';
+import { LOG_PREFIX, TAGS }     from '../../registry/index.js';
 import type { DefineOptions }   from '../../registry/index.js';
 import type { DefineResult }    from '../../registry/index.js';
 
@@ -96,7 +95,6 @@ export class JellySlider extends JellyElement implements EventListenerObject {
   // Participate in native form submission through ElementInternals
   static formAssociated = true;
 
-  // Opt in to the base class's feel / quality / resolver half
   static override usesResolver = true;
 
   // A value assigned before upgrade has to survive to the first build
@@ -134,7 +132,7 @@ export class JellySlider extends JellyElement implements EventListenerObject {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['value', 'min', 'max', 'step', 'label', 'disabled', 'size', 'feel', 'quality'];
+    return ['value', 'min', 'max', 'step', 'label', 'disabled', 'size', ...JellyElement.AXIS_ATTRIBUTES];
   }
 
   constructor () {
@@ -591,7 +589,7 @@ export class JellySlider extends JellyElement implements EventListenerObject {
       this.paintTrack(frame);
     } catch (error) {
       this.trackPainterFailed = true;
-      console.error('Jelly UI painter error', error);
+      console.error(`${LOG_PREFIX} painter error`, error);
     } finally {
       ctx.restore();
     }
@@ -624,12 +622,7 @@ export class JellySlider extends JellyElement implements EventListenerObject {
 
   // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
-    if (name === 'feel' || name === 'quality') {
-      if (name === 'quality') {
-        canonicalizeQualityAttribute(this);
-      }
-
-      this.resolve();
+    if (this.axisAttributeChanged(name)) {
       return;
     }
 
@@ -715,10 +708,8 @@ export class JellySlider extends JellyElement implements EventListenerObject {
 
 }
 
-// Explicit helper, so strict is the default: a foreign jelly-slider throws
-// rather than being warned past (registration.md)
 export function defineSlider (options: DefineOptions = {}): DefineResult {
-  return defineElements([[TAGS.slider, JellySlider]], { ...options, strict: options.strict ?? true });
+  return defineStrict([[TAGS.slider, JellySlider]], options);
 }
 
 declare global {

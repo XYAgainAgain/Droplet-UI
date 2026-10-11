@@ -7,6 +7,9 @@ import { canonicalizeSize }  from '../../utilities/index.js';
 import { escapeHTML }        from '../../utilities/index.js';
 
 import { ensureThemeTokens } from '../../theme/index.js';
+import { HTMLElementBase }   from '../../element/base.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import dividerStyles         from './divider.css?inline';
 
@@ -23,7 +26,11 @@ import dividerStyles         from './divider.css?inline';
  *
  * @cssprop [--jelly-divider] - Line color.
  */
-export class JellyDivider extends HTMLElement {
+export class JellyDivider extends HTMLElementBase {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineDivider(options);
+  }
 
   built = false;
 
@@ -95,8 +102,9 @@ export class JellyDivider extends HTMLElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-divider', JellyDivider);
+export function defineDivider (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.divider, JellyDivider]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

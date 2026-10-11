@@ -11,8 +11,10 @@ import { isRTL }             from '../../utilities/index.js';
 
 import { ensureThemeTokens } from '../../theme/index.js';
 
-import { defineElements, TAGS } from '../../registry/index.js';
 import { JellyButton }          from '../button/index.js';
+import { HTMLElementBase }   from '../../element/base.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import paginationStyles      from './pagination.css?inline';
 
@@ -34,7 +36,11 @@ interface PageButtonOptions {
  *
  * @fires change - With `detail.page` when the page changes.
  */
-export class JellyPagination extends HTMLElement {
+export class JellyPagination extends HTMLElementBase {
+
+  static define (options?: DefineOptions): DefineResult {
+    return definePagination(options);
+  }
 
   built = false;
 
@@ -202,11 +208,9 @@ export class JellyPagination extends HTMLElement {
 
 }
 
-// Register the custom element
-// The button pilot no longer defines itself, and this component's markup needs it
-defineElements([[TAGS.button, JellyButton]], { strict: false });
-
-customElements.define('jelly-pagination', JellyPagination);
+export function definePagination (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.button, JellyButton], [TAGS.pagination, JellyPagination]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

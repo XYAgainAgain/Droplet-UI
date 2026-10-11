@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import './index.js';
 import type { JellyRange } from './index.js';
+import '../../testing/define-all.js';
 
 test('upgrades with two role=slider knobs', async () => {
   const host = mount('<jelly-range min="0" max="100" low="20" high="70"></jelly-range>');

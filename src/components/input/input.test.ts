@@ -3,8 +3,8 @@ import { userEvent } from 'vitest/browser';
 
 import { mount, settle } from '../../testing/index.js';
 
-import './index.js';
 import { JellyInput } from './index.js';
+import '../../testing/define-all.js';
 
 const inner = (el: JellyInput): HTMLInputElement => el.shadowRoot!.querySelector('input') as HTMLInputElement;
 

@@ -3,8 +3,8 @@ import { userEvent } from 'vitest/browser';
 
 import { mount, settle } from '../../testing/index.js';
 
-import './index.js';
 import type { JellyTextarea } from './index.js';
+import '../../testing/define-all.js';
 
 const inner = (el: JellyTextarea): HTMLTextAreaElement => el.shadowRoot!.querySelector('textarea') as HTMLTextAreaElement;
 

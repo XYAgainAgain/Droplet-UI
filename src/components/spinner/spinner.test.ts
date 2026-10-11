@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import './index.js';
 import type { JellySpinner } from './index.js';
+import '../../testing/define-all.js';
 
 test('the default dots spinner renders gooey SVG and a status role', async () => {
   const host = mount('<jelly-spinner></jelly-spinner>');

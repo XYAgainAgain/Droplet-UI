@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount } from '../../testing/index.js';
 
-import './index.js';
 import type { JellyOtp } from './index.js';
+import '../../testing/define-all.js';
 
 test('renders one input box per digit', () => {
   const host = mount('<jelly-otp length="4"></jelly-otp>');

@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import './index.js';
 import type { JellySegmented } from './index.js';
+import '../../testing/define-all.js';
 
 test('renders one button per segment as a radiogroup', async () => {
   const host = mount(`

@@ -11,7 +11,7 @@ import { uniqueId }          from '../../utilities/index.js';
 import { ensureThemeTokens } from '../../theme/index.js';
 
 import { installScopeBridge }                 from '../../cascade/index.js';
-import { defineElements, TAGS }               from '../../registry/index.js';
+import { defineStrict, TAGS }                 from '../../registry/index.js';
 import type { DefineOptions, DefineResult }   from '../../registry/index.js';
 import type { Quality }                       from '../../resolve/index.js';
 
@@ -211,7 +211,7 @@ export class JellyCollapsible extends HTMLElementBase {
 }
 
 export function defineCollapsible (options: DefineOptions = {}): DefineResult {
-  return defineElements([[TAGS.collapsible, JellyCollapsible]], { ...options, strict: options.strict ?? true });
+  return defineStrict([[TAGS.collapsible, JellyCollapsible]], options);
 }
 
 declare global {

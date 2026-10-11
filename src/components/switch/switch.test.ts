@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import './index.js';
 import type { JellySwitch } from './index.js';
+import '../../testing/define-all.js';
 
 test('upgrades with a role=switch native input', async () => {
   const host = mount('<jelly-switch>Wi-Fi</jelly-switch>');

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 
-import { defineElements, RegistrationError } from './index.js';
+import { defineElements, defineStrict, RegistrationError } from './index.js';
 
 const uniq = () => `x-${Math.random().toString(36).slice(2)}`;
 
@@ -160,6 +160,21 @@ describe('defineElements', () => {
     } catch (error) {
       expect((error as RegistrationError).result.collisions).toHaveLength(2);
       expect((error as Error).message.split(tag).length - 1).toBe(1);
+    }
+  });
+});
+
+describe('defineStrict', () => {
+  it('throws on a collision unless the caller opts out', () => {
+    class A extends HTMLElement {}
+    const tag = uniq();
+    defineElements([[tag, A]]);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      expect(() => defineStrict([[tag, class extends HTMLElement {}]])).toThrow(RegistrationError);
+      expect(defineStrict([[tag, class extends HTMLElement {}]], { strict: false }).collisions).toHaveLength(1);
+    } finally {
+      warn.mockRestore();
     }
   });
 });

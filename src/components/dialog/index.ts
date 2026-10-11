@@ -17,6 +17,9 @@ import { emit }                 from '../../utilities/index.js';
 import { prefersReducedMotion } from '../../utilities/index.js';
 
 import { ensureThemeTokens }    from '../../theme/index.js';
+import { HTMLElementBase }      from '../../element/base.js';
+import { defineStrict, TAGS }   from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import dialogStyles             from './dialog.css?inline';
 
@@ -40,7 +43,11 @@ import dialogStyles             from './dialog.css?inline';
  * @cssprop [--jelly-dialog-radius=24px] - Corner radius.
  * @cssprop [--jelly-dialog-padding=26px] - Inner padding.
  */
-export class JellyDialog extends HTMLElement {
+export class JellyDialog extends HTMLElementBase {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineDialog(options);
+  }
 
   built = false;
   closing = false;
@@ -268,8 +275,9 @@ export class JellyDialog extends HTMLElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-dialog', JellyDialog);
+export function defineDialog (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.dialog, JellyDialog]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

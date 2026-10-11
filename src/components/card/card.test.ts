@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import './index.js';
 import type { JellyCard } from './index.js';
+import '../../testing/define-all.js';
 
 test('upgrades and renders its slotted content in a surface', async () => {
   const host = mount('<jelly-card><h3>Title</h3></jelly-card>');

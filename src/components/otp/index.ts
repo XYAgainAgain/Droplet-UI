@@ -13,6 +13,9 @@ import { prefersReducedMotion } from '../../utilities/index.js';
 
 import { ensureThemeTokens }    from '../../theme/index.js';
 import { variantColors }        from '../../theme/index.js';
+import { HTMLElementBase }      from '../../element/base.js';
+import { defineStrict, TAGS }   from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import otpStyles                from './otp.css?inline';
 
@@ -32,7 +35,11 @@ import otpStyles                from './otp.css?inline';
  * @fires change - When the code becomes complete.
  * @fires complete - With `detail.value` when every box is filled.
  */
-export class JellyOtp extends HTMLElement {
+export class JellyOtp extends HTMLElementBase {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineOtp(options);
+  }
 
   // Participate in forms via ElementInternals
   static formAssociated = true;
@@ -263,8 +270,9 @@ export class JellyOtp extends HTMLElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-otp', JellyOtp);
+export function defineOtp (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.otp, JellyOtp]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

@@ -393,7 +393,13 @@ describe('jelly-button contracts', () => {
     expect(() => defineButton({ registry })).toThrow(RegistrationError);
     expect(() => JellyButton.define({ registry })).toThrow(RegistrationError);
     expect(() => defineAll({ registry })).toThrow(RegistrationError);
-    expect(defineAll({ registry, strict: false }).collisions.length).toBeGreaterThan(0);
+
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      expect(defineAll({ registry, strict: false }).collisions.length).toBeGreaterThan(0);
+    } finally {
+      warn.mockRestore();
+    }
   });
 
   test('lets a markup attribute win over a pre-upgrade property', async () => {

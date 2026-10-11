@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount, raf } from '../../testing/index.js';
 
-import './index.js';
 import type { JellyCollapsible } from '../collapsible/index.js';
+import '../../testing/define-all.js';
 
 test('single mode closes siblings when one item opens', async () => {
   const host = mount(`

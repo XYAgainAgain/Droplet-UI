@@ -14,6 +14,8 @@ import { isRTL }        from '../../utilities/index.js';
 
 import { PALETTE }      from '../../theme/index.js';
 import { variantColors } from '../../theme/index.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import progressStyles   from './progress.css?inline';
 
@@ -41,11 +43,19 @@ const PROGRESS_SIZES: Record<string, ProgressSize> = {
  * @attr {string} label - Accessible name for the bar.
  * @attr {"small"|"medium"|"large"} size - Bar size.
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Fill hue.
+ * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
+ * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
  * @cssprop [--jelly-accent] - Fill color.
  * @cssprop [--jelly-track] - Empty-track color.
  */
 export class JellyProgress extends JellyElement {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineProgress(options);
+  }
+
+  static override usesResolver = true;
 
   fraction = 0;
   shownFrac = 0;
@@ -60,7 +70,7 @@ export class JellyProgress extends JellyElement {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['value', 'max', 'indeterminate', 'size', 'label'];
+    return ['value', 'max', 'indeterminate', 'size', 'label', ...JellyElement.AXIS_ATTRIBUTES];
   }
 
   // Component styles layered over the shared jelly base styles
@@ -175,7 +185,7 @@ export class JellyProgress extends JellyElement {
       const blobW = Math.max(trackH * 1.8, tW * 0.24);
 
       if (!this.blob) {
-        this.blob = new JellyBody({ width: blobW, height: trackH, radius: trackH / 2 });
+        this.blob = this.createBody({ width: blobW, height: trackH, radius: trackH / 2 });
       } else if (this.blobW !== blobW || this.blobH !== trackH) {
         this.blob.resize(blobW, trackH, trackH / 2);
       }
@@ -276,6 +286,10 @@ export class JellyProgress extends JellyElement {
   // Guard on built-state (not body, which only exists after the first
   // nonzero-size layout) so value changes land even before the first paint.
   attributeChangedCallback (name: string): void {
+    if (this.axisAttributeChanged(name)) {
+      return;
+    }
+
     if (!this.built) {
       return;
     }
@@ -298,8 +312,9 @@ export class JellyProgress extends JellyElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-progress', JellyProgress);
+export function defineProgress (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.progress, JellyProgress]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

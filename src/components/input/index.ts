@@ -17,6 +17,8 @@ import type { Shape }       from '../../element/index.js';
 import { clamp }            from '../../utilities/index.js';
 import { isRTL }            from '../../utilities/index.js';
 import { reflectAttribute } from '../../utilities/index.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import inputStyles          from './input.css?inline';
 
@@ -58,6 +60,8 @@ function fieldType (value: string | null): string {
  * @attr {string} autocomplete - Native autocomplete hint.
  * @attr {boolean} no-autofill - Opt out of browser and password-manager autofill.
  * @attr {"small"|"medium"|"large"} size - Control size.
+ * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
+ * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
  * @prop {string} value - The live value; setting it marks the value dirty and fires no event.
  * @prop {string} defaultValue - Reflects the `value` attribute.
@@ -91,6 +95,10 @@ function fieldType (value: string | null): string {
  * @cssprop [--jelly-input-radius=16px] - Corner radius of the painted surface.
  */
 export class JellyInput extends JellyFormField {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineInput(options);
+  }
 
   static override CONSTRAINTS: readonly string[] = [
     'required', 'minlength', 'maxlength', 'pattern', 'min', 'max', 'step', 'inputmode', 'enterkeyhint',
@@ -339,8 +347,9 @@ export class JellyInput extends JellyFormField {
 
 }
 
-// Register the custom element
-customElements.define('jelly-input', JellyInput);
+export function defineInput (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.input, JellyInput]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount } from '../../testing/index.js';
 
-import './index.js';
 import type { JellySegment } from './index.js';
+import '../../testing/define-all.js';
 
 test('derives value from the attribute or the text content', () => {
   const host = mount('<jelly-segment value="week">Week</jelly-segment><jelly-segment>Month</jelly-segment>');

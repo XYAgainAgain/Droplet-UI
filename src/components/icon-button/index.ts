@@ -10,13 +10,14 @@
 import { JellyElement }      from '../../element/index.js';
 import type { Shape }        from '../../element/index.js';
 
-import { replayProperties }  from '../../element/configure.js';
 
 import { AriaLink }          from '../../utilities/index.js';
 import { FORWARDED_ARIA }    from '../../utilities/index.js';
 import { forwardAria }       from '../../utilities/index.js';
 import { forwardAllAria }    from '../../utilities/index.js';
 import { reflectAttribute }  from '../../utilities/index.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import iconButtonStyles      from './icon-button.css?inline';
 import variantStyles         from '../../styles/variants.css?inline';
@@ -34,6 +35,8 @@ import variantStyles         from '../../styles/variants.css?inline';
  * @attr {"square"|"circle"} shape - Rounded square (default) or circle.
  * @attr {"small"|"medium"|"large"} size - Control size.
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Fill hue.
+ * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
+ * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
  * @prop {boolean} disabled - Reflects the `disabled` attribute.
  * @prop {string} name - Reflects the `name` attribute.
@@ -46,6 +49,14 @@ import variantStyles         from '../../styles/variants.css?inline';
  * @cssprop [--jelly-icon-button-radius=16px] - Corner radius for the square shape.
  */
 export class JellyIconButton extends JellyElement {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineIconButton(options);
+  }
+
+  static override usesResolver = true;
+
+  static override REPLAYED: readonly string[] = [...JellyElement.REPLAYED, 'disabled', 'name'];
 
   // :disabled and fieldset disabling come from the platform; it never submits
   static formAssociated = true;
@@ -67,7 +78,7 @@ export class JellyIconButton extends JellyElement {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['disabled', 'label', 'shape', ...FORWARDED_ARIA];
+    return ['disabled', 'label', 'shape', ...FORWARDED_ARIA, ...JellyElement.AXIS_ATTRIBUTES];
   }
 
   get disabled (): boolean {
@@ -92,8 +103,6 @@ export class JellyIconButton extends JellyElement {
   }
 
   override connectedCallback (): void {
-    replayProperties(this, ['disabled', 'name']);
-
     super.connectedCallback();
 
     // A move can change the tree scope IDREFs resolve in
@@ -219,6 +228,10 @@ export class JellyIconButton extends JellyElement {
 
   // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
+    if (this.axisAttributeChanged(name)) {
+      return;
+    }
+
     if (this.button) {
       this.sync(name);
     }
@@ -271,8 +284,9 @@ export class JellyIconButton extends JellyElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-icon-button', JellyIconButton);
+export function defineIconButton (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.iconButton, JellyIconButton]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

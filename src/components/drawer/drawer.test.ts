@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount } from '../../testing/index.js';
 
-import './index.js';
 import type { JellyDrawer } from './index.js';
+import '../../testing/define-all.js';
 
 test('defaults to the end side and presents as a modal dialog', () => {
   const host = mount('<jelly-drawer><nav>Links</nav></jelly-drawer>');

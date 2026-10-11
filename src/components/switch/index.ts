@@ -20,6 +20,8 @@ import { triggerHaptic }   from '../../utilities/index.js';
 import { integrateSpring } from '../../utilities/index.js';
 
 import { variantColors }   from '../../theme/index.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import switchStyles        from './switch.css?inline';
 
@@ -52,6 +54,8 @@ const SWITCH_SIZES: Record<Size, SwitchSize> = {
  * @attr {string} name - Form field name submitted with the value.
  * @attr {"small"|"medium"|"large"} size - Control size.
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - On-state track hue.
+ * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
+ * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
  * @fires change - When the on/off state changes through user interaction.
  *
@@ -64,6 +68,12 @@ const SWITCH_SIZES: Record<Size, SwitchSize> = {
  * @cssprop [--jelly-switch-thumb-on] - Thumb color when on.
  */
 export class JellySwitch extends JellyElement {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineSwitch(options);
+  }
+
+  static override usesResolver = true;
 
   // Participate in native <form> submission through ElementInternals
   static formAssociated = true;
@@ -85,7 +95,7 @@ export class JellySwitch extends JellyElement {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['checked', 'disabled', 'label', 'size', 'value'];
+    return ['checked', 'disabled', 'label', 'size', 'value', ...JellyElement.AXIS_ATTRIBUTES];
   }
 
   constructor () {
@@ -222,7 +232,7 @@ export class JellySwitch extends JellyElement {
     const size       = height - this.sizeConfig.inset * 2;
 
     if (!this.thumbBody) {
-      this.thumbBody = new JellyBody({ width: size, height: size, radius: size / 2 });
+      this.thumbBody = this.createBody({ width: size, height: size, radius: size / 2 });
     } else {
       this.thumbBody.resize(size, size, size / 2);
     }
@@ -375,6 +385,10 @@ export class JellySwitch extends JellyElement {
 
   // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
+    if (this.axisAttributeChanged(name)) {
+      return;
+    }
+
     if (name === 'size') {
       if (this.built) {
         this.applyShape();
@@ -445,8 +459,9 @@ export class JellySwitch extends JellyElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-switch', JellySwitch);
+export function defineSwitch (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.switch, JellySwitch]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

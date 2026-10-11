@@ -12,6 +12,8 @@ import { JellyElement } from '../../element/index.js';
 import type { Shape }   from '../../element/index.js';
 
 import { uniqueId }     from '../../utilities/index.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import spinnerStyles    from './spinner.css?inline';
 import variantStyles    from '../../styles/variants.css?inline';
@@ -25,10 +27,18 @@ import variantStyles    from '../../styles/variants.css?inline';
  * @attr {"small"|"medium"|"large"} size - Spinner size.
  * @attr {string} label - Accessible loading label (defaults to "Loading").
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Fill hue.
+ * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
+ * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
  * @cssprop [--jelly-fill] - Dot / blob color.
  */
 export class JellySpinner extends JellyElement {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineSpinner(options);
+  }
+
+  static override usesResolver = true;
 
   timeAccumulator = 0;
   idx = 0;
@@ -37,11 +47,15 @@ export class JellySpinner extends JellyElement {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['type', 'variant', 'size', 'label'];
+    return ['type', 'variant', 'size', 'label', ...JellyElement.AXIS_ATTRIBUTES];
   }
 
   // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
+    if (this.axisAttributeChanged(name)) {
+      return;
+    }
+
     if (!this.built) {
       return;
     }
@@ -185,8 +199,9 @@ export class JellySpinner extends JellyElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-spinner', JellySpinner);
+export function defineSpinner (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.spinner, JellySpinner]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

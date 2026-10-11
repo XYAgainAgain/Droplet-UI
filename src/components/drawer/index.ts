@@ -18,6 +18,9 @@ import { isRTL }                from '../../utilities/index.js';
 import { prefersReducedMotion } from '../../utilities/index.js';
 
 import { ensureThemeTokens }    from '../../theme/index.js';
+import { HTMLElementBase }      from '../../element/base.js';
+import { defineStrict, TAGS }   from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import drawerStyles             from './drawer.css?inline';
 
@@ -49,7 +52,11 @@ interface SlideFrames {
  * @cssprop [--jelly-drawer-padding=22px] - Inner padding.
  * @cssprop [--jelly-drawer-radius=24px] - Corner radius.
  */
-export class JellyDrawer extends HTMLElement {
+export class JellyDrawer extends HTMLElementBase {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineDrawer(options);
+  }
 
   built = false;
   closing = false;
@@ -318,8 +325,9 @@ export class JellyDrawer extends HTMLElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-drawer', JellyDrawer);
+export function defineDrawer (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.drawer, JellyDrawer]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

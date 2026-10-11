@@ -1,19 +1,34 @@
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 
-test('importing a pilot module defines nothing', async () => {
-  const { JellyButton } = await import('./components/button/index.js');
+import { TAGS } from './registry/index.js';
 
-  expect(typeof JellyButton).toBe('function');
-  expect(customElements.get('jelly-button')).toBeUndefined();
+test('importing any component module defines nothing', async () => {
+  const modules = import.meta.glob('./components/*/index.ts');
+
+  // Menu and tabs each hold two elements
+  expect(Object.keys(modules)).toHaveLength(38);
+  await Promise.all(Object.values(modules).map((load) => load()));
+
+  for (const tag of Object.values(TAGS)) {
+    expect(customElements.get(tag), tag).toBeUndefined();
+  }
 });
 
-test('the root entry skips a pilot tag another constructor already owns', async () => {
+test('the root entry skips a library tag another constructor already owns', async () => {
   class ForeignButton extends HTMLElement {}
 
-  customElements.define('jelly-button', ForeignButton);
+  customElements.define(TAGS.button, ForeignButton);
 
-  await import('./jelly.js');
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-  expect(customElements.get('jelly-button')).toBe(ForeignButton);
-  expect(customElements.get('jelly-slider')).toBeTypeOf('function');
+  try {
+    await import('./jelly.js');
+    expect(warn).toHaveBeenCalledTimes(1);
+  } finally {
+    warn.mockRestore();
+  }
+
+  expect(customElements.get(TAGS.button)).toBe(ForeignButton);
+  expect(customElements.get(TAGS.slider)).toBeTypeOf('function');
+  expect(customElements.get(TAGS.tooltip)).toBeTypeOf('function');
 });

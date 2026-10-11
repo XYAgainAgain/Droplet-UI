@@ -12,10 +12,9 @@
 import { JellyElement }   from '../../element/index.js';
 import type { Shape }      from '../../element/index.js';
 
-import { canonicalizeQualityAttribute } from '../../element/configure.js';
 import { SUBMIT_BUTTON }                from '../../element/submitter.js';
 
-import { defineElements }      from '../../registry/index.js';
+import { defineStrict }        from '../../registry/index.js';
 import { TAGS }                from '../../registry/index.js';
 import type { DefineOptions }  from '../../registry/index.js';
 import type { DefineResult }   from '../../registry/index.js';
@@ -83,7 +82,6 @@ const SUBMITTER_ATTRIBUTES = ['name', 'value', 'formaction', 'formenctype', 'for
  */
 export class JellyButton extends JellyElement {
 
-  // Opt in to the base class's feel / quality / resolver half
   static override usesResolver = true;
 
   // :disabled, fieldset disabling, and form="id" ownership all come from the platform
@@ -123,7 +121,7 @@ export class JellyButton extends JellyElement {
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
     return [
-      'disabled', 'label', 'type', 'shape', 'feel', 'quality',
+      'disabled', 'label', 'type', 'shape', ...JellyElement.AXIS_ATTRIBUTES,
       // Forwarded to the inner button, because the roleless host is not what AT reads
       ...FORWARDED_ARIA,
     ];
@@ -423,12 +421,7 @@ export class JellyButton extends JellyElement {
 
   // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
-    if (name === 'feel' || name === 'quality') {
-      if (name === 'quality') {
-        canonicalizeQualityAttribute(this);
-      }
-
-      this.resolve();
+    if (this.axisAttributeChanged(name)) {
       return;
     }
 
@@ -533,10 +526,8 @@ export class JellyButton extends JellyElement {
 
 }
 
-// Explicit helper, so strict is the default: a foreign jelly-button throws
-// rather than being warned past (registration.md)
 export function defineButton (options: DefineOptions = {}): DefineResult {
-  return defineElements([[TAGS.button, JellyButton]], { ...options, strict: options.strict ?? true });
+  return defineStrict([[TAGS.button, JellyButton]], options);
 }
 
 declare global {

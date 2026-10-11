@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount } from '../../testing/index.js';
 
-import './index.js';
 import type { JellyOption } from './index.js';
+import '../../testing/define-all.js';
 
 test('derives value from the attribute or the text content', () => {
   const host = mount('<jelly-option value="pro">Pro plan</jelly-option><jelly-option>Basic</jelly-option>');

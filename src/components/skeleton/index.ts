@@ -6,6 +6,8 @@
 
 import { JellyElement } from '../../element/index.js';
 import type { Shape }   from '../../element/index.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import skeletonStyles    from './skeleton.css?inline';
 
@@ -15,10 +17,18 @@ import skeletonStyles    from './skeleton.css?inline';
  * @element jelly-skeleton
  *
  * @attr {"line"|"rect"|"square"|"circle"} shape - Placeholder silhouette preset.
+ * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
+ * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
  * @cssprop [--jelly-fill] - Placeholder fill color.
  */
 export class JellySkeleton extends JellyElement {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineSkeleton(options);
+  }
+
+  static override usesResolver = true;
 
   // Randomised per instance so a page full of skeletons never pulses in
   // lock-step - each sweeps at its own phase, speed and breath interval
@@ -30,7 +40,7 @@ export class JellySkeleton extends JellyElement {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['shape'];
+    return ['shape', ...JellyElement.AXIS_ATTRIBUTES];
   }
 
   // Component styles layered over the shared jelly base styles
@@ -58,7 +68,11 @@ export class JellySkeleton extends JellyElement {
   // A shape swap usually resizes the host (the ResizeObserver rebuilds then);
   // reshape the membrane directly for same-size swaps (inline width/height),
   // where a radius-only change would otherwise be dropped.
-  attributeChangedCallback (): void {
+  attributeChangedCallback (name: string): void {
+    if (this.axisAttributeChanged(name)) {
+      return;
+    }
+
     if (this.built) {
       this.reshapeMembrane();
     }
@@ -124,8 +138,9 @@ export class JellySkeleton extends JellyElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-skeleton', JellySkeleton);
+export function defineSkeleton (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.skeleton, JellySkeleton]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

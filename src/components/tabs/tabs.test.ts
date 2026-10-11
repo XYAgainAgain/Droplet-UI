@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import './index.js';
 import type { JellyTabs } from './index.js';
+import '../../testing/define-all.js';
 
 test('builds a tablist from panels and shows the active one', async () => {
   const host = mount(`

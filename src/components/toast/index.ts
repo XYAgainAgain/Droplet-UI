@@ -15,7 +15,7 @@ import { jellyIcon }         from '../../icons/index.js';
 import { ensureThemeTokens } from '../../theme/index.js';
 
 import { installScopeBridge }               from '../../cascade/index.js';
-import { defineElements, TAGS }             from '../../registry/index.js';
+import { defineStrict, TAGS }               from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
 import type { Quality }                     from '../../resolve/index.js';
 
@@ -284,7 +284,7 @@ export class JellyToaster extends HTMLElementBase {
 }
 
 export function defineToaster (options: DefineOptions = {}): DefineResult {
-  return defineElements([[TAGS.toaster, JellyToaster]], { ...options, strict: options.strict ?? true });
+  return defineStrict([[TAGS.toaster, JellyToaster]], options);
 }
 
 // Show a toast, creating the shared toaster host on first use. The lookup is

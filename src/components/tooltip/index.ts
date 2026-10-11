@@ -17,6 +17,9 @@ import { uniqueId }          from '../../utilities/index.js';
 import { canonicalizeSize }  from '../../utilities/index.js';
 
 import { ensureThemeTokens } from '../../theme/index.js';
+import { HTMLElementBase }   from '../../element/base.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import tooltipStyles         from './tooltip.css?inline';
 
@@ -32,7 +35,11 @@ import tooltipStyles         from './tooltip.css?inline';
  * @attr {"top"|"bottom"|"left"|"right"|"start"|"end"} placement - Preferred side.
  * @attr {"small"|"medium"|"large"} size - Bubble size.
  */
-export class JellyTooltip extends HTMLElement {
+export class JellyTooltip extends HTMLElementBase {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineTooltip(options);
+  }
 
   built = false;
 
@@ -189,8 +196,9 @@ export class JellyTooltip extends HTMLElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-tooltip', JellyTooltip);
+export function defineTooltip (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.tooltip, JellyTooltip]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

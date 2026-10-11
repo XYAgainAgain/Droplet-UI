@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import './index.js';
 import type { JellyAlert } from './index.js';
+import '../../testing/define-all.js';
 
 test('upgrades as a role=alert box with a tone icon', async () => {
   const host = mount('<jelly-alert tone="success">Saved!</jelly-alert>');

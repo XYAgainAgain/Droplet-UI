@@ -21,6 +21,9 @@ import { emit }              from '../../utilities/index.js';
 import { canonicalizeSize }  from '../../utilities/index.js';
 
 import { ensureThemeTokens } from '../../theme/index.js';
+import { HTMLElementBase }   from '../../element/base.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import menuStyles            from './menu.css?inline';
 
@@ -35,7 +38,11 @@ import menuStyles            from './menu.css?inline';
  * @attr {boolean} disabled - Whether this item cannot be picked.
  * @attr {boolean} danger - Style the item as a destructive action.
  */
-export class JellyMenuItem extends HTMLElement {
+export class JellyMenuItem extends HTMLElementBase {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineMenuItem(options);
+  }
 
   // The value reported in the select event (falls back to the text)
   get value (): string {
@@ -66,7 +73,11 @@ export class JellyMenuItem extends HTMLElement {
  *
  * @csspart menu - The floating menu surface.
  */
-export class JellyMenu extends HTMLElement {
+export class JellyMenu extends HTMLElementBase {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineMenu(options);
+  }
 
   built = false;
   isOpen = false;
@@ -369,9 +380,13 @@ export class JellyMenu extends HTMLElement {
 
 }
 
-// Register the custom elements
-customElements.define('jelly-menu-item', JellyMenuItem);
-customElements.define('jelly-menu', JellyMenu);
+export function defineMenuItem (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.menuItem, JellyMenuItem]], options);
+}
+
+export function defineMenu (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.menuItem, JellyMenuItem], [TAGS.menu, JellyMenu]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

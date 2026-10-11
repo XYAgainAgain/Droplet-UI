@@ -9,8 +9,10 @@ import { propagateSize }       from '../../utilities/index.js';
 
 import { ensureThemeTokens }   from '../../theme/index.js';
 
-import { defineElements, TAGS }  from '../../registry/index.js';
 import { JellyCollapsible }      from '../collapsible/index.js';
+import { HTMLElementBase }     from '../../element/base.js';
+import { defineStrict, TAGS }  from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import accordionStyles         from './accordion.css?inline';
 
@@ -26,7 +28,11 @@ import accordionStyles         from './accordion.css?inline';
  *
  * @fires toggle - Bubbles up from a child collapsible when it opens or closes.
  */
-export class JellyAccordion extends HTMLElement {
+export class JellyAccordion extends HTMLElementBase {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineAccordion(options);
+  }
 
   built = false;
 
@@ -115,11 +121,9 @@ export class JellyAccordion extends HTMLElement {
 
 }
 
-// Register the custom element
-// The collapsible pilot no longer defines itself, and this component's markup needs it
-defineElements([[TAGS.collapsible, JellyCollapsible]], { strict: false });
-
-customElements.define('jelly-accordion', JellyAccordion);
+export function defineAccordion (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.collapsible, JellyCollapsible], [TAGS.accordion, JellyAccordion]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

@@ -8,6 +8,9 @@
 import { canonicalizeSize }  from '../../utilities/index.js';
 
 import { ensureThemeTokens } from '../../theme/index.js';
+import { HTMLElementBase }   from '../../element/base.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import labelStyles           from './label.css?inline';
 
@@ -25,7 +28,11 @@ import labelStyles           from './label.css?inline';
  *
  * @csspart label - The label element.
  */
-export class JellyLabel extends HTMLElement {
+export class JellyLabel extends HTMLElementBase {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineLabel(options);
+  }
 
   built = false;
 
@@ -125,8 +132,9 @@ export class JellyLabel extends HTMLElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-label', JellyLabel);
+export function defineLabel (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.label, JellyLabel]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

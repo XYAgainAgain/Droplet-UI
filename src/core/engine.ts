@@ -5,6 +5,7 @@
  */
 
 import { clamp } from '../utilities/index.js';
+import { LOG_PREFIX } from '../registry/tags.js';
 
 // The surface the engine drives - JellyElement satisfies this structurally
 export interface JellyComponent {
@@ -58,7 +59,7 @@ class JellyEngine {
       try {
         keep = component.frame(dt);
       } catch (error) {
-        console.error('Jelly UI frame error', error);
+        console.error(`${LOG_PREFIX} frame error`, error);
       }
 
       if (!keep && !component.colorEasing) {

@@ -14,3 +14,10 @@ test('dist/register.js evaluates in plain Node and defines nothing', async () =>
   const result = defineAll();
   assert.deepEqual(result, { defined: [], alreadyDefined: [], collisions: [] });
 });
+
+test('dist/jelly.js, the whole library, evaluates in plain Node', async () => {
+  assert.equal(typeof globalThis.customElements, 'undefined');
+  const mod = await import('../dist/jelly.js');
+  assert.equal(typeof mod.JellyElement, 'function');
+  assert.deepEqual(mod.defineAll(), { defined: [], alreadyDefined: [], collisions: [] });
+});

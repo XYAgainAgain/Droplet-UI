@@ -15,6 +15,8 @@ import { integrateSpring }  from '../../utilities/index.js';
 
 import { PALETTE }          from '../../theme/index.js';
 import { variantColors }    from '../../theme/index.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import checkboxStyles       from './checkbox.css?inline';
 
@@ -33,6 +35,8 @@ import checkboxStyles       from './checkbox.css?inline';
  * @attr {string} name - Form field name submitted with the control's value.
  * @attr {"small"|"medium"|"large"} size - Control size.
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Checked fill hue.
+ * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
+ * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
  * @fires change - When the checked state changes through user interaction.
  *
@@ -44,6 +48,12 @@ import checkboxStyles       from './checkbox.css?inline';
  * @cssprop [--jelly-checkbox-mark] - Check-mark color.
  */
 export class JellyCheckbox extends JellyElement {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineCheckbox(options);
+  }
+
+  static override usesResolver = true;
 
   // Participate in native <form> submission through ElementInternals
   static formAssociated = true;
@@ -59,7 +69,7 @@ export class JellyCheckbox extends JellyElement {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['checked', 'disabled', 'indeterminate', 'label', 'size', 'value'];
+    return ['checked', 'disabled', 'indeterminate', 'label', 'size', 'value', ...JellyElement.AXIS_ATTRIBUTES];
   }
 
   constructor () {
@@ -161,6 +171,10 @@ export class JellyCheckbox extends JellyElement {
 
   // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
+    if (this.axisAttributeChanged(name)) {
+      return;
+    }
+
     if (this.input) {
       this.sync(name);
     }
@@ -241,8 +255,9 @@ export class JellyCheckbox extends JellyElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-checkbox', JellyCheckbox);
+export function defineCheckbox (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.checkbox, JellyCheckbox]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

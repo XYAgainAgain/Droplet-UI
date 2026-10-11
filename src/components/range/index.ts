@@ -25,6 +25,8 @@ import { integrateSpring }  from '../../utilities/index.js';
 
 import { PALETTE }          from '../../theme/index.js';
 import { variantColors }    from '../../theme/index.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import rangeStyles          from './range.css?inline';
 
@@ -70,6 +72,8 @@ const THUMB_CONFIG: Partial<JellyConfig> = {
  * @attr {boolean} disabled - Disable the control and remove it from the tab order.
  * @attr {"small"|"medium"|"large"} size - Control size.
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Accent fill hue.
+ * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
+ * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
  * @fires input - Continuously as a bound changes.
  * @fires change - When a bound is committed.
@@ -82,6 +86,12 @@ const THUMB_CONFIG: Partial<JellyConfig> = {
  * @cssprop [--jelly-track] - Empty-track color.
  */
 export class JellyRange extends JellyElement implements EventListenerObject {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineRange(options);
+  }
+
+  static override usesResolver = true;
 
   // Participate in native form submission through ElementInternals
   static formAssociated = true;
@@ -109,7 +119,7 @@ export class JellyRange extends JellyElement implements EventListenerObject {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['min', 'max', 'step', 'low', 'high', 'label', 'disabled', 'size'];
+    return ['min', 'max', 'step', 'low', 'high', 'label', 'disabled', 'size', ...JellyElement.AXIS_ATTRIBUTES];
   }
 
   constructor () {
@@ -237,8 +247,8 @@ export class JellyRange extends JellyElement implements EventListenerObject {
 
     if (!this.thumbs) {
       this.thumbs = [
-        new JellyBody({ width: size, height: size, radius: size / 2, config: THUMB_CONFIG }),
-        new JellyBody({ width: size, height: size, radius: size / 2, config: THUMB_CONFIG }),
+        this.createBody({ width: size, height: size, radius: size / 2 }, THUMB_CONFIG),
+        this.createBody({ width: size, height: size, radius: size / 2 }, THUMB_CONFIG),
       ];
     } else {
       this.thumbs.forEach((thumb) => thumb.resize(size, size, size / 2));
@@ -634,6 +644,10 @@ export class JellyRange extends JellyElement implements EventListenerObject {
 
   // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
+    if (this.axisAttributeChanged(name)) {
+      return;
+    }
+
     if (name === 'size') {
       canonicalizeSize(this);
     }
@@ -685,8 +699,9 @@ export class JellyRange extends JellyElement implements EventListenerObject {
 
 }
 
-// Register the custom element
-customElements.define('jelly-range', JellyRange);
+export function defineRange (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.range, JellyRange]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

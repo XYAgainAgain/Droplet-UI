@@ -2,9 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount, raf } from '../../testing/index.js';
 
-import './index.js';
-import '../radio/index.js';
 import type { JellyRadioGroup } from './index.js';
+import '../../testing/define-all.js';
 
 test('renders a radiogroup with a labelled legend', async () => {
   const host = mount(`

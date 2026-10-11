@@ -11,6 +11,10 @@ import { propagateSize }     from '../../utilities/index.js';
 import { uniqueId }          from '../../utilities/index.js';
 
 import { ensureThemeTokens } from '../../theme/index.js';
+import { HTMLElementBase }   from '../../element/base.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
+import { JellyRadio }        from '../radio/index.js';
 
 import radioGroupStyles      from './radio-group.css?inline';
 
@@ -29,7 +33,11 @@ import radioGroupStyles      from './radio-group.css?inline';
  * @csspart legend - The legend text.
  * @csspart items - The radiogroup container.
  */
-export class JellyRadioGroup extends HTMLElement {
+export class JellyRadioGroup extends HTMLElementBase {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineRadioGroup(options);
+  }
 
   built = false;
   legendId = '';
@@ -106,8 +114,9 @@ export class JellyRadioGroup extends HTMLElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-radio-group', JellyRadioGroup);
+export function defineRadioGroup (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.radio, JellyRadio], [TAGS.radioGroup, JellyRadioGroup]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

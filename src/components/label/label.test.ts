@@ -2,9 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import './index.js';
-import '../input/index.js';
 import type { JellyLabel } from './index.js';
+import '../../testing/define-all.js';
 
 test('renders a label with a required marker', () => {
   const host = mount('<jelly-label required>Email</jelly-label>');

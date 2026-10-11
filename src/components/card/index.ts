@@ -11,6 +11,8 @@ import { emit }          from '../../utilities/index.js';
 import { triggerHaptic } from '../../utilities/index.js';
 
 import { PALETTE }       from '../../theme/index.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import cardStyles        from './card.css?inline';
 
@@ -24,6 +26,8 @@ import cardStyles        from './card.css?inline';
  *
  * @attr {boolean} squish - Make the card pressable (acts as a button).
  * @attr {"small"|"medium"|"large"} size - Padding / radius scale.
+ * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
+ * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
  * @fires click - When a squish card is activated by keyboard: Enter on keydown, Space on keyup.
  *
@@ -34,6 +38,12 @@ import cardStyles        from './card.css?inline';
  */
 export class JellyCard extends JellyElement {
 
+  static define (options?: DefineOptions): DefineResult {
+    return defineCard(options);
+  }
+
+  static override usesResolver = true;
+
   // Populated in onBuilt()
   card!: HTMLElement;
   pressing = false;
@@ -43,7 +53,7 @@ export class JellyCard extends JellyElement {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['squish'];
+    return ['squish', ...JellyElement.AXIS_ATTRIBUTES];
   }
 
   // Component styles layered over the shared jelly base styles
@@ -204,6 +214,10 @@ export class JellyCard extends JellyElement {
 
   // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
+    if (this.axisAttributeChanged(name)) {
+      return;
+    }
+
     if (name === 'squish') {
       this.syncSquish();
     }
@@ -216,8 +230,9 @@ export class JellyCard extends JellyElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-card', JellyCard);
+export function defineCard (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.card, JellyCard]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

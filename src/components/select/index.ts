@@ -31,7 +31,9 @@ import { PALETTE }          from '../../theme/index.js';
 import { variantColors }    from '../../theme/index.js';
 
 import '../option/index.js';
-import type { JellyOption } from '../option/index.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
+import { JellyOption }         from '../option/index.js';
 
 import selectStyles         from './select.css?inline';
 
@@ -62,6 +64,8 @@ const VIEWPORT_MARGIN = 8;
  * @attr {boolean} open - Reflects whether the option panel is open (set by the control).
  * @attr {"small"|"medium"|"large"} size - Control size.
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Accent hue.
+ * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
+ * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
  * @fires change - When the selection changes.
  *
@@ -71,6 +75,12 @@ const VIEWPORT_MARGIN = 8;
  * @csspart panel-mask - The clipped list surface.
  */
 export class JellySelect extends JellyElement {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineSelect(options);
+  }
+
+  static override usesResolver = true;
 
   // Participate in native form submission through ElementInternals
   static formAssociated = true;
@@ -112,7 +122,7 @@ export class JellySelect extends JellyElement {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['disabled', 'label', 'placeholder', 'size', 'value'];
+    return ['disabled', 'label', 'placeholder', 'size', 'value', ...JellyElement.AXIS_ATTRIBUTES];
   }
 
   constructor () {
@@ -355,7 +365,7 @@ export class JellySelect extends JellyElement {
     this.panelCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     if (!this.panelBody) {
-      this.panelBody = new JellyBody({ width, height, radius: PANEL_RADIUS });
+      this.panelBody = this.createBody({ width, height, radius: PANEL_RADIUS });
     } else {
       this.panelBody.resize(width, height, PANEL_RADIUS);
     }
@@ -784,6 +794,10 @@ export class JellySelect extends JellyElement {
 
   // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
+    if (this.axisAttributeChanged(name)) {
+      return;
+    }
+
     if (this.reflectingValue) {
       return;
     }
@@ -870,8 +884,9 @@ export class JellySelect extends JellyElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-select', JellySelect);
+export function defineSelect (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.select, JellySelect], [TAGS.option, JellyOption]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

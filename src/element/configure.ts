@@ -4,6 +4,7 @@
 import { readScopedAxis }  from '../cascade/index.js';
 import { parseQuality }    from '../resolve/index.js';
 import type { Quality }    from '../resolve/index.js';
+import { LOG_PREFIX }      from '../registry/tags.js';
 
 // Only these spellings are rewritten to canonical form; anything else stays as
 // the author wrote it so the typo stays visible (attribute-matrix.md).
@@ -109,5 +110,5 @@ export function warnUnknownFeel (name: string, doc: Document): void {
   }
 
   seen.add(name);
-  console.warn(`[jelly] unknown feel "${name}"; falling back to gel`);
+  console.warn(`${LOG_PREFIX} unknown feel "${name}"; falling back to gel`);
 }

@@ -19,6 +19,8 @@ import { integrateSpring }  from '../../utilities/index.js';
 
 import { PALETTE }          from '../../theme/index.js';
 import { variantColors }    from '../../theme/index.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import radioStyles          from './radio.css?inline';
 
@@ -37,6 +39,8 @@ import radioStyles          from './radio.css?inline';
  * @attr {string} value - Form value submitted while selected (defaults to "on").
  * @attr {"small"|"medium"|"large"} size - Control size.
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Selected fill hue.
+ * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
+ * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
  * @fires change - When selection changes through user interaction.
  *
@@ -48,6 +52,12 @@ import radioStyles          from './radio.css?inline';
  * @cssprop [--jelly-radio-dot-color] - Center dot color.
  */
 export class JellyRadio extends JellyElement {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineRadio(options);
+  }
+
+  static override usesResolver = true;
 
   // Participate in native <form> submission through ElementInternals
   static formAssociated = true;
@@ -64,7 +74,7 @@ export class JellyRadio extends JellyElement {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['checked', 'disabled', 'label', 'size', 'value'];
+    return ['checked', 'disabled', 'label', 'size', 'value', ...JellyElement.AXIS_ATTRIBUTES];
   }
 
   constructor () {
@@ -253,6 +263,10 @@ export class JellyRadio extends JellyElement {
 
   // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
+    if (this.axisAttributeChanged(name)) {
+      return;
+    }
+
     if (this.control) {
       this.sync(name);
     }
@@ -316,8 +330,9 @@ export class JellyRadio extends JellyElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-radio', JellyRadio);
+export function defineRadio (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.radio, JellyRadio]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

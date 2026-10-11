@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../testing/index.js';
 
-import '../components/input/index.js';
-import '../components/textarea/index.js';
+import { defineInput }        from '../components/input/index.js';
+import { defineTextarea }     from '../components/textarea/index.js';
 import { defineButton }       from '../components/button/index.js';
 import type { JellyButton }   from '../components/button/index.js';
 import type { JellyInput }    from '../components/input/index.js';
@@ -11,6 +11,8 @@ import type { JellyTextarea } from '../components/textarea/index.js';
 import { implicitlySubmit }   from './form-field.js';
 
 defineButton({ strict: false });
+defineInput({ strict: false });
+defineTextarea({ strict: false });
 
 // A foreign form-associated element that claims to be a submit button
 class SubmitProbe extends HTMLElement {

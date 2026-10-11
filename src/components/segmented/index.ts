@@ -20,7 +20,9 @@ import { integrateSpring } from '../../utilities/index.js';
 import { PALETTE }         from '../../theme/index.js';
 
 import '../segment/index.js';
-import type { JellySegment } from '../segment/index.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
+import { JellySegment }       from '../segment/index.js';
 
 import segmentedStyles     from './segmented.css?inline';
 
@@ -37,12 +39,20 @@ import segmentedStyles     from './segmented.css?inline';
  * @attr {string} label - The group's accessible name.
  * @attr {string} name - Form field name submitted with the selected value.
  * @attr {"small"|"medium"|"large"} size - Control size.
+ * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
+ * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
  * @fires change - With `detail.value` when the selection changes.
  *
  * @csspart wrap - The segment container.
  */
 export class JellySegmented extends JellyElement {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineSegmented(options);
+  }
+
+  static override usesResolver = true;
 
   // Participate in native <form> submission through ElementInternals
   static formAssociated = true;
@@ -68,7 +78,7 @@ export class JellySegmented extends JellyElement {
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['value', 'disabled', 'size', 'roles', 'label'];
+    return ['value', 'disabled', 'size', 'roles', 'label', ...JellyElement.AXIS_ATTRIBUTES];
   }
 
   constructor () {
@@ -229,7 +239,7 @@ export class JellySegmented extends JellyElement {
     const r     = pillH / 2;
 
     if (!this.pill) {
-      this.pill = new JellyBody({ width: pillW, height: pillH, radius: r });
+      this.pill = this.createBody({ width: pillW, height: pillH, radius: r });
     } else if (Math.abs(this.pill.width - pillW) > 1.5 || Math.abs(this.pill.height - pillH) > 1.5) {
       // Only rebuild the membrane on a real size change - not the sub-pixel
       // reflow that selecting a tab causes (the active label turns bold).
@@ -452,6 +462,10 @@ export class JellySegmented extends JellyElement {
 
   // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
+    if (this.axisAttributeChanged(name)) {
+      return;
+    }
+
     if (this.reflecting) {
       return;
     }
@@ -509,8 +523,9 @@ export class JellySegmented extends JellyElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-segmented', JellySegmented);
+export function defineSegmented (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.segmented, JellySegmented], [TAGS.segment, JellySegment]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

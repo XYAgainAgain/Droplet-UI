@@ -4,6 +4,10 @@
  * control, so the segment element stays out of the layout entirely
  */
 
+import { HTMLElementBase } from '../../element/base.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
+
 // The minimal surface of a parent that re-reads its segments
 interface SegmentParent extends HTMLElement {
   sync?: () => void;
@@ -20,7 +24,11 @@ interface SegmentParent extends HTMLElement {
  * @attr {boolean} selected - Whether this segment is initially selected.
  * @attr {boolean} disabled - Whether this segment cannot be selected.
  */
-export class JellySegment extends HTMLElement {
+export class JellySegment extends HTMLElementBase {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineSegment(options);
+  }
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
@@ -59,8 +67,9 @@ export class JellySegment extends HTMLElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-segment', JellySegment);
+export function defineSegment (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.segment, JellySegment]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

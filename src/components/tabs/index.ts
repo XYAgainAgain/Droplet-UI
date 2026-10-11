@@ -13,6 +13,11 @@ import { prefersReducedMotion } from '../../utilities/index.js';
 import { ensureThemeTokens }    from '../../theme/index.js';
 
 import '../segmented/index.js';
+import { HTMLElementBase }      from '../../element/base.js';
+import { defineStrict, TAGS }   from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
+import { JellySegment }         from '../segment/index.js';
+import { JellySegmented }       from '../segmented/index.js';
 
 import tabsStyles               from './tabs.css?inline';
 
@@ -32,7 +37,11 @@ interface TabBar extends HTMLElement {
  * @attr {string} value - The panel's value (defaults to its index).
  * @attr {boolean} active - Whether this panel is initially active.
  */
-export class JellyTabPanel extends HTMLElement {
+export class JellyTabPanel extends HTMLElementBase {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineTabPanel(options);
+  }
 
   // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
@@ -71,7 +80,11 @@ export class JellyTabPanel extends HTMLElement {
  *
  * @csspart tabs - The inner segmented tab bar.
  */
-export class JellyTabs extends HTMLElement {
+export class JellyTabs extends HTMLElementBase {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineTabs(options);
+  }
 
   built = false;
 
@@ -252,9 +265,13 @@ export class JellyTabs extends HTMLElement {
 
 }
 
-// Register the custom elements
-customElements.define('jelly-tab-panel', JellyTabPanel);
-customElements.define('jelly-tabs', JellyTabs);
+export function defineTabPanel (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.tabPanel, JellyTabPanel]], options);
+}
+
+export function defineTabs (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.segmented, JellySegmented], [TAGS.segment, JellySegment], [TAGS.tabPanel, JellyTabPanel], [TAGS.tabs, JellyTabs]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

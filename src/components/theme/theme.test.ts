@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount, raf } from '../../testing/index.js';
 
-import './index.js';
 import type { JellyTheme } from './index.js';
+import '../../testing/define-all.js';
 
 test('mode="dark" scopes the dark tokens to its subtree', async () => {
   const host = mount('<jelly-theme mode="dark"><span class="child">x</span></jelly-theme>');

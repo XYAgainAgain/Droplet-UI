@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount } from '../../testing/index.js';
 
-import './index.js';
 import type { JellyDialog } from './index.js';
+import '../../testing/define-all.js';
 
 test('opening sets aria-modal and mirrors the heading as the accessible name', () => {
   const host = mount('<jelly-dialog><h2>Confirm delete</h2><p>Sure?</p></jelly-dialog>');

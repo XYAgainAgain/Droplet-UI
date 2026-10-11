@@ -25,6 +25,9 @@ import { notifyThemeChange } from '../../theme/index.js';
 import { LIGHT_TOKENS }      from '../../theme/index.js';
 import { DARK_TOKENS }       from '../../theme/index.js';
 import type { ThemeMode }    from '../../theme/index.js';
+import { HTMLElementBase }   from '../../element/base.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 // Parse a resolved rgb()/color(srgb) CSS color into normalized RGBA channels
 function colorChannels (color: string): [number, number, number, number] {
@@ -75,7 +78,11 @@ function readableOn (color: string, backdrop: string): string {
  * @attr {"light"|"dark"|"auto"} mode - Force a color scheme, or follow the OS.
  * @attr {string} accent - A named hue or any CSS color to re-tint the accent.
  */
-export class JellyTheme extends HTMLElement {
+export class JellyTheme extends HTMLElementBase {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineTheme(options);
+  }
 
   schemeQuery: MediaQueryList | null;
   onSchemeChange: () => void;
@@ -223,8 +230,9 @@ export class JellyTheme extends HTMLElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-theme', JellyTheme);
+export function defineTheme (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.theme, JellyTheme]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

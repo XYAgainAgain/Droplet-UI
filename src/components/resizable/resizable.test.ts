@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount } from '../../testing/index.js';
 
-import './index.js';
 import type { JellyResizable } from './index.js';
+import '../../testing/define-all.js';
 
 test('lays out panes with a divider between each pair', () => {
   const host = mount('<jelly-resizable><div>L</div><div>M</div><div>R</div></jelly-resizable>');

@@ -11,6 +11,9 @@ import { horizontalStep }    from '../../utilities/index.js';
 import { isRTL }             from '../../utilities/index.js';
 
 import { ensureThemeTokens } from '../../theme/index.js';
+import { HTMLElementBase }   from '../../element/base.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import resizableStyles       from './resizable.css?inline';
 
@@ -30,7 +33,11 @@ type ResizableSizes = number[] | { cols: number[]; rows: number[] };
  *
  * @csspart container - The pane container.
  */
-export class JellyResizable extends HTMLElement {
+export class JellyResizable extends HTMLElementBase {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineResizable(options);
+  }
 
   built = false;
   grow: number[] = [];
@@ -432,8 +439,9 @@ export class JellyResizable extends HTMLElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-resizable', JellyResizable);
+export function defineResizable (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.resizable, JellyResizable]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

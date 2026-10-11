@@ -94,7 +94,7 @@ export const COMPONENTS = [
     "attributes": [
       {
         "name": "feel",
-        "type": "string (a registered feel preset name; \"gel\" ships in Phase 1)",
+        "type": "string (a registered feel preset name; \"gel\" is built in)",
         "default": "gel, or the nearest data-droplet-feel scope",
         "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
       },
@@ -299,6 +299,18 @@ export const COMPONENTS = [
     "description": "A real <button> in the shadow DOM carries keyboard and ARIA semantics while the jelly is painted behind it. shape=\"circle\" reshapes the membrane into a full circle (radius = size / 2) in place — the box size is unchanged, so the canvas never flickers. Give every icon-only button a label so assistive technology has an accessible name.",
     "attributes": [
       {
+        "name": "feel",
+        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "default": "gel, or the nearest data-droplet-feel scope",
+        "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
+      },
+      {
+        "name": "quality",
+        "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
+        "default": "medium, or the nearest data-droplet-quality scope",
+        "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
         "name": "label",
         "type": "string",
         "description": "Accessible name mapped to aria-label on the inner native button. Strongly recommended: the slotted icon usually has no text alternative. Observed live; removing the attribute removes the aria-label."
@@ -436,6 +448,18 @@ export const COMPONENTS = [
     "summary": "A squishy, form-associated checkbox with checked and mixed (indeterminate) states, painted as a soft jelly square that pops when toggled.",
     "description": "A visually-hidden native <input type=\"checkbox\"> carries focus, keyboard behavior and the form value (via ElementInternals), while the jelly square is painted on a canvas behind it. The check mark draws itself on with a dash sweep and overshoot; the indeterminate state shows a dash and reports aria-checked=\"mixed\", clearing on any user toggle.",
     "attributes": [
+      {
+        "name": "feel",
+        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "default": "gel, or the nearest data-droplet-feel scope",
+        "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
+      },
+      {
+        "name": "quality",
+        "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
+        "default": "medium, or the nearest data-droplet-quality scope",
+        "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
       {
         "name": "checked",
         "type": "boolean",
@@ -616,6 +640,18 @@ export const COMPONENTS = [
     "summary": "A single-line text field on a soft jelly surface: focus lifts and rings the membrane and each keystroke ripples the surface at the caret.",
     "description": "Wraps a real native <input> over the canvas-painted jelly body, so keyboard, IME and assistive-technology behavior are native. Form-associated via ElementInternals, so it submits with a `name` like any built-in field. Caret ripples are measured in the input's own font and are direction-aware, landing under the caret in both LTR and RTL.",
     "attributes": [
+      {
+        "name": "feel",
+        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "default": "gel, or the nearest data-droplet-feel scope",
+        "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
+      },
+      {
+        "name": "quality",
+        "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
+        "default": "medium, or the nearest data-droplet-quality scope",
+        "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
       {
         "name": "value",
         "type": "string",
@@ -1086,6 +1122,18 @@ export const COMPONENTS = [
     "description": "Because each radio's control lives in its own shadow root, grouping (by the name attribute, scoped to the nearest document or shadow root), selection, roving tabindex and arrow-key navigation are coordinated by the component itself. The selected control pops with a scale spring and the dot lands with an overshoot.",
     "attributes": [
       {
+        "name": "feel",
+        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "default": "gel, or the nearest data-droplet-feel scope",
+        "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
+      },
+      {
+        "name": "quality",
+        "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
+        "default": "medium, or the nearest data-droplet-quality scope",
+        "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
         "name": "name",
         "type": "string",
         "description": "Group key: radios with the same name under the same root (document or shadow root) are mutually exclusive."
@@ -1344,6 +1392,18 @@ export const COMPONENTS = [
     "description": "Each thumb is a soft physics body that squishes when grabbed and leans into its travel; the accent fill spans the selected interval. Form-associated — submits its value as \"low,high\". Direction-aware: painting, knob placement (inset-inline-start) and arrow keys all mirror in RTL. Window-level drag listeners exist only for the duration of a drag and are cleaned up on release and on disconnect.",
     "attributes": [
       {
+        "name": "feel",
+        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "default": "gel, or the nearest data-droplet-feel scope",
+        "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
+      },
+      {
+        "name": "quality",
+        "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
+        "default": "medium, or the nearest data-droplet-quality scope",
+        "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
         "name": "min",
         "type": "number (string attribute)",
         "default": "0",
@@ -1573,6 +1633,18 @@ export const COMPONENTS = [
     "description": "Form-associated; presented as a radiogroup by default, or as a real tablist with roles=\"tablist\" (this is how <jelly-tabs> uses it). Options are declarative <jelly-segment> children and can change at any time.",
     "attributes": [
       {
+        "name": "feel",
+        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "default": "gel, or the nearest data-droplet-feel scope",
+        "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
+      },
+      {
+        "name": "quality",
+        "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
+        "default": "medium, or the nearest data-droplet-quality scope",
+        "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
         "name": "value",
         "type": "string",
         "description": "The selected segment value (reflected as segments are picked)."
@@ -1703,6 +1775,18 @@ export const COMPONENTS = [
     "summary": "A form-associated dropdown on the ARIA combobox/listbox pattern whose trigger and option panel are both soft-body jelly surfaces, with the panel unfolding out of the field — flipping above it when the viewport has no room below.",
     "description": "The trigger is one canvas-painted jelly body and the option panel is a second one that springs open with an underdamped unfold, revealing rows with a light stagger. Options are declared as light-DOM <jelly-option> children and re-read live through a MutationObserver. Keyboard navigation, aria-expanded/aria-activedescendant, outside-press dismissal, dark-mode theme tokens, RTL layout and native form submission via ElementInternals are all built in.",
     "attributes": [
+      {
+        "name": "feel",
+        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "default": "gel, or the nearest data-droplet-feel scope",
+        "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
+      },
+      {
+        "name": "quality",
+        "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
+        "default": "medium, or the nearest data-droplet-quality scope",
+        "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
       {
         "name": "value",
         "description": "The selected option's value. Reflected: setting it selects the matching option (an unknown value is ignored, an empty value clears the selection back to the placeholder).",
@@ -1914,7 +1998,7 @@ export const COMPONENTS = [
     "attributes": [
       {
         "name": "feel",
-        "type": "string (a registered feel preset name; \"gel\" ships in Phase 1)",
+        "type": "string (a registered feel preset name; \"gel\" is built in)",
         "default": "gel, or the nearest data-droplet-feel scope",
         "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
       },
@@ -2082,6 +2166,18 @@ export const COMPONENTS = [
     "summary": "A draggable jelly switch: a capsule track whose thumb stretches like a liquid drop and whose color crossfades between off and on.",
     "description": "A visually-hidden native checkbox with role=\"switch\" carries focus, keyboard and the form value; the track and thumb are two coupled physics bodies painted on canvas. The thumb can be tapped or dragged past the midpoint; \"on\" always travels toward the inline end, so RTL pages mirror the travel, the drag release decision and the color progress.",
     "attributes": [
+      {
+        "name": "feel",
+        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "default": "gel, or the nearest data-droplet-feel scope",
+        "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
+      },
+      {
+        "name": "quality",
+        "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
+        "default": "medium, or the nearest data-droplet-quality scope",
+        "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
       {
         "name": "checked",
         "type": "boolean",
@@ -2255,6 +2351,18 @@ export const COMPONENTS = [
     "summary": "A multi-line text field on a jelly surface that auto-grows between a min and max height while the membrane follows, rippling at the caret as you type.",
     "description": "Wraps a real native <textarea> over the canvas jelly body. The control auto-sizes to its content (capped by --jelly-textarea-max-height) and a private ResizeObserver keeps the physics shape in sync. Caret position is measured with a hidden layout mirror that replicates font, width, padding, wrapping and direction, so the ripple lands on the caret even across wrapped lines and in RTL. Form-associated via ElementInternals.",
     "attributes": [
+      {
+        "name": "feel",
+        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "default": "gel, or the nearest data-droplet-feel scope",
+        "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
+      },
+      {
+        "name": "quality",
+        "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
+        "default": "medium, or the nearest data-droplet-quality scope",
+        "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
       {
         "name": "value",
         "type": "string",
@@ -2463,6 +2571,18 @@ export const COMPONENTS = [
     "summary": "A callout banner on a jelly surface with four tones and an optional dismiss button.",
     "attributes": [
       {
+        "name": "feel",
+        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "default": "gel, or the nearest data-droplet-feel scope",
+        "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
+      },
+      {
+        "name": "quality",
+        "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
+        "default": "medium, or the nearest data-droplet-quality scope",
+        "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
         "name": "tone",
         "type": "\"info\" | \"success\" | \"warning\" | \"danger\"",
         "default": "info",
@@ -2580,6 +2700,18 @@ export const COMPONENTS = [
     "summary": "A small jelly badge / tag / status pill that pops whenever its text changes.",
     "attributes": [
       {
+        "name": "feel",
+        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "default": "gel, or the nearest data-droplet-feel scope",
+        "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
+      },
+      {
+        "name": "quality",
+        "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
+        "default": "medium, or the nearest data-droplet-quality scope",
+        "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
         "name": "variant",
         "type": "palette name",
         "default": "theme accent",
@@ -2661,6 +2793,18 @@ export const COMPONENTS = [
     "description": "Proper progressbar ARIA (valuemin/max/now, valuetext while indeterminate). The fill grows from the inline-start edge, so it mirrors on RTL pages. Reduced motion swaps the travelling blob for a calm static one.",
     "attributes": [
       {
+        "name": "feel",
+        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "default": "gel, or the nearest data-droplet-feel scope",
+        "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
+      },
+      {
+        "name": "quality",
+        "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
+        "default": "medium, or the nearest data-droplet-quality scope",
+        "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
         "name": "value",
         "type": "number",
         "default": "0",
@@ -2739,6 +2883,18 @@ export const COMPONENTS = [
     "description": "Each instance randomizes its sweep phase and speed so a page of skeletons never pulses in lock-step. role=\"status\" with aria-busy.",
     "attributes": [
       {
+        "name": "feel",
+        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "default": "gel, or the nearest data-droplet-feel scope",
+        "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
+      },
+      {
+        "name": "quality",
+        "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
+        "default": "medium, or the nearest data-droplet-quality scope",
+        "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
         "name": "shape",
         "type": "\"line\" | \"rect\" | \"circle\"",
         "default": "line",
@@ -2773,6 +2929,18 @@ export const COMPONENTS = [
     "group": "Feedback",
     "summary": "Loading indicators with a jelly soul: a gooey blob gliding between three dots, or a living blob that morphs and spins.",
     "attributes": [
+      {
+        "name": "feel",
+        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "default": "gel, or the nearest data-droplet-feel scope",
+        "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
+      },
+      {
+        "name": "quality",
+        "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
+        "default": "medium, or the nearest data-droplet-quality scope",
+        "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
       {
         "name": "type",
         "type": "\"blob\" | \"dots\"",
@@ -2945,6 +3113,18 @@ export const COMPONENTS = [
     "summary": "A jelly surface container; add `squish` to make it press in like a soft cushion and act as a button.",
     "attributes": [
       {
+        "name": "feel",
+        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "default": "gel, or the nearest data-droplet-feel scope",
+        "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
+      },
+      {
+        "name": "quality",
+        "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
+        "default": "medium, or the nearest data-droplet-quality scope",
+        "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
         "name": "squish",
         "type": "boolean",
         "description": "Pressable mode: tabindex=0 + role=\"button\", pointer presses dent the surface, Enter/Space activates with a composed click."
@@ -3029,6 +3209,18 @@ export const COMPONENTS = [
     "summary": "A small jelly capsule: static label, toggleable filter, or removable tag.",
     "description": "Selecting bulges the jelly out and crossfades the fill toward the accent; removing fires a cancelable `remove` event, then collapses the chip's width so neighbours slide in organically.",
     "attributes": [
+      {
+        "name": "feel",
+        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "default": "gel, or the nearest data-droplet-feel scope",
+        "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
+      },
+      {
+        "name": "quality",
+        "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
+        "default": "medium, or the nearest data-droplet-quality scope",
+        "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
       {
         "name": "selectable",
         "type": "boolean",
@@ -3326,6 +3518,18 @@ export const COMPONENTS = [
     "group": "Surfaces",
     "summary": "A jelly keyboard key: poke it, or bind it to a real key so it depresses whenever that key is held.",
     "attributes": [
+      {
+        "name": "feel",
+        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "default": "gel, or the nearest data-droplet-feel scope",
+        "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
+      },
+      {
+        "name": "quality",
+        "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
+        "default": "medium, or the nearest data-droplet-quality scope",
+        "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
       {
         "name": "key",
         "type": "key name",

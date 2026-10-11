@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import './index.js';
 import type { JellyRadio } from './index.js';
+import '../../testing/define-all.js';
 
 test('upgrades with a role=radio control', async () => {
   const host = mount('<jelly-radio>One</jelly-radio>');

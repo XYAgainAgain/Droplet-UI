@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount } from '../../testing/index.js';
 
-import './index.js';
 import type { JellyMenu } from './index.js';
+import '../../testing/define-all.js';
 
 function makeMenu (): { host: HTMLDivElement; el: JellyMenu } {
   const host = mount(`

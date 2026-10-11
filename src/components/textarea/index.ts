@@ -13,6 +13,8 @@ import type { Shape }       from '../../element/index.js';
 
 import { clamp }            from '../../utilities/index.js';
 import { isRTL }            from '../../utilities/index.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import textareaStyles       from './textarea.css?inline';
 
@@ -44,6 +46,8 @@ const MIRRORED_STYLES = [
  * @attr {string} autocomplete - Native autocomplete hint.
  * @attr {boolean} no-autofill - Opt out of browser and password-manager autofill.
  * @attr {"small"|"medium"|"large"} size - Control size.
+ * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
+ * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
  * @prop {string} value - The live value; setting it marks the value dirty and fires no event.
  * @prop {string} defaultValue - Reflects the `value` attribute.
@@ -71,6 +75,10 @@ const MIRRORED_STYLES = [
  * @cssprop [--jelly-fill] - Resting surface fill.
  */
 export class JellyTextarea extends JellyFormField {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineTextarea(options);
+  }
 
   // Populated in onBuilt() / lazily
   textarea!: HTMLTextAreaElement;
@@ -269,8 +277,9 @@ export class JellyTextarea extends JellyFormField {
 
 }
 
-// Register the custom element
-customElements.define('jelly-textarea', JellyTextarea);
+export function defineTextarea (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.textarea, JellyTextarea]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

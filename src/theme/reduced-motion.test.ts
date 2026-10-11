@@ -2,11 +2,13 @@ import { afterEach, expect, test } from 'vitest';
 
 import { mount, settle } from '../testing/index.js';
 
-import '../components/kbd/index.js';
-import '../components/spinner/index.js';
+import { defineKbd }         from '../components/kbd/index.js';
+import { defineSpinner }     from '../components/spinner/index.js';
 import { defineCollapsible } from '../components/collapsible/index.js';
 
 defineCollapsible({ strict: false });
+defineKbd({ strict: false });
+defineSpinner({ strict: false });
 
 const root = document.documentElement;
 const osReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;

@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount, raf } from '../../testing/index.js';
 
-import './index.js';
 import type { JellyPagination } from './index.js';
+import '../../testing/define-all.js';
 
 test('renders a windowed page list with a current page', async () => {
   const host = mount('<jelly-pagination total="12" page="3"></jelly-pagination>');

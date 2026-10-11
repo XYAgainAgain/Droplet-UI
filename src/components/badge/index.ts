@@ -12,6 +12,8 @@
 import { JellyElement } from '../../element/index.js';
 import type { Shape }   from '../../element/index.js';
 import type { Border }  from '../../element/index.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import badgeStyles      from './badge.css?inline';
 import variantStyles    from '../../styles/variants.css?inline';
@@ -29,6 +31,8 @@ import variantStyles    from '../../styles/variants.css?inline';
  * @attr {boolean} instant - Skip the fill crossfade on a variant swap.
  * @attr {boolean} live - Announce content changes to assistive technology.
  * @attr {"pill"|"square"} shape - Full pill (default) or rounded-square.
+ * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
+ * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
  * @csspart badge - The inner pill.
  *
@@ -36,11 +40,17 @@ import variantStyles    from '../../styles/variants.css?inline';
  */
 export class JellyBadge extends JellyElement {
 
+  static define (options?: DefineOptions): DefineResult {
+    return defineBadge(options);
+  }
+
+  static override usesResolver = true;
+
   mutationObserver: MutationObserver | null = null;
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['live', 'shape'];
+    return ['live', 'shape', ...JellyElement.AXIS_ATTRIBUTES];
   }
 
   // Component styles layered over the shared jelly base styles
@@ -135,6 +145,10 @@ export class JellyBadge extends JellyElement {
 
   // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
+    if (this.axisAttributeChanged(name)) {
+      return;
+    }
+
     if (!this.built) {
       return;
     }
@@ -166,8 +180,9 @@ export class JellyBadge extends JellyElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-badge', JellyBadge);
+export function defineBadge (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.badge, JellyBadge]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

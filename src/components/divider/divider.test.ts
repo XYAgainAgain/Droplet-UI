@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount } from '../../testing/index.js';
 
-import './index.js';
 import type { JellyDivider } from './index.js';
+import '../../testing/define-all.js';
 
 test('upgrades as a separator with a plain rule', () => {
   const host = mount('<jelly-divider></jelly-divider>');

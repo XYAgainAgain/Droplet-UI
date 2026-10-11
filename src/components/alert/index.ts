@@ -12,6 +12,8 @@ import type { IconName } from '../../icons/index.js';
 import { emit }          from '../../utilities/index.js';
 
 import { PALETTE }       from '../../theme/index.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import alertStyles       from './alert.css?inline';
 
@@ -33,6 +35,8 @@ const TONE_ICONS: Record<string, IconName> = {
  * @attr {"info"|"success"|"warning"|"danger"} tone - The alert tone / color.
  * @attr {boolean} dismissible - Show a dismiss button.
  * @attr {"small"|"medium"|"large"} size - Banner size.
+ * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
+ * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
  *
  * @fires dismiss - When the alert is dismissed.
  *
@@ -43,17 +47,27 @@ const TONE_ICONS: Record<string, IconName> = {
  */
 export class JellyAlert extends JellyElement {
 
+  static define (options?: DefineOptions): DefineResult {
+    return defineAlert(options);
+  }
+
+  static override usesResolver = true;
+
   shakeT = 0;
   shaking = 0;
   shakeDir = -1;
 
   // Tells the browser to trigger attributeChangedCallback when these attributes change
   static get observedAttributes (): string[] {
-    return ['tone', 'size', 'dismissible'];
+    return ['tone', 'size', 'dismissible', ...JellyElement.AXIS_ATTRIBUTES];
   }
 
   // Lifecycle method: Fires when observed HTML attributes change dynamically
   attributeChangedCallback (name: string): void {
+    if (this.axisAttributeChanged(name)) {
+      return;
+    }
+
     if (!this.built) {
       return;
     }
@@ -190,8 +204,9 @@ export class JellyAlert extends JellyElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-alert', JellyAlert);
+export function defineAlert (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.alert, JellyAlert]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

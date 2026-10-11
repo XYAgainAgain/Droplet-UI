@@ -8,6 +8,9 @@ import { canonicalizeSize }  from '../../utilities/index.js';
 import { escapeHTML }        from '../../utilities/index.js';
 
 import { ensureThemeTokens } from '../../theme/index.js';
+import { HTMLElementBase }   from '../../element/base.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import breadcrumbsStyles     from './breadcrumbs.css?inline';
 
@@ -20,7 +23,11 @@ import breadcrumbsStyles     from './breadcrumbs.css?inline';
  *
  * @attr {"small"|"medium"|"large"} size - Typography scale.
  */
-export class JellyBreadcrumbs extends HTMLElement {
+export class JellyBreadcrumbs extends HTMLElementBase {
+
+  static define (options?: DefineOptions): DefineResult {
+    return defineBreadcrumbs(options);
+  }
 
   built = false;
   mutationObserver: MutationObserver | null = null;
@@ -103,8 +110,9 @@ export class JellyBreadcrumbs extends HTMLElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-breadcrumbs', JellyBreadcrumbs);
+export function defineBreadcrumbs (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.breadcrumbs, JellyBreadcrumbs]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

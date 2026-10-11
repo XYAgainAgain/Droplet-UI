@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount } from '../../testing/index.js';
 
-import './index.js';
 import type { JellyTooltip } from './index.js';
+import '../../testing/define-all.js';
 
 test('mirrors text into the bubble and describes the trigger', () => {
   const host = mount('<jelly-tooltip text="Copy link"><button>Copy</button></jelly-tooltip>');

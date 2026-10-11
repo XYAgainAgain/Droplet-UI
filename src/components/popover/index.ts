@@ -19,6 +19,9 @@ import { emit }              from '../../utilities/index.js';
 import { canonicalizeSize }  from '../../utilities/index.js';
 
 import { ensureThemeTokens } from '../../theme/index.js';
+import { HTMLElementBase }   from '../../element/base.js';
+import { defineStrict, TAGS } from '../../registry/index.js';
+import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import popoverStyles         from './popover.css?inline';
 
@@ -39,7 +42,11 @@ import popoverStyles         from './popover.css?inline';
  *
  * @csspart panel - The floating panel.
  */
-export class JellyPopover extends HTMLElement {
+export class JellyPopover extends HTMLElementBase {
+
+  static define (options?: DefineOptions): DefineResult {
+    return definePopover(options);
+  }
 
   built = false;
   isOpen = false;
@@ -250,8 +257,9 @@ export class JellyPopover extends HTMLElement {
 
 }
 
-// Register the custom element
-customElements.define('jelly-popover', JellyPopover);
+export function definePopover (options: DefineOptions = {}): DefineResult {
+  return defineStrict([[TAGS.popover, JellyPopover]], options);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

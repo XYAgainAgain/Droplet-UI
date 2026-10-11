@@ -24,7 +24,7 @@ export type FieldControl = HTMLInputElement | HTMLTextAreaElement;
 // Attributes every text field observes; components append their own
 export const FIELD_ATTRIBUTES: readonly string[] = [
   'id', 'value', 'placeholder', 'label', 'disabled', 'readonly',
-  'autocomplete', 'no-autofill', 'size', ...FORWARDED_ARIA,
+  'autocomplete', 'no-autofill', 'size', ...FORWARDED_ARIA, ...JellyElement.AXIS_ATTRIBUTES,
 ];
 
 // Properties a framework may assign before upgrade (state-and-reflection.md)
@@ -118,6 +118,8 @@ export abstract class JellyFormField extends JellyElement implements EventListen
 
   // Participate in native form submission, validation and reset through ElementInternals
   static formAssociated = true;
+
+  static override usesResolver = true;
 
   // Constraint and hint attributes copied verbatim onto the inner control
   static CONSTRAINTS: readonly string[] = ['required', 'minlength', 'maxlength', 'inputmode', 'enterkeyhint'];
@@ -222,6 +224,10 @@ export abstract class JellyFormField extends JellyElement implements EventListen
   // Lifecycle method: Fires when observed HTML attributes change dynamically
   // Each explicit ARIA element set rewrites the same "" attribute, so aria-* syncs even when unchanged
   attributeChangedCallback (name: string, oldValue: string | null, newValue: string | null): void {
+    if (this.axisAttributeChanged(name)) {
+      return;
+    }
+
     if (this.control && (oldValue !== newValue || name.startsWith('aria-'))) {
       this.sync(name);
     }

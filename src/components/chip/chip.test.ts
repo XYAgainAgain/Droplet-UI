@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 
 import { mount, settle } from '../../testing/index.js';
 
-import './index.js';
 import type { JellyChip } from './index.js';
+import '../../testing/define-all.js';
 
 test('a plain chip renders its label in a span', async () => {
   const host = mount('<jelly-chip>Design</jelly-chip>');
