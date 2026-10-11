@@ -1,32 +1,32 @@
 :host {
   display: inline-block;
 
-  --jelly-label-font-size: 13.5px;
-  --jelly-label-gap:       5px;
+  --droplet-label-font-size: 13.5px; --jelly-label-font-size: var(--droplet-label-font-size);
+  --droplet-label-gap: 5px; --jelly-label-gap: var(--droplet-label-gap);
 }
 
 :host([size="small"]) {
-  --jelly-label-font-size: 12px;
-  --jelly-label-gap:       4px;
+  --droplet-label-font-size: 12px; --jelly-label-font-size: var(--droplet-label-font-size);
+  --droplet-label-gap: 4px; --jelly-label-gap: var(--droplet-label-gap);
 }
 
 :host([size="large"]) {
-  --jelly-label-font-size: 15px;
-  --jelly-label-gap:       6px;
+  --droplet-label-font-size: 15px; --jelly-label-font-size: var(--droplet-label-font-size);
+  --droplet-label-gap: 6px; --jelly-label-gap: var(--droplet-label-gap);
 }
 
 label {
   display:        inline-flex;
   align-items:    center;
-  gap:            var(--jelly-label-gap);
-  font:           650 var(--jelly-label-font-size)/1.3 var(--jelly-font-display);
+  gap:            var(--jelly-label-gap, var(--droplet-label-gap));
+  font:           650 var(--jelly-label-font-size, var(--droplet-label-font-size))/1.3 var(--jelly-font-display, var(--droplet-font-display));
   letter-spacing: 0.01em;
-  color:          var(--jelly-color-foreground-default);
+  color:          var(--jelly-color-foreground-default, var(--droplet-color-foreground-default));
   cursor:         default;
 }
 
 .required {
-  color:       var(--jelly-color-background-rose);
+  color:       var(--jelly-color-background-rose, var(--droplet-color-background-rose));
   font-weight: 800;
 }
 

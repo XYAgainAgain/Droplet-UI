@@ -106,7 +106,7 @@ export class DropletSwitch extends DropletElement {
 
   // Component styles layered over the shared jelly base styles
   override styles (): string {
-    return switchStyles + variantColors({ color: '--jelly-on', on: '--jelly-switch-thumb-on' });
+    return switchStyles + variantColors({ color: '--droplet-on', on: '--droplet-switch-thumb-on' });
   }
 
   // The interactive markup that sits above the canvas
@@ -114,7 +114,7 @@ export class DropletSwitch extends DropletElement {
     return `
       <label class="wrap" part="wrap">
         <input type="checkbox" role="switch" part="input" />
-        <span class="track" data-jelly-box part="track" aria-hidden="true"></span>
+        <span class="track" data-droplet-box part="track" aria-hidden="true"></span>
         <span class="label"><slot></slot></span>
       </label>`;
   }
@@ -173,8 +173,8 @@ export class DropletSwitch extends DropletElement {
    */
   trackFill (): string {
     return this.mixColor(
-      'var(--jelly-off)',
-      'var(--jelly-on)',
+      'var(--jelly-off, var(--droplet-off))',
+      'var(--jelly-on, var(--droplet-on))',
       this.slideProgress(),
     );
   }
@@ -184,8 +184,8 @@ export class DropletSwitch extends DropletElement {
   // accents. Variants can still override --jelly-switch-thumb-on for contrast.
   thumbFill (): string {
     return this.mixColor(
-      'var(--jelly-switch-thumb-off)',
-      'var(--jelly-switch-thumb-on)',
+      'var(--jelly-switch-thumb-off, var(--droplet-switch-thumb-off))',
+      'var(--jelly-switch-thumb-on, var(--droplet-switch-thumb-on))',
       this.slideProgress(),
     );
   }

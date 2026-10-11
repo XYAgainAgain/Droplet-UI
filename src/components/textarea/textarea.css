@@ -1,53 +1,53 @@
 :host {
-  --jelly-textarea-font-size:      15.5px;
-  --jelly-textarea-padding-block:  16px;
-  --jelly-textarea-padding-inline: 20px;
-  --jelly-textarea-radius:         18px;
-  --jelly-textarea-min-height:     96px;
-  --jelly-textarea-max-height:     240px;
+  --droplet-textarea-font-size: 15.5px; --jelly-textarea-font-size: var(--droplet-textarea-font-size);
+  --droplet-textarea-padding-block: 16px; --jelly-textarea-padding-block: var(--droplet-textarea-padding-block);
+  --droplet-textarea-padding-inline: 20px; --jelly-textarea-padding-inline: var(--droplet-textarea-padding-inline);
+  --droplet-textarea-radius: 18px; --jelly-textarea-radius: var(--droplet-textarea-radius);
+  --droplet-textarea-min-height: 96px; --jelly-textarea-min-height: var(--droplet-textarea-min-height);
+  --droplet-textarea-max-height: 240px; --jelly-textarea-max-height: var(--droplet-textarea-max-height);
 
-  --jelly-fill:   var(--jelly-color-background-muted);
-  --jelly-label:  var(--jelly-color-foreground-default);
-  --jelly-accent: var(--jelly-color-background-accent);
-  --jelly-ring:   var(--jelly-accent, var(--jelly-color-border-focus));
+  --droplet-fill: var(--jelly-color-background-muted, var(--droplet-color-background-muted)); --jelly-fill: var(--droplet-fill);
+  --droplet-label: var(--jelly-color-foreground-default, var(--droplet-color-foreground-default)); --jelly-label: var(--droplet-label);
+  --droplet-accent: var(--jelly-color-background-accent, var(--droplet-color-background-accent)); --jelly-accent: var(--droplet-accent);
+  --droplet-ring: var(--jelly-accent, var(--droplet-accent, var(--jelly-color-border-focus, var(--droplet-color-border-focus)))); --jelly-ring: var(--droplet-ring);
 
   display: inline-block;
   width:   320px;
-  font:    500 var(--jelly-textarea-font-size)/1.5 var(--jelly-font-text);
+  font:    500 var(--jelly-textarea-font-size, var(--droplet-textarea-font-size))/1.5 var(--jelly-font-text, var(--droplet-font-text));
 }
 
 :host([size="small"]),
 :host([size="sm"]) {
-  --jelly-textarea-font-size:      14px;
-  --jelly-textarea-padding-block:  13px;
-  --jelly-textarea-padding-inline: 16px;
-  --jelly-textarea-radius:         15px;
-  --jelly-textarea-min-height:     76px;
-  --jelly-textarea-max-height:     200px;
+  --droplet-textarea-font-size: 14px; --jelly-textarea-font-size: var(--droplet-textarea-font-size);
+  --droplet-textarea-padding-block: 13px; --jelly-textarea-padding-block: var(--droplet-textarea-padding-block);
+  --droplet-textarea-padding-inline: 16px; --jelly-textarea-padding-inline: var(--droplet-textarea-padding-inline);
+  --droplet-textarea-radius: 15px; --jelly-textarea-radius: var(--droplet-textarea-radius);
+  --droplet-textarea-min-height: 76px; --jelly-textarea-min-height: var(--droplet-textarea-min-height);
+  --droplet-textarea-max-height: 200px; --jelly-textarea-max-height: var(--droplet-textarea-max-height);
 
   width: 280px;
 }
 
 :host([size="medium"]),
 :host([size="md"]) {
-  --jelly-textarea-font-size:      15.5px;
-  --jelly-textarea-padding-block:  16px;
-  --jelly-textarea-padding-inline: 20px;
-  --jelly-textarea-radius:         18px;
-  --jelly-textarea-min-height:     96px;
-  --jelly-textarea-max-height:     240px;
+  --droplet-textarea-font-size: 15.5px; --jelly-textarea-font-size: var(--droplet-textarea-font-size);
+  --droplet-textarea-padding-block: 16px; --jelly-textarea-padding-block: var(--droplet-textarea-padding-block);
+  --droplet-textarea-padding-inline: 20px; --jelly-textarea-padding-inline: var(--droplet-textarea-padding-inline);
+  --droplet-textarea-radius: 18px; --jelly-textarea-radius: var(--droplet-textarea-radius);
+  --droplet-textarea-min-height: 96px; --jelly-textarea-min-height: var(--droplet-textarea-min-height);
+  --droplet-textarea-max-height: 240px; --jelly-textarea-max-height: var(--droplet-textarea-max-height);
 
   width: 320px;
 }
 
 :host([size="large"]),
 :host([size="lg"]) {
-  --jelly-textarea-font-size:      16.5px;
-  --jelly-textarea-padding-block:  18px;
-  --jelly-textarea-padding-inline: 24px;
-  --jelly-textarea-radius:         20px;
-  --jelly-textarea-min-height:     124px;
-  --jelly-textarea-max-height:     300px;
+  --droplet-textarea-font-size: 16.5px; --jelly-textarea-font-size: var(--droplet-textarea-font-size);
+  --droplet-textarea-padding-block: 18px; --jelly-textarea-padding-block: var(--droplet-textarea-padding-block);
+  --droplet-textarea-padding-inline: 24px; --jelly-textarea-padding-inline: var(--droplet-textarea-padding-inline);
+  --droplet-textarea-radius: 20px; --jelly-textarea-radius: var(--droplet-textarea-radius);
+  --droplet-textarea-min-height: 124px; --jelly-textarea-min-height: var(--droplet-textarea-min-height);
+  --droplet-textarea-max-height: 300px; --jelly-textarea-max-height: var(--droplet-textarea-max-height);
 
   width: 380px;
 }
@@ -55,7 +55,7 @@
 /* :disabled also catches an ancestor <fieldset disabled> */
 :host([disabled]),
 :host(:disabled) {
-  --jelly-fill: var(--jelly-color-background-neutral);
+  --droplet-fill: var(--jelly-color-background-neutral, var(--droplet-color-background-neutral)); --jelly-fill: var(--droplet-fill);
 
   opacity:        0.55;
   pointer-events: none;
@@ -69,19 +69,19 @@ textarea {
   outline:        none;
   resize:         none;
   background:     transparent;
-  padding-block:  var(--jelly-textarea-padding-block);
-  padding-inline: var(--jelly-textarea-padding-inline);
-  min-height:     var(--jelly-textarea-min-height);
-  max-height:     var(--jelly-textarea-max-height);
+  padding-block:  var(--jelly-textarea-padding-block, var(--droplet-textarea-padding-block));
+  padding-inline: var(--jelly-textarea-padding-inline, var(--droplet-textarea-padding-inline));
+  min-height:     var(--jelly-textarea-min-height, var(--droplet-textarea-min-height));
+  max-height:     var(--jelly-textarea-max-height, var(--droplet-textarea-max-height));
   overflow-y:     auto;
   font:           inherit;
-  color:          var(--jelly-label);
+  color:          var(--jelly-label, var(--droplet-label));
   text-align:     start;
   touch-action:   manipulation;
 }
 
 textarea::placeholder {
-  color: var(--jelly-color-foreground-muted);
+  color: var(--jelly-color-foreground-muted, var(--droplet-color-foreground-muted));
 }
 
 /* The focus ring is painted on the canvas so it follows the jiggle;
@@ -89,8 +89,8 @@ textarea::placeholder {
 .ring {
   position:       absolute;
   inset:          4px;
-  border:         var(--jelly-ring-width) solid transparent;
-  border-radius:  var(--jelly-textarea-radius);
+  border:         var(--jelly-ring-width, var(--droplet-ring-width)) solid transparent;
+  border-radius:  var(--jelly-textarea-radius, var(--droplet-textarea-radius));
   pointer-events: none;
 }
 

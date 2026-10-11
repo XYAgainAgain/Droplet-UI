@@ -23,16 +23,16 @@ export function propagateSize (host: Element, selector: string): void {
   const size = host.getAttribute('size');
 
   for (const child of host.querySelectorAll(selector)) {
-    const inherited = child.hasAttribute('data-jelly-inherited-size');
+    const inherited = child.hasAttribute('data-droplet-inherited-size');
 
     if (size) {
       if (!child.hasAttribute('size') || inherited) {
         child.setAttribute('size', size);
-        child.setAttribute('data-jelly-inherited-size', '');
+        child.setAttribute('data-droplet-inherited-size', '');
       }
     } else if (inherited) {
       child.removeAttribute('size');
-      child.removeAttribute('data-jelly-inherited-size');
+      child.removeAttribute('data-droplet-inherited-size');
     }
   }
 }

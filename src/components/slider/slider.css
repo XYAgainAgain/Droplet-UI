@@ -1,9 +1,9 @@
 :host {
-  --jelly-slider-track-height: 12px;
+  --droplet-slider-track-height: 12px; --jelly-slider-track-height: var(--droplet-slider-track-height);
 
-  --jelly-track:  var(--jelly-color-background-neutral);
-  --jelly-accent: var(--jelly-color-background-accent);
-  --jelly-ring:   var(--jelly-accent, var(--jelly-color-border-focus));
+  --droplet-track: var(--jelly-color-background-neutral, var(--droplet-color-background-neutral)); --jelly-track: var(--droplet-track);
+  --droplet-accent: var(--jelly-color-background-accent, var(--droplet-color-background-accent)); --jelly-accent: var(--droplet-accent);
+  --droplet-ring: var(--jelly-accent, var(--droplet-accent, var(--jelly-color-border-focus, var(--droplet-color-border-focus)))); --jelly-ring: var(--droplet-ring);
 
   display: inline-block;
   width:   240px;
@@ -12,21 +12,21 @@
 }
 
 :host([size="small"]) {
-  --jelly-slider-track-height: 9px;
+  --droplet-slider-track-height: 9px; --jelly-slider-track-height: var(--droplet-slider-track-height);
 
   width:  200px;
   height: 30px;
 }
 
 :host([size="medium"]) {
-  --jelly-slider-track-height: 12px;
+  --droplet-slider-track-height: 12px; --jelly-slider-track-height: var(--droplet-slider-track-height);
 
   width:  240px;
   height: 36px;
 }
 
 :host([size="large"]) {
-  --jelly-slider-track-height: 14px;
+  --droplet-slider-track-height: 14px; --jelly-slider-track-height: var(--droplet-slider-track-height);
 
   width:  300px;
   height: 44px;
@@ -58,7 +58,7 @@ input {
   inset-inline: 0;
   top:          50%;
   transform:    translateY(-50%);
-  height:       var(--jelly-slider-track-height);
+  height:       var(--jelly-slider-track-height, var(--droplet-slider-track-height));
   touch-action: none;
 }
 
@@ -75,12 +75,12 @@ input {
 
 /* With no 2D context the canvas can never show the value, so hand the control
    back to the native range input (canvas-is-decoration.md) */
-:host([data-jelly-nocanvas]) .jelly-canvas,
-:host([data-jelly-nocanvas]) .track {
+:host([data-droplet-nocanvas]) .droplet-canvas,
+:host([data-droplet-nocanvas]) .track {
   display: none;
 }
 
-:host([data-jelly-nocanvas]) input {
+:host([data-droplet-nocanvas]) input {
   opacity:        1;
   pointer-events: auto;
 }
@@ -88,7 +88,7 @@ input {
 /* The painted canvas carries no forced-colors information, so hand the
    control back to the fully styleable native range input there */
 @media (forced-colors: active) {
-  .jelly-canvas,
+  .droplet-canvas,
   .track {
     display: none;
   }

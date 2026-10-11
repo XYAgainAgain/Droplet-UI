@@ -57,6 +57,7 @@ import type { Border }           from './types.js';
 import type { PaintOptions }     from './types.js';
 import type { WirePressOptions } from './types.js';
 import { LOG_PREFIX }            from '../registry/tags.js';
+import { readToken } from '../theme/token-read.js';
 
 // Re-export the shape / paint / wiring types so consumers import them from here
 export type { RGBA, Shape, Ring, Border, PaintOptions, WirePressOptions } from './types.js';
@@ -360,14 +361,14 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
   // goes unhandled. Painting stops and the CSS focus fallback takes over.
   onContextLost = (): void => {
     this.contextLost = true;
-    this.setAttribute('data-jelly-nocanvas', '');
+    this.setAttribute('data-droplet-nocanvas', '');
     engine.drop(this);
   };
 
   // The restored context comes back untransformed and with no cached paths
   onContextRestored = (): void => {
     this.contextLost = false;
-    this.removeAttribute('data-jelly-nocanvas');
+    this.removeAttribute('data-droplet-nocanvas');
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     // applyShape early-returns while the context is lost, so a resize during the loss
     // lands here; it skips the repaint on an unchanged size, hence requestFrame.
@@ -400,7 +401,7 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
 
   // Resolve the current fill color (the canvas reads the computed token)
   fill (): string {
-    const custom = getComputedStyle(this).getPropertyValue('--jelly-fill').trim();
+    const custom = readToken(getComputedStyle(this), 'fill').trim();
 
     return custom || PALETTE['background-accent']!;
   }
@@ -442,8 +443,8 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
     this.observeResize();
 
     // Many components style themselves entirely from host attributes the
-    // subclass doesn't observe (variant → --jelly-fill via CSS, inline
-    // --jelly-* overrides, state classes). Repaint the canvas on any host
+    // subclass doesn't observe (variant → --droplet-fill via CSS, inline
+    // token overrides, state classes). Repaint the canvas on any host
     // attribute change so a dynamically set variant / token takes effect
     // immediately instead of waiting for the next interaction.
     if (!this.attributeObserver) {
@@ -453,8 +454,9 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
 
     // Theme flips change the computed fill; zoom changes the device pixel
     // ratio without firing the ResizeObserver - both need a repaint
-    window.addEventListener('jelly-theme-change', this.onThemeChange);
-    window.addEventListener('jelly-motion-change', this.onMotionChange);
+    window.addEventListener('droplet-theme-change', this.onThemeChange);
+    // The theme runtime relays a page's jelly-motion-change under this name
+    window.addEventListener('droplet-motion-change', this.onMotionChange);
     window.addEventListener('resize', this.onWindowResize, { passive: true });
 
     this.requestFrame();
@@ -484,8 +486,8 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
     this.scopeUnsubscribe?.();
     this.scopeUnsubscribe = null;
 
-    window.removeEventListener('jelly-theme-change', this.onThemeChange);
-    window.removeEventListener('jelly-motion-change', this.onMotionChange);
+    window.removeEventListener('droplet-theme-change', this.onThemeChange);
+    window.removeEventListener('droplet-motion-change', this.onMotionChange);
     window.removeEventListener('resize', this.onWindowResize);
 
     if (this.resizeObserver) {
@@ -515,13 +517,13 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
   build (): void {
     this.shadowRoot!.innerHTML =
       `<style>${baseStyles}${this.styles()}</style>` +
-      `<svg class="jelly-overhang" aria-hidden="true"><foreignObject>` +
-      `<canvas class="jelly-canvas" part="jelly" aria-hidden="true"></canvas>` +
+      `<svg class="droplet-overhang" aria-hidden="true"><foreignObject>` +
+      `<canvas class="droplet-canvas" part="droplet jelly" aria-hidden="true"></canvas>` +
       `</foreignObject></svg>` +
-      `<div class="jelly-content">${this.content()}</div>`;
+      `<div class="droplet-content">${this.content()}</div>`;
 
-    this.canvas   = this.shadowRoot!.querySelector<HTMLCanvasElement>('.jelly-canvas')!;
-    this.overhang = this.shadowRoot!.querySelector<SVGForeignObjectElement>('.jelly-overhang > foreignObject')!;
+    this.canvas   = this.shadowRoot!.querySelector<HTMLCanvasElement>('.droplet-canvas')!;
+    this.overhang = this.shadowRoot!.querySelector<SVGForeignObjectElement>('.droplet-overhang > foreignObject')!;
     this.built    = true;
 
     const ctx = this.canvas.getContext('2d');
@@ -533,7 +535,7 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
       this.canvas.addEventListener('contextlost', this.onContextLost);
       this.canvas.addEventListener('contextrestored', this.onContextRestored);
     } else {
-      this.setAttribute('data-jelly-nocanvas', '');
+      this.setAttribute('data-droplet-nocanvas', '');
     }
 
     this.onBuilt();
@@ -554,7 +556,7 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
   /*
    * The region the jelly shape occupies, in host-local pixels. Defaults to
    * the whole host; a component can mark an inner element with
-   * `data-jelly-box` to render the jelly over just that sub-region
+   * `data-droplet-box` to render the jelly over just that sub-region
    * (e.g. a checkbox next to its label).
    */
   dropletBox (): { width: number; height: number; offsetX: number; offsetY: number; screenX: number; screenY: number } {
@@ -569,7 +571,7 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
     const invX = sx > 0.001 ? 1 / sx : 1;
     const invY = sy > 0.001 ? 1 / sy : 1;
 
-    const boxEl = this.shadowRoot!.querySelector('[data-jelly-box]');
+    const boxEl = this.shadowRoot!.querySelector('[data-droplet-box]');
     const b     = boxEl ? boxEl.getBoundingClientRect() : hostRect;
 
     return {
@@ -846,7 +848,7 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
   /* ---- Focus ring -------------------------------------------------- */
 
   // Ring descriptor when keyboard-focused, else null. Override as needed.
-  // Width and gap resolve from --jelly-ring-width / --jelly-ring-gap so the
+  // Width and gap resolve from --droplet-ring-width and --droplet-ring-gap so the
   // ring geometry is themeable, not only its color.
   focusRing (): Ring | null {
     if (!this.focusVisible) {
@@ -854,18 +856,18 @@ export class DropletElement extends HTMLElementBase implements DropletComponent 
     }
 
     const styles = getComputedStyle(this);
-    const width  = parseFloat(styles.getPropertyValue('--jelly-ring-width')) || FOCUS_RING.width;
-    const gap    = parseFloat(styles.getPropertyValue('--jelly-ring-gap'));
+    const width  = parseFloat(readToken(styles, 'ring-width')) || FOCUS_RING.width;
+    const gap    = parseFloat(readToken(styles, 'ring-gap'));
 
     return { color: this.ringColor(), width, gap: Number.isFinite(gap) ? gap : FOCUS_RING.gap };
   }
 
   // The focus ring color, softly blended toward transparent - it tracks the
-  // component's own --jelly-ring (usually its fill hue) so the ring reads as
+  // component's own --droplet-ring (usually its fill hue) so the ring reads as
   // part of the control rather than a generic blue outline.
   ringColor (): string {
     const [r, g, b, a] = this.rgbaTuple(
-      `var(--jelly-ring, var(--jelly-color-border-focus, ${PALETTE['border-focus']}))`,
+      `var(--jelly-ring, var(--droplet-ring, var(--jelly-color-border-focus, var(--droplet-color-border-focus, ${PALETTE['border-focus']}))))`,
     );
 
     /* Canvas strokeStyle support for CSS Color 4's color(srgb … / .5)

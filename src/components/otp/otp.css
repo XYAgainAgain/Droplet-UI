@@ -1,30 +1,30 @@
 :host {
   display: inline-flex;
 
-  --jelly-otp-width:     44px;
-  --jelly-otp-height:    52px;
-  --jelly-otp-gap:       9px;
-  --jelly-otp-font-size: 22px;
-  --jelly-otp-radius:    14px;
+  --droplet-otp-width: 44px; --jelly-otp-width: var(--droplet-otp-width);
+  --droplet-otp-height: 52px; --jelly-otp-height: var(--droplet-otp-height);
+  --droplet-otp-gap: 9px; --jelly-otp-gap: var(--droplet-otp-gap);
+  --droplet-otp-font-size: 22px; --jelly-otp-font-size: var(--droplet-otp-font-size);
+  --droplet-otp-radius: 14px; --jelly-otp-radius: var(--droplet-otp-radius);
 
-  --jelly-ring:       var(--jelly-color-border-focus);
-  --jelly-otp-accent: var(--jelly-color-background-accent);
+  --droplet-ring: var(--jelly-color-border-focus, var(--droplet-color-border-focus)); --jelly-ring: var(--droplet-ring);
+  --droplet-otp-accent: var(--jelly-color-background-accent, var(--droplet-color-background-accent)); --jelly-otp-accent: var(--droplet-otp-accent);
 }
 
 :host([size="small"]) {
-  --jelly-otp-width:     36px;
-  --jelly-otp-height:    44px;
-  --jelly-otp-gap:       7px;
-  --jelly-otp-font-size: 18px;
-  --jelly-otp-radius:    12px;
+  --droplet-otp-width: 36px; --jelly-otp-width: var(--droplet-otp-width);
+  --droplet-otp-height: 44px; --jelly-otp-height: var(--droplet-otp-height);
+  --droplet-otp-gap: 7px; --jelly-otp-gap: var(--droplet-otp-gap);
+  --droplet-otp-font-size: 18px; --jelly-otp-font-size: var(--droplet-otp-font-size);
+  --droplet-otp-radius: 12px; --jelly-otp-radius: var(--droplet-otp-radius);
 }
 
 :host([size="large"]) {
-  --jelly-otp-width:     54px;
-  --jelly-otp-height:    62px;
-  --jelly-otp-gap:       11px;
-  --jelly-otp-font-size: 26px;
-  --jelly-otp-radius:    17px;
+  --droplet-otp-width: 54px; --jelly-otp-width: var(--droplet-otp-width);
+  --droplet-otp-height: 62px; --jelly-otp-height: var(--droplet-otp-height);
+  --droplet-otp-gap: 11px; --jelly-otp-gap: var(--droplet-otp-gap);
+  --droplet-otp-font-size: 26px; --jelly-otp-font-size: var(--droplet-otp-font-size);
+  --droplet-otp-radius: 17px; --jelly-otp-radius: var(--droplet-otp-radius);
 }
 
 /* One-time codes read left-to-right in every locale, so the digit
@@ -32,34 +32,34 @@
    navigation below correct on RTL pages */
 .row {
   display:   inline-flex;
-  gap:       var(--jelly-otp-gap);
+  gap:       var(--jelly-otp-gap, var(--droplet-otp-gap));
   direction: ltr;
 }
 
 input {
-  width:          var(--jelly-otp-width);
-  height:         var(--jelly-otp-height);
+  width:          var(--jelly-otp-width, var(--droplet-otp-width));
+  height:         var(--jelly-otp-height, var(--droplet-otp-height));
   box-sizing:     border-box;
   text-align:     center;
 
-  border:         1px solid var(--jelly-color-background-neutral);
-  border-radius:  var(--jelly-otp-radius);
-  background:     var(--jelly-color-background-muted);
-  color:          var(--jelly-color-foreground-default);
+  border:         1px solid var(--jelly-color-background-neutral, var(--droplet-color-background-neutral));
+  border-radius:  var(--jelly-otp-radius, var(--droplet-otp-radius));
+  background:     var(--jelly-color-background-muted, var(--droplet-color-background-muted));
+  color:          var(--jelly-color-foreground-default, var(--droplet-color-foreground-default));
 
-  font:           640 var(--jelly-otp-font-size)/1 var(--jelly-font-display);
-  caret-color:    var(--jelly-otp-accent);
+  font:           640 var(--jelly-otp-font-size, var(--droplet-otp-font-size))/1 var(--jelly-font-display, var(--droplet-font-display));
+  caret-color:    var(--jelly-otp-accent, var(--droplet-otp-accent));
   touch-action:   manipulation;
 
-  outline:        var(--jelly-ring-width) solid transparent;
-  outline-offset: var(--jelly-ring-gap);
+  outline:        var(--jelly-ring-width, var(--droplet-ring-width)) solid transparent;
+  outline-offset: var(--jelly-ring-gap, var(--droplet-ring-gap));
   transition:     background .15s;
 }
 
 input:focus {
-  background:    var(--jelly-color-background-surface);
-  border-color:  var(--jelly-ring);
-  outline-color: var(--jelly-ring-color);
+  background:    var(--jelly-color-background-surface, var(--droplet-color-background-surface));
+  border-color:  var(--jelly-ring, var(--droplet-ring));
+  outline-color: var(--jelly-ring-color, var(--droplet-ring-color));
 }
 
 :host([disabled]) {
@@ -68,7 +68,7 @@ input:focus {
 }
 
 :host([disabled]) input {
-  background: var(--jelly-color-background-neutral);
+  background: var(--jelly-color-background-neutral, var(--droplet-color-background-neutral));
 }
 
 @media (forced-colors: active) {

@@ -296,7 +296,7 @@ test(':state(user-invalid) follows a committed edit and a failed submit, and pai
   inner(short!).blur();
   expect(short!.matches(':state(user-invalid)')).toBe(true);
 
-  const danger = short!.resolveColor('var(--jelly-color-background-rose)');
+  const danger = short!.resolveColor('var(--droplet-color-background-rose)');
   expect(short!.surfaceBorder().color).toBe(danger);
   expect(danger).not.toBe(neutral);
 
@@ -319,11 +319,11 @@ test('aria-invalid="true" paints the danger border too', () => {
   const host = mount('<droplet-input aria-invalid="true"></droplet-input>');
   const el = host.querySelector('droplet-input') as DropletInput;
 
-  expect(el.surfaceBorder().color).toBe(el.resolveColor('var(--jelly-color-background-rose)'));
+  expect(el.surfaceBorder().color).toBe(el.resolveColor('var(--droplet-color-background-rose)'));
   expect(inner(el).getAttribute('aria-invalid')).toBe('true');
 
   el.setAttribute('aria-invalid', 'false');
-  expect(el.surfaceBorder().color).not.toBe(el.resolveColor('var(--jelly-color-background-rose)'));
+  expect(el.surfaceBorder().color).not.toBe(el.resolveColor('var(--droplet-color-background-rose)'));
 
   host.remove();
 });

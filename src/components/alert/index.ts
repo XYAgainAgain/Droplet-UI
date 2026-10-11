@@ -14,6 +14,7 @@ import { emit }          from '../../utilities/index.js';
 import { PALETTE }       from '../../theme/index.js';
 import { defineStrict, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
+import { readToken } from '../../theme/token-read.js';
 
 import alertStyles       from './alert.css?inline';
 
@@ -76,7 +77,7 @@ export class DropletAlert extends DropletElement {
       case 'tone':
         // Tone drives the icon glyph (markup) as well as its color (CSS var),
         // so re-render the box, re-wire its dismiss button and repaint
-        this.shadowRoot!.querySelector('.jelly-content')!.innerHTML = this.content();
+        this.shadowRoot!.querySelector('.droplet-content')!.innerHTML = this.content();
         this.wireClose();
         this.requestFrame();
         break;
@@ -110,14 +111,14 @@ export class DropletAlert extends DropletElement {
 
   // The banner the physics body takes (radius follows the size token)
   override shape (width: number, height: number): Shape {
-    const radius = parseFloat(getComputedStyle(this).getPropertyValue('--jelly-alert-radius')) || 16;
+    const radius = parseFloat(readToken(getComputedStyle(this), 'alert-radius')) || 16;
 
     return { width, height, radius: Math.min(radius, height / 2) };
   }
 
   // The surface fill resolves through the theme so dark mode recolors it
   override fill (): string {
-    return this.resolveColor(`var(--jelly-fill, var(--jelly-color-background-surface, ${PALETTE['background-surface']}))`);
+    return this.resolveColor(`var(--jelly-fill, var(--droplet-fill, var(--jelly-color-background-surface, var(--droplet-color-background-surface, ${PALETTE['background-surface']}))))`);
   }
 
   // Called once after the shadow DOM and canvas exist. Wire events here.
@@ -196,7 +197,7 @@ export class DropletAlert extends DropletElement {
     this.clearCanvas();
     this.paintBody(body, {
       fill:   this.fill(),
-      border: { color: this.resolveColor(`var(--jelly-alert-border, var(--jelly-color-border-default, ${PALETTE['border-default']}))`), width: 1 },
+      border: { color: this.resolveColor(`var(--jelly-alert-border, var(--droplet-alert-border, var(--jelly-color-border-default, var(--droplet-color-border-default, ${PALETTE['border-default']}))))`), width: 1 },
     });
 
     return this.shaking > 0 || !body.isResting();

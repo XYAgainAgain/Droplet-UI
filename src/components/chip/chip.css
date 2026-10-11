@@ -2,16 +2,16 @@
   display: inline-flex;
   height:  36px;
 
-  --jelly-fill:     var(--jelly-color-background-neutral);
-  --jelly-on:       var(--jelly-color-background-accent);
-  --jelly-label:    var(--jelly-color-foreground-on-neutral);
-  --jelly-label-on: var(--jelly-color-foreground-on-accent);
+  --droplet-fill: var(--jelly-color-background-neutral, var(--droplet-color-background-neutral)); --jelly-fill: var(--droplet-fill);
+  --droplet-on: var(--jelly-color-background-accent, var(--droplet-color-background-accent)); --jelly-on: var(--droplet-on);
+  --droplet-label: var(--jelly-color-foreground-on-neutral, var(--droplet-color-foreground-on-neutral)); --jelly-label: var(--droplet-label);
+  --droplet-label-on: var(--jelly-color-foreground-on-accent, var(--droplet-color-foreground-on-accent)); --jelly-label-on: var(--droplet-label-on);
   /* Focus follows the chip's visible fill: neutral while unselected,
      then the configured variant once selected. */
-  --jelly-ring:     var(--jelly-fill, var(--jelly-color-border-focus));
-  --jelly-chip-radius: 999px;
+  --droplet-ring: var(--jelly-fill, var(--droplet-fill, var(--jelly-color-border-focus, var(--droplet-color-border-focus)))); --jelly-ring: var(--droplet-ring);
+  --droplet-chip-radius: 999px; --jelly-chip-radius: var(--droplet-chip-radius);
 
-  font: 600 14px/1 var(--jelly-font-display);
+  font: 600 14px/1 var(--jelly-font-display, var(--droplet-font-display));
 }
 
 :host([size="small"]) { height: 30px; font-size: 12.5px; }
@@ -19,12 +19,12 @@
 
 /* A smaller, rounded-rectangle radius instead of the full pill - the same
    shape="square" vocabulary jelly-button and jelly-badge use */
-:host([shape="square"]) { --jelly-chip-radius: 11px; }
-:host([shape="square"][size="small"]) { --jelly-chip-radius: 9px; }
-:host([shape="square"][size="large"]) { --jelly-chip-radius: 13px; }
+:host([shape="square"]) { --droplet-chip-radius: 11px; --jelly-chip-radius: var(--droplet-chip-radius); }
+:host([shape="square"][size="small"]) { --droplet-chip-radius: 9px; --jelly-chip-radius: var(--droplet-chip-radius); }
+:host([shape="square"][size="large"]) { --droplet-chip-radius: 13px; --jelly-chip-radius: var(--droplet-chip-radius); }
 
 :host([selected]) {
-  --jelly-ring: var(--jelly-on, var(--jelly-color-border-focus));
+  --droplet-ring: var(--jelly-on, var(--droplet-on, var(--jelly-color-border-focus, var(--droplet-color-border-focus)))); --jelly-ring: var(--droplet-ring);
 }
 
 :host([disabled]) {
@@ -63,14 +63,14 @@
   border:         0;
   background:     transparent;
   font:           inherit;
-  color:          var(--jelly-label);
+  color:          var(--jelly-label, var(--droplet-label));
   height:         100%;
   padding-inline: 17px;
   display:        inline-flex;
   align-items:    center;
   gap:            7px;
   cursor:         pointer;
-  border-radius:  var(--jelly-chip-radius);
+  border-radius:  var(--jelly-chip-radius, var(--droplet-chip-radius));
   position:       relative;
   outline:        none;
   touch-action:   manipulation;
@@ -89,14 +89,14 @@ span.main {
 }
 
 :host([selected]) .main {
-  color: var(--jelly-label-on);
+  color: var(--jelly-label-on, var(--droplet-label-on));
 }
 
 .remove {
   appearance:        none;
   border:            0;
   background:        transparent;
-  color:             var(--jelly-label);
+  color:             var(--jelly-label, var(--droplet-label));
   cursor:            pointer;
   touch-action:      manipulation;
   position:          relative;
@@ -123,12 +123,12 @@ span.main {
 :host([shape="square"]) .remove { border-radius: 7px; }
 
 .remove:focus-visible {
-  outline:        var(--jelly-ring-width) solid var(--jelly-ring-color);
-  outline-offset: var(--jelly-ring-gap);
+  outline:        var(--jelly-ring-width, var(--droplet-ring-width)) solid var(--jelly-ring-color, var(--droplet-ring-color));
+  outline-offset: var(--jelly-ring-gap, var(--droplet-ring-gap));
 }
 
 :host([selected]) .remove {
-  color: var(--jelly-label-on);
+  color: var(--jelly-label-on, var(--droplet-label-on));
 }
 
 .remove svg {

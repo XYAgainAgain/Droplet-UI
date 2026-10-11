@@ -12,7 +12,7 @@
 .backdrop {
   position:   absolute;
   inset:      0;
-  background: color-mix(in srgb, var(--jelly-color-foreground-default) 42%, transparent);
+  background: color-mix(in srgb, var(--jelly-color-foreground-default, var(--droplet-color-foreground-default)) 42%, transparent);
   -webkit-backdrop-filter: blur(1.5px);
   backdrop-filter: blur(1.5px);
   opacity:    0;
@@ -40,16 +40,16 @@
 
 .dialog {
   position:      relative;
-  width:         var(--jelly-dialog-width, min(460px, 100%));
+  width:         var(--jelly-dialog-width, var(--droplet-dialog-width, min(460px, 100%)));
   max-height:    calc(100vh - 48px);
   max-height:    calc(100dvh - 48px);
   overflow:      auto;
-  background:    var(--jelly-color-background-surface);
-  border-radius: var(--jelly-dialog-radius, 24px);
-  padding:       var(--jelly-dialog-padding, 26px);
-  color:         var(--jelly-color-foreground-default);
-  font:          400 15px/1.55 var(--jelly-font-text);
-  box-shadow:    var(--jelly-shadow-overlay);
+  background:    var(--jelly-color-background-surface, var(--droplet-color-background-surface));
+  border-radius: var(--jelly-dialog-radius, var(--droplet-dialog-radius, 24px));
+  padding:       var(--jelly-dialog-padding, var(--droplet-dialog-padding, 26px));
+  color:         var(--jelly-color-foreground-default, var(--droplet-color-foreground-default));
+  font:          400 15px/1.55 var(--jelly-font-text, var(--droplet-font-text));
+  box-shadow:    var(--jelly-shadow-overlay, var(--droplet-shadow-overlay));
   will-change:   transform, opacity;
 }
 
@@ -64,29 +64,29 @@
   border-radius:    50%;
   cursor:           pointer;
   touch-action:     manipulation;
-  color:            var(--jelly-color-foreground-muted);
+  color:            var(--jelly-color-foreground-muted, var(--droplet-color-foreground-muted));
   font-size:        16px;
   transition:       background-color 0.12s ease, color 0.12s ease;
 }
 
 .close:hover {
-  background: var(--jelly-color-background-neutral);
-  color:      var(--jelly-color-foreground-on-neutral);
+  background: var(--jelly-color-background-neutral, var(--droplet-color-background-neutral));
+  color:      var(--jelly-color-foreground-on-neutral, var(--droplet-color-foreground-on-neutral));
 }
 
-/* --jelly-motion mirrors data-jelly-motion on <html> (see src/theme/runtime.ts) */
+/* --droplet-motion mirrors data-droplet-motion (or data-jelly-motion) on <html>; see src/theme/runtime.ts */
 @media (prefers-reduced-motion: reduce) {
-  @container not style(--jelly-motion: no-preference) {
+  @container not style(--droplet-motion: no-preference) {
     .close { transition: none; }
   }
 }
 
-@container style(--jelly-motion: reduce) {
+@container style(--droplet-motion: reduce) {
   .close { transition: none; }
 }
 
 .close:focus-visible {
-  outline:        2px solid var(--jelly-ring-color);
+  outline:        2px solid var(--jelly-ring-color, var(--droplet-ring-color));
   outline-offset: 1px;
 }
 

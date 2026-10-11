@@ -24,6 +24,7 @@ import { FORWARDED_ARIA }      from '../../utilities/index.js';
 import { forwardAria }         from '../../utilities/index.js';
 import { forwardAllAria }      from '../../utilities/index.js';
 import { reflectAttribute }    from '../../utilities/index.js';
+import { readToken } from '../../theme/token-read.js';
 
 import buttonStyles        from './button.css?inline';
 import variantStyles       from '../../styles/variants.css?inline';
@@ -276,9 +277,9 @@ export class DropletButton extends DropletElement {
     const h      = height - 8;
     const square = this.getAttribute('shape') === 'square';
 
-    // Honor a plain-px --jelly-button-radius override on the painted surface;
+    // Honor a plain-px --droplet-button-radius override on the painted surface;
     // the pill (999px) and square (calc) defaults fall through to the ratios
-    const declared = parseFloat(getComputedStyle(this).getPropertyValue('--jelly-button-radius'));
+    const declared = parseFloat(readToken(getComputedStyle(this), 'button-radius'));
     const radius   = Number.isFinite(declared) ? Math.min(declared, h / 2) : (square ? h * 0.32 : h / 2);
 
     return { width: w, height: h, radius };

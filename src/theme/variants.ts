@@ -33,13 +33,19 @@ const VARIANT_TOKENS: Record<string, VariantToken> = {
  * resolves through the theme tokens, so the same markup adapts when the theme
  * flips to dark. The default (no variant) fills with the accent.
  */
+// A theme color: a legacy --jelly-* override in scope wins, then the canonical token
+function themeColor (token: string): string {
+  return `var(--jelly-color-${token}, var(--droplet-color-${token}, ${PALETTE[token]}))`;
+}
+
+// Legacy-named output: consumer components built on VARIANT_CSS read --jelly-fill
 export const VARIANT_CSS = `
   :host {
-    --jelly-fill:  var(--jelly-color-background-accent,    ${PALETTE['background-accent']});
-    --jelly-label: var(--jelly-color-foreground-on-accent, ${PALETTE['foreground-on-accent']});
+    --jelly-fill:  ${themeColor('background-accent')};
+    --jelly-label: ${themeColor('foreground-on-accent')};
   }
 ${Object.entries(VARIANT_TOKENS).map(([name, { fill, on }]) =>
-  `  :host([variant="${name}"]) { --jelly-fill: var(--jelly-color-${fill}, ${PALETTE[fill]}); --jelly-label: var(--jelly-color-${on}, ${PALETTE[on]}); }`
+  `  :host([variant="${name}"]) { --jelly-fill: ${themeColor(fill)}; --jelly-label: ${themeColor(on)}; }`
 ).join('\n')}
 `;
 
@@ -53,22 +59,30 @@ export interface VariantColorProps {
 /*
  * Variant -> custom-property mapping for the components that don't fill their
  * whole surface (checkbox, radio, switch, slider, range, select, otp,
- * progress, chip). They colour an accent instead of --jelly-fill and each uses
+ * progress, chip). They color an accent instead of --droplet-fill and each uses
  * its own property names, so this generates the full table for whichever
  * properties a component passes:
  *   - `color` : the property that takes the variant fill hue (required)
  *   - `on`    : optional property that takes the on-fill contrast colour
  *   - `ring`  : optional second property that also takes the variant hue
  */
+// A library property also points its legacy name at itself, as every component
+// token does; a consumer's own property is written as given
+function declare (property: string, value: string): string {
+  return property.startsWith('--droplet-')
+    ? `${property}: ${value}; --jelly-${property.slice('--droplet-'.length)}: var(${property});`
+    : `${property}: ${value};`;
+}
+
 export function variantColors ({ color, on = null, ring = null }: VariantColorProps = {}): string {
   const names = Object.keys(VARIANT_TOKENS) as (keyof typeof VARIANT_TOKENS)[];
   const decls = (name: keyof typeof VARIANT_TOKENS): string => {
     const token = VARIANT_TOKENS[name]!;
 
     return [
-      color ? `${color}: var(--jelly-color-${token.fill}, ${PALETTE[token.fill]});` : '',
-      ring  ? `${ring}: var(--jelly-color-${token.fill}, ${PALETTE[token.fill]});`   : '',
-      on    ? `${on}: var(--jelly-color-${token.on}, ${PALETTE[token.on]});`         : '',
+      color ? declare(color, themeColor(token.fill)) : '',
+      ring  ? declare(ring, themeColor(token.fill))  : '',
+      on    ? declare(on, themeColor(token.on))      : '',
     ].filter(Boolean).join(' ');
   };
 

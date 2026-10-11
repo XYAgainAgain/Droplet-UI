@@ -1,19 +1,19 @@
 /*
  * The shared variant fill/label map for every fillable component (button,
  * icon-button, badge, …). Static because the token sheet always defines the
- * --jelly-color-* custom properties, so no JS fallback is needed. Imported as
+ * --droplet-color-* custom properties, so no JS fallback is needed. Imported as
  * a string and prepended to a component's own styles.
  */
 
 :host {
-  --jelly-fill:  var(--jelly-color-background-accent);
-  --jelly-label: var(--jelly-color-foreground-on-accent);
+  --droplet-fill: var(--jelly-color-background-accent, var(--droplet-color-background-accent)); --jelly-fill: var(--droplet-fill);
+  --droplet-label: var(--jelly-color-foreground-on-accent, var(--droplet-color-foreground-on-accent)); --jelly-label: var(--droplet-label);
 }
 
-:host([variant="white"])    { --jelly-fill: var(--jelly-color-background-white);            --jelly-label: var(--jelly-color-foreground-on-white); }
-:host([variant="rose"])     { --jelly-fill: var(--jelly-color-background-rose);             --jelly-label: var(--jelly-color-foreground-on-emphasis); }
-:host([variant="amber"])    { --jelly-fill: var(--jelly-color-background-amber);            --jelly-label: var(--jelly-color-foreground-on-emphasis); }
-:host([variant="azure"])    { --jelly-fill: var(--jelly-color-background-azure);            --jelly-label: var(--jelly-color-foreground-on-emphasis); }
-:host([variant="mint"])     { --jelly-fill: var(--jelly-color-background-mint);             --jelly-label: var(--jelly-color-foreground-on-emphasis); }
-:host([variant="platinum"]) { --jelly-fill: var(--jelly-color-background-neutral);          --jelly-label: var(--jelly-color-foreground-on-neutral); }
-:host([variant="graphite"]) { --jelly-fill: var(--jelly-color-background-neutral-emphasis); --jelly-label: var(--jelly-color-foreground-on-emphasis); }
+:host([variant="white"])    { --droplet-fill: var(--jelly-color-background-white, var(--droplet-color-background-white)); --jelly-fill: var(--droplet-fill);            --droplet-label: var(--jelly-color-foreground-on-white, var(--droplet-color-foreground-on-white)); --jelly-label: var(--droplet-label); }
+:host([variant="rose"])     { --droplet-fill: var(--jelly-color-background-rose, var(--droplet-color-background-rose)); --jelly-fill: var(--droplet-fill);             --droplet-label: var(--jelly-color-foreground-on-emphasis, var(--droplet-color-foreground-on-emphasis)); --jelly-label: var(--droplet-label); }
+:host([variant="amber"])    { --droplet-fill: var(--jelly-color-background-amber, var(--droplet-color-background-amber)); --jelly-fill: var(--droplet-fill);            --droplet-label: var(--jelly-color-foreground-on-emphasis, var(--droplet-color-foreground-on-emphasis)); --jelly-label: var(--droplet-label); }
+:host([variant="azure"])    { --droplet-fill: var(--jelly-color-background-azure, var(--droplet-color-background-azure)); --jelly-fill: var(--droplet-fill);            --droplet-label: var(--jelly-color-foreground-on-emphasis, var(--droplet-color-foreground-on-emphasis)); --jelly-label: var(--droplet-label); }
+:host([variant="mint"])     { --droplet-fill: var(--jelly-color-background-mint, var(--droplet-color-background-mint)); --jelly-fill: var(--droplet-fill);             --droplet-label: var(--jelly-color-foreground-on-emphasis, var(--droplet-color-foreground-on-emphasis)); --jelly-label: var(--droplet-label); }
+:host([variant="platinum"]) { --droplet-fill: var(--jelly-color-background-neutral, var(--droplet-color-background-neutral)); --jelly-fill: var(--droplet-fill);          --droplet-label: var(--jelly-color-foreground-on-neutral, var(--droplet-color-foreground-on-neutral)); --jelly-label: var(--droplet-label); }
+:host([variant="graphite"]) { --droplet-fill: var(--jelly-color-background-neutral-emphasis, var(--droplet-color-background-neutral-emphasis)); --jelly-fill: var(--droplet-fill); --droplet-label: var(--jelly-color-foreground-on-emphasis, var(--droplet-color-foreground-on-emphasis)); --jelly-label: var(--droplet-label); }

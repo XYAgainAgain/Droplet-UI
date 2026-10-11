@@ -2,10 +2,10 @@
   display: inline-flex;
   height:  28px;
 
-  --jelly-fill:  var(--jelly-color-background-neutral);
-  --jelly-label: var(--jelly-color-foreground-on-neutral);
+  --droplet-fill: var(--jelly-color-background-neutral, var(--droplet-color-background-neutral)); --jelly-fill: var(--droplet-fill);
+  --droplet-label: var(--jelly-color-foreground-on-neutral, var(--droplet-color-foreground-on-neutral)); --jelly-label: var(--droplet-label);
 
-  font:    640 12px/1 var(--jelly-font-mono);
+  font:    640 12px/1 var(--jelly-font-mono, var(--droplet-font-mono));
   cursor:  pointer;
   outline: none;
 }
@@ -28,7 +28,7 @@
   min-width:       16px;
   padding-inline:  8px;
   position:        relative;
-  color:           var(--jelly-label);
+  color:           var(--jelly-label, var(--droplet-label));
   transition:      transform 0.09s ease;
   touch-action:    manipulation;
 }
@@ -48,14 +48,14 @@
   transform: translateY(2px);
 }
 
-/* --jelly-motion mirrors data-jelly-motion on <html> (see src/theme/runtime.ts) */
+/* --droplet-motion mirrors data-droplet-motion (or data-jelly-motion) on <html>; see src/theme/runtime.ts */
 @media (prefers-reduced-motion: reduce) {
-  @container not style(--jelly-motion: no-preference) {
+  @container not style(--droplet-motion: no-preference) {
     .cap { transition: none; }
   }
 }
 
-@container style(--jelly-motion: reduce) {
+@container style(--droplet-motion: reduce) {
   .cap { transition: none; }
 }
 

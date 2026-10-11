@@ -433,8 +433,8 @@ export class DropletSegmented extends DropletElement {
 
     // Canvas colors resolve through the live theme tokens on every paint, so
     // theme flips and token overrides recolor the control immediately
-    const trackColor = this.resolveColor(`var(--jelly-track, ${PALETTE['background-neutral']})`);
-    const pillColor  = this.resolveColor(`var(--jelly-pill, ${PALETTE['background-accent']})`);
+    const trackColor = this.resolveColor(`var(--jelly-track, var(--droplet-track, ${PALETTE['background-neutral']}))`);
+    const pillColor  = this.resolveColor(`var(--jelly-pill, var(--droplet-pill, ${PALETTE['background-accent']}))`);
     const ctx        = this.ctx;
     const cx         = this.cssW / 2;
     const cy         = this.cssH / 2;

@@ -48,7 +48,7 @@ export const FONT_STACK = `ui-rounded, 'SF Pro Rounded', system-ui, -apple-syste
 /*
  * The body/field text stack (inputs, dialogs, cards) and the monospace stack
  * (kbd). Shared here so no component re-types them - override site-wide with
- * the --jelly-font-text / --jelly-font-mono tokens.
+ * the --droplet-font-text and --droplet-font-mono tokens.
  */
 export const BODY_FONT_STACK = `system-ui, -apple-system, 'Segoe UI', sans-serif`;
 export const MONO_FONT_STACK = `ui-monospace, 'SF Mono', Menlo, monospace`;
@@ -149,7 +149,7 @@ export const DARK: Theme = {
  * ---------------------------------------------------------------------------
  * CSS custom-property maps
  * ---------------------------------------------------------------------------
- * Flatten a semantic theme to { <var-suffix>: value } for --jelly-color-*,
+ * Flatten a semantic theme to { <var-suffix>: value } for --droplet-color-*,
  * naming each token `<group>-<role>` in kebab-case (background-neutral-emphasis,
  * foreground-on-accent, …). This is the only naming layer - there are no
  * aliases to keep in sync.
@@ -178,13 +178,13 @@ export const DARK_TOKENS: TokenMap  = flatten(DARK);
 /*
  * Convenience lookup for JS code that needs a concrete color (canvas fills,
  * documented defaults). Keyed by the same suffixes as the CSS tokens, so a
- * component's fallback reads `var(--jelly-color-background-neutral,
- * ${PALETTE['background-neutral']})`. Always prefer the CSS tokens in styles.
+ * component's fallback reads `var(--jelly-color-background-neutral, var(--droplet-color-background-neutral,
+ * ${PALETTE['background-neutral']}))`. Always prefer the CSS tokens in styles.
  */
 export const PALETTE: TokenMap = LIGHT_TOKENS;
 
 // Focus ring geometry (and default color) shared by every painted ring. The
-// CSS counterparts (--jelly-ring-*, --jelly-shadow-*) are emitted from these
+// CSS counterparts (--droplet-ring-*, --droplet-shadow-*) are emitted from these
 // values by themeTokenCSS() in runtime.ts.
 export const FOCUS_RING = {
   color: LIGHT.border.focus,

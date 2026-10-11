@@ -436,8 +436,8 @@ describe('droplet-slider contracts', () => {
     const cy     = h / 2;
     const tW     = el.trackW;
     const trackH = el.trackH || el.sizeConfig.track;
-    const track  = el.resolveColor(`var(--jelly-track, ${PALETTE['background-neutral']})`);
-    const accent = el.resolveColor(`var(--jelly-accent, ${PALETTE['background-accent']})`);
+    const track  = el.resolveColor(`var(--droplet-track, ${PALETTE['background-neutral']})`);
+    const accent = el.resolveColor(`var(--droplet-accent, ${PALETTE['background-accent']})`);
 
     // The pre-extraction drawing, verbatim, against a matched offscreen canvas
     const direct = offscreen(w, h);
@@ -593,7 +593,7 @@ describe('droplet-slider contracts', () => {
 
     await settle(3);
 
-    expect(el.hasAttribute('data-jelly-nocanvas')).toBe(true);
+    expect(el.hasAttribute('data-droplet-nocanvas')).toBe(true);
 
     const input  = el.shadowRoot!.querySelector('input') as HTMLInputElement;
     const styles = getComputedStyle(input);

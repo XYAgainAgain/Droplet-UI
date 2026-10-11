@@ -16,57 +16,70 @@ import { DARK_TOKENS }     from './tokens.js';
 // Serialize a token map into CSS declarations, one aligned line per token
 function tokenDeclarations (tokens: TokenMap): string {
   return Object.entries(tokens)
-    .map(([name, value]) => `  --jelly-color-${name}: ${value};`)
+    .map(([name, value]) => `  --droplet-color-${name}: ${value};`)
     .join('\n');
+}
+
+// The legacy names point at the canonical ones once, on :root, so a page reading
+// var(--jelly-color-…) gets the live theme and a --jelly-* override still wins
+function legacyLinks (): string {
+  const names = [
+    'font-display', 'font-text', 'font-mono', 'ring-width', 'ring-gap', 'ring-color', 'shadow-raised', 'shadow-overlay',
+    ...new Set([...Object.keys(LIGHT_TOKENS), ...Object.keys(DARK_TOKENS)].map((name) => `color-${name}`)),
+  ];
+
+  return names.map((name) => `    --jelly-${name}: var(--droplet-${name});`).join('\n');
 }
 
 /*
  * Build the document-level token sheet:
  *   - light tokens on :root
  *   - dark tokens when the OS prefers dark (unless mode is forced light)
- *   - dark tokens when the consumer forces data-jelly-mode="dark"
- *   - --jelly-motion mirroring data-jelly-motion, which shadow styles read
- *     through @container style() because :host-context() is Chromium-only
+ *   - dark tokens when the page forces data-droplet-mode (or the legacy
+ *     data-jelly-mode, when no canonical attribute is set) to "dark"
+ *   - --droplet-motion mirroring data-droplet-motion or data-jelly-motion, which
+ *     shadow styles read through @container style() (:host-context() is Chromium-only)
  *
- * Everything lives in @layer jelly, so an un-layered consumer rule such as
- * `:root { --jelly-color-background-accent: #4F46E5 }` always wins the cascade
+ * Everything lives in @layer droplet, so an un-layered consumer rule such as
+ * `:root { --droplet-color-background-accent: #4F46E5 }` always wins the cascade
  * whatever its specificity or load order. Inside the layer the dark selectors
  * still out-specify the base :root, so the mode switch keeps working.
  */
 export function themeTokenCSS (): string {
   return `
-@layer jelly {
+@layer droplet {
   :root {
     color-scheme: light dark;
-    --jelly-font-display: ${FONT_STACK};
-    --jelly-font-text:    ${BODY_FONT_STACK};
-    --jelly-font-mono:    ${MONO_FONT_STACK};
-    --jelly-ring-width:     ${FOCUS_RING.width}px;
-    --jelly-ring-gap:       ${FOCUS_RING.gap}px;
-    --jelly-ring-color:     color-mix(in srgb, var(--jelly-ring, var(--jelly-color-border-focus)) ${FOCUS_RING.alpha * 100}%, transparent);
-    --jelly-shadow-raised:  0 16px 42px -20px rgba(var(--jelly-color-shadow), 0.34);
-    --jelly-shadow-overlay: 0 14px 34px -16px rgba(var(--jelly-color-shadow), 0.42), 0 4px 12px -8px rgba(var(--jelly-color-shadow), 0.28);
+    --droplet-font-display:   ${FONT_STACK};
+    --droplet-font-text:      ${BODY_FONT_STACK};
+    --droplet-font-mono:      ${MONO_FONT_STACK};
+    --droplet-ring-width:     ${FOCUS_RING.width}px;
+    --droplet-ring-gap:       ${FOCUS_RING.gap}px;
+    --droplet-ring-color:     color-mix(in srgb, var(--jelly-ring, var(--droplet-ring, var(--jelly-color-border-focus, var(--droplet-color-border-focus)))) ${FOCUS_RING.alpha * 100}%, transparent);
+    --droplet-shadow-raised:  0 16px 42px -20px rgba(var(--jelly-color-shadow, var(--droplet-color-shadow)), 0.34);
+    --droplet-shadow-overlay: 0 14px 34px -16px rgba(var(--jelly-color-shadow, var(--droplet-color-shadow)), 0.42), 0 4px 12px -8px rgba(var(--jelly-color-shadow, var(--droplet-color-shadow)), 0.28);
 ${tokenDeclarations(LIGHT_TOKENS)}
+${legacyLinks()}
   }
 
-  :root[data-jelly-mode="light"] {
+  :root:is([data-droplet-mode="light"], [data-jelly-mode="light"]:not([data-droplet-mode])) {
     color-scheme: light;
   }
 
-  :root[data-jelly-mode="dark"] {
+  :root:is([data-droplet-mode="dark"], [data-jelly-mode="dark"]:not([data-droplet-mode])) {
     color-scheme: dark;
 ${tokenDeclarations(DARK_TOKENS)}
   }
 
   @media (prefers-color-scheme: dark) {
-    :root:not([data-jelly-mode="light"]) {
+    :root:not([data-droplet-mode="light"], [data-jelly-mode="light"]:not([data-droplet-mode])) {
       color-scheme: dark;
 ${tokenDeclarations(DARK_TOKENS)}
     }
   }
 
-  :root[data-jelly-motion="reduce"]        { --jelly-motion: reduce; }
-  :root[data-jelly-motion="no-preference"] { --jelly-motion: no-preference; }
+  :root:is([data-droplet-motion="reduce"], [data-jelly-motion="reduce"]:not([data-droplet-motion]))               { --droplet-motion: reduce; }
+  :root:is([data-droplet-motion="no-preference"], [data-jelly-motion="no-preference"]:not([data-droplet-motion])) { --droplet-motion: no-preference; }
 }
 `;
 }
@@ -78,6 +91,75 @@ const themedDocuments = new WeakSet<Document>();
  * Watch the two signals that change computed tokens without resizing anything:
  * the OS color scheme in auto mode, and the document's reading direction.
  */
+// Each pair is one setting under two names; a page writing either spelling moves
+// both, so page CSS and the library never disagree about the mode or motion
+const ATTRIBUTE_PAIRS: ReadonlyArray<readonly [canonical: string, legacy: string]> = [
+  ['data-droplet-mode', 'data-jelly-mode'],
+  ['data-droplet-motion', 'data-jelly-motion'],
+];
+
+// The name written last in a batch wins; with no batch (install), the canonical one
+function syncRootAttributes (root: Element, changed: ReadonlyArray<string | null> | null): void {
+  for (const pair of ATTRIBUTE_PAIRS) {
+    const [canonical, legacy] = pair;
+    const last = changed ? changed.filter((name) => name === canonical || name === legacy).at(-1) : undefined;
+    const source = last ?? (root.hasAttribute(canonical) ? canonical : legacy);
+
+    if (changed && last === undefined) {
+      continue;
+    }
+
+    const partner = source === canonical ? legacy : canonical;
+    const value = root.getAttribute(source);
+
+    if (root.getAttribute(partner) === value) {
+      continue;
+    }
+
+    if (value === null) {
+      root.removeAttribute(partner);
+    } else {
+      root.setAttribute(partner, value);
+    }
+  }
+}
+
+const EVENT_PAIRS: ReadonlyArray<readonly [string, string]> = [
+  ['droplet-theme-change', 'jelly-theme-change'],
+  ['droplet-motion-change', 'jelly-motion-change'],
+];
+
+const bridgedViews = new WeakSet<Window>();
+let relaying = false;
+
+// Whoever dispatches one name, listeners of the other hear it exactly once
+function ensureEventBridge (view: Window): void {
+  if (bridgedViews.has(view)) {
+    return;
+  }
+
+  bridgedViews.add(view);
+
+  const relay = (name: string): void => {
+    if (relaying) {
+      return;
+    }
+
+    relaying = true;
+
+    try {
+      view.dispatchEvent(new CustomEvent(name));
+    } finally {
+      relaying = false;
+    }
+  };
+
+  for (const [canonical, legacy] of EVENT_PAIRS) {
+    view.addEventListener(canonical, () => relay(legacy));
+    view.addEventListener(legacy, () => relay(canonical));
+  }
+}
+
 function installThemeWatchers (doc: Document): void {
   const view = doc.defaultView;
 
@@ -85,11 +167,18 @@ function installThemeWatchers (doc: Document): void {
     return;
   }
 
+  ensureEventBridge(view);
+
   if (typeof view.matchMedia === 'function') {
     view.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => notifyThemeChange());
   }
 
   if (typeof view.MutationObserver === 'function') {
+    syncRootAttributes(doc.documentElement, null);
+    new view.MutationObserver((records) => {
+      syncRootAttributes(doc.documentElement, records.map((record) => record.attributeName));
+    }).observe(doc.documentElement, { attributes: true, attributeFilter: ATTRIBUTE_PAIRS.flat() });
+
     const directionObserver = new view.MutationObserver(() => notifyThemeChange());
 
     directionObserver.observe(doc.documentElement, { attributes: true, attributeFilter: ['dir'] });
@@ -119,10 +208,10 @@ export function ensureThemeTokens (doc: Document = globalThis.document): void {
     return;
   }
 
-  if (!doc.querySelector('style[data-jelly-tokens]')) {
+  if (!doc.querySelector('style[data-droplet-tokens]')) {
     const sheet = doc.createElement('style');
 
-    sheet.setAttribute('data-jelly-tokens', '');
+    sheet.setAttribute('data-droplet-tokens', '');
     sheet.textContent = themeTokenCSS();
 
     doc.head.appendChild(sheet);
@@ -133,18 +222,28 @@ export function ensureThemeTokens (doc: Document = globalThis.document): void {
   themedDocuments.add(doc);
 }
 
+// The forced mode on the root: the canonical attribute, else the legacy one
+function forcedMode (): string | null {
+  const root = document.documentElement;
+
+  return root.getAttribute('data-droplet-mode') ?? root.getAttribute('data-jelly-mode');
+}
+
 /*
  * Force the document-wide theme mode: 'light', 'dark', or 'auto' (follow
- * the operating system). Fires jelly-theme-change so canvas-painted
+ * the operating system). Fires droplet-theme-change so canvas-painted
  * components repaint with the new computed colors.
  */
 export function setThemeMode (mode: ThemeMode = 'auto'): void {
   ensureThemeTokens();
 
-  if (mode === 'light' || mode === 'dark') {
-    document.documentElement.setAttribute('data-jelly-mode', mode);
-  } else {
-    document.documentElement.removeAttribute('data-jelly-mode');
+  // Both names, so page CSS written against either attribute keeps matching
+  for (const name of ['data-droplet-mode', 'data-jelly-mode']) {
+    if (mode === 'light' || mode === 'dark') {
+      document.documentElement.setAttribute(name, mode);
+    } else {
+      document.documentElement.removeAttribute(name);
+    }
   }
 
   notifyThemeChange();
@@ -152,14 +251,14 @@ export function setThemeMode (mode: ThemeMode = 'auto'): void {
 
 // Read the mode most recently set with setThemeMode (or 'auto')
 export function getThemeMode (): ThemeMode {
-  const mode = document.documentElement.getAttribute('data-jelly-mode');
+  const mode = forcedMode();
 
   return mode === 'light' || mode === 'dark' ? mode : 'auto';
 }
 
 // True when dark tokens are currently in effect for the document
 export function isDarkMode (): boolean {
-  const forced = document.documentElement.getAttribute('data-jelly-mode');
+  const forced = forcedMode();
 
   if (forced === 'dark') {
     return true;
@@ -172,14 +271,16 @@ export function isDarkMode (): boolean {
   return typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
-// Announce that theme colors changed so live canvases repaint themselves
+// Announce that theme colors changed so live canvases repaint themselves; the
+// bridge relays the legacy event for listeners written against Jelly UI
 export function notifyThemeChange (): void {
-  window.dispatchEvent(new CustomEvent('jelly-theme-change'));
+  ensureEventBridge(window);
+  window.dispatchEvent(new CustomEvent('droplet-theme-change'));
 }
 
 // Run a callback on every theme change; returns an unsubscribe function
 export function onThemeChange (callback: () => void): () => void {
-  window.addEventListener('jelly-theme-change', callback);
+  window.addEventListener('droplet-theme-change', callback);
 
-  return () => window.removeEventListener('jelly-theme-change', callback);
+  return () => window.removeEventListener('droplet-theme-change', callback);
 }

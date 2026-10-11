@@ -37,8 +37,9 @@ const motionQuery: MediaQueryList | null = typeof matchMedia === 'function'
 // True when the user asked the OS to reduce motion (checked live), or when a
 // page explicitly opts into the same behavior for an in-page preview.
 export function prefersReducedMotion (): boolean {
-  const override = typeof document !== 'undefined'
-    ? document.documentElement.getAttribute('data-jelly-motion')
+  const root = typeof document !== 'undefined' ? document.documentElement : null;
+  const override = root
+    ? root.getAttribute('data-droplet-motion') ?? root.getAttribute('data-jelly-motion')
     : null;
 
   if (override === 'reduce') {

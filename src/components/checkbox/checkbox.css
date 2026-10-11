@@ -1,46 +1,46 @@
 :host {
   display: inline-flex;
 
-  --jelly-checkbox-size:         32px;
-  --jelly-checkbox-gap:          11px;
-  --jelly-checkbox-font-size:    15.5px;
-  --jelly-checkbox-radius:       13px;
-  --jelly-checkbox-stroke-width: 3.4;
-  --jelly-checkbox-mark:         var(--jelly-color-background-white);
+  --droplet-checkbox-size: 32px; --jelly-checkbox-size: var(--droplet-checkbox-size);
+  --droplet-checkbox-gap: 11px; --jelly-checkbox-gap: var(--droplet-checkbox-gap);
+  --droplet-checkbox-font-size: 15.5px; --jelly-checkbox-font-size: var(--droplet-checkbox-font-size);
+  --droplet-checkbox-radius: 13px; --jelly-checkbox-radius: var(--droplet-checkbox-radius);
+  --droplet-checkbox-stroke-width: 3.4; --jelly-checkbox-stroke-width: var(--droplet-checkbox-stroke-width);
+  --droplet-checkbox-mark: var(--jelly-color-background-white, var(--droplet-color-background-white)); --jelly-checkbox-mark: var(--droplet-checkbox-mark);
 
-  --jelly-fill:  var(--jelly-color-background-neutral);
-  --jelly-on:    var(--jelly-color-background-accent);
-  --jelly-ring:  var(--jelly-on, var(--jelly-color-border-focus));
-  --jelly-label: var(--jelly-color-foreground-muted);
+  --droplet-fill: var(--jelly-color-background-neutral, var(--droplet-color-background-neutral)); --jelly-fill: var(--droplet-fill);
+  --droplet-on: var(--jelly-color-background-accent, var(--droplet-color-background-accent)); --jelly-on: var(--droplet-on);
+  --droplet-ring: var(--jelly-on, var(--droplet-on, var(--jelly-color-border-focus, var(--droplet-color-border-focus)))); --jelly-ring: var(--droplet-ring);
+  --droplet-label: var(--jelly-color-foreground-muted, var(--droplet-color-foreground-muted)); --jelly-label: var(--droplet-label);
 
-  font: 600 var(--jelly-checkbox-font-size)/1.2 var(--jelly-font-display);
+  font: 600 var(--jelly-checkbox-font-size, var(--droplet-checkbox-font-size))/1.2 var(--jelly-font-display, var(--droplet-font-display));
 }
 
 :host([size="small"]),
 :host([size="sm"]) {
-  --jelly-checkbox-size:         28px;
-  --jelly-checkbox-gap:          9px;
-  --jelly-checkbox-font-size:    14px;
-  --jelly-checkbox-radius:       11px;
-  --jelly-checkbox-stroke-width: 3.1;
+  --droplet-checkbox-size: 28px; --jelly-checkbox-size: var(--droplet-checkbox-size);
+  --droplet-checkbox-gap: 9px; --jelly-checkbox-gap: var(--droplet-checkbox-gap);
+  --droplet-checkbox-font-size: 14px; --jelly-checkbox-font-size: var(--droplet-checkbox-font-size);
+  --droplet-checkbox-radius: 11px; --jelly-checkbox-radius: var(--droplet-checkbox-radius);
+  --droplet-checkbox-stroke-width: 3.1; --jelly-checkbox-stroke-width: var(--droplet-checkbox-stroke-width);
 }
 
 :host([size="medium"]),
 :host([size="md"]) {
-  --jelly-checkbox-size:         32px;
-  --jelly-checkbox-gap:          11px;
-  --jelly-checkbox-font-size:    15.5px;
-  --jelly-checkbox-radius:       13px;
-  --jelly-checkbox-stroke-width: 3.4;
+  --droplet-checkbox-size: 32px; --jelly-checkbox-size: var(--droplet-checkbox-size);
+  --droplet-checkbox-gap: 11px; --jelly-checkbox-gap: var(--droplet-checkbox-gap);
+  --droplet-checkbox-font-size: 15.5px; --jelly-checkbox-font-size: var(--droplet-checkbox-font-size);
+  --droplet-checkbox-radius: 13px; --jelly-checkbox-radius: var(--droplet-checkbox-radius);
+  --droplet-checkbox-stroke-width: 3.4; --jelly-checkbox-stroke-width: var(--droplet-checkbox-stroke-width);
 }
 
 :host([size="large"]),
 :host([size="lg"]) {
-  --jelly-checkbox-size:         38px;
-  --jelly-checkbox-gap:          13px;
-  --jelly-checkbox-font-size:    16.5px;
-  --jelly-checkbox-radius:       15px;
-  --jelly-checkbox-stroke-width: 3.7;
+  --droplet-checkbox-size: 38px; --jelly-checkbox-size: var(--droplet-checkbox-size);
+  --droplet-checkbox-gap: 13px; --jelly-checkbox-gap: var(--droplet-checkbox-gap);
+  --droplet-checkbox-font-size: 16.5px; --jelly-checkbox-font-size: var(--droplet-checkbox-font-size);
+  --droplet-checkbox-radius: 15px; --jelly-checkbox-radius: var(--droplet-checkbox-radius);
+  --droplet-checkbox-stroke-width: 3.7; --jelly-checkbox-stroke-width: var(--droplet-checkbox-stroke-width);
 }
 
 :host([disabled]) {
@@ -51,7 +51,7 @@
 .wrap {
   display:      inline-flex;
   align-items:  center;
-  gap:          var(--jelly-checkbox-gap);
+  gap:          var(--jelly-checkbox-gap, var(--droplet-checkbox-gap));
   cursor:       pointer;
   position:     relative;
   touch-action: manipulation;
@@ -61,8 +61,8 @@ input {
   position:           absolute;
   inset-inline-start: 0;
   top:                50%;
-  width:              var(--jelly-checkbox-size);
-  height:             var(--jelly-checkbox-size);
+  width:              var(--jelly-checkbox-size, var(--droplet-checkbox-size));
+  height:             var(--jelly-checkbox-size, var(--droplet-checkbox-size));
   margin:             0;
   transform:          translateY(-50%);
   opacity:            0;
@@ -71,8 +71,8 @@ input {
 
 .box {
   position: relative;
-  width:    var(--jelly-checkbox-size);
-  height:   var(--jelly-checkbox-size);
+  width:    var(--jelly-checkbox-size, var(--droplet-checkbox-size));
+  height:   var(--jelly-checkbox-size, var(--droplet-checkbox-size));
   flex:     0 0 auto;
 }
 
@@ -82,8 +82,8 @@ input {
   content:        "";
   position:       absolute;
   inset:          -2px;
-  border:         var(--jelly-ring-width) solid transparent;
-  border-radius:  var(--jelly-checkbox-radius);
+  border:         var(--jelly-ring-width, var(--droplet-ring-width)) solid transparent;
+  border-radius:  var(--jelly-checkbox-radius, var(--droplet-checkbox-radius));
   pointer-events: none;
 }
 
@@ -93,8 +93,8 @@ input {
   width:           100%;
   height:          100%;
   fill:            none;
-  stroke:          var(--jelly-checkbox-mark);
-  stroke-width:    var(--jelly-checkbox-stroke-width);
+  stroke:          var(--jelly-checkbox-mark, var(--droplet-checkbox-mark));
+  stroke-width:    var(--jelly-checkbox-stroke-width, var(--droplet-checkbox-stroke-width));
   stroke-linecap:  round;
   stroke-linejoin: round;
 
@@ -118,9 +118,9 @@ input {
   opacity:           1;
 }
 
-/* --jelly-motion mirrors data-jelly-motion on <html> (see src/theme/runtime.ts) */
+/* --droplet-motion mirrors data-droplet-motion (or data-jelly-motion) on <html>; see src/theme/runtime.ts */
 @media (prefers-reduced-motion: reduce) {
-  @container not style(--jelly-motion: no-preference) {
+  @container not style(--droplet-motion: no-preference) {
     .mark {
       transition:        opacity 0.12s ease;
       stroke-dashoffset: 0;
@@ -128,7 +128,7 @@ input {
   }
 }
 
-@container style(--jelly-motion: reduce) {
+@container style(--droplet-motion: reduce) {
   .mark {
     transition:        opacity 0.12s ease;
     stroke-dashoffset: 0;
@@ -136,7 +136,7 @@ input {
 }
 
 .label {
-  color: var(--jelly-label);
+  color: var(--jelly-label, var(--droplet-label));
 }
 
 .label:empty {
@@ -146,7 +146,7 @@ input {
 @media (forced-colors: active) {
   .box {
     border:        1px solid ButtonBorder;
-    border-radius: var(--jelly-checkbox-radius);
+    border-radius: var(--jelly-checkbox-radius, var(--droplet-checkbox-radius));
   }
 
   .mark {

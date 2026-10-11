@@ -16,6 +16,7 @@ import { PALETTE }      from '../../theme/index.js';
 import { variantColors } from '../../theme/index.js';
 import { defineStrict, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
+import { readToken } from '../../theme/token-read.js';
 
 import progressStyles   from './progress.css?inline';
 
@@ -75,7 +76,7 @@ export class DropletProgress extends DropletElement {
 
   // Component styles layered over the shared jelly base styles
   override styles (): string {
-    return progressStyles + variantColors({ color: '--jelly-accent' });
+    return progressStyles + variantColors({ color: '--droplet-accent' });
   }
 
   // No interactive content - the bar is pure canvas
@@ -162,8 +163,8 @@ export class DropletProgress extends DropletElement {
     const tW     = this.trackW;
     const left   = this.cssW / 2 - tW / 2;
     const rtl    = isRTL(this);
-    const track  = getComputedStyle(this).getPropertyValue('--jelly-track').trim() || PALETTE['background-neutral']!;
-    const accent = getComputedStyle(this).getPropertyValue('--jelly-accent').trim() || PALETTE['background-accent']!;
+    const track  = readToken(getComputedStyle(this), 'track').trim() || PALETTE['background-neutral']!;
+    const accent = readToken(getComputedStyle(this), 'accent').trim() || PALETTE['background-accent']!;
 
     body.update(dt);
     this.clearCanvas();

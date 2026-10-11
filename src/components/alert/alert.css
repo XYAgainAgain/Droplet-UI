@@ -2,66 +2,66 @@
   display:  block;
   position: relative;
 
-  --jelly-alert-padding-block:  15px;
-  --jelly-alert-padding-inline: 16px;
-  --jelly-alert-gap:            12px;
-  --jelly-alert-font-size:      14.5px;
-  --jelly-alert-icon:           22px;
-  --jelly-alert-close:          24px;
-  --jelly-alert-radius:         16px;
+  --droplet-alert-padding-block: 15px; --jelly-alert-padding-block: var(--droplet-alert-padding-block);
+  --droplet-alert-padding-inline: 16px; --jelly-alert-padding-inline: var(--droplet-alert-padding-inline);
+  --droplet-alert-gap: 12px; --jelly-alert-gap: var(--droplet-alert-gap);
+  --droplet-alert-font-size: 14.5px; --jelly-alert-font-size: var(--droplet-alert-font-size);
+  --droplet-alert-icon: 22px; --jelly-alert-icon: var(--droplet-alert-icon);
+  --droplet-alert-close: 24px; --jelly-alert-close: var(--droplet-alert-close);
+  --droplet-alert-radius: 16px; --jelly-alert-radius: var(--droplet-alert-radius);
 
-  --tone: var(--jelly-color-background-azure);
+  --tone: var(--jelly-color-background-azure, var(--droplet-color-background-azure));
 
   /* Filled, not outlined: the surface carries a soft wash of the tone,
      with a slightly stronger tone edge - both track --tone, so every
      tone (and dark mode) tints automatically. */
-  --jelly-fill:         color-mix(in srgb, var(--tone) 15%, var(--jelly-color-background-surface));
-  --jelly-alert-border: color-mix(in srgb, var(--tone) 34%, var(--jelly-color-background-surface));
+  --droplet-fill: color-mix(in srgb, var(--tone) 15%, var(--jelly-color-background-surface, var(--droplet-color-background-surface))); --jelly-fill: var(--droplet-fill);
+  --droplet-alert-border: color-mix(in srgb, var(--tone) 34%, var(--jelly-color-background-surface, var(--droplet-color-background-surface))); --jelly-alert-border: var(--droplet-alert-border);
 
-  font:  500 var(--jelly-alert-font-size)/1.5 var(--jelly-font-text);
-  color: var(--jelly-color-foreground-default);
+  font:  500 var(--jelly-alert-font-size, var(--droplet-alert-font-size))/1.5 var(--jelly-font-text, var(--droplet-font-text));
+  color: var(--jelly-color-foreground-default, var(--droplet-color-foreground-default));
 }
 
 :host([size="small"]) {
-  --jelly-alert-padding-block:  12px;
-  --jelly-alert-padding-inline: 13px;
-  --jelly-alert-gap:            9px;
-  --jelly-alert-font-size:      13px;
-  --jelly-alert-icon:           19px;
-  --jelly-alert-close:          22px;
-  --jelly-alert-radius:         14px;
+  --droplet-alert-padding-block: 12px; --jelly-alert-padding-block: var(--droplet-alert-padding-block);
+  --droplet-alert-padding-inline: 13px; --jelly-alert-padding-inline: var(--droplet-alert-padding-inline);
+  --droplet-alert-gap: 9px; --jelly-alert-gap: var(--droplet-alert-gap);
+  --droplet-alert-font-size: 13px; --jelly-alert-font-size: var(--droplet-alert-font-size);
+  --droplet-alert-icon: 19px; --jelly-alert-icon: var(--droplet-alert-icon);
+  --droplet-alert-close: 22px; --jelly-alert-close: var(--droplet-alert-close);
+  --droplet-alert-radius: 14px; --jelly-alert-radius: var(--droplet-alert-radius);
 }
 
 :host([size="large"]) {
-  --jelly-alert-padding-block:  18px;
-  --jelly-alert-padding-inline: 20px;
-  --jelly-alert-gap:            14px;
-  --jelly-alert-font-size:      16px;
-  --jelly-alert-icon:           26px;
-  --jelly-alert-close:          28px;
-  --jelly-alert-radius:         18px;
+  --droplet-alert-padding-block: 18px; --jelly-alert-padding-block: var(--droplet-alert-padding-block);
+  --droplet-alert-padding-inline: 20px; --jelly-alert-padding-inline: var(--droplet-alert-padding-inline);
+  --droplet-alert-gap: 14px; --jelly-alert-gap: var(--droplet-alert-gap);
+  --droplet-alert-font-size: 16px; --jelly-alert-font-size: var(--droplet-alert-font-size);
+  --droplet-alert-icon: 26px; --jelly-alert-icon: var(--droplet-alert-icon);
+  --droplet-alert-close: 28px; --jelly-alert-close: var(--droplet-alert-close);
+  --droplet-alert-radius: 18px; --jelly-alert-radius: var(--droplet-alert-radius);
 }
 
-:host([tone="success"]) { --tone: var(--jelly-color-background-mint); }
-:host([tone="warning"]) { --tone: var(--jelly-color-background-amber); }
-:host([tone="danger"])  { --tone: var(--jelly-color-background-rose); }
+:host([tone="success"]) { --tone: var(--jelly-color-background-mint, var(--droplet-color-background-mint)); }
+:host([tone="warning"]) { --tone: var(--jelly-color-background-amber, var(--droplet-color-background-amber)); }
+:host([tone="danger"])  { --tone: var(--jelly-color-background-rose, var(--droplet-color-background-rose)); }
 
 .box {
   position:       relative;
   box-sizing:     border-box;
   display:        flex;
-  gap:            var(--jelly-alert-gap);
+  gap:            var(--jelly-alert-gap, var(--droplet-alert-gap));
   align-items:    flex-start;
-  padding-block:  var(--jelly-alert-padding-block);
-  padding-inline: var(--jelly-alert-padding-inline);
+  padding-block:  var(--jelly-alert-padding-block, var(--droplet-alert-padding-block));
+  padding-inline: var(--jelly-alert-padding-inline, var(--droplet-alert-padding-inline));
 }
 
 /* The tone icon (Fluent) renders directly in the tone colour - the
    glyphs carry their own circle / triangle outline */
 .icon {
   flex:            0 0 auto;
-  width:           var(--jelly-alert-icon);
-  height:          var(--jelly-alert-icon);
+  width:           var(--jelly-alert-icon, var(--droplet-alert-icon));
+  height:          var(--jelly-alert-icon, var(--droplet-alert-icon));
   color:           var(--tone);
   display:         inline-flex;
   align-items:     center;
@@ -91,9 +91,9 @@
   background:      transparent;
   cursor:          pointer;
   touch-action:    manipulation;
-  color:           var(--jelly-color-foreground-muted);
-  width:           var(--jelly-alert-close);
-  height:          var(--jelly-alert-close);
+  color:           var(--jelly-color-foreground-muted, var(--droplet-color-foreground-muted));
+  width:           var(--jelly-alert-close, var(--droplet-alert-close));
+  height:          var(--jelly-alert-close, var(--droplet-alert-close));
   /* Never smaller than the 24px WCAG 2.5.8 target (the small size is 22px) */
   min-width:       24px;
   min-height:      24px;
@@ -109,22 +109,22 @@
 }
 
 .close:hover {
-  background: var(--jelly-alert-border);
+  background: var(--jelly-alert-border, var(--droplet-alert-border));
 }
 
-/* --jelly-motion mirrors data-jelly-motion on <html> (see src/theme/runtime.ts) */
+/* --droplet-motion mirrors data-droplet-motion (or data-jelly-motion) on <html>; see src/theme/runtime.ts */
 @media (prefers-reduced-motion: reduce) {
-  @container not style(--jelly-motion: no-preference) {
+  @container not style(--droplet-motion: no-preference) {
     .close { transition: none; }
   }
 }
 
-@container style(--jelly-motion: reduce) {
+@container style(--droplet-motion: reduce) {
   .close { transition: none; }
 }
 
 .close:focus-visible {
-  outline:        2px solid var(--jelly-ring-color);
+  outline:        2px solid var(--jelly-ring-color, var(--droplet-ring-color));
   outline-offset: 1px;
 }
 
@@ -133,6 +133,6 @@
 }
 
 @media (forced-colors: active) {
-  .box   { border: 1px solid CanvasText; border-radius: var(--jelly-alert-radius); }
+  .box   { border: 1px solid CanvasText; border-radius: var(--jelly-alert-radius, var(--droplet-alert-radius)); }
   .close:focus-visible { outline-color: Highlight; }
 }

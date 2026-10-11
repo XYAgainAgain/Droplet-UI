@@ -1,9 +1,9 @@
 :host {
   display: block;
 
-  --jelly-resizable-line:          var(--jelly-color-border-default);
-  --jelly-resizable-handle:        var(--jelly-color-background-neutral);
-  --jelly-resizable-handle-active: var(--jelly-color-background-accent);
+  --droplet-resizable-line: var(--jelly-color-border-default, var(--droplet-color-border-default)); --jelly-resizable-line: var(--droplet-resizable-line);
+  --droplet-resizable-handle: var(--jelly-color-background-neutral, var(--droplet-color-background-neutral)); --jelly-resizable-handle: var(--droplet-resizable-handle);
+  --droplet-resizable-handle-active: var(--jelly-color-background-accent, var(--droplet-color-background-accent)); --jelly-resizable-handle-active: var(--droplet-resizable-handle-active);
 }
 
 .container {
@@ -20,13 +20,13 @@
 :host([direction="both"]) .container {
   display: grid;
   grid-template-columns:
-    minmax(0, var(--jelly-resizable-col-a, 1fr))
+    minmax(0, var(--droplet-resizable-col-a, 1fr))
     14px
-    minmax(0, var(--jelly-resizable-col-b, 1fr));
+    minmax(0, var(--droplet-resizable-col-b, 1fr));
   grid-template-rows:
-    minmax(0, var(--jelly-resizable-row-a, 1fr))
+    minmax(0, var(--droplet-resizable-row-a, 1fr))
     14px
-    minmax(0, var(--jelly-resizable-row-b, 1fr));
+    minmax(0, var(--droplet-resizable-row-b, 1fr));
 }
 
 /* In the 2×2 grid the slots must generate real boxes: a slot's default
@@ -67,7 +67,7 @@
 .divider::before {
   content:    "";
   position:   absolute;
-  background: var(--jelly-resizable-line);
+  background: var(--jelly-resizable-line, var(--droplet-resizable-line));
   inset:      0 50%;
   width:      1px;
   transform:  translateX(-50%);
@@ -93,7 +93,7 @@
 
 .divider b {
   display:       block;
-  background:    var(--jelly-resizable-handle);
+  background:    var(--jelly-resizable-handle, var(--droplet-resizable-handle));
   border-radius: 999px;
   transition:    width .18s cubic-bezier(.34, 1.7, .5, 1), height .18s cubic-bezier(.34, 1.7, .5, 1), background .15s;
   width:         5px;
@@ -113,7 +113,7 @@
 
 .divider:hover b,
 .divider:focus-visible b {
-  background: var(--jelly-resizable-handle-active);
+  background: var(--jelly-resizable-handle-active, var(--droplet-resizable-handle-active));
   width:      10px;
 }
 
@@ -132,7 +132,7 @@
 }
 
 .divider.drag b {
-  background: var(--jelly-resizable-handle-active);
+  background: var(--jelly-resizable-handle-active, var(--droplet-resizable-handle-active));
   width:      12px;
 }
 

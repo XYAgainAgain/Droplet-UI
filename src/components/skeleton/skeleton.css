@@ -3,7 +3,7 @@
   width:   200px;
   height:  16px;
 
-  --jelly-fill: var(--jelly-color-background-neutral);
+  --droplet-fill: var(--jelly-color-background-neutral, var(--droplet-color-background-neutral)); --jelly-fill: var(--droplet-fill);
 }
 
 :host([shape="line"])   { width: 220px; height: 16px; }

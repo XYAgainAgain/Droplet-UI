@@ -90,7 +90,7 @@ export class DropletOtp extends HTMLElementBase {
     }
 
     this.shadowRoot!.innerHTML = `
-      <style>${otpStyles}${variantColors({ color: '--jelly-otp-accent', ring: '--jelly-ring' })}</style>
+      <style>${otpStyles}${variantColors({ color: '--droplet-otp-accent', ring: '--droplet-ring' })}</style>
 
       <div class="row" role="group" aria-label="One-time code"></div>
     `;

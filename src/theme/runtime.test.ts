@@ -42,11 +42,11 @@ test('leaves a headless document unmarked so a later call still installs the she
 
   doc.head.remove();
   ensureThemeTokens(doc);
-  expect(doc.querySelector('style[data-jelly-tokens]')).toBe(null);
+  expect(doc.querySelector('style[data-droplet-tokens]')).toBe(null);
 
   doc.documentElement.prepend(doc.createElement('head'));
   ensureThemeTokens(doc);
-  expect(doc.querySelector('style[data-jelly-tokens]')).not.toBe(null);
+  expect(doc.querySelector('style[data-droplet-tokens]')).not.toBe(null);
 });
 
 test('keeps observing dir on documentElement when there is no body', async () => {

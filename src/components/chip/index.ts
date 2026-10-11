@@ -14,6 +14,7 @@ import { triggerHaptic } from '../../utilities/index.js';
 import { variantColors } from '../../theme/index.js';
 import { defineStrict, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
+import { readToken } from '../../theme/token-read.js';
 
 import chipStyles        from './chip.css?inline';
 
@@ -67,18 +68,18 @@ export class DropletChip extends DropletElement {
   // Lifecycle method: Called automatically when the element is appended to the DOM
   override connectedCallback (): void {
     super.connectedCallback();
-    window.addEventListener('jelly-theme-change', this.onThemeFlip);
+    window.addEventListener('droplet-theme-change', this.onThemeFlip);
   }
 
   // Lifecycle method: Called automatically when the element leaves the DOM
   override disconnectedCallback (): void {
     super.disconnectedCallback();
-    window.removeEventListener('jelly-theme-change', this.onThemeFlip);
+    window.removeEventListener('droplet-theme-change', this.onThemeFlip);
   }
 
   // Component styles layered over the shared jelly base styles
   override styles (): string {
-    return chipStyles + variantColors({ color: '--jelly-on', on: '--jelly-label-on' });
+    return chipStyles + variantColors({ color: '--droplet-on', on: '--droplet-label-on' });
   }
 
   // The interactive markup that sits above the canvas
@@ -109,9 +110,9 @@ export class DropletChip extends DropletElement {
     const h      = height - 6;
     const square = this.getAttribute('shape') === 'square';
 
-    // A plain-px --jelly-chip-radius override reaches the painted surface; the
+    // A plain-px --droplet-chip-radius override reaches the painted surface; the
     // 999px pill default falls through to the ratio
-    const declared = parseFloat(getComputedStyle(this).getPropertyValue('--jelly-chip-radius'));
+    const declared = parseFloat(readToken(getComputedStyle(this), 'chip-radius'));
     const radius   = Number.isFinite(declared) && declared < 900 ? Math.min(declared, h / 2) : (square ? h * 0.32 : h / 2);
 
     return { width: w, height: h, radius };
@@ -123,11 +124,10 @@ export class DropletChip extends DropletElement {
   }
 
   // Blend the off → on fills at factor t (0..1) so the color eases, not snaps.
-  // Both endpoints resolve fresh each paint so a runtime --jelly-on / --jelly-fill
-  // override (inline style, class swap) recolors the chip instead of being
-  // pinned to a stale cached triple.
+  // Both endpoints resolve fresh each paint so a runtime --droplet-on or --droplet-fill override
+  // (or its legacy --jelly-* name; inline style, class swap) recolors the chip, not a stale cached triple.
   mixFill (t: number): string {
-    return this.mixColor('var(--jelly-fill)', 'var(--jelly-on)', t);
+    return this.mixColor('var(--jelly-fill, var(--droplet-fill))', 'var(--jelly-on, var(--droplet-on))', t);
   }
 
   /*
@@ -306,7 +306,7 @@ export class DropletChip extends DropletElement {
         break;
 
       case 'variant':
-        // A new variant swaps --jelly-on via CSS; repaint so the fill
+        // A new variant swaps --droplet-on via CSS; repaint so the fill
         // re-resolves (a resting body won't on its own)
         this.requestFrame();
         break;
@@ -336,7 +336,7 @@ export class DropletChip extends DropletElement {
 
   // Re-render the chip's interactive markup in place and re-wire it
   rebuildContent (): void {
-    const content = this.shadowRoot!.querySelector('.jelly-content');
+    const content = this.shadowRoot!.querySelector('.droplet-content');
 
     if (!content) {
       return;

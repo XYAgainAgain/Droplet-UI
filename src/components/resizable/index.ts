@@ -424,10 +424,10 @@ export class DropletResizable extends HTMLElementBase {
 
   // Push the track weights onto the 2×2 grid
   applyBoth (): void {
-    this.container?.style.setProperty('--jelly-resizable-col-a', `${this.colGrow[0]}fr`);
-    this.container?.style.setProperty('--jelly-resizable-col-b', `${this.colGrow[1]}fr`);
-    this.container?.style.setProperty('--jelly-resizable-row-a', `${this.rowGrow[0]}fr`);
-    this.container?.style.setProperty('--jelly-resizable-row-b', `${this.rowGrow[1]}fr`);
+    this.container?.style.setProperty('--droplet-resizable-col-a', `${this.colGrow[0]}fr`);
+    this.container?.style.setProperty('--droplet-resizable-col-b', `${this.colGrow[1]}fr`);
+    this.container?.style.setProperty('--droplet-resizable-row-a', `${this.rowGrow[0]}fr`);
+    this.container?.style.setProperty('--droplet-resizable-row-b', `${this.rowGrow[1]}fr`);
 
     this.syncSeparatorValues();
   }

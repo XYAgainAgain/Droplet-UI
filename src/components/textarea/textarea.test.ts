@@ -187,7 +187,7 @@ test(':state(user-invalid) follows a committed edit and paints the danger border
 
   inner(el).blur();
   expect(el.matches(':state(user-invalid)')).toBe(true);
-  expect(el.surfaceBorder().color).toBe(el.resolveColor('var(--jelly-color-background-rose)'));
+  expect(el.surfaceBorder().color).toBe(el.resolveColor('var(--droplet-color-background-rose)'));
 
   form.reset();
   expect(el.matches(':state(user-invalid)')).toBe(false);

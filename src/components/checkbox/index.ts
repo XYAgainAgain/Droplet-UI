@@ -80,7 +80,7 @@ export class DropletCheckbox extends DropletElement {
 
   // Component styles layered over the shared jelly base styles
   override styles (): string {
-    return checkboxStyles + variantColors({ color: '--jelly-on', on: '--jelly-checkbox-mark' });
+    return checkboxStyles + variantColors({ color: '--droplet-on', on: '--droplet-checkbox-mark' });
   }
 
   // The interactive markup that sits above the canvas
@@ -88,7 +88,7 @@ export class DropletCheckbox extends DropletElement {
     return `
       <label class="wrap" part="wrap">
         <input type="checkbox" part="input" />
-        <span class="box" data-jelly-box aria-hidden="true">
+        <span class="box" data-droplet-box aria-hidden="true">
           <svg class="mark check" viewBox="0 0 32 32"><path d="M7 17l6 6 12-14" /></svg>
           <svg class="mark dash" viewBox="0 0 32 32"><path d="M9 16h14" /></svg>
         </span>
@@ -106,8 +106,8 @@ export class DropletCheckbox extends DropletElement {
   // Resolve the box fill for the current state through the live theme tokens
   override fill (): string {
     return this.checked || this.indeterminate
-      ? this.resolveColor(`var(--jelly-on, ${PALETTE['background-accent']})`)
-      : this.resolveColor(`var(--jelly-fill, ${PALETTE['background-neutral']})`);
+      ? this.resolveColor(`var(--jelly-on, var(--droplet-on, ${PALETTE['background-accent']}))`)
+      : this.resolveColor(`var(--jelly-fill, var(--droplet-fill, ${PALETTE['background-neutral']}))`);
   }
 
   // Called once after the shadow DOM and canvas exist. Wire events here.

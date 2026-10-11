@@ -1,36 +1,36 @@
 :host {
   display: inline-flex;
 
-  --jelly-menu-min-width:           190px;
-  --jelly-menu-padding:             7px;
-  --jelly-menu-radius:              15px;
-  --jelly-menu-font-size:           14.5px;
-  --jelly-menu-item-height:         40px;
-  --jelly-menu-item-padding-inline: 12px;
-  --jelly-menu-item-gap:            9px;
-  --jelly-menu-item-radius:         10px;
+  --droplet-menu-min-width: 190px; --jelly-menu-min-width: var(--droplet-menu-min-width);
+  --droplet-menu-padding: 7px; --jelly-menu-padding: var(--droplet-menu-padding);
+  --droplet-menu-radius: 15px; --jelly-menu-radius: var(--droplet-menu-radius);
+  --droplet-menu-font-size: 14.5px; --jelly-menu-font-size: var(--droplet-menu-font-size);
+  --droplet-menu-item-height: 40px; --jelly-menu-item-height: var(--droplet-menu-item-height);
+  --droplet-menu-item-padding-inline: 12px; --jelly-menu-item-padding-inline: var(--droplet-menu-item-padding-inline);
+  --droplet-menu-item-gap: 9px; --jelly-menu-item-gap: var(--droplet-menu-item-gap);
+  --droplet-menu-item-radius: 10px; --jelly-menu-item-radius: var(--droplet-menu-item-radius);
 }
 
 :host([size="small"]) {
-  --jelly-menu-min-width:           160px;
-  --jelly-menu-padding:             5px;
-  --jelly-menu-radius:              12px;
-  --jelly-menu-font-size:           13px;
-  --jelly-menu-item-height:         34px;
-  --jelly-menu-item-padding-inline: 10px;
-  --jelly-menu-item-gap:            7px;
-  --jelly-menu-item-radius:         8px;
+  --droplet-menu-min-width: 160px; --jelly-menu-min-width: var(--droplet-menu-min-width);
+  --droplet-menu-padding: 5px; --jelly-menu-padding: var(--droplet-menu-padding);
+  --droplet-menu-radius: 12px; --jelly-menu-radius: var(--droplet-menu-radius);
+  --droplet-menu-font-size: 13px; --jelly-menu-font-size: var(--droplet-menu-font-size);
+  --droplet-menu-item-height: 34px; --jelly-menu-item-height: var(--droplet-menu-item-height);
+  --droplet-menu-item-padding-inline: 10px; --jelly-menu-item-padding-inline: var(--droplet-menu-item-padding-inline);
+  --droplet-menu-item-gap: 7px; --jelly-menu-item-gap: var(--droplet-menu-item-gap);
+  --droplet-menu-item-radius: 8px; --jelly-menu-item-radius: var(--droplet-menu-item-radius);
 }
 
 :host([size="large"]) {
-  --jelly-menu-min-width:           230px;
-  --jelly-menu-padding:             9px;
-  --jelly-menu-radius:              18px;
-  --jelly-menu-font-size:           16px;
-  --jelly-menu-item-height:         46px;
-  --jelly-menu-item-padding-inline: 14px;
-  --jelly-menu-item-gap:            11px;
-  --jelly-menu-item-radius:         12px;
+  --droplet-menu-min-width: 230px; --jelly-menu-min-width: var(--droplet-menu-min-width);
+  --droplet-menu-padding: 9px; --jelly-menu-padding: var(--droplet-menu-padding);
+  --droplet-menu-radius: 18px; --jelly-menu-radius: var(--droplet-menu-radius);
+  --droplet-menu-font-size: 16px; --jelly-menu-font-size: var(--droplet-menu-font-size);
+  --droplet-menu-item-height: 46px; --jelly-menu-item-height: var(--droplet-menu-item-height);
+  --droplet-menu-item-padding-inline: 14px; --jelly-menu-item-padding-inline: var(--droplet-menu-item-padding-inline);
+  --droplet-menu-item-gap: 11px; --jelly-menu-item-gap: var(--droplet-menu-item-gap);
+  --droplet-menu-item-radius: 12px; --jelly-menu-item-radius: var(--droplet-menu-item-radius);
 }
 
 /* The light-DOM items are data; the shadow rows are the rendering */
@@ -43,17 +43,17 @@
   left:      0;
   top:       0;
   z-index:   9998;
-  min-width: var(--jelly-menu-min-width);
+  min-width: var(--jelly-menu-min-width, var(--droplet-menu-min-width));
 
-  background:    var(--jelly-color-background-surface);
-  border:        1px solid var(--jelly-color-border-default);
-  border-radius: var(--jelly-menu-radius);
-  padding:       var(--jelly-menu-padding);
-  box-shadow:    var(--jelly-shadow-raised);
+  background:    var(--jelly-color-background-surface, var(--droplet-color-background-surface));
+  border:        1px solid var(--jelly-color-border-default, var(--droplet-color-border-default));
+  border-radius: var(--jelly-menu-radius, var(--droplet-menu-radius));
+  padding:       var(--jelly-menu-padding, var(--droplet-menu-padding));
+  box-shadow:    var(--jelly-shadow-raised, var(--droplet-shadow-raised));
 
   opacity:    0;
   visibility: hidden;
-  font:       600 var(--jelly-menu-font-size)/1 var(--jelly-font-display);
+  font:       600 var(--jelly-menu-font-size, var(--droplet-menu-font-size))/1 var(--jelly-font-display, var(--droplet-font-display));
 }
 
 .menu[data-open] {
@@ -64,11 +64,11 @@
 .item {
   display:        flex;
   align-items:    center;
-  gap:            var(--jelly-menu-item-gap);
-  height:         var(--jelly-menu-item-height);
-  padding-inline: var(--jelly-menu-item-padding-inline);
-  border-radius:  var(--jelly-menu-item-radius);
-  color:          var(--jelly-color-foreground-default);
+  gap:            var(--jelly-menu-item-gap, var(--droplet-menu-item-gap));
+  height:         var(--jelly-menu-item-height, var(--droplet-menu-item-height));
+  padding-inline: var(--jelly-menu-item-padding-inline, var(--droplet-menu-item-padding-inline));
+  border-radius:  var(--jelly-menu-item-radius, var(--droplet-menu-item-radius));
+  color:          var(--jelly-color-foreground-default, var(--droplet-color-foreground-default));
   cursor:         pointer;
   touch-action:   manipulation;
   user-select:    none;
@@ -79,7 +79,7 @@
 .item:focus-visible,
 .item:focus,
 .item.active {
-  background: color-mix(in srgb, var(--jelly-color-background-accent) 12%, transparent);
+  background: color-mix(in srgb, var(--jelly-color-background-accent, var(--droplet-color-background-accent)) 12%, transparent);
 }
 
 .item[aria-disabled="true"] {
@@ -88,13 +88,13 @@
 }
 
 .item[data-danger] {
-  color: var(--jelly-color-background-rose);
+  color: var(--jelly-color-background-rose, var(--droplet-color-background-rose));
 }
 
 .item[data-danger]:hover,
 .item[data-danger]:focus,
 .item[data-danger].active {
-  background: color-mix(in srgb, var(--jelly-color-background-rose) 15%, transparent);
+  background: color-mix(in srgb, var(--jelly-color-background-rose, var(--droplet-color-background-rose)) 15%, transparent);
 }
 
 @media (forced-colors: active) {

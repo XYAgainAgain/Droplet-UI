@@ -1,33 +1,33 @@
 :host {
   display: block;
 
-  --jelly-collapsible-padding-block:  13px;
-  --jelly-collapsible-padding-inline: 14px;
-  --jelly-collapsible-gap:            10px;
-  --jelly-collapsible-header-font:    15px;
-  --jelly-collapsible-body-font:      14.5px;
-  --jelly-collapsible-chevron:        16px;
-  --jelly-collapsible-radius:         12px;
+  --droplet-collapsible-padding-block: 13px; --jelly-collapsible-padding-block: var(--droplet-collapsible-padding-block);
+  --droplet-collapsible-padding-inline: 14px; --jelly-collapsible-padding-inline: var(--droplet-collapsible-padding-inline);
+  --droplet-collapsible-gap: 10px; --jelly-collapsible-gap: var(--droplet-collapsible-gap);
+  --droplet-collapsible-header-font: 15px; --jelly-collapsible-header-font: var(--droplet-collapsible-header-font);
+  --droplet-collapsible-body-font: 14.5px; --jelly-collapsible-body-font: var(--droplet-collapsible-body-font);
+  --droplet-collapsible-chevron: 16px; --jelly-collapsible-chevron: var(--droplet-collapsible-chevron);
+  --droplet-collapsible-radius: 12px; --jelly-collapsible-radius: var(--droplet-collapsible-radius);
 }
 
 :host([size="small"]) {
-  --jelly-collapsible-padding-block:  10px;
-  --jelly-collapsible-padding-inline: 12px;
-  --jelly-collapsible-gap:            8px;
-  --jelly-collapsible-header-font:    13.5px;
-  --jelly-collapsible-body-font:      13px;
-  --jelly-collapsible-chevron:        14px;
-  --jelly-collapsible-radius:         10px;
+  --droplet-collapsible-padding-block: 10px; --jelly-collapsible-padding-block: var(--droplet-collapsible-padding-block);
+  --droplet-collapsible-padding-inline: 12px; --jelly-collapsible-padding-inline: var(--droplet-collapsible-padding-inline);
+  --droplet-collapsible-gap: 8px; --jelly-collapsible-gap: var(--droplet-collapsible-gap);
+  --droplet-collapsible-header-font: 13.5px; --jelly-collapsible-header-font: var(--droplet-collapsible-header-font);
+  --droplet-collapsible-body-font: 13px; --jelly-collapsible-body-font: var(--droplet-collapsible-body-font);
+  --droplet-collapsible-chevron: 14px; --jelly-collapsible-chevron: var(--droplet-collapsible-chevron);
+  --droplet-collapsible-radius: 10px; --jelly-collapsible-radius: var(--droplet-collapsible-radius);
 }
 
 :host([size="large"]) {
-  --jelly-collapsible-padding-block:  16px;
-  --jelly-collapsible-padding-inline: 18px;
-  --jelly-collapsible-gap:            12px;
-  --jelly-collapsible-header-font:    16.5px;
-  --jelly-collapsible-body-font:      15.5px;
-  --jelly-collapsible-chevron:        18px;
-  --jelly-collapsible-radius:         14px;
+  --droplet-collapsible-padding-block: 16px; --jelly-collapsible-padding-block: var(--droplet-collapsible-padding-block);
+  --droplet-collapsible-padding-inline: 18px; --jelly-collapsible-padding-inline: var(--droplet-collapsible-padding-inline);
+  --droplet-collapsible-gap: 12px; --jelly-collapsible-gap: var(--droplet-collapsible-gap);
+  --droplet-collapsible-header-font: 16.5px; --jelly-collapsible-header-font: var(--droplet-collapsible-header-font);
+  --droplet-collapsible-body-font: 15.5px; --jelly-collapsible-body-font: var(--droplet-collapsible-body-font);
+  --droplet-collapsible-chevron: 18px; --jelly-collapsible-chevron: var(--droplet-collapsible-chevron);
+  --droplet-collapsible-radius: 14px; --jelly-collapsible-radius: var(--droplet-collapsible-radius);
 }
 
 .head {
@@ -43,22 +43,22 @@
 
   display:        flex;
   align-items:    center;
-  gap:            var(--jelly-collapsible-gap);
-  padding-block:  var(--jelly-collapsible-padding-block);
-  padding-inline: var(--jelly-collapsible-padding-inline);
+  gap:            var(--jelly-collapsible-gap, var(--droplet-collapsible-gap));
+  padding-block:  var(--jelly-collapsible-padding-block, var(--droplet-collapsible-padding-block));
+  padding-inline: var(--jelly-collapsible-padding-inline, var(--droplet-collapsible-padding-inline));
 
-  font:           650 var(--jelly-collapsible-header-font)/1.3 var(--jelly-font-display);
-  color:          var(--jelly-color-foreground-default);
-  border-radius:  var(--jelly-collapsible-radius);
+  font:           650 var(--jelly-collapsible-header-font, var(--droplet-collapsible-header-font))/1.3 var(--jelly-font-display, var(--droplet-font-display));
+  color:          var(--jelly-color-foreground-default, var(--droplet-color-foreground-default));
+  border-radius:  var(--jelly-collapsible-radius, var(--droplet-collapsible-radius));
 }
 
 .head:hover {
-  background: color-mix(in srgb, var(--jelly-color-background-accent) 7%, transparent);
+  background: color-mix(in srgb, var(--jelly-color-background-accent, var(--droplet-color-background-accent)) 7%, transparent);
 }
 
 .head:focus-visible {
-  outline:        var(--jelly-ring-width) solid var(--jelly-ring-color);
-  outline-offset: var(--jelly-ring-gap);
+  outline:        var(--jelly-ring-width, var(--droplet-ring-width)) solid var(--jelly-ring-color, var(--droplet-ring-color));
+  outline-offset: var(--jelly-ring-gap, var(--droplet-ring-gap));
 }
 
 .label {
@@ -66,8 +66,8 @@
 }
 
 .chevron {
-  width:      var(--jelly-collapsible-chevron);
-  height:     var(--jelly-collapsible-chevron);
+  width:      var(--jelly-collapsible-chevron, var(--droplet-collapsible-chevron));
+  height:     var(--jelly-collapsible-chevron, var(--droplet-collapsible-chevron));
   flex:       0 0 auto;
   transition: transform .32s cubic-bezier(.34, 1.5, .5, 1);
 }
@@ -107,10 +107,10 @@
 
 .inner {
   padding-block-start:  2px;
-  padding-block-end:    var(--jelly-collapsible-padding-inline);
-  padding-inline:       var(--jelly-collapsible-padding-inline);
-  color:                var(--jelly-color-foreground-default);
-  font:                 400 var(--jelly-collapsible-body-font)/1.6 var(--jelly-font-text);
+  padding-block-end:    var(--jelly-collapsible-padding-inline, var(--droplet-collapsible-padding-inline));
+  padding-inline:       var(--jelly-collapsible-padding-inline, var(--droplet-collapsible-padding-inline));
+  color:                var(--jelly-color-foreground-default, var(--droplet-color-foreground-default));
+  font:                 400 var(--jelly-collapsible-body-font, var(--droplet-collapsible-body-font))/1.6 var(--jelly-font-text, var(--droplet-font-text));
   transform-origin:     top;
 }
 
@@ -123,16 +123,16 @@
   100% { transform: none; }
 }
 
-/* --jelly-motion mirrors data-jelly-motion on <html> (see src/theme/runtime.ts) */
+/* --droplet-motion mirrors data-droplet-motion (or data-jelly-motion) on <html>; see src/theme/runtime.ts */
 @media (prefers-reduced-motion: reduce) {
-  @container not style(--jelly-motion: no-preference) {
+  @container not style(--droplet-motion: no-preference) {
     :is(.wrap, .chevron, .content) { transition: none; }
     :host([open]) .inner { animation: none; }
     :host(:dir(rtl)) .chevron { transform: scaleX(-1); }
   }
 }
 
-@container style(--jelly-motion: reduce) {
+@container style(--droplet-motion: reduce) {
   :is(.wrap, .chevron, .content) { transition: none; }
   :host([open]) .inner { animation: none; }
   :host(:dir(rtl)) .chevron { transform: scaleX(-1); }

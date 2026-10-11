@@ -452,7 +452,7 @@ describe('droplet-button contracts', () => {
   // :host(:focus-visible) never matches under delegatesFocus in any of the three
   // browsers, so the focus fallback has to land on the delegated control
   test('shows a canvas-free focus indicator when the inner button is keyboard-focused', async () => {
-    const host = mount('<droplet-button data-jelly-nocanvas>F</droplet-button>');
+    const host = mount('<droplet-button data-droplet-nocanvas>F</droplet-button>');
     await settle();
 
     const el    = host.firstElementChild as DropletButton;

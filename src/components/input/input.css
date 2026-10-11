@@ -1,24 +1,24 @@
 :host {
-  --jelly-input-padding-inline: 20px;
-  --jelly-input-font-size:      16px;
-  --jelly-input-radius:         16px;
+  --droplet-input-padding-inline: 20px; --jelly-input-padding-inline: var(--droplet-input-padding-inline);
+  --droplet-input-font-size: 16px; --jelly-input-font-size: var(--droplet-input-font-size);
+  --droplet-input-radius: 16px; --jelly-input-radius: var(--droplet-input-radius);
 
-  --jelly-fill:   var(--jelly-color-background-muted);
-  --jelly-label:  var(--jelly-color-foreground-default);
-  --jelly-accent: var(--jelly-color-background-accent);
-  --jelly-ring:   var(--jelly-accent, var(--jelly-color-border-focus));
+  --droplet-fill: var(--jelly-color-background-muted, var(--droplet-color-background-muted)); --jelly-fill: var(--droplet-fill);
+  --droplet-label: var(--jelly-color-foreground-default, var(--droplet-color-foreground-default)); --jelly-label: var(--droplet-label);
+  --droplet-accent: var(--jelly-color-background-accent, var(--droplet-color-background-accent)); --jelly-accent: var(--droplet-accent);
+  --droplet-ring: var(--jelly-accent, var(--droplet-accent, var(--jelly-color-border-focus, var(--droplet-color-border-focus)))); --jelly-ring: var(--droplet-ring);
 
   display: inline-block;
   width:   280px;
   height:  56px;
-  font:    500 var(--jelly-input-font-size)/1.2 var(--jelly-font-text);
+  font:    500 var(--jelly-input-font-size, var(--droplet-input-font-size))/1.2 var(--jelly-font-text, var(--droplet-font-text));
 }
 
 :host([size="small"]),
 :host([size="sm"]) {
-  --jelly-input-padding-inline: 16px;
-  --jelly-input-font-size:      14.5px;
-  --jelly-input-radius:         14px;
+  --droplet-input-padding-inline: 16px; --jelly-input-padding-inline: var(--droplet-input-padding-inline);
+  --droplet-input-font-size: 14.5px; --jelly-input-font-size: var(--droplet-input-font-size);
+  --droplet-input-radius: 14px; --jelly-input-radius: var(--droplet-input-radius);
 
   width:  220px;
   height: 46px;
@@ -26,9 +26,9 @@
 
 :host([size="medium"]),
 :host([size="md"]) {
-  --jelly-input-padding-inline: 20px;
-  --jelly-input-font-size:      16px;
-  --jelly-input-radius:         16px;
+  --droplet-input-padding-inline: 20px; --jelly-input-padding-inline: var(--droplet-input-padding-inline);
+  --droplet-input-font-size: 16px; --jelly-input-font-size: var(--droplet-input-font-size);
+  --droplet-input-radius: 16px; --jelly-input-radius: var(--droplet-input-radius);
 
   width:  280px;
   height: 56px;
@@ -36,9 +36,9 @@
 
 :host([size="large"]),
 :host([size="lg"]) {
-  --jelly-input-padding-inline: 24px;
-  --jelly-input-font-size:      17px;
-  --jelly-input-radius:         18px;
+  --droplet-input-padding-inline: 24px; --jelly-input-padding-inline: var(--droplet-input-padding-inline);
+  --droplet-input-font-size: 17px; --jelly-input-font-size: var(--droplet-input-font-size);
+  --droplet-input-radius: 18px; --jelly-input-radius: var(--droplet-input-radius);
 
   width:  340px;
   height: 64px;
@@ -47,7 +47,7 @@
 /* :disabled also catches an ancestor <fieldset disabled> */
 :host([disabled]),
 :host(:disabled) {
-  --jelly-fill: var(--jelly-color-background-neutral);
+  --droplet-fill: var(--jelly-color-background-neutral, var(--droplet-color-background-neutral)); --jelly-fill: var(--droplet-fill);
 
   opacity:        0.55;
   pointer-events: none;
@@ -63,15 +63,15 @@ input {
   outline:        none;
   background:     transparent;
   padding-block:  0;
-  padding-inline: var(--jelly-input-padding-inline);
+  padding-inline: var(--jelly-input-padding-inline, var(--droplet-input-padding-inline));
   font:           inherit;
-  color:          var(--jelly-label);
+  color:          var(--jelly-label, var(--droplet-label));
   text-align:     start;
   touch-action:   manipulation;
 }
 
 input::placeholder {
-  color: var(--jelly-color-foreground-muted);
+  color: var(--jelly-color-foreground-muted, var(--droplet-color-foreground-muted));
 }
 
 /* The focus ring is painted on the canvas so it follows the jiggle;
@@ -79,8 +79,8 @@ input::placeholder {
 .ring {
   position:       absolute;
   inset:          4px;
-  border:         var(--jelly-ring-width) solid transparent;
-  border-radius:  var(--jelly-input-radius);
+  border:         var(--jelly-ring-width, var(--droplet-ring-width)) solid transparent;
+  border-radius:  var(--jelly-input-radius, var(--droplet-input-radius));
   pointer-events: none;
 }
 

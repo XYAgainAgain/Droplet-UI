@@ -85,7 +85,7 @@ export class DropletRadio extends DropletElement {
 
   // Component styles layered over the shared jelly base styles
   override styles (): string {
-    return radioStyles + variantColors({ color: '--jelly-on', on: '--jelly-radio-dot-color' });
+    return radioStyles + variantColors({ color: '--droplet-on', on: '--droplet-radio-dot-color' });
   }
 
   // The interactive markup that sits above the canvas
@@ -94,7 +94,7 @@ export class DropletRadio extends DropletElement {
 
     return `
       <label class="wrap" part="wrap">
-        <span class="control" part="control" data-jelly-box role="radio"
+        <span class="control" part="control" data-droplet-box role="radio"
               tabindex="-1" aria-checked="false" aria-labelledby="${labelId}">
           <span class="dot" aria-hidden="true"></span>
         </span>
@@ -112,8 +112,8 @@ export class DropletRadio extends DropletElement {
   // Resolve the control fill for the current state through the live theme tokens
   override fill (): string {
     return this.checked
-      ? this.resolveColor(`var(--jelly-on, ${PALETTE['background-accent']})`)
-      : this.resolveColor(`var(--jelly-fill, ${PALETTE['background-neutral']})`);
+      ? this.resolveColor(`var(--jelly-on, var(--droplet-on, ${PALETTE['background-accent']}))`)
+      : this.resolveColor(`var(--jelly-fill, var(--droplet-fill, ${PALETTE['background-neutral']}))`);
   }
 
   // Called once after the shadow DOM and canvas exist. Wire events here.

@@ -2,27 +2,27 @@
   display:  inline-flex;
   position: relative;
 
-  --jelly-popover-min-width:      180px;
-  --jelly-popover-padding-block:  12px;
-  --jelly-popover-padding-inline: 14px;
-  --jelly-popover-radius:         16px;
-  --jelly-popover-font-size:      14.5px;
+  --droplet-popover-min-width: 180px; --jelly-popover-min-width: var(--droplet-popover-min-width);
+  --droplet-popover-padding-block: 12px; --jelly-popover-padding-block: var(--droplet-popover-padding-block);
+  --droplet-popover-padding-inline: 14px; --jelly-popover-padding-inline: var(--droplet-popover-padding-inline);
+  --droplet-popover-radius: 16px; --jelly-popover-radius: var(--droplet-popover-radius);
+  --droplet-popover-font-size: 14.5px; --jelly-popover-font-size: var(--droplet-popover-font-size);
 }
 
 :host([size="small"]) {
-  --jelly-popover-min-width:      150px;
-  --jelly-popover-padding-block:  9px;
-  --jelly-popover-padding-inline: 11px;
-  --jelly-popover-radius:         13px;
-  --jelly-popover-font-size:      13px;
+  --droplet-popover-min-width: 150px; --jelly-popover-min-width: var(--droplet-popover-min-width);
+  --droplet-popover-padding-block: 9px; --jelly-popover-padding-block: var(--droplet-popover-padding-block);
+  --droplet-popover-padding-inline: 11px; --jelly-popover-padding-inline: var(--droplet-popover-padding-inline);
+  --droplet-popover-radius: 13px; --jelly-popover-radius: var(--droplet-popover-radius);
+  --droplet-popover-font-size: 13px; --jelly-popover-font-size: var(--droplet-popover-font-size);
 }
 
 :host([size="large"]) {
-  --jelly-popover-min-width:      220px;
-  --jelly-popover-padding-block:  15px;
-  --jelly-popover-padding-inline: 18px;
-  --jelly-popover-radius:         18px;
-  --jelly-popover-font-size:      16px;
+  --droplet-popover-min-width: 220px; --jelly-popover-min-width: var(--droplet-popover-min-width);
+  --droplet-popover-padding-block: 15px; --jelly-popover-padding-block: var(--droplet-popover-padding-block);
+  --droplet-popover-padding-inline: 18px; --jelly-popover-padding-inline: var(--droplet-popover-padding-inline);
+  --droplet-popover-radius: 18px; --jelly-popover-radius: var(--droplet-popover-radius);
+  --droplet-popover-font-size: 16px; --jelly-popover-font-size: var(--droplet-popover-font-size);
 }
 
 .panel {
@@ -30,19 +30,19 @@
   left:      0;
   top:       0;
   z-index:   9998;
-  min-width: var(--jelly-popover-min-width);
+  min-width: var(--jelly-popover-min-width, var(--droplet-popover-min-width));
   max-width: min(360px, calc(100vw - 24px));
 
-  background:    var(--jelly-color-background-surface);
-  border:        1px solid var(--jelly-color-border-default);
-  border-radius: var(--jelly-popover-radius);
-  box-shadow:    var(--jelly-shadow-raised);
+  background:    var(--jelly-color-background-surface, var(--droplet-color-background-surface));
+  border:        1px solid var(--jelly-color-border-default, var(--droplet-color-border-default));
+  border-radius: var(--jelly-popover-radius, var(--droplet-popover-radius));
+  box-shadow:    var(--jelly-shadow-raised, var(--droplet-shadow-raised));
 
-  padding-block:  var(--jelly-popover-padding-block);
-  padding-inline: var(--jelly-popover-padding-inline);
+  padding-block:  var(--jelly-popover-padding-block, var(--droplet-popover-padding-block));
+  padding-inline: var(--jelly-popover-padding-inline, var(--droplet-popover-padding-inline));
 
-  color:      var(--jelly-color-foreground-default);
-  font:       400 var(--jelly-popover-font-size)/1.5 var(--jelly-font-text);
+  color:      var(--jelly-color-foreground-default, var(--droplet-color-foreground-default));
+  font:       400 var(--jelly-popover-font-size, var(--droplet-popover-font-size))/1.5 var(--jelly-font-text, var(--droplet-font-text));
   outline:    none;
 
   opacity:    0;

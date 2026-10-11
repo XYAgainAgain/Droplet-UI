@@ -65,7 +65,7 @@ export class DropletSpinner extends DropletElement {
         // blob and dots are different markup + geometry; re-render the content
         // and clear the old surface. The host's CSS size flip drives the body
         // reshape through the ResizeObserver.
-        this.shadowRoot!.querySelector('.jelly-content')!.innerHTML = this.content();
+        this.shadowRoot!.querySelector('.droplet-content')!.innerHTML = this.content();
         this.clearCanvas();
         break;
 

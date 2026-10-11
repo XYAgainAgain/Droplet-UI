@@ -5,8 +5,8 @@
   z-index:          10002;
   pointer-events:   none;
 
-  --jelly-toast-radius:    999px;
-  --jelly-toast-font-size: 14px;
+  --droplet-toast-radius: 999px; --jelly-toast-radius: var(--droplet-toast-radius);
+  --droplet-toast-font-size: 14px; --jelly-toast-font-size: var(--droplet-toast-font-size);
 }
 
 /* Toasts stack downward from the top, or upward from the bottom */
@@ -38,17 +38,17 @@
   cursor:         pointer;
   touch-action:   manipulation;
 
-  background:     var(--jelly-color-background-surface);
-  border:         1px solid var(--jelly-color-border-default);
-  border-radius:  var(--jelly-toast-radius);
-  box-shadow:     var(--jelly-shadow-overlay);
+  background:     var(--jelly-color-background-surface, var(--droplet-color-background-surface));
+  border:         1px solid var(--jelly-color-border-default, var(--droplet-color-border-default));
+  border-radius:  var(--jelly-toast-radius, var(--droplet-toast-radius));
+  box-shadow:     var(--jelly-shadow-overlay, var(--droplet-shadow-overlay));
 
   padding-block:        11px;
   padding-inline-start: 14px;
   padding-inline-end:   14px;
 
-  font:      600 var(--jelly-toast-font-size)/1.3 var(--jelly-font-display);
-  color:     var(--jelly-color-foreground-default);
+  font:      600 var(--jelly-toast-font-size, var(--droplet-toast-font-size))/1.3 var(--jelly-font-display, var(--droplet-font-display));
+  color:     var(--jelly-color-foreground-default, var(--droplet-color-foreground-default));
   max-width: min(320px, calc(100vw - 48px));
 }
 
@@ -75,7 +75,7 @@
   height:          22px;
   border-radius:   50%;
   background:      transparent;
-  color:           var(--jelly-color-foreground-muted);
+  color:           var(--jelly-color-foreground-muted, var(--droplet-color-foreground-muted));
   cursor:          pointer;
   display:         inline-flex;
   align-items:     center;
@@ -83,11 +83,11 @@
 }
 
 .close:hover {
-  background: var(--jelly-color-border-default);
+  background: var(--jelly-color-border-default, var(--droplet-color-border-default));
 }
 
 .close:focus-visible {
-  outline:        2px solid var(--jelly-ring-color);
+  outline:        2px solid var(--jelly-ring-color, var(--droplet-ring-color));
   outline-offset: 1px;
 }
 

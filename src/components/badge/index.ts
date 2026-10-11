@@ -14,6 +14,7 @@ import type { Shape }   from '../../element/index.js';
 import type { Border }  from '../../element/index.js';
 import { defineStrict, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
+import { readToken } from '../../theme/token-read.js';
 
 import badgeStyles      from './badge.css?inline';
 import variantStyles    from '../../styles/variants.css?inline';
@@ -68,9 +69,9 @@ export class DropletBadge extends DropletElement {
     const h      = height - 2;
     const square = this.getAttribute('shape') === 'square';
 
-    // A plain-px --jelly-badge-radius override reaches the painted pill; the
+    // A plain-px --droplet-badge-radius override reaches the painted pill; the
     // pill (999px) and square (8px-ish) defaults fall through to the ratios
-    const declared = parseFloat(getComputedStyle(this).getPropertyValue('--jelly-badge-radius'));
+    const declared = parseFloat(readToken(getComputedStyle(this), 'badge-radius'));
     const radius   = Number.isFinite(declared) && declared < 900 ? Math.min(declared, h / 2) : (square ? h * 0.32 : h / 2);
 
     return { width: width - 2, height: h, radius };
@@ -122,7 +123,7 @@ export class DropletBadge extends DropletElement {
 
     return {
       width: 2,
-      color: this.resolveColor('var(--jelly-fill)'),
+      color: this.resolveColor('var(--jelly-fill, var(--droplet-fill))'),
     };
   }
 

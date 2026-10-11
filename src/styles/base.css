@@ -1,4 +1,4 @@
-/* Styles shared by every jelly canvas host (imported by element.ts as a string). */
+/* Styles shared by every Droplet canvas host (imported by element.ts as a string). */
 
 :host {
   display:                     inline-block;
@@ -16,7 +16,7 @@
 
 /* Host-sized with visible overflow: the canvas overhangs by PAD as ink overflow,
    so it never widens a scroll container (see build() in element/index.ts). */
-.jelly-overhang {
+.droplet-overhang {
   position:       absolute;
   left:           0;
   top:            0;
@@ -27,12 +27,12 @@
   z-index:        0;
 }
 
-.jelly-canvas {
+.droplet-canvas {
   display:        block;
   pointer-events: none;
 }
 
-.jelly-content {
+.droplet-content {
   position: relative;
   z-index:  1;
   width:    100%;
@@ -52,8 +52,8 @@
   }
 }
 
-:host([data-jelly-nocanvas]:focus-visible),
-:host([data-jelly-nocanvas]) :focus-visible {
-  outline:        2px solid var(--jelly-color-border-focus);
+:host([data-droplet-nocanvas]:focus-visible),
+:host([data-droplet-nocanvas]) :focus-visible {
+  outline:        2px solid var(--jelly-color-border-focus, var(--droplet-color-border-focus));
   outline-offset: 2px;
 }

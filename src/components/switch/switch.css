@@ -1,43 +1,43 @@
 :host {
   display: inline-flex;
 
-  --jelly-switch-width:     62px;
-  --jelly-switch-height:    34px;
-  --jelly-switch-gap:       12px;
-  --jelly-switch-font-size: 15.5px;
+  --droplet-switch-width: 62px; --jelly-switch-width: var(--droplet-switch-width);
+  --droplet-switch-height: 34px; --jelly-switch-height: var(--droplet-switch-height);
+  --droplet-switch-gap: 12px; --jelly-switch-gap: var(--droplet-switch-gap);
+  --droplet-switch-font-size: 15.5px; --jelly-switch-font-size: var(--droplet-switch-font-size);
 
-  --jelly-off:              var(--jelly-color-background-neutral);
-  --jelly-on:               var(--jelly-color-background-accent);
-  --jelly-switch-thumb-off: var(--jelly-color-background-white);
-  --jelly-switch-thumb-on:  var(--jelly-color-background-white);
-  --jelly-ring:             var(--jelly-on, var(--jelly-color-border-focus));
-  --jelly-label:            var(--jelly-color-foreground-muted);
+  --droplet-off: var(--jelly-color-background-neutral, var(--droplet-color-background-neutral)); --jelly-off: var(--droplet-off);
+  --droplet-on: var(--jelly-color-background-accent, var(--droplet-color-background-accent)); --jelly-on: var(--droplet-on);
+  --droplet-switch-thumb-off: var(--jelly-color-background-white, var(--droplet-color-background-white)); --jelly-switch-thumb-off: var(--droplet-switch-thumb-off);
+  --droplet-switch-thumb-on: var(--jelly-color-background-white, var(--droplet-color-background-white)); --jelly-switch-thumb-on: var(--droplet-switch-thumb-on);
+  --droplet-ring: var(--jelly-on, var(--droplet-on, var(--jelly-color-border-focus, var(--droplet-color-border-focus)))); --jelly-ring: var(--droplet-ring);
+  --droplet-label: var(--jelly-color-foreground-muted, var(--droplet-color-foreground-muted)); --jelly-label: var(--droplet-label);
 
-  font: 600 var(--jelly-switch-font-size)/1.2 var(--jelly-font-display);
+  font: 600 var(--jelly-switch-font-size, var(--droplet-switch-font-size))/1.2 var(--jelly-font-display, var(--droplet-font-display));
 }
 
 :host([size="small"]),
 :host([size="sm"]) {
-  --jelly-switch-width:     50px;
-  --jelly-switch-height:    28px;
-  --jelly-switch-gap:       10px;
-  --jelly-switch-font-size: 14px;
+  --droplet-switch-width: 50px; --jelly-switch-width: var(--droplet-switch-width);
+  --droplet-switch-height: 28px; --jelly-switch-height: var(--droplet-switch-height);
+  --droplet-switch-gap: 10px; --jelly-switch-gap: var(--droplet-switch-gap);
+  --droplet-switch-font-size: 14px; --jelly-switch-font-size: var(--droplet-switch-font-size);
 }
 
 :host([size="medium"]),
 :host([size="md"]) {
-  --jelly-switch-width:     62px;
-  --jelly-switch-height:    34px;
-  --jelly-switch-gap:       12px;
-  --jelly-switch-font-size: 15.5px;
+  --droplet-switch-width: 62px; --jelly-switch-width: var(--droplet-switch-width);
+  --droplet-switch-height: 34px; --jelly-switch-height: var(--droplet-switch-height);
+  --droplet-switch-gap: 12px; --jelly-switch-gap: var(--droplet-switch-gap);
+  --droplet-switch-font-size: 15.5px; --jelly-switch-font-size: var(--droplet-switch-font-size);
 }
 
 :host([size="large"]),
 :host([size="lg"]) {
-  --jelly-switch-width:     74px;
-  --jelly-switch-height:    40px;
-  --jelly-switch-gap:       14px;
-  --jelly-switch-font-size: 16.5px;
+  --droplet-switch-width: 74px; --jelly-switch-width: var(--droplet-switch-width);
+  --droplet-switch-height: 40px; --jelly-switch-height: var(--droplet-switch-height);
+  --droplet-switch-gap: 14px; --jelly-switch-gap: var(--droplet-switch-gap);
+  --droplet-switch-font-size: 16.5px; --jelly-switch-font-size: var(--droplet-switch-font-size);
 }
 
 :host([disabled]) {
@@ -48,7 +48,7 @@
 .wrap {
   display:      inline-flex;
   align-items:  center;
-  gap:          var(--jelly-switch-gap);
+  gap:          var(--jelly-switch-gap, var(--droplet-switch-gap));
   cursor:       pointer;
   position:     relative;
   touch-action: manipulation;
@@ -58,8 +58,8 @@ input {
   position:           absolute;
   inset-inline-start: 0;
   top:                50%;
-  width:              var(--jelly-switch-width);
-  height:             var(--jelly-switch-height);
+  width:              var(--jelly-switch-width, var(--droplet-switch-width));
+  height:             var(--jelly-switch-height, var(--droplet-switch-height));
   transform:          translateY(-50%);
   margin:             0;
   opacity:            0;
@@ -70,8 +70,8 @@ input {
    browser must not claim the gesture for scrolling. */
 .track {
   position:     relative;
-  width:        var(--jelly-switch-width);
-  height:       var(--jelly-switch-height);
+  width:        var(--jelly-switch-width, var(--droplet-switch-width));
+  height:       var(--jelly-switch-height, var(--droplet-switch-height));
   flex:         0 0 auto;
   touch-action: none;
   /* Glide between size steps instead of snapping */
@@ -80,14 +80,14 @@ input {
     height 0.42s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* --jelly-motion mirrors data-jelly-motion on <html> (see src/theme/runtime.ts) */
+/* --droplet-motion mirrors data-droplet-motion (or data-jelly-motion) on <html>; see src/theme/runtime.ts */
 @media (prefers-reduced-motion: reduce) {
-  @container not style(--jelly-motion: no-preference) {
+  @container not style(--droplet-motion: no-preference) {
     .track { transition: none; }
   }
 }
 
-@container style(--jelly-motion: reduce) {
+@container style(--droplet-motion: reduce) {
   .track { transition: none; }
 }
 
@@ -97,13 +97,13 @@ input {
   content:        "";
   position:       absolute;
   inset:          -2px;
-  border:         var(--jelly-ring-width) solid transparent;
+  border:         var(--jelly-ring-width, var(--droplet-ring-width)) solid transparent;
   border-radius:  999px;
   pointer-events: none;
 }
 
 .label {
-  color: var(--jelly-label);
+  color: var(--jelly-label, var(--droplet-label));
 }
 
 .label:empty {

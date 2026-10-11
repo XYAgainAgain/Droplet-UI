@@ -130,14 +130,14 @@ export class DropletRange extends DropletElement implements EventListenerObject 
 
   // Component styles layered over the shared jelly base styles
   override styles (): string {
-    return rangeStyles + variantColors({ color: '--jelly-accent' });
+    return rangeStyles + variantColors({ color: '--droplet-accent' });
   }
 
   // The interactive markup that sits above the canvas
   override content (): string {
     return `
       <div class="wrap" part="wrap">
-        <span class="track" part="track" data-jelly-box aria-hidden="true"></span>
+        <span class="track" part="track" data-droplet-box aria-hidden="true"></span>
         <span class="knob" part="knob" data-k="0" role="slider" tabindex="0"></span>
         <span class="knob" part="knob" data-k="1" role="slider" tabindex="0"></span>
       </div>`;
@@ -563,8 +563,8 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     const cy     = this.cssH / 2;
     const tW     = this.trackW;
     const trackH = this.trackH || this.sizeConfig.track;
-    const track  = this.resolveColor(`var(--jelly-track, ${PALETTE['background-neutral']})`);
-    const accent = this.resolveColor(`var(--jelly-accent, ${PALETTE['background-accent']})`);
+    const track  = this.resolveColor(`var(--jelly-track, var(--droplet-track, ${PALETTE['background-neutral']}))`);
+    const accent = this.resolveColor(`var(--jelly-accent, var(--droplet-accent, ${PALETTE['background-accent']}))`);
 
     let settled = true;
 

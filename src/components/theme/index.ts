@@ -30,6 +30,12 @@ import { defineStrict, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 // Parse a resolved rgb()/color(srgb) CSS color into normalized RGBA channels
+// Both names are declared here, the legacy one pointing at the canonical value,
+// so an outer override under either name stops at this boundary
+function scoped (name: string, value: string): string {
+  return `--droplet-color-${name}: ${value}; --jelly-color-${name}: var(--droplet-color-${name});`;
+}
+
 function colorChannels (color: string): [number, number, number, number] {
   const values = String(color).match(/[\d.]+/g)?.slice(0, 3).map(Number) || [0, 0, 0];
   const channels = color.startsWith('color(')
@@ -111,13 +117,13 @@ export class DropletTheme extends HTMLElementBase {
       this.attachShadow({ mode: 'open' });
 
       this.shadowRoot!.innerHTML = `
-        <style data-jelly-theme-tokens>:host { display: contents; }</style>
+        <style data-droplet-theme-tokens>:host { display: contents; }</style>
 
         <slot></slot>
       `;
     }
 
-    this.tokenStyle = this.shadowRoot!.querySelector('[data-jelly-theme-tokens]');
+    this.tokenStyle = this.shadowRoot!.querySelector('[data-droplet-theme-tokens]');
 
     this.schemeQuery?.addEventListener?.('change', this.onSchemeChange);
 
@@ -191,7 +197,7 @@ export class DropletTheme extends HTMLElementBase {
    * subtree - including canvas-painted components that read computed tokens -
    * picks up the theme through normal CSS inheritance. Writing it as a :host
    * selector rule (rather than inline styles on the host) means a consumer's
-   * own inline `style="--jelly-color-…"` still wins.
+   * own inline `style="--droplet-color-…"` (or `--jelly-color-…`) still wins.
    */
   sync (): void {
     if (!this.tokenStyle) {
@@ -199,7 +205,7 @@ export class DropletTheme extends HTMLElementBase {
     }
 
     const tokens = this.resolvedMode === 'dark' ? DARK_TOKENS : LIGHT_TOKENS;
-    const decls  = Object.entries(tokens).map(([name, value]) => `--jelly-color-${name}: ${value};`);
+    const decls  = Object.entries(tokens).map(([name, value]) => scoped(name, value));
 
     const accent = this.getAttribute('accent')?.trim();
 
@@ -217,8 +223,8 @@ export class DropletTheme extends HTMLElementBase {
           ? tokens['foreground-on-emphasis']
           : readableOn(this.resolveColor(hue), this.resolveColor(tokens['background-surface']!));
 
-        decls.push(`--jelly-color-background-accent: ${hue};`);
-        decls.push(`--jelly-color-foreground-on-accent: ${on};`);
+        decls.push(scoped('background-accent', hue));
+        decls.push(scoped('foreground-on-accent', on!));
       }
     }
 

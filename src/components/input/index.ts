@@ -19,6 +19,7 @@ import { isRTL }            from '../../utilities/index.js';
 import { reflectAttribute } from '../../utilities/index.js';
 import { defineStrict, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
+import { readToken } from '../../theme/token-read.js';
 
 import inputStyles          from './input.css?inline';
 
@@ -132,7 +133,7 @@ export class DropletInput extends DropletFormField {
     const w = width - 8;
     const h = height - 8;
 
-    const declared = parseFloat(getComputedStyle(this).getPropertyValue('--jelly-input-radius'));
+    const declared = parseFloat(readToken(getComputedStyle(this), 'input-radius'));
     const radius   = Number.isFinite(declared) ? Math.min(declared, h / 2) : Math.min(16, h / 2);
 
     return { width: w, height: h, radius };

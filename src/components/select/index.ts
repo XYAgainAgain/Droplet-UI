@@ -34,6 +34,7 @@ import '../option/index.js';
 import { anyTag, defineStrict, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
 import { DropletOption }         from '../option/index.js';
+import { readToken } from '../../theme/token-read.js';
 
 import selectStyles         from './select.css?inline';
 
@@ -134,7 +135,7 @@ export class DropletSelect extends DropletElement {
 
   // Component styles layered over the shared jelly base styles
   override styles (): string {
-    return selectStyles + variantColors({ color: '--jelly-accent' });
+    return selectStyles + variantColors({ color: '--droplet-accent' });
   }
 
   // The interactive markup that sits above the canvas
@@ -163,7 +164,7 @@ export class DropletSelect extends DropletElement {
     const w = width - 8;
     const h = height - 8;
 
-    const declared = parseFloat(getComputedStyle(this).getPropertyValue('--jelly-select-radius'));
+    const declared = parseFloat(readToken(getComputedStyle(this), 'select-radius'));
     const radius   = Number.isFinite(declared) ? Math.min(declared, h / 2) : Math.min(16, h / 2);
 
     return { width: w, height: h, radius };
@@ -373,7 +374,7 @@ export class DropletSelect extends DropletElement {
 
   // The current row height in px, read from the size-scaled token
   get rowHeight (): number {
-    return parseFloat(getComputedStyle(this).getPropertyValue('--jelly-select-row-height')) || 44;
+    return parseFloat(readToken(getComputedStyle(this), 'select-row-height')) || 44;
   }
 
   /*
@@ -661,16 +662,16 @@ export class DropletSelect extends DropletElement {
   // surface while focused or open, the resting field fill otherwise
   override fill (): string {
     if (this.hasAttribute('disabled')) {
-      return this.resolveColor(`var(--jelly-color-background-neutral, ${PALETTE['background-neutral']})`);
+      return this.resolveColor(`var(--jelly-color-background-neutral, var(--droplet-color-background-neutral, ${PALETTE['background-neutral']}))`);
     }
 
     if (this.focused || this.isOpen) {
-      return this.resolveColor(`var(--jelly-color-background-surface, ${PALETTE['background-surface']})`);
+      return this.resolveColor(`var(--jelly-color-background-surface, var(--droplet-color-background-surface, ${PALETTE['background-surface']}))`);
     }
 
-    const custom = getComputedStyle(this).getPropertyValue('--jelly-fill').trim();
+    const custom = readToken(getComputedStyle(this), 'fill').trim();
 
-    return custom || this.resolveColor(`var(--jelly-color-background-muted, ${PALETTE['background-muted']})`);
+    return custom || this.resolveColor(`var(--jelly-color-background-muted, var(--droplet-color-background-muted, ${PALETTE['background-muted']}))`);
   }
 
   /*
@@ -689,8 +690,8 @@ export class DropletSelect extends DropletElement {
   // Hairline border on the trigger surface: accent while focused or open
   override surfaceBorder (): Border {
     const color = this.focused || this.isOpen
-      ? this.resolveColor(`var(--jelly-accent, var(--jelly-color-background-accent, ${PALETTE['background-accent']}))`)
-      : this.resolveColor(`var(--jelly-color-background-neutral, ${PALETTE['background-neutral']})`);
+      ? this.resolveColor(`var(--jelly-accent, var(--droplet-accent, var(--jelly-color-background-accent, var(--droplet-color-background-accent, ${PALETTE['background-accent']}))))`)
+      : this.resolveColor(`var(--jelly-color-background-neutral, var(--droplet-color-background-neutral, ${PALETTE['background-neutral']}))`);
 
     return { color, width: 1 };
   }
@@ -773,8 +774,8 @@ export class DropletSelect extends DropletElement {
       const lift = (1 - sy) * H / 2;
 
       this.paintBody(this.panelBody, {
-        fill:    this.resolveColor(`var(--jelly-color-background-surface, ${PALETTE['background-surface']})`),
-        border:  { color: this.resolveColor(`var(--jelly-color-background-neutral, ${PALETTE['background-neutral']})`), width: 1 },
+        fill:    this.resolveColor(`var(--jelly-color-background-surface, var(--droplet-color-background-surface, ${PALETTE['background-surface']}))`),
+        border:  { color: this.resolveColor(`var(--jelly-color-background-neutral, var(--droplet-color-background-neutral, ${PALETTE['background-neutral']}))`), width: 1 },
         ctx:     this.panelCtx,
         cssW:    this.panelCssW,
         cssH:    this.panelCssH,

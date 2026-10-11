@@ -44,10 +44,10 @@ const REPLAYED = ['quality', 'palette', 'material'] as const;
 
 // Dot color and spoken prefix for each tone (color is never the only signal)
 const TONES: Record<ToastTone, { color: string; spoken: string }> = {
-  info:    { color: `var(--jelly-color-background-azure, ${PALETTE['background-azure']})`, spoken: 'Info' },
-  success: { color: `var(--jelly-color-background-mint,  ${PALETTE['background-mint']})`,  spoken: 'Success' },
-  warning: { color: `var(--jelly-color-background-amber, ${PALETTE['background-amber']})`, spoken: 'Warning' },
-  danger:  { color: `var(--jelly-color-background-rose,  ${PALETTE['background-rose']})`,  spoken: 'Error' },
+  info:    { color: `var(--jelly-color-background-azure, var(--droplet-color-background-azure, ${PALETTE['background-azure']}))`, spoken: 'Info' },
+  success: { color: `var(--jelly-color-background-mint, var(--droplet-color-background-mint,  ${PALETTE['background-mint']}))`,  spoken: 'Success' },
+  warning: { color: `var(--jelly-color-background-amber, var(--droplet-color-background-amber, ${PALETTE['background-amber']}))`, spoken: 'Warning' },
+  danger:  { color: `var(--jelly-color-background-rose, var(--droplet-color-background-rose,  ${PALETTE['background-rose']}))`,  spoken: 'Error' },
 };
 
 /**

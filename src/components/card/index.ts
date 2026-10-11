@@ -13,6 +13,7 @@ import { triggerHaptic } from '../../utilities/index.js';
 import { PALETTE }       from '../../theme/index.js';
 import { defineStrict, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
+import { readToken } from '../../theme/token-read.js';
 
 import cardStyles        from './card.css?inline';
 
@@ -71,7 +72,7 @@ export class DropletCard extends DropletElement {
 
   // The rounded surface the physics body takes (radius follows the token)
   override shape (width: number, height: number): Shape {
-    const radius = parseFloat(getComputedStyle(this).getPropertyValue('--jelly-radius')) || 22;
+    const radius = parseFloat(readToken(getComputedStyle(this), 'radius')) || 22;
 
     return { width, height, radius: Math.min(radius, Math.min(width, height) / 2) };
   }
@@ -79,7 +80,7 @@ export class DropletCard extends DropletElement {
   // A hairline on the jelly surface, resolved through the theme
   override surfaceBorder (): Border {
     return {
-      color: this.resolveColor(`var(--jelly-color-border-default, ${PALETTE['border-default']})`),
+      color: this.resolveColor(`var(--jelly-color-border-default, var(--droplet-color-border-default, ${PALETTE['border-default']}))`),
       width: 1,
     };
   }

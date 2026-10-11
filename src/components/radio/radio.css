@@ -1,42 +1,42 @@
 :host {
   display: inline-flex;
 
-  --jelly-radio-size:      32px;
-  --jelly-radio-dot-size:  12px;
-  --jelly-radio-gap:       11px;
-  --jelly-radio-font-size: 15.5px;
-  --jelly-radio-dot-color: var(--jelly-color-background-white);
+  --droplet-radio-size: 32px; --jelly-radio-size: var(--droplet-radio-size);
+  --droplet-radio-dot-size: 12px; --jelly-radio-dot-size: var(--droplet-radio-dot-size);
+  --droplet-radio-gap: 11px; --jelly-radio-gap: var(--droplet-radio-gap);
+  --droplet-radio-font-size: 15.5px; --jelly-radio-font-size: var(--droplet-radio-font-size);
+  --droplet-radio-dot-color: var(--jelly-color-background-white, var(--droplet-color-background-white)); --jelly-radio-dot-color: var(--droplet-radio-dot-color);
 
-  --jelly-fill:  var(--jelly-color-background-neutral);
-  --jelly-on:    var(--jelly-color-background-accent);
-  --jelly-ring:  var(--jelly-on, var(--jelly-color-border-focus));
-  --jelly-label: var(--jelly-color-foreground-muted);
+  --droplet-fill: var(--jelly-color-background-neutral, var(--droplet-color-background-neutral)); --jelly-fill: var(--droplet-fill);
+  --droplet-on: var(--jelly-color-background-accent, var(--droplet-color-background-accent)); --jelly-on: var(--droplet-on);
+  --droplet-ring: var(--jelly-on, var(--droplet-on, var(--jelly-color-border-focus, var(--droplet-color-border-focus)))); --jelly-ring: var(--droplet-ring);
+  --droplet-label: var(--jelly-color-foreground-muted, var(--droplet-color-foreground-muted)); --jelly-label: var(--droplet-label);
 
-  font: 600 var(--jelly-radio-font-size)/1.2 var(--jelly-font-display);
+  font: 600 var(--jelly-radio-font-size, var(--droplet-radio-font-size))/1.2 var(--jelly-font-display, var(--droplet-font-display));
 }
 
 :host([size="small"]),
 :host([size="sm"]) {
-  --jelly-radio-size:      28px;
-  --jelly-radio-dot-size:  10px;
-  --jelly-radio-gap:       9px;
-  --jelly-radio-font-size: 14px;
+  --droplet-radio-size: 28px; --jelly-radio-size: var(--droplet-radio-size);
+  --droplet-radio-dot-size: 10px; --jelly-radio-dot-size: var(--droplet-radio-dot-size);
+  --droplet-radio-gap: 9px; --jelly-radio-gap: var(--droplet-radio-gap);
+  --droplet-radio-font-size: 14px; --jelly-radio-font-size: var(--droplet-radio-font-size);
 }
 
 :host([size="medium"]),
 :host([size="md"]) {
-  --jelly-radio-size:      32px;
-  --jelly-radio-dot-size:  12px;
-  --jelly-radio-gap:       11px;
-  --jelly-radio-font-size: 15.5px;
+  --droplet-radio-size: 32px; --jelly-radio-size: var(--droplet-radio-size);
+  --droplet-radio-dot-size: 12px; --jelly-radio-dot-size: var(--droplet-radio-dot-size);
+  --droplet-radio-gap: 11px; --jelly-radio-gap: var(--droplet-radio-gap);
+  --droplet-radio-font-size: 15.5px; --jelly-radio-font-size: var(--droplet-radio-font-size);
 }
 
 :host([size="large"]),
 :host([size="lg"]) {
-  --jelly-radio-size:      38px;
-  --jelly-radio-dot-size:  14px;
-  --jelly-radio-gap:       13px;
-  --jelly-radio-font-size: 16.5px;
+  --droplet-radio-size: 38px; --jelly-radio-size: var(--droplet-radio-size);
+  --droplet-radio-dot-size: 14px; --jelly-radio-dot-size: var(--droplet-radio-dot-size);
+  --droplet-radio-gap: 13px; --jelly-radio-gap: var(--droplet-radio-gap);
+  --droplet-radio-font-size: 16.5px; --jelly-radio-font-size: var(--droplet-radio-font-size);
 }
 
 :host([disabled]) {
@@ -47,7 +47,7 @@
 .wrap {
   display:      inline-flex;
   align-items:  center;
-  gap:          var(--jelly-radio-gap);
+  gap:          var(--jelly-radio-gap, var(--droplet-radio-gap));
   cursor:       pointer;
   position:     relative;
   touch-action: manipulation;
@@ -55,8 +55,8 @@
 
 .control {
   position: relative;
-  width:    var(--jelly-radio-size);
-  height:   var(--jelly-radio-size);
+  width:    var(--jelly-radio-size, var(--droplet-radio-size));
+  height:   var(--jelly-radio-size, var(--droplet-radio-size));
   flex:     0 0 auto;
   outline:  none;
 }
@@ -67,7 +67,7 @@
   content:        "";
   position:       absolute;
   inset:          -2px;
-  border:         var(--jelly-ring-width) solid transparent;
+  border:         var(--jelly-ring-width, var(--droplet-ring-width)) solid transparent;
   border-radius:  50%;
   pointer-events: none;
 }
@@ -76,10 +76,10 @@
   position:      absolute;
   left:          50%;
   top:           50%;
-  width:         var(--jelly-radio-dot-size);
-  height:        var(--jelly-radio-dot-size);
+  width:         var(--jelly-radio-dot-size, var(--droplet-radio-dot-size));
+  height:        var(--jelly-radio-dot-size, var(--droplet-radio-dot-size));
   border-radius: 50%;
-  background:    var(--jelly-radio-dot-color);
+  background:    var(--jelly-radio-dot-color, var(--droplet-radio-dot-color));
 
   /* The dot plops in with a real overshoot (past full size, then settles)
      so it lands like a drop rather than simply scaling up. */
@@ -93,19 +93,19 @@
   opacity:   1;
 }
 
-/* --jelly-motion mirrors data-jelly-motion on <html> (see src/theme/runtime.ts) */
+/* --droplet-motion mirrors data-droplet-motion (or data-jelly-motion) on <html>; see src/theme/runtime.ts */
 @media (prefers-reduced-motion: reduce) {
-  @container not style(--jelly-motion: no-preference) {
+  @container not style(--droplet-motion: no-preference) {
     .dot { transition: opacity 0.13s; }
   }
 }
 
-@container style(--jelly-motion: reduce) {
+@container style(--droplet-motion: reduce) {
   .dot { transition: opacity 0.13s; }
 }
 
 .label {
-  color: var(--jelly-label);
+  color: var(--jelly-label, var(--droplet-label));
 }
 
 .label:empty {

@@ -1,22 +1,22 @@
 :host {
-  --jelly-button-height:         62px;
-  --jelly-button-min-width:      168px;
-  --jelly-button-padding-inline: 30px;
-  --jelly-button-font-size:      16px;
-  --jelly-button-gap:            9px;
-  --jelly-button-radius:         999px;
+  --droplet-button-height: 62px; --jelly-button-height: var(--droplet-button-height);
+  --droplet-button-min-width: 168px; --jelly-button-min-width: var(--droplet-button-min-width);
+  --droplet-button-padding-inline: 30px; --jelly-button-padding-inline: var(--droplet-button-padding-inline);
+  --droplet-button-font-size: 16px; --jelly-button-font-size: var(--droplet-button-font-size);
+  --droplet-button-gap: 9px; --jelly-button-gap: var(--droplet-button-gap);
+  --droplet-button-radius: 999px; --jelly-button-radius: var(--droplet-button-radius);
 
   /* The ring tracks the button's own fill so it reads as part of the
      control (falling back to the dedicated ring token). */
-  --jelly-ring: var(--jelly-fill, var(--jelly-color-border-focus));
+  --droplet-ring: var(--jelly-fill, var(--droplet-fill, var(--jelly-color-border-focus, var(--droplet-color-border-focus)))); --jelly-ring: var(--droplet-ring);
 
-  font: 640 var(--jelly-button-font-size)/1 var(--jelly-font-display);
+  font: 640 var(--jelly-button-font-size, var(--droplet-button-font-size))/1 var(--jelly-font-display, var(--droplet-font-display));
 }
 
 /* A smaller, rounded-rectangle radius instead of the full pill -
    scales with height so it holds the same 0.32 ratio at every size */
 :host([shape="square"]) {
-  --jelly-button-radius: calc(var(--jelly-button-height) * 0.32);
+  --droplet-button-radius: calc(var(--jelly-button-height, var(--droplet-button-height)) * 0.32); --jelly-button-radius: var(--droplet-button-radius);
 }
 
 /* :disabled also covers a disabled ancestor fieldset (form-associated host) */
@@ -37,26 +37,26 @@
 
 :host([size="small"]),
 :host([size="sm"]) {
-  --jelly-button-height:         42px;
-  --jelly-button-min-width:      42px;
-  --jelly-button-padding-inline: 16px;
-  --jelly-button-font-size:      14px;
+  --droplet-button-height: 42px; --jelly-button-height: var(--droplet-button-height);
+  --droplet-button-min-width: 42px; --jelly-button-min-width: var(--droplet-button-min-width);
+  --droplet-button-padding-inline: 16px; --jelly-button-padding-inline: var(--droplet-button-padding-inline);
+  --droplet-button-font-size: 14px; --jelly-button-font-size: var(--droplet-button-font-size);
 }
 
 :host([size="medium"]),
 :host([size="md"]) {
-  --jelly-button-height:         62px;
-  --jelly-button-min-width:      168px;
-  --jelly-button-padding-inline: 30px;
-  --jelly-button-font-size:      16px;
+  --droplet-button-height: 62px; --jelly-button-height: var(--droplet-button-height);
+  --droplet-button-min-width: 168px; --jelly-button-min-width: var(--droplet-button-min-width);
+  --droplet-button-padding-inline: 30px; --jelly-button-padding-inline: var(--droplet-button-padding-inline);
+  --droplet-button-font-size: 16px; --jelly-button-font-size: var(--droplet-button-font-size);
 }
 
 :host([size="large"]),
 :host([size="lg"]) {
-  --jelly-button-height:         72px;
-  --jelly-button-min-width:      200px;
-  --jelly-button-padding-inline: 38px;
-  --jelly-button-font-size:      18px;
+  --droplet-button-height: 72px; --jelly-button-height: var(--droplet-button-height);
+  --droplet-button-min-width: 200px; --jelly-button-min-width: var(--droplet-button-min-width);
+  --droplet-button-padding-inline: 38px; --jelly-button-padding-inline: var(--droplet-button-padding-inline);
+  --droplet-button-font-size: 18px; --jelly-button-font-size: var(--droplet-button-font-size);
 }
 
 button {
@@ -65,19 +65,19 @@ button {
   border:             0;
   margin:             0;
   background:         transparent;
-  color:              var(--jelly-label);
+  color:              var(--jelly-label, var(--droplet-label));
   font:               inherit;
-  height:             var(--jelly-button-height);
-  min-width:          var(--jelly-button-min-width);
+  height:             var(--jelly-button-height, var(--droplet-button-height));
+  min-width:          var(--jelly-button-min-width, var(--droplet-button-min-width));
   padding-block:      0;
-  padding-inline:     var(--jelly-button-padding-inline);
+  padding-inline:     var(--jelly-button-padding-inline, var(--droplet-button-padding-inline));
   display:            inline-flex;
   align-items:        center;
   justify-content:    center;
-  gap:                var(--jelly-button-gap);
+  gap:                var(--jelly-button-gap, var(--droplet-button-gap));
   position:           relative;
   cursor:             pointer;
-  border-radius:      var(--jelly-button-radius);
+  border-radius:      var(--jelly-button-radius, var(--droplet-button-radius));
   touch-action:       manipulation;
   /* Glide between size / shape steps instead of snapping */
   transition:
@@ -87,14 +87,14 @@ button {
     border-radius 0.42s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* --jelly-motion mirrors data-jelly-motion on <html> (see src/theme/runtime.ts) */
+/* --droplet-motion mirrors data-droplet-motion (or data-jelly-motion) on <html>; see src/theme/runtime.ts */
 @media (prefers-reduced-motion: reduce) {
-  @container not style(--jelly-motion: no-preference) {
+  @container not style(--droplet-motion: no-preference) {
     button { transition: none; }
   }
 }
 
-@container style(--jelly-motion: reduce) {
+@container style(--droplet-motion: reduce) {
   button { transition: none; }
 }
 
@@ -108,8 +108,8 @@ button::after {
   content:        "";
   position:       absolute;
   inset:          -2px;
-  border:         var(--jelly-ring-width) solid transparent;
-  border-radius:  calc(var(--jelly-button-radius) + 2px);
+  border:         var(--jelly-ring-width, var(--droplet-ring-width)) solid transparent;
+  border-radius:  calc(var(--jelly-button-radius, var(--droplet-button-radius)) + 2px);
   pointer-events: none;
 }
 

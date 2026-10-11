@@ -18,6 +18,7 @@ import { replayProperties } from './configure.js';
 import { SUBMIT_BUTTON }    from './submitter.js';
 
 import { PALETTE }          from '../theme/index.js';
+import { readToken } from '../theme/token-read.js';
 
 export type FieldControl = HTMLInputElement | HTMLTextAreaElement;
 
@@ -465,16 +466,16 @@ export abstract class DropletFormField extends DropletElement implements EventLi
   // the elevated surface while focused, the resting field fill otherwise
   override fill (): string {
     if (this.fieldDisabled) {
-      return this.resolveColor(`var(--jelly-color-background-neutral, ${PALETTE['background-neutral']})`);
+      return this.resolveColor(`var(--jelly-color-background-neutral, var(--droplet-color-background-neutral, ${PALETTE['background-neutral']}))`);
     }
 
     if (this.focused) {
-      return this.resolveColor(`var(--jelly-color-background-surface, ${PALETTE['background-surface']})`);
+      return this.resolveColor(`var(--jelly-color-background-surface, var(--droplet-color-background-surface, ${PALETTE['background-surface']}))`);
     }
 
-    const custom = getComputedStyle(this).getPropertyValue('--jelly-fill').trim();
+    const custom = readToken(getComputedStyle(this), 'fill').trim();
 
-    return custom || this.resolveColor(`var(--jelly-color-background-muted, ${PALETTE['background-muted']})`);
+    return custom || this.resolveColor(`var(--jelly-color-background-muted, var(--droplet-color-background-muted, ${PALETTE['background-muted']}))`);
   }
 
   // Hairline border on the jelly surface: danger while invalid, accent while focused, neutral at rest
@@ -482,11 +483,11 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     let color: string;
 
     if (this.paintsInvalid) {
-      color = this.resolveColor(`var(--jelly-color-background-rose, ${PALETTE['background-rose']})`);
+      color = this.resolveColor(`var(--jelly-color-background-rose, var(--droplet-color-background-rose, ${PALETTE['background-rose']}))`);
     } else if (this.focused) {
-      color = this.resolveColor(`var(--jelly-accent, var(--jelly-color-background-accent, ${PALETTE['background-accent']}))`);
+      color = this.resolveColor(`var(--jelly-accent, var(--droplet-accent, var(--jelly-color-background-accent, var(--droplet-color-background-accent, ${PALETTE['background-accent']}))))`);
     } else {
-      color = this.resolveColor(`var(--jelly-color-background-neutral, ${PALETTE['background-neutral']})`);
+      color = this.resolveColor(`var(--jelly-color-background-neutral, var(--droplet-color-background-neutral, ${PALETTE['background-neutral']}))`);
     }
 
     return { color, width: 1 };

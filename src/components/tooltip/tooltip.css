@@ -1,31 +1,31 @@
 :host {
   display: inline-flex;
 
-  --jelly-tooltip-font-size:      12.5px;
-  --jelly-tooltip-padding-block:  7px;
-  --jelly-tooltip-padding-inline: 11px;
-  --jelly-tooltip-radius:         11px;
-  --jelly-tooltip-max-width:      240px;
+  --droplet-tooltip-font-size: 12.5px; --jelly-tooltip-font-size: var(--droplet-tooltip-font-size);
+  --droplet-tooltip-padding-block: 7px; --jelly-tooltip-padding-block: var(--droplet-tooltip-padding-block);
+  --droplet-tooltip-padding-inline: 11px; --jelly-tooltip-padding-inline: var(--droplet-tooltip-padding-inline);
+  --droplet-tooltip-radius: 11px; --jelly-tooltip-radius: var(--droplet-tooltip-radius);
+  --droplet-tooltip-max-width: 240px; --jelly-tooltip-max-width: var(--droplet-tooltip-max-width);
 
   /* Text on background inverts cleanly in dark mode and stays AA */
-  --jelly-tooltip-background: var(--jelly-color-foreground-default);
-  --jelly-tooltip-color:      var(--jelly-color-background-default);
+  --droplet-tooltip-background: var(--jelly-color-foreground-default, var(--droplet-color-foreground-default)); --jelly-tooltip-background: var(--droplet-tooltip-background);
+  --droplet-tooltip-color: var(--jelly-color-background-default, var(--droplet-color-background-default)); --jelly-tooltip-color: var(--droplet-tooltip-color);
 }
 
 :host([size="small"]) {
-  --jelly-tooltip-font-size:      11.5px;
-  --jelly-tooltip-padding-block:  6px;
-  --jelly-tooltip-padding-inline: 9px;
-  --jelly-tooltip-radius:         9px;
-  --jelly-tooltip-max-width:      200px;
+  --droplet-tooltip-font-size: 11.5px; --jelly-tooltip-font-size: var(--droplet-tooltip-font-size);
+  --droplet-tooltip-padding-block: 6px; --jelly-tooltip-padding-block: var(--droplet-tooltip-padding-block);
+  --droplet-tooltip-padding-inline: 9px; --jelly-tooltip-padding-inline: var(--droplet-tooltip-padding-inline);
+  --droplet-tooltip-radius: 9px; --jelly-tooltip-radius: var(--droplet-tooltip-radius);
+  --droplet-tooltip-max-width: 200px; --jelly-tooltip-max-width: var(--droplet-tooltip-max-width);
 }
 
 :host([size="large"]) {
-  --jelly-tooltip-font-size:      14px;
-  --jelly-tooltip-padding-block:  9px;
-  --jelly-tooltip-padding-inline: 13px;
-  --jelly-tooltip-radius:         13px;
-  --jelly-tooltip-max-width:      280px;
+  --droplet-tooltip-font-size: 14px; --jelly-tooltip-font-size: var(--droplet-tooltip-font-size);
+  --droplet-tooltip-padding-block: 9px; --jelly-tooltip-padding-block: var(--droplet-tooltip-padding-block);
+  --droplet-tooltip-padding-inline: 13px; --jelly-tooltip-padding-inline: var(--droplet-tooltip-padding-inline);
+  --droplet-tooltip-radius: 13px; --jelly-tooltip-radius: var(--droplet-tooltip-radius);
+  --droplet-tooltip-max-width: 280px; --jelly-tooltip-max-width: var(--droplet-tooltip-max-width);
 }
 
 .bubble {
@@ -35,17 +35,17 @@
   z-index:        10000;
   pointer-events: none;
 
-  background:     var(--jelly-tooltip-background);
-  color:          var(--jelly-tooltip-color);
-  font:           600 var(--jelly-tooltip-font-size)/1.35 var(--jelly-font-display);
+  background:     var(--jelly-tooltip-background, var(--droplet-tooltip-background));
+  color:          var(--jelly-tooltip-color, var(--droplet-tooltip-color));
+  font:           600 var(--jelly-tooltip-font-size, var(--droplet-tooltip-font-size))/1.35 var(--jelly-font-display, var(--droplet-font-display));
 
-  padding-block:  var(--jelly-tooltip-padding-block);
-  padding-inline: var(--jelly-tooltip-padding-inline);
-  border-radius:  var(--jelly-tooltip-radius);
+  padding-block:  var(--jelly-tooltip-padding-block, var(--droplet-tooltip-padding-block));
+  padding-inline: var(--jelly-tooltip-padding-inline, var(--droplet-tooltip-padding-inline));
+  border-radius:  var(--jelly-tooltip-radius, var(--droplet-tooltip-radius));
   /* A fixed bubble near the viewport edge otherwise shrink-wraps only into
      the space remaining to its right before placement can move it left. */
   width:          max-content;
-  max-width:      var(--jelly-tooltip-max-width);
+  max-width:      var(--jelly-tooltip-max-width, var(--droplet-tooltip-max-width));
 
   opacity:        0;
   visibility:     hidden;

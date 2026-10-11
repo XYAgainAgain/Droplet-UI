@@ -1,72 +1,72 @@
 :host {
-  --jelly-select-padding-inline:     18px;
-  --jelly-select-font-size:          15.5px;
-  --jelly-select-radius:             16px;
-  --jelly-select-gap:                10px;
-  --jelly-select-chevron-size:       16px;
-  --jelly-select-row-height:         44px;
-  --jelly-select-row-padding-inline: 14px;
-  --jelly-select-row-radius:         11px;
+  --droplet-select-padding-inline: 18px; --jelly-select-padding-inline: var(--droplet-select-padding-inline);
+  --droplet-select-font-size: 15.5px; --jelly-select-font-size: var(--droplet-select-font-size);
+  --droplet-select-radius: 16px; --jelly-select-radius: var(--droplet-select-radius);
+  --droplet-select-gap: 10px; --jelly-select-gap: var(--droplet-select-gap);
+  --droplet-select-chevron-size: 16px; --jelly-select-chevron-size: var(--droplet-select-chevron-size);
+  --droplet-select-row-height: 44px; --jelly-select-row-height: var(--droplet-select-row-height);
+  --droplet-select-row-padding-inline: 14px; --jelly-select-row-padding-inline: var(--droplet-select-row-padding-inline);
+  --droplet-select-row-radius: 11px; --jelly-select-row-radius: var(--droplet-select-row-radius);
 
-  --jelly-fill:   var(--jelly-color-background-muted);
-  --jelly-label:  var(--jelly-color-foreground-default);
-  --jelly-accent: var(--jelly-color-background-accent);
-  --jelly-ring:   var(--jelly-accent, var(--jelly-color-border-focus));
+  --droplet-fill: var(--jelly-color-background-muted, var(--droplet-color-background-muted)); --jelly-fill: var(--droplet-fill);
+  --droplet-label: var(--jelly-color-foreground-default, var(--droplet-color-foreground-default)); --jelly-label: var(--droplet-label);
+  --droplet-accent: var(--jelly-color-background-accent, var(--droplet-color-background-accent)); --jelly-accent: var(--droplet-accent);
+  --droplet-ring: var(--jelly-accent, var(--droplet-accent, var(--jelly-color-border-focus, var(--droplet-color-border-focus)))); --jelly-ring: var(--droplet-ring);
 
   display: inline-block;
   width:   240px;
   height:  54px;
-  font:    600 var(--jelly-select-font-size)/1.2 var(--jelly-font-text);
+  font:    600 var(--jelly-select-font-size, var(--droplet-select-font-size))/1.2 var(--jelly-font-text, var(--droplet-font-text));
 }
 
 :host([size="small"]) {
-  --jelly-select-padding-inline:     15px;
-  --jelly-select-font-size:          14px;
-  --jelly-select-radius:             14px;
-  --jelly-select-gap:                8px;
-  --jelly-select-chevron-size:       14px;
-  --jelly-select-row-height:         38px;
-  --jelly-select-row-padding-inline: 12px;
-  --jelly-select-row-radius:         9px;
+  --droplet-select-padding-inline: 15px; --jelly-select-padding-inline: var(--droplet-select-padding-inline);
+  --droplet-select-font-size: 14px; --jelly-select-font-size: var(--droplet-select-font-size);
+  --droplet-select-radius: 14px; --jelly-select-radius: var(--droplet-select-radius);
+  --droplet-select-gap: 8px; --jelly-select-gap: var(--droplet-select-gap);
+  --droplet-select-chevron-size: 14px; --jelly-select-chevron-size: var(--droplet-select-chevron-size);
+  --droplet-select-row-height: 38px; --jelly-select-row-height: var(--droplet-select-row-height);
+  --droplet-select-row-padding-inline: 12px; --jelly-select-row-padding-inline: var(--droplet-select-row-padding-inline);
+  --droplet-select-row-radius: 9px; --jelly-select-row-radius: var(--droplet-select-row-radius);
 
   width:  210px;
   height: 46px;
 }
 
 :host([size="medium"]) {
-  --jelly-select-padding-inline:     18px;
-  --jelly-select-font-size:          15.5px;
-  --jelly-select-radius:             16px;
-  --jelly-select-gap:                10px;
-  --jelly-select-chevron-size:       16px;
-  --jelly-select-row-height:         44px;
-  --jelly-select-row-padding-inline: 14px;
-  --jelly-select-row-radius:         11px;
+  --droplet-select-padding-inline: 18px; --jelly-select-padding-inline: var(--droplet-select-padding-inline);
+  --droplet-select-font-size: 15.5px; --jelly-select-font-size: var(--droplet-select-font-size);
+  --droplet-select-radius: 16px; --jelly-select-radius: var(--droplet-select-radius);
+  --droplet-select-gap: 10px; --jelly-select-gap: var(--droplet-select-gap);
+  --droplet-select-chevron-size: 16px; --jelly-select-chevron-size: var(--droplet-select-chevron-size);
+  --droplet-select-row-height: 44px; --jelly-select-row-height: var(--droplet-select-row-height);
+  --droplet-select-row-padding-inline: 14px; --jelly-select-row-padding-inline: var(--droplet-select-row-padding-inline);
+  --droplet-select-row-radius: 11px; --jelly-select-row-radius: var(--droplet-select-row-radius);
 
   width:  240px;
   height: 54px;
 }
 
 :host([size="large"]) {
-  --jelly-select-padding-inline:     22px;
-  --jelly-select-font-size:          16.5px;
-  --jelly-select-radius:             18px;
-  --jelly-select-gap:                11px;
-  --jelly-select-chevron-size:       18px;
-  --jelly-select-row-height:         50px;
-  --jelly-select-row-padding-inline: 16px;
-  --jelly-select-row-radius:         13px;
+  --droplet-select-padding-inline: 22px; --jelly-select-padding-inline: var(--droplet-select-padding-inline);
+  --droplet-select-font-size: 16.5px; --jelly-select-font-size: var(--droplet-select-font-size);
+  --droplet-select-radius: 18px; --jelly-select-radius: var(--droplet-select-radius);
+  --droplet-select-gap: 11px; --jelly-select-gap: var(--droplet-select-gap);
+  --droplet-select-chevron-size: 18px; --jelly-select-chevron-size: var(--droplet-select-chevron-size);
+  --droplet-select-row-height: 50px; --jelly-select-row-height: var(--droplet-select-row-height);
+  --droplet-select-row-padding-inline: 16px; --jelly-select-row-padding-inline: var(--droplet-select-row-padding-inline);
+  --droplet-select-row-radius: 13px; --jelly-select-row-radius: var(--droplet-select-row-radius);
 
   width:  280px;
   height: 62px;
 }
 
 :host([open]) {
-  z-index: var(--jelly-dropdown-z-index, 9999);
+  z-index: var(--jelly-dropdown-z-index, var(--droplet-dropdown-z-index, 9999));
 }
 
 :host([disabled]) {
-  --jelly-fill: var(--jelly-color-background-neutral);
+  --droplet-fill: var(--jelly-color-background-neutral, var(--droplet-color-background-neutral)); --jelly-fill: var(--droplet-fill);
 
   opacity:        0.55;
   pointer-events: none;
@@ -77,18 +77,18 @@
   border:         0;
   margin:         0;
   background:     transparent;
-  color:          var(--jelly-label);
+  color:          var(--jelly-label, var(--droplet-label));
   font:           inherit;
   width:          100%;
   height:         100%;
   padding-block:  0;
-  padding-inline: var(--jelly-select-padding-inline);
+  padding-inline: var(--jelly-select-padding-inline, var(--droplet-select-padding-inline));
   display:        flex;
   align-items:    center;
-  gap:            var(--jelly-select-gap);
+  gap:            var(--jelly-select-gap, var(--droplet-select-gap));
   cursor:         pointer;
   position:       relative;
-  border-radius:  var(--jelly-select-radius);
+  border-radius:  var(--jelly-select-radius, var(--droplet-select-radius));
   text-align:     start;
   touch-action:   manipulation;
 }
@@ -99,8 +99,8 @@
   content:        "";
   position:       absolute;
   inset:          4px;
-  border:         var(--jelly-ring-width) solid transparent;
-  border-radius:  var(--jelly-select-radius);
+  border:         var(--jelly-ring-width, var(--droplet-ring-width)) solid transparent;
+  border-radius:  var(--jelly-select-radius, var(--droplet-select-radius));
   pointer-events: none;
 }
 
@@ -116,12 +116,12 @@
 }
 
 .value.placeholder {
-  color: var(--jelly-color-foreground-muted);
+  color: var(--jelly-color-foreground-muted, var(--droplet-color-foreground-muted));
 }
 
 .chevron {
-  width:      var(--jelly-select-chevron-size);
-  height:     var(--jelly-select-chevron-size);
+  width:      var(--jelly-select-chevron-size, var(--droplet-select-chevron-size));
+  height:     var(--jelly-select-chevron-size, var(--droplet-select-chevron-size));
   flex:       0 0 auto;
   transition: transform 0.22s ease;
 }
@@ -188,15 +188,15 @@
 }
 
 .row {
-  height:         var(--jelly-select-row-height);
+  height:         var(--jelly-select-row-height, var(--droplet-select-row-height));
   display:        flex;
   align-items:    center;
   gap:            10px;
   padding-block:  0;
-  padding-inline: var(--jelly-select-row-padding-inline);
-  border-radius:  var(--jelly-select-row-radius);
+  padding-inline: var(--jelly-select-row-padding-inline, var(--droplet-select-row-padding-inline));
+  border-radius:  var(--jelly-select-row-radius, var(--droplet-select-row-radius));
   cursor:         pointer;
-  color:          var(--jelly-label);
+  color:          var(--jelly-label, var(--droplet-label));
   white-space:    nowrap;
   touch-action:   manipulation;
   will-change:    transform, opacity;
@@ -207,14 +207,14 @@
 }
 
 .row.active {
-  background: color-mix(in srgb, var(--jelly-accent, var(--jelly-color-background-accent)) 15%, transparent);
+  background: color-mix(in srgb, var(--jelly-accent, var(--droplet-accent, var(--jelly-color-background-accent, var(--droplet-color-background-accent)))) 15%, transparent);
 }
 
 .row .tick {
   margin-inline-start: auto;
   width:               15px;
   height:              15px;
-  color:               var(--jelly-accent);
+  color:               var(--jelly-accent, var(--droplet-accent));
   opacity:             0;
 }
 

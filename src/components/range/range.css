@@ -1,10 +1,10 @@
 :host {
-  --jelly-range-track-height: 12px;
-  --jelly-range-thumb-size:   28px;
+  --droplet-range-track-height: 12px; --jelly-range-track-height: var(--droplet-range-track-height);
+  --droplet-range-thumb-size: 28px; --jelly-range-thumb-size: var(--droplet-range-thumb-size);
 
-  --jelly-track:  var(--jelly-color-background-neutral);
-  --jelly-accent: var(--jelly-color-background-accent);
-  --jelly-ring:   var(--jelly-accent, var(--jelly-color-border-focus));
+  --droplet-track: var(--jelly-color-background-neutral, var(--droplet-color-background-neutral)); --jelly-track: var(--droplet-track);
+  --droplet-accent: var(--jelly-color-background-accent, var(--droplet-color-background-accent)); --jelly-accent: var(--droplet-accent);
+  --droplet-ring: var(--jelly-accent, var(--droplet-accent, var(--jelly-color-border-focus, var(--droplet-color-border-focus)))); --jelly-ring: var(--droplet-ring);
 
   display: inline-block;
   width:   260px;
@@ -13,24 +13,24 @@
 }
 
 :host([size="small"]) {
-  --jelly-range-track-height: 9px;
-  --jelly-range-thumb-size:   24px;
+  --droplet-range-track-height: 9px; --jelly-range-track-height: var(--droplet-range-track-height);
+  --droplet-range-thumb-size: 24px; --jelly-range-thumb-size: var(--droplet-range-thumb-size);
 
   width:  220px;
   height: 30px;
 }
 
 :host([size="medium"]) {
-  --jelly-range-track-height: 12px;
-  --jelly-range-thumb-size:   28px;
+  --droplet-range-track-height: 12px; --jelly-range-track-height: var(--droplet-range-track-height);
+  --droplet-range-thumb-size: 28px; --jelly-range-thumb-size: var(--droplet-range-thumb-size);
 
   width:  260px;
   height: 36px;
 }
 
 :host([size="large"]) {
-  --jelly-range-track-height: 14px;
-  --jelly-range-thumb-size:   34px;
+  --droplet-range-track-height: 14px; --jelly-range-track-height: var(--droplet-range-track-height);
+  --droplet-range-thumb-size: 34px; --jelly-range-thumb-size: var(--droplet-range-thumb-size);
 
   width:  320px;
   height: 44px;
@@ -52,7 +52,7 @@
   inset-inline: 0;
   top:          50%;
   transform:    translateY(-50%);
-  height:       var(--jelly-range-track-height);
+  height:       var(--jelly-range-track-height, var(--droplet-range-track-height));
   touch-action: none;
 }
 
@@ -70,8 +70,8 @@
 .knob {
   position:      absolute;
   top:           50%;
-  width:         var(--jelly-range-thumb-size);
-  height:        var(--jelly-range-thumb-size);
+  width:         var(--jelly-range-thumb-size, var(--droplet-range-thumb-size));
+  height:        var(--jelly-range-thumb-size, var(--droplet-range-thumb-size));
   transform:     translateY(-50%);
   border-radius: 50%;
   outline:       none;
@@ -86,7 +86,7 @@
 /* The painted canvas carries no forced-colors information, so render
    the track and knobs in system colors there */
 @media (forced-colors: active) {
-  .jelly-canvas {
+  .droplet-canvas {
     display: none;
   }
 

@@ -246,7 +246,7 @@ describe('painter frame', () => {
 
     const el = host.firstElementChild as ProbeElement;
 
-    expect(el.hasAttribute('data-jelly-nocanvas')).toBe(true);
+    expect(el.hasAttribute('data-droplet-nocanvas')).toBe(true);
 
     await settle();
 

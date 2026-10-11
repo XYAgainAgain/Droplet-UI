@@ -2,51 +2,51 @@
   display: inline-flex;
   height:  44px;
 
-  --jelly-segmented-padding:        4px;
-  --jelly-segmented-min-width:      60px;
-  --jelly-segmented-gap:            7px;
-  --jelly-segmented-padding-inline: 18px;
-  --jelly-segmented-font-size:      14.5px;
+  --droplet-segmented-padding: 4px; --jelly-segmented-padding: var(--droplet-segmented-padding);
+  --droplet-segmented-min-width: 60px; --jelly-segmented-min-width: var(--droplet-segmented-min-width);
+  --droplet-segmented-gap: 7px; --jelly-segmented-gap: var(--droplet-segmented-gap);
+  --droplet-segmented-padding-inline: 18px; --jelly-segmented-padding-inline: var(--droplet-segmented-padding-inline);
+  --droplet-segmented-font-size: 14.5px; --jelly-segmented-font-size: var(--droplet-segmented-font-size);
 
-  --jelly-track:    color-mix(in srgb, var(--jelly-color-background-neutral) 88%, var(--jelly-color-background-surface));
-  --jelly-pill:     var(--jelly-color-background-accent);
-  --jelly-label:    var(--jelly-color-foreground-default);
-  --jelly-label-on: var(--jelly-color-foreground-on-accent);
+  --droplet-track: color-mix(in srgb, var(--jelly-color-background-neutral, var(--droplet-color-background-neutral)) 88%, var(--jelly-color-background-surface, var(--droplet-color-background-surface))); --jelly-track: var(--droplet-track);
+  --droplet-pill: var(--jelly-color-background-accent, var(--droplet-color-background-accent)); --jelly-pill: var(--droplet-pill);
+  --droplet-label: var(--jelly-color-foreground-default, var(--droplet-color-foreground-default)); --jelly-label: var(--droplet-label);
+  --droplet-label-on: var(--jelly-color-foreground-on-accent, var(--droplet-color-foreground-on-accent)); --jelly-label-on: var(--droplet-label-on);
 
-  font: 600 var(--jelly-segmented-font-size)/1 var(--jelly-font-display);
+  font: 600 var(--jelly-segmented-font-size, var(--droplet-segmented-font-size))/1 var(--jelly-font-display, var(--droplet-font-display));
 }
 
 :host([size="small"]),
 :host([size="sm"]) {
   height: 36px;
 
-  --jelly-segmented-padding:        3px;
-  --jelly-segmented-min-width:      50px;
-  --jelly-segmented-gap:            5px;
-  --jelly-segmented-padding-inline: 14px;
-  --jelly-segmented-font-size:      13px;
+  --droplet-segmented-padding: 3px; --jelly-segmented-padding: var(--droplet-segmented-padding);
+  --droplet-segmented-min-width: 50px; --jelly-segmented-min-width: var(--droplet-segmented-min-width);
+  --droplet-segmented-gap: 5px; --jelly-segmented-gap: var(--droplet-segmented-gap);
+  --droplet-segmented-padding-inline: 14px; --jelly-segmented-padding-inline: var(--droplet-segmented-padding-inline);
+  --droplet-segmented-font-size: 13px; --jelly-segmented-font-size: var(--droplet-segmented-font-size);
 }
 
 :host([size="medium"]),
 :host([size="md"]) {
   height: 44px;
 
-  --jelly-segmented-padding:        4px;
-  --jelly-segmented-min-width:      60px;
-  --jelly-segmented-gap:            7px;
-  --jelly-segmented-padding-inline: 18px;
-  --jelly-segmented-font-size:      14.5px;
+  --droplet-segmented-padding: 4px; --jelly-segmented-padding: var(--droplet-segmented-padding);
+  --droplet-segmented-min-width: 60px; --jelly-segmented-min-width: var(--droplet-segmented-min-width);
+  --droplet-segmented-gap: 7px; --jelly-segmented-gap: var(--droplet-segmented-gap);
+  --droplet-segmented-padding-inline: 18px; --jelly-segmented-padding-inline: var(--droplet-segmented-padding-inline);
+  --droplet-segmented-font-size: 14.5px; --jelly-segmented-font-size: var(--droplet-segmented-font-size);
 }
 
 :host([size="large"]),
 :host([size="lg"]) {
   height: 52px;
 
-  --jelly-segmented-padding:        5px;
-  --jelly-segmented-min-width:      74px;
-  --jelly-segmented-gap:            8px;
-  --jelly-segmented-padding-inline: 22px;
-  --jelly-segmented-font-size:      16px;
+  --droplet-segmented-padding: 5px; --jelly-segmented-padding: var(--droplet-segmented-padding);
+  --droplet-segmented-min-width: 74px; --jelly-segmented-min-width: var(--droplet-segmented-min-width);
+  --droplet-segmented-gap: 8px; --jelly-segmented-gap: var(--droplet-segmented-gap);
+  --droplet-segmented-padding-inline: 22px; --jelly-segmented-padding-inline: var(--droplet-segmented-padding-inline);
+  --droplet-segmented-font-size: 16px; --jelly-segmented-font-size: var(--droplet-segmented-font-size);
 }
 
 :host([disabled]) {
@@ -59,23 +59,23 @@
   width:      100%;
   height:     100%;
   box-sizing: border-box;
-  padding:    var(--jelly-segmented-padding);
+  padding:    var(--jelly-segmented-padding, var(--droplet-segmented-padding));
   position:   relative;
 }
 
 .segment {
   flex:            1 1 0;
-  min-width:       var(--jelly-segmented-min-width);
+  min-width:       var(--jelly-segmented-min-width, var(--droplet-segmented-min-width));
   display:         inline-flex;
   align-items:     center;
   justify-content: center;
-  gap:             var(--jelly-segmented-gap);
+  gap:             var(--jelly-segmented-gap, var(--droplet-segmented-gap));
   padding-block:   0;
-  padding-inline:  var(--jelly-segmented-padding-inline);
+  padding-inline:  var(--jelly-segmented-padding-inline, var(--droplet-segmented-padding-inline));
   margin:          0;
   border:          0;
   background:      transparent;
-  color:           var(--jelly-label);
+  color:           var(--jelly-label, var(--droplet-label));
   font:            inherit;
   white-space:     nowrap;
   cursor:          pointer;
@@ -88,7 +88,7 @@
 
 .segment[aria-checked="true"],
 .segment[aria-selected="true"] {
-  color: var(--jelly-label-on);
+  color: var(--jelly-label-on, var(--droplet-label-on));
 }
 
 /* The segmented control bolds its active option; tabs (tablist) keep a
@@ -132,7 +132,7 @@
   content:        "";
   position:       absolute;
   inset:          2px;
-  border:         var(--jelly-ring-width) solid transparent;
+  border:         var(--jelly-ring-width, var(--droplet-ring-width)) solid transparent;
   border-radius:  999px;
   pointer-events: none;
 }

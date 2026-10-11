@@ -18,6 +18,7 @@ import { forwardAllAria }    from '../../utilities/index.js';
 import { reflectAttribute }  from '../../utilities/index.js';
 import { defineStrict, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
+import { readToken } from '../../theme/token-read.js';
 
 import iconButtonStyles      from './icon-button.css?inline';
 import variantStyles         from '../../styles/variants.css?inline';
@@ -151,9 +152,9 @@ export class DropletIconButton extends DropletElement {
     const size   = Math.min(width, height) - 6;
     const circle = this.getAttribute('shape') === 'circle';
 
-    // The square shape honors a --jelly-icon-button-radius override on the
+    // The square shape honors a --droplet-icon-button-radius override on the
     // painted surface; circle always draws a full round
-    const declared = parseFloat(getComputedStyle(this).getPropertyValue('--jelly-icon-button-radius'));
+    const declared = parseFloat(readToken(getComputedStyle(this), 'icon-button-radius'));
     const radius   = circle ? size / 2 : (Number.isFinite(declared) ? Math.min(declared, size / 2) : size * 0.32);
 
     return { width: size, height: size, radius };

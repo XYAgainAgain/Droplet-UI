@@ -76,14 +76,14 @@ export class DropletPagination extends HTMLElementBase {
     this.row = this.shadowRoot!.querySelector('.row')!;
 
     // The arrow glyphs are direction-dependent, so re-render on a dir flip
-    window.addEventListener('jelly-theme-change', this.onDirectionChange);
+    window.addEventListener('droplet-theme-change', this.onDirectionChange);
 
     this.render();
   }
 
   // Lifecycle method: Called automatically when the element leaves the DOM
   disconnectedCallback (): void {
-    window.removeEventListener('jelly-theme-change', this.onDirectionChange);
+    window.removeEventListener('droplet-theme-change', this.onDirectionChange);
   }
 
   // Lifecycle method: Fires when observed HTML attributes change dynamically

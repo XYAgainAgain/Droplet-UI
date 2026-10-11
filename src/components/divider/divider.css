@@ -6,19 +6,19 @@
   flex:       1 1 100%;
   align-self: center;
 
-  --jelly-divider:           var(--jelly-color-border-default);
-  --jelly-divider-font-size: 12px;
-  --jelly-divider-gap:       14px;
+  --droplet-divider: var(--jelly-color-border-default, var(--droplet-color-border-default)); --jelly-divider: var(--droplet-divider);
+  --droplet-divider-font-size: 12px; --jelly-divider-font-size: var(--droplet-divider-font-size);
+  --droplet-divider-gap: 14px; --jelly-divider-gap: var(--droplet-divider-gap);
 }
 
 :host([size="small"]) {
-  --jelly-divider-font-size: 11px;
-  --jelly-divider-gap:       10px;
+  --droplet-divider-font-size: 11px; --jelly-divider-font-size: var(--droplet-divider-font-size);
+  --droplet-divider-gap: 10px; --jelly-divider-gap: var(--droplet-divider-gap);
 }
 
 :host([size="large"]) {
-  --jelly-divider-font-size: 13.5px;
-  --jelly-divider-gap:       18px;
+  --droplet-divider-font-size: 13.5px; --jelly-divider-font-size: var(--droplet-divider-font-size);
+  --droplet-divider-gap: 18px; --jelly-divider-gap: var(--droplet-divider-gap);
 }
 
 :host([direction="vertical"]) {
@@ -31,12 +31,12 @@
 
 :host([direction="vertical"]:not(:empty)),
 :host([direction="vertical"][content]) {
-  min-width: calc(var(--jelly-divider-font-size) + 2px);
+  min-width: calc(var(--jelly-divider-font-size, var(--droplet-divider-font-size)) + 2px);
 }
 
 .line {
   height:     1px;
-  background: var(--jelly-divider);
+  background: var(--jelly-divider, var(--droplet-divider));
 }
 
 :host([direction="vertical"]) .line {
@@ -47,9 +47,9 @@
 .labelled {
   display:        flex;
   align-items:    center;
-  gap:            var(--jelly-divider-gap);
-  color:          var(--jelly-color-foreground-muted);
-  font:           600 var(--jelly-divider-font-size)/1 var(--jelly-font-display);
+  gap:            var(--jelly-divider-gap, var(--droplet-divider-gap));
+  color:          var(--jelly-color-foreground-muted, var(--droplet-color-foreground-muted));
+  font:           600 var(--jelly-divider-font-size, var(--droplet-divider-font-size))/1 var(--jelly-font-display, var(--droplet-font-display));
   letter-spacing: 0.06em;
   text-transform: uppercase;
   white-space:    nowrap;
@@ -60,7 +60,7 @@
   content:    "";
   flex:       1;
   height:     1px;
-  background: var(--jelly-divider);
+  background: var(--jelly-divider, var(--droplet-divider));
 }
 
 .labelled.vertical {

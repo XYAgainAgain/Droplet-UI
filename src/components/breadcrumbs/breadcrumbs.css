@@ -1,53 +1,53 @@
 :host {
   display: block;
 
-  --jelly-breadcrumbs-font-size:      13.5px;
-  --jelly-breadcrumbs-padding-block:  4px;
-  --jelly-breadcrumbs-padding-inline: 8px;
-  --jelly-breadcrumbs-gap:            4px;
-  --jelly-breadcrumbs-radius:         9px;
+  --droplet-breadcrumbs-font-size: 13.5px; --jelly-breadcrumbs-font-size: var(--droplet-breadcrumbs-font-size);
+  --droplet-breadcrumbs-padding-block: 4px; --jelly-breadcrumbs-padding-block: var(--droplet-breadcrumbs-padding-block);
+  --droplet-breadcrumbs-padding-inline: 8px; --jelly-breadcrumbs-padding-inline: var(--droplet-breadcrumbs-padding-inline);
+  --droplet-breadcrumbs-gap: 4px; --jelly-breadcrumbs-gap: var(--droplet-breadcrumbs-gap);
+  --droplet-breadcrumbs-radius: 9px; --jelly-breadcrumbs-radius: var(--droplet-breadcrumbs-radius);
 }
 
 :host([size="small"]) {
-  --jelly-breadcrumbs-font-size:      12px;
-  --jelly-breadcrumbs-padding-block:  3px;
-  --jelly-breadcrumbs-padding-inline: 6px;
-  --jelly-breadcrumbs-gap:            3px;
-  --jelly-breadcrumbs-radius:         8px;
+  --droplet-breadcrumbs-font-size: 12px; --jelly-breadcrumbs-font-size: var(--droplet-breadcrumbs-font-size);
+  --droplet-breadcrumbs-padding-block: 3px; --jelly-breadcrumbs-padding-block: var(--droplet-breadcrumbs-padding-block);
+  --droplet-breadcrumbs-padding-inline: 6px; --jelly-breadcrumbs-padding-inline: var(--droplet-breadcrumbs-padding-inline);
+  --droplet-breadcrumbs-gap: 3px; --jelly-breadcrumbs-gap: var(--droplet-breadcrumbs-gap);
+  --droplet-breadcrumbs-radius: 8px; --jelly-breadcrumbs-radius: var(--droplet-breadcrumbs-radius);
 }
 
 :host([size="large"]) {
-  --jelly-breadcrumbs-font-size:      15px;
-  --jelly-breadcrumbs-padding-block:  5px;
-  --jelly-breadcrumbs-padding-inline: 10px;
-  --jelly-breadcrumbs-gap:            5px;
-  --jelly-breadcrumbs-radius:         10px;
+  --droplet-breadcrumbs-font-size: 15px; --jelly-breadcrumbs-font-size: var(--droplet-breadcrumbs-font-size);
+  --droplet-breadcrumbs-padding-block: 5px; --jelly-breadcrumbs-padding-block: var(--droplet-breadcrumbs-padding-block);
+  --droplet-breadcrumbs-padding-inline: 10px; --jelly-breadcrumbs-padding-inline: var(--droplet-breadcrumbs-padding-inline);
+  --droplet-breadcrumbs-gap: 5px; --jelly-breadcrumbs-gap: var(--droplet-breadcrumbs-gap);
+  --droplet-breadcrumbs-radius: 10px; --jelly-breadcrumbs-radius: var(--droplet-breadcrumbs-radius);
 }
 
 ol {
   display:     flex;
   flex-wrap:   wrap;
   align-items: center;
-  gap:         var(--jelly-breadcrumbs-gap);
+  gap:         var(--jelly-breadcrumbs-gap, var(--droplet-breadcrumbs-gap));
   margin:      0;
   padding:     0;
   list-style:  none;
-  font:        600 var(--jelly-breadcrumbs-font-size)/1 var(--jelly-font-display);
+  font:        600 var(--jelly-breadcrumbs-font-size, var(--droplet-breadcrumbs-font-size))/1 var(--jelly-font-display, var(--droplet-font-display));
 }
 
 a {
-  color:           var(--jelly-color-foreground-muted);
+  color:           var(--jelly-color-foreground-muted, var(--droplet-color-foreground-muted));
   text-decoration: none;
-  padding-block:   var(--jelly-breadcrumbs-padding-block);
-  padding-inline:  var(--jelly-breadcrumbs-padding-inline);
-  border-radius:   var(--jelly-breadcrumbs-radius);
+  padding-block:   var(--jelly-breadcrumbs-padding-block, var(--droplet-breadcrumbs-padding-block));
+  padding-inline:  var(--jelly-breadcrumbs-padding-inline, var(--droplet-breadcrumbs-padding-inline));
+  border-radius:   var(--jelly-breadcrumbs-radius, var(--droplet-breadcrumbs-radius));
   display:         inline-block;
   transition:      transform .18s cubic-bezier(.34, 1.7, .5, 1), color .15s, background .15s;
 }
 
 a:hover {
-  color:      var(--jelly-color-background-accent);
-  background: color-mix(in srgb, var(--jelly-color-background-accent) 9%, transparent);
+  color:      var(--jelly-color-background-accent, var(--droplet-color-background-accent));
+  background: color-mix(in srgb, var(--jelly-color-background-accent, var(--droplet-color-background-accent)) 9%, transparent);
   transform:  scale(1.08);
 }
 
@@ -56,19 +56,19 @@ a:active {
 }
 
 a:focus-visible {
-  outline:        2px solid var(--jelly-ring-color);
+  outline:        2px solid var(--jelly-ring-color, var(--droplet-ring-color));
   outline-offset: 1px;
 }
 
 .current {
-  color:          var(--jelly-color-foreground-default);
+  color:          var(--jelly-color-foreground-default, var(--droplet-color-foreground-default));
   font-weight:    750;
-  padding-block:  var(--jelly-breadcrumbs-padding-block);
-  padding-inline: var(--jelly-breadcrumbs-padding-inline);
+  padding-block:  var(--jelly-breadcrumbs-padding-block, var(--droplet-breadcrumbs-padding-block));
+  padding-inline: var(--jelly-breadcrumbs-padding-inline, var(--droplet-breadcrumbs-padding-inline));
 }
 
 .separator {
-  color:       var(--jelly-color-border-default);
+  color:       var(--jelly-color-border-default, var(--droplet-color-border-default));
   user-select: none;
 }
 
@@ -78,16 +78,16 @@ a:focus-visible {
   transform: scaleX(-1);
 }
 
-/* --jelly-motion mirrors data-jelly-motion on <html> (see src/theme/runtime.ts) */
+/* --droplet-motion mirrors data-droplet-motion (or data-jelly-motion) on <html>; see src/theme/runtime.ts */
 @media (prefers-reduced-motion: reduce) {
-  @container not style(--jelly-motion: no-preference) {
+  @container not style(--droplet-motion: no-preference) {
     a { transition: none; }
     a:hover,
     a:active { transform: none; }
   }
 }
 
-@container style(--jelly-motion: reduce) {
+@container style(--droplet-motion: reduce) {
   a { transition: none; }
   a:hover,
   a:active { transform: none; }

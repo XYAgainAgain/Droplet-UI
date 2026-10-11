@@ -1,8 +1,8 @@
 :host {
   display:               inline-flex;
   height:                24px;
-  --jelly-badge-radius:  999px;
-  font:                  640 12.5px/1 var(--jelly-font-display);
+  --droplet-badge-radius: 999px; --jelly-badge-radius: var(--droplet-badge-radius);
+  font:                  640 12.5px/1 var(--jelly-font-display, var(--droplet-font-display));
 }
 
 :host([size="small"]) {
@@ -17,9 +17,9 @@
 
 /* A smaller, rounded-rectangle radius instead of the full pill - holds
    the same 0.32-of-height ratio as jelly-icon-button's default square */
-:host([shape="square"]) { --jelly-badge-radius: 8px; }
-:host([shape="square"][size="small"]) { --jelly-badge-radius: 6px; }
-:host([shape="square"][size="large"]) { --jelly-badge-radius: 10px; }
+:host([shape="square"]) { --droplet-badge-radius: 8px; --jelly-badge-radius: var(--droplet-badge-radius); }
+:host([shape="square"][size="small"]) { --droplet-badge-radius: 6px; --jelly-badge-radius: var(--droplet-badge-radius); }
+:host([shape="square"][size="large"]) { --droplet-badge-radius: 10px; --jelly-badge-radius: var(--droplet-badge-radius); }
 
 .badge {
   display:         inline-flex;
@@ -28,9 +28,9 @@
   height:          100%;
   min-width:       12px;
   padding-inline:  9px;
-  color:           var(--jelly-label);
+  color:           var(--jelly-label, var(--droplet-label));
   position:        relative;
-  border-radius:   var(--jelly-badge-radius);
+  border-radius:   var(--jelly-badge-radius, var(--droplet-badge-radius));
   white-space:     nowrap;
 }
 
@@ -49,7 +49,7 @@
    neutral text colour so it stays readable in both themes and for the
    white / platinum variants (the raw hue as text fails WCAG AA). */
 :host([outline]) .badge {
-  color: var(--jelly-color-foreground-default);
+  color: var(--jelly-color-foreground-default, var(--droplet-color-foreground-default));
 }
 
 @media (forced-colors: active) {

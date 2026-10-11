@@ -15,6 +15,7 @@ import { clamp }            from '../../utilities/index.js';
 import { isRTL }            from '../../utilities/index.js';
 import { defineStrict, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
+import { readToken } from '../../theme/token-read.js';
 
 import textareaStyles       from './textarea.css?inline';
 
@@ -105,7 +106,7 @@ export class DropletTextarea extends DropletFormField {
     const w = width - 8;
     const h = height - 8;
 
-    const declared = parseFloat(getComputedStyle(this).getPropertyValue('--jelly-textarea-radius'));
+    const declared = parseFloat(readToken(getComputedStyle(this), 'textarea-radius'));
     const radius   = Number.isFinite(declared) ? Math.min(declared, h / 2) : Math.min(20, h / 2);
 
     return { width: w, height: h, radius };

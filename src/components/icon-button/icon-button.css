@@ -1,11 +1,11 @@
 :host {
-  --jelly-icon-button-size:      48px;
-  --jelly-icon-button-radius:    16px;
-  --jelly-icon-button-font-size: 18px;
-  --jelly-icon-button-icon-size: 20px;
+  --droplet-icon-button-size: 48px; --jelly-icon-button-size: var(--droplet-icon-button-size);
+  --droplet-icon-button-radius: 16px; --jelly-icon-button-radius: var(--droplet-icon-button-radius);
+  --droplet-icon-button-font-size: 18px; --jelly-icon-button-font-size: var(--droplet-icon-button-font-size);
+  --droplet-icon-button-icon-size: 20px; --jelly-icon-button-icon-size: var(--droplet-icon-button-icon-size);
 
   /* The ring tracks the button's own fill (see jelly-button) */
-  --jelly-ring: var(--jelly-fill, var(--jelly-color-border-focus));
+  --droplet-ring: var(--jelly-fill, var(--droplet-fill, var(--jelly-color-border-focus, var(--droplet-color-border-focus)))); --jelly-ring: var(--droplet-ring);
 }
 
 /* :disabled also covers a disabled ancestor fieldset (form-associated host) */
@@ -17,26 +17,26 @@
 
 :host([size="small"]),
 :host([size="sm"]) {
-  --jelly-icon-button-size:      40px;
-  --jelly-icon-button-radius:    13px;
-  --jelly-icon-button-font-size: 16px;
-  --jelly-icon-button-icon-size: 18px;
+  --droplet-icon-button-size: 40px; --jelly-icon-button-size: var(--droplet-icon-button-size);
+  --droplet-icon-button-radius: 13px; --jelly-icon-button-radius: var(--droplet-icon-button-radius);
+  --droplet-icon-button-font-size: 16px; --jelly-icon-button-font-size: var(--droplet-icon-button-font-size);
+  --droplet-icon-button-icon-size: 18px; --jelly-icon-button-icon-size: var(--droplet-icon-button-icon-size);
 }
 
 :host([size="medium"]),
 :host([size="md"]) {
-  --jelly-icon-button-size:      48px;
-  --jelly-icon-button-radius:    16px;
-  --jelly-icon-button-font-size: 18px;
-  --jelly-icon-button-icon-size: 20px;
+  --droplet-icon-button-size: 48px; --jelly-icon-button-size: var(--droplet-icon-button-size);
+  --droplet-icon-button-radius: 16px; --jelly-icon-button-radius: var(--droplet-icon-button-radius);
+  --droplet-icon-button-font-size: 18px; --jelly-icon-button-font-size: var(--droplet-icon-button-font-size);
+  --droplet-icon-button-icon-size: 20px; --jelly-icon-button-icon-size: var(--droplet-icon-button-icon-size);
 }
 
 :host([size="large"]),
 :host([size="lg"]) {
-  --jelly-icon-button-size:      56px;
-  --jelly-icon-button-radius:    18px;
-  --jelly-icon-button-font-size: 20px;
-  --jelly-icon-button-icon-size: 23px;
+  --droplet-icon-button-size: 56px; --jelly-icon-button-size: var(--droplet-icon-button-size);
+  --droplet-icon-button-radius: 18px; --jelly-icon-button-radius: var(--droplet-icon-button-radius);
+  --droplet-icon-button-font-size: 20px; --jelly-icon-button-font-size: var(--droplet-icon-button-font-size);
+  --droplet-icon-button-icon-size: 23px; --jelly-icon-button-icon-size: var(--droplet-icon-button-icon-size);
 }
 
 button {
@@ -46,16 +46,16 @@ button {
   margin:             0;
   padding:            0;
   background:         transparent;
-  color:              var(--jelly-label);
-  width:              var(--jelly-icon-button-size);
-  height:             var(--jelly-icon-button-size);
+  color:              var(--jelly-label, var(--droplet-label));
+  width:              var(--jelly-icon-button-size, var(--droplet-icon-button-size));
+  height:             var(--jelly-icon-button-size, var(--droplet-icon-button-size));
   display:            inline-flex;
   align-items:        center;
   justify-content:    center;
-  font:               600 var(--jelly-icon-button-font-size)/1 var(--jelly-font-display);
+  font:               600 var(--jelly-icon-button-font-size, var(--droplet-icon-button-font-size))/1 var(--jelly-font-display, var(--droplet-font-display));
   position:           relative;
   cursor:             pointer;
-  border-radius:      var(--jelly-icon-button-radius);
+  border-radius:      var(--jelly-icon-button-radius, var(--droplet-icon-button-radius));
   touch-action:       manipulation;
   /* Glide between size steps instead of snapping */
   transition:
@@ -63,14 +63,14 @@ button {
     height 0.42s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* --jelly-motion mirrors data-jelly-motion on <html> (see src/theme/runtime.ts) */
+/* --droplet-motion mirrors data-droplet-motion (or data-jelly-motion) on <html>; see src/theme/runtime.ts */
 @media (prefers-reduced-motion: reduce) {
-  @container not style(--jelly-motion: no-preference) {
+  @container not style(--droplet-motion: no-preference) {
     button { transition: none; }
   }
 }
 
-@container style(--jelly-motion: reduce) {
+@container style(--droplet-motion: reduce) {
   button { transition: none; }
 }
 
@@ -84,14 +84,14 @@ button::after {
   content:        "";
   position:       absolute;
   inset:          -2px;
-  border:         var(--jelly-ring-width) solid transparent;
-  border-radius:  calc(var(--jelly-icon-button-radius) + 2px);
+  border:         var(--jelly-ring-width, var(--droplet-ring-width)) solid transparent;
+  border-radius:  calc(var(--jelly-icon-button-radius, var(--droplet-icon-button-radius)) + 2px);
   pointer-events: none;
 }
 
 ::slotted(svg) {
-  width:  var(--jelly-icon-button-icon-size);
-  height: var(--jelly-icon-button-icon-size);
+  width:  var(--jelly-icon-button-icon-size, var(--droplet-icon-button-icon-size));
+  height: var(--jelly-icon-button-icon-size, var(--droplet-icon-button-icon-size));
 }
 
 @media (forced-colors: active) {

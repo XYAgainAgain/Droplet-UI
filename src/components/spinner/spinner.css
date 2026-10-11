@@ -20,7 +20,7 @@
 }
 
 .dots g {
-  fill: var(--jelly-fill);
+  fill: var(--jelly-fill, var(--droplet-fill));
 }
 
 /* The rover glides between the three fixed dots; the goo filter melts it
@@ -36,14 +36,14 @@
   75%      { transform: translateX(12px); }
 }
 
-/* --jelly-motion mirrors data-jelly-motion on <html> (see src/theme/runtime.ts) */
+/* --droplet-motion mirrors data-droplet-motion (or data-jelly-motion) on <html>; see src/theme/runtime.ts */
 @media (prefers-reduced-motion: reduce) {
-  @container not style(--jelly-motion: no-preference) {
+  @container not style(--droplet-motion: no-preference) {
     .rover { animation: none; }
   }
 }
 
-@container style(--jelly-motion: reduce) {
+@container style(--droplet-motion: reduce) {
   .rover { animation: none; }
 }
 

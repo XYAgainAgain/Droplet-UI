@@ -1,37 +1,37 @@
 :host {
   display: block;
 
-  --jelly-pagination-gap:         7px;
-  --jelly-pagination-font-size:   14px;
-  --jelly-pagination-gap-padding: 2px;
+  --droplet-pagination-gap: 7px; --jelly-pagination-gap: var(--droplet-pagination-gap);
+  --droplet-pagination-font-size: 14px; --jelly-pagination-font-size: var(--droplet-pagination-font-size);
+  --droplet-pagination-gap-padding: 2px; --jelly-pagination-gap-padding: var(--droplet-pagination-gap-padding);
 
   /* Each page button is a fixed square so numbers stay circular at
      every size (min-width follows the height, not the label width). */
-  --jelly-pagination-button:      40px;
-  --jelly-pagination-button-pad:  10px;
+  --droplet-pagination-button: 40px; --jelly-pagination-button: var(--droplet-pagination-button);
+  --droplet-pagination-button-pad: 10px; --jelly-pagination-button-pad: var(--droplet-pagination-button-pad);
 }
 
 :host([size="small"]) {
-  --jelly-pagination-gap:         5px;
-  --jelly-pagination-font-size:   12.5px;
-  --jelly-pagination-gap-padding: 1px;
-  --jelly-pagination-button:      34px;
-  --jelly-pagination-button-pad:  8px;
+  --droplet-pagination-gap: 5px; --jelly-pagination-gap: var(--droplet-pagination-gap);
+  --droplet-pagination-font-size: 12.5px; --jelly-pagination-font-size: var(--droplet-pagination-font-size);
+  --droplet-pagination-gap-padding: 1px; --jelly-pagination-gap-padding: var(--droplet-pagination-gap-padding);
+  --droplet-pagination-button: 34px; --jelly-pagination-button: var(--droplet-pagination-button);
+  --droplet-pagination-button-pad: 8px; --jelly-pagination-button-pad: var(--droplet-pagination-button-pad);
 }
 
 :host([size="large"]) {
-  --jelly-pagination-gap:         9px;
-  --jelly-pagination-font-size:   15.5px;
-  --jelly-pagination-gap-padding: 3px;
-  --jelly-pagination-button:      48px;
-  --jelly-pagination-button-pad:  12px;
+  --droplet-pagination-gap: 9px; --jelly-pagination-gap: var(--droplet-pagination-gap);
+  --droplet-pagination-font-size: 15.5px; --jelly-pagination-font-size: var(--droplet-pagination-font-size);
+  --droplet-pagination-gap-padding: 3px; --jelly-pagination-gap-padding: var(--droplet-pagination-gap-padding);
+  --droplet-pagination-button: 48px; --jelly-pagination-button: var(--droplet-pagination-button);
+  --droplet-pagination-button-pad: 12px; --jelly-pagination-button-pad: var(--droplet-pagination-button-pad);
 }
 
 .row {
   display:     inline-flex;
   align-items: center;
-  gap:         var(--jelly-pagination-gap);
-  font:        640 var(--jelly-pagination-font-size)/1 var(--jelly-font-display);
+  gap:         var(--jelly-pagination-gap, var(--droplet-pagination-gap));
+  font:        640 var(--jelly-pagination-font-size, var(--droplet-pagination-font-size))/1 var(--jelly-font-display, var(--droplet-font-display));
 }
 
 droplet-button {
@@ -39,20 +39,20 @@ droplet-button {
      square footprint (height == min-width) with only light padding -
      otherwise medium / large buttons inherit a 168–200px min-width and
      stretch the numbers into wide pills. */
-  --jelly-button-height:         var(--jelly-pagination-button);
-  --jelly-button-min-width:      var(--jelly-pagination-button);
-  --jelly-button-padding-inline: var(--jelly-pagination-button-pad);
+  --droplet-button-height: var(--jelly-pagination-button, var(--droplet-pagination-button)); --jelly-button-height: var(--droplet-button-height);
+  --droplet-button-min-width: var(--jelly-pagination-button, var(--droplet-pagination-button)); --jelly-button-min-width: var(--droplet-button-min-width);
+  --droplet-button-padding-inline: var(--jelly-pagination-button-pad, var(--droplet-pagination-button-pad)); --jelly-button-padding-inline: var(--droplet-button-padding-inline);
 
-  --jelly-fill:  var(--jelly-color-background-neutral);
-  --jelly-label: var(--jelly-color-foreground-on-neutral);
+  --droplet-fill: var(--jelly-color-background-neutral, var(--droplet-color-background-neutral)); --jelly-fill: var(--droplet-fill);
+  --droplet-label: var(--jelly-color-foreground-on-neutral, var(--droplet-color-foreground-on-neutral)); --jelly-label: var(--droplet-label);
 }
 
 droplet-button[aria-current] {
-  --jelly-fill:  var(--jelly-color-background-accent);
-  --jelly-label: var(--jelly-color-foreground-on-accent);
+  --droplet-fill: var(--jelly-color-background-accent, var(--droplet-color-background-accent)); --jelly-fill: var(--droplet-fill);
+  --droplet-label: var(--jelly-color-foreground-on-accent, var(--droplet-color-foreground-on-accent)); --jelly-label: var(--droplet-label);
 }
 
 .gap {
-  color:          var(--jelly-color-foreground-muted);
-  padding-inline: var(--jelly-pagination-gap-padding);
+  color:          var(--jelly-color-foreground-muted, var(--droplet-color-foreground-muted));
+  padding-inline: var(--jelly-pagination-gap-padding, var(--droplet-pagination-gap-padding));
 }

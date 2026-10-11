@@ -3,8 +3,8 @@
   width:   240px;
   height:  14px;
 
-  --jelly-track:  var(--jelly-color-background-neutral);
-  --jelly-accent: var(--jelly-color-background-accent);
+  --droplet-track: var(--jelly-color-background-neutral, var(--droplet-color-background-neutral)); --jelly-track: var(--droplet-track);
+  --droplet-accent: var(--jelly-color-background-accent, var(--droplet-color-background-accent)); --jelly-accent: var(--droplet-accent);
 }
 
 :host([size="small"]) {
