@@ -100,7 +100,7 @@ export class JellySlider extends JellyElement implements EventListenerObject {
   static override usesResolver = true;
 
   // A value assigned before upgrade has to survive to the first build
-  static override REPLAYED: readonly string[] = ['value', 'feel', 'quality'];
+  static override REPLAYED: readonly string[] = ['value', ...JellyElement.REPLAYED];
 
   internals: ElementInternals;
 

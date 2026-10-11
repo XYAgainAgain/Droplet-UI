@@ -6,7 +6,7 @@ import { mount, settle } from '../../testing/index.js';
 import { installScopeBridge } from '../../cascade/index.js';
 import { DEFAULT_CONFIG, JellyBody } from '../../core/index.js';
 import { registerPreset } from '../../presets/index.js';
-import { defineAll } from '../../register.js';
+import { defineAll, RegistrationError } from '../../register.js';
 import { defineButton, JellyButton } from './index.js';
 
 defineAll({ strict: false });
@@ -282,6 +282,118 @@ describe('jelly-button contracts', () => {
     expect(el.getAttribute('feel')).toBe('gel');
 
     el.remove();
+  });
+
+  test('replays a config assigned before upgrade through the validating setter', async () => {
+    const el = document.createElement('jelly-button-config-early') as HTMLElement & { config?: object };
+    el.config = { samples: 64 };
+    document.body.appendChild(el);
+
+    customElements.define('jelly-button-config-early', class extends JellyButton {});
+    await settle();
+
+    const button = el as unknown as JellyButton;
+    expect(Object.hasOwn(button, 'config')).toBe(false);
+    expect(button.resolvedConfig.samples).toBe(64);
+
+    el.remove();
+  });
+
+  test('hands out config as a frozen copy that cannot be edited around the resolver', async () => {
+    const host = mount('<jelly-button>C</jelly-button>');
+    await settle();
+
+    const el = host.firstElementChild as JellyButton;
+    const input = { samples: 72 };
+    el.config = input;
+    input.samples = 300;
+
+    expect(el.config!.samples).toBe(72);
+    expect(Object.isFrozen(el.config)).toBe(true);
+    expect(() => { (el.config as { samples: number }).samples = 999; }).toThrow(TypeError);
+    expect(el.resolvedConfig.samples).toBe(72);
+
+    host.remove();
+  });
+
+  test('reflects palette and material and reads them through the cascade', async () => {
+    installScopeBridge(document);
+    const host = mount('<div data-droplet-palette="dusk" data-droplet-material="glass"><jelly-button>M</jelly-button></div>');
+    await settle();
+
+    const el = host.querySelector('jelly-button') as JellyButton;
+    expect(el.palette).toBe('dusk');
+    expect(el.material).toBe('glass');
+
+    el.palette = 'rose';
+    expect(el.getAttribute('palette')).toBe('rose');
+    expect(el.palette).toBe('rose');
+
+    el.material = null;
+    host.firstElementChild!.removeAttribute('data-droplet-material');
+    await settle(2);
+    expect(el.material).toBe('matte');
+
+    host.remove();
+  });
+
+  test('an invalid element quality still beats the scope and resolves as medium', async () => {
+    installScopeBridge(document);
+    const host = mount('<div data-droplet-quality="low"><jelly-button quality="bogus">Q</jelly-button></div>');
+    await settle();
+
+    const el = host.querySelector('jelly-button') as JellyButton;
+    expect(el.quality).toBe('medium');
+    expect(el.getAttribute('quality')).toBe('bogus');
+
+    host.remove();
+  });
+
+  test('trims an element feel attribute like a scope value', async () => {
+    registerPreset('feel', 'test-trimmed', { pressure: 777 }, { override: true });
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const host = mount('<jelly-button feel=" test-trimmed ">T</jelly-button>');
+    await settle();
+
+    try {
+      const el = host.firstElementChild as JellyButton;
+      expect(el.feel).toBe('test-trimmed');
+      expect(el.resolvedConfig.pressure).toBe(777);
+      expect(warn).not.toHaveBeenCalled();
+    } finally {
+      warn.mockRestore();
+      host.remove();
+    }
+  });
+
+  test('a scope change that leaves the record unchanged does not wake the body', async () => {
+    installScopeBridge(document);
+    const host = mount('<div><jelly-button>W</jelly-button></div>');
+    await settle(6);
+
+    const el = host.querySelector('jelly-button') as JellyButton;
+    const wake = vi.spyOn(el, 'requestFrame');
+
+    try {
+      host.firstElementChild!.setAttribute('data-droplet-palette', 'dusk');
+      await settle(2);
+
+      expect(el.palette).toBe('dusk');
+      expect(wake).not.toHaveBeenCalled();
+    } finally {
+      wake.mockRestore();
+      host.remove();
+    }
+  });
+
+  test('every explicit helper is strict by default', () => {
+    const foreign = class extends HTMLElement {};
+    const registry = { get: () => foreign, define: () => {} } as unknown as CustomElementRegistry;
+
+    expect(() => defineButton({ registry })).toThrow(RegistrationError);
+    expect(() => JellyButton.define({ registry })).toThrow(RegistrationError);
+    expect(() => defineAll({ registry })).toThrow(RegistrationError);
+    expect(defineAll({ registry, strict: false }).collisions.length).toBeGreaterThan(0);
   });
 
   test('lets a markup attribute win over a pre-upgrade property', async () => {

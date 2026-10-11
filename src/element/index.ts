@@ -32,6 +32,7 @@ import { readScopedAxis }        from '../cascade/index.js';
 
 import { isConfigKey }           from '../resolve/index.js';
 import { resolveConfig }         from '../resolve/index.js';
+import { sameConfig }            from '../resolve/index.js';
 import type { Quality }          from '../resolve/index.js';
 import type { Resolved }         from '../resolve/index.js';
 import type { ResolveInputs }    from '../resolve/index.js';
@@ -39,9 +40,11 @@ import type { ResolveInputs }    from '../resolve/index.js';
 import { HTMLElementBase }       from './base.js';
 
 import { canonicalizeQualityAttribute } from './configure.js';
+import { readNamedAxis }                from './configure.js';
 import { readQuality }                  from './configure.js';
 import { replayProperties }             from './configure.js';
 import { warnUnknownFeel }              from './configure.js';
+import { writeNamedAxis }               from './configure.js';
 import { writeQuality }                 from './configure.js';
 
 import { buildFrame }            from './painter.js';
@@ -71,8 +74,9 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
   // false and keep exactly the connect path they had before the fork.
   static usesResolver = false;
 
-  // Properties replayed through their setters on upgrade (state-and-reflection.md)
-  static REPLAYED: readonly string[] = ['feel', 'quality'];
+  // Properties replayed through their setters on upgrade (state-and-reflection.md);
+  // subclasses spread this list so a new axis reaches every component
+  static REPLAYED: readonly string[] = ['feel', 'quality', 'palette', 'material', 'config'];
 
   body: JellyBody | null = null;
   built = false;
@@ -80,27 +84,26 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
   cssW = 0;
   cssH = 0;
 
-  // Per-instance physics overrides; subclasses may assign before build. An
-  // accessor, not a field, so a component can override it with a resolving setter.
+  // The raw override layer behind the config accessor; frozen once validated
   rawConfig: Partial<JellyConfig> | undefined = undefined;
 
   resolvedRecord: Resolved | undefined = undefined;
   configWarned: Set<string> | undefined = undefined;
   scopeUnsubscribe: (() => void) | null = null;
 
-  // The raw override layer, returned as the stored copy; the resolved record is
-  // read through resolvedConfig (resolver.md)
+  // The stored copy is frozen, so editing it in place cannot skip validation or
+  // the resolver; the resolved record is read through resolvedConfig (resolver.md)
   get config (): Partial<JellyConfig> | undefined {
     return this.rawConfig;
   }
 
-  set config (value: Partial<JellyConfig> | undefined) {
+  set config (value: Partial<JellyConfig> | null | undefined) {
     if (!this.usesResolver) {
-      this.rawConfig = value;
+      this.rawConfig = value ?? undefined;
       return;
     }
 
-    this.rawConfig = value ? this.validateConfig(value) : undefined;
+    this.rawConfig = value ? Object.freeze(this.validateConfig(value)) : undefined;
     this.resolve();
   }
 
@@ -114,7 +117,7 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
     return this.resolution().feel;
   }
 
-  set feel (value: string | null) {
+  set feel (value: string | null | undefined) {
     if (value === null || value === undefined) {
       this.removeAttribute('feel');
     } else {
@@ -126,8 +129,26 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
     return readQuality(this);
   }
 
-  set quality (value: Quality | string | null) {
+  set quality (value: Quality | string | null | undefined) {
     writeQuality(this, value);
+  }
+
+  // Parsed and reported only; Phase 5 makes palette act (attribute-matrix.md)
+  get palette (): string | null {
+    return readNamedAxis(this, 'palette');
+  }
+
+  set palette (value: string | null | undefined) {
+    writeNamedAxis(this, 'palette', value);
+  }
+
+  // Parsed and reported only; Phase 6 makes material act (attribute-matrix.md)
+  get material (): string {
+    return readNamedAxis(this, 'material') ?? 'matte';
+  }
+
+  set material (value: string | null | undefined) {
+    writeNamedAxis(this, 'material', value);
   }
 
   get resolvedConfig (): Readonly<JellyConfig> {
@@ -169,17 +190,19 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
     const inputs = this.axisInputs();
     const next   = resolveConfig({ profile: this.profile(), ...inputs });
 
+    this.resolvedRecord = next;
+
+    // Reading feel on an unconverted component must stay side-effect free
+    if (!this.usesResolver) {
+      return next;
+    }
+
     // A supplied name that resolved to something else is invalid, feel="" included
     if (inputs.feel !== null && next.feel !== inputs.feel) {
       warnUnknownFeel(inputs.feel, this.ownerDocument);
     }
 
-    this.resolvedRecord = next;
-
-    // Reading feel on an unconverted component must stay side-effect free
-    if (this.usesResolver) {
-      this.applyResolved(next);
-    }
+    this.applyResolved(next);
 
     return next;
   }
@@ -191,8 +214,11 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
   // The canonical axis inputs every body of this element resolves from, so a
   // multi-membrane component cannot drift between its bodies
   axisInputs (): Omit<ResolveInputs, 'profile'> & { feel: string | null } {
+    const feel = this.getAttribute('feel');
+
+    // Trimmed like the scope path, whose custom property the CSS engine trims
     return {
-      feel:     this.getAttribute('feel') ?? readScopedAxis(this, 'feel'),
+      feel:     feel === null ? readScopedAxis(this, 'feel') : feel.trim(),
       raw:      this.rawConfig,
       quality:  this.quality,
       document: this.ownerDocument,
@@ -222,12 +248,20 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
     // Against the last record applied to this body, not body.config: the body
     // rewrites some fields as it stores them, so that comparison never settles.
     const previous = appliedRecords.get(body)?.config;
+
+    appliedRecords.set(body, resolved);
+
+    // A scope change re-resolves every element on the page; an unchanged record
+    // must not wake a body that is parked at rest
+    if (previous && sameConfig(previous, next)) {
+      return;
+    }
+
     const rebuild  = !previous
       || previous.samples !== next.samples
       || previous.normalBlendPasses !== next.normalBlendPasses;
 
     body.config = { ...next };
-    appliedRecords.set(body, resolved);
 
     if (rebuild) {
       body.resize(body.width, body.height, body.radius);
@@ -261,13 +295,9 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
   pressPointerId: number | null = null;
   keyboardActive = false;
 
-  /*
-   * Base-class listeners are bound as fields so subclasses keep handleEvent to
-   * themselves. A theme (or direction) change can move the jelly box without
-   * resizing the host - the ResizeObserver won't fire - so reposition the
-   * canvas and let the subclass re-seat any direction-dependent geometry
-   * before repainting.
-   */
+  // Base-class listeners are bound as fields so subclasses keep handleEvent to themselves
+  // A theme or direction change can move the box without resizing the host, so
+  // the ResizeObserver stays quiet; re-seat the geometry before repainting
   onThemeChange = (): void => {
     if (this.built) {
       this.applyShape();
@@ -297,9 +327,10 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
     this.contextLost = false;
     this.removeAttribute('data-jelly-nocanvas');
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    // applyShape early-returns while the context is lost, so any resize that
-    // fired during the loss is only picked up here.
+    // applyShape early-returns while the context is lost, so a resize during the loss
+    // lands here; it skips the repaint on an unchanged size, hence requestFrame.
     this.applyShape();
+    this.requestFrame();
   };
 
   constructor () {
@@ -351,7 +382,6 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
 
   /* ---- Lifecycle --------------------------------------------------- */
 
-  // Lifecycle method: Called automatically when the element is appended to the DOM
   connectedCallback (): void {
     if (this.usesResolver) {
       this.connectResolver();
@@ -406,7 +436,6 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
     ensureThemeTokens(this.ownerDocument);
   }
 
-  // Lifecycle method: Called automatically when the element leaves the DOM
   disconnectedCallback (): void {
     engine.drop(this);
 
@@ -576,7 +605,7 @@ export class JellyElement extends HTMLElementBase implements JellyComponent {
       });
 
       if (resolved) {
-        appliedRecords.set(this.body, resolved);
+        this.seedResolved(this.body, resolved);
       }
     } else {
       this.body.resize(shape.width, shape.height, shape.radius);

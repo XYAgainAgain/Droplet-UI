@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolveConfig, parseQuality, SAFETY_BOUNDS } from './index.js';
+import { resolveConfig, parseQuality, SAFETY_BOUNDS, clampToBounds, sameConfig } from './index.js';
 import { DEFAULT_CONFIG } from '../core/index.js';
 import { getPreset, listPresets, registerPreset } from '../presets/index.js';
 
@@ -102,7 +102,7 @@ describe('resolveConfig', () => {
 
   it('looks a feel name up as written, so a mixed-case variant is unknown', () => {
     registerPreset('feel', 'case-soft', { pressure: 321 });
-    for (const written of ['CASE-SOFT', 'Case-Soft', '  case-soft  ']) {
+    for (const written of ['CASE-SOFT', 'Case-Soft', '  Case-soft  ']) {
       const r = resolveConfig({ feel: written });
       expect(r.feel).toBe('gel');
       expect(r.config.pressure).toBe(DEFAULT_CONFIG.pressure);
@@ -116,5 +116,29 @@ describe('resolveConfig', () => {
     expect(parseQuality('lo')).toBe('low');
     expect(parseQuality('hi')).toBe('high');
     expect(parseQuality('potato')).toBe('medium');
+  });
+
+  it('applies a document override of gel to unknown and absent feel names alike', () => {
+    const doc = document.implementation.createHTMLDocument('scoped');
+    registerPreset('feel', 'gel', { pressure: 321 }, { document: doc, override: true });
+    for (const feel of ['no-such-feel', null, '']) {
+      const r = resolveConfig({ feel, document: doc });
+      expect(r.feel).toBe('gel');
+      expect(r.config.pressure).toBe(321);
+      expect(r.provenance.pressure).toBe('feel');
+    }
+  });
+
+  it('trims a feel name before looking it up', () => {
+    registerPreset('feel', 'trim-test', { pressure: 222 }, { override: true });
+    expect(resolveConfig({ feel: '  trim-test ' }).feel).toBe('trim-test');
+  });
+
+  it('maps a non-finite clamp input to the baseline and compares records field by field', () => {
+    expect(clampToBounds('samples', Number.NaN)).toBe(DEFAULT_CONFIG.samples);
+    expect(clampToBounds('pressure', Number.POSITIVE_INFINITY)).toBe(DEFAULT_CONFIG.pressure);
+    const a = resolveConfig({ raw: { pressure: 10 } }).config;
+    expect(sameConfig(a, resolveConfig({ raw: { pressure: 10 } }).config)).toBe(true);
+    expect(sameConfig(a, resolveConfig({ raw: { pressure: 11 } }).config)).toBe(false);
   });
 });

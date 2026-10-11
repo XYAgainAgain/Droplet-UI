@@ -4,9 +4,11 @@ import { mount } from '../testing/index.js';
 
 import {
   canonicalizeQualityAttribute,
+  readNamedAxis,
   readQuality,
   replayProperties,
   warnUnknownFeel,
+  writeNamedAxis,
   writeQuality,
 } from './configure.js';
 
@@ -160,5 +162,36 @@ describe('warnUnknownFeel', () => {
     expect(warn).toHaveBeenCalledTimes(3);
 
     warn.mockRestore();
+  });
+});
+
+describe('readNamedAxis and writeNamedAxis', () => {
+  it('reads the element attribute over the scope, and a blank attribute as absent', () => {
+    const host = mount('<section data-droplet-palette="dusk"><i palette="rose"></i><i palette="  "></i><i></i></section>');
+    const [own, blank, bare] = host.querySelectorAll('i');
+
+    expect(readNamedAxis(own!, 'palette')).toBe('rose');
+    expect(readNamedAxis(blank!, 'palette')).toBe('dusk');
+    expect(readNamedAxis(bare!, 'palette')).toBe('dusk');
+    expect(readNamedAxis(bare!, 'material')).toBeNull();
+
+    host.remove();
+  });
+
+  it('writes verbatim, removes on null or undefined, and skips a no-op write', () => {
+    const host = mount('<i></i>');
+    const el = host.firstElementChild!;
+    const observer = new MutationObserver(() => {});
+    observer.observe(el, { attributes: true });
+
+    writeNamedAxis(el, 'material', 'Glass');
+    expect(el.getAttribute('material')).toBe('Glass');
+    writeNamedAxis(el, 'material', 'Glass');
+    expect(observer.takeRecords()).toHaveLength(1);
+    writeNamedAxis(el, 'material', undefined);
+    expect(el.hasAttribute('material')).toBe(false);
+
+    observer.disconnect();
+    host.remove();
   });
 });

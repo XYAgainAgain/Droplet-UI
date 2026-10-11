@@ -137,4 +137,29 @@ describe('defineElements', () => {
     expect(result.defined).toEqual([tag]);
     expect(customElements.get(tag)).toBeUndefined();
   });
+
+  it('returns the empty result without logging where there is no registry at all', () => {
+    vi.stubGlobal('customElements', undefined);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      expect(defineElements([[uniq(), class extends HTMLElement {}]], { strict: true })).toEqual({ defined: [], alreadyDefined: [], collisions: [] });
+      expect(warn).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllGlobals();
+      warn.mockRestore();
+    }
+  });
+
+  it('names each colliding tag once in the error message', () => {
+    class A extends HTMLElement {}
+    const tag = uniq();
+    defineElements([[tag, A]]);
+    try {
+      defineElements([[tag, class extends HTMLElement {}], [tag, class extends HTMLElement {}]], { strict: true });
+      expect.unreachable();
+    } catch (error) {
+      expect((error as RegistrationError).result.collisions).toHaveLength(2);
+      expect((error as Error).message.split(tag).length - 1).toBe(1);
+    }
+  });
 });

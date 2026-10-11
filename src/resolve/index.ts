@@ -9,7 +9,7 @@ import { getPreset } from '../presets/index.js';
 // resolver sees gel without importing an internal module.
 import '../presets/feel.js';
 
-export { SAFETY_BOUNDS, clampToBounds, isConfigKey } from './bounds.js';
+export { SAFETY_BOUNDS, clampToBounds, isConfigKey, sameConfig } from './bounds.js';
 
 export type Quality = 'low' | 'medium' | 'high';
 export type Source = 'baseline' | 'profile' | 'feel' | 'raw' | 'quality';
@@ -73,10 +73,12 @@ export function resolveConfig (inputs: ResolveInputs = {}): Resolved {
   applyLayer(config, provenance, inputs.profile, 'profile');
 
   // Names are looked up exactly as written, so mixed case never matches (attribute-matrix.md).
-  const requested = typeof inputs.feel === 'string' ? inputs.feel : '';
-  const preset = requested === '' ? null : getPreset<Partial<JellyConfig>>('feel', requested, inputs.document);
-  // An unknown feel silently becomes gel here; warning is the element's job.
-  const feel = preset === null ? DEFAULT_FEEL : requested;
+  const requested = typeof inputs.feel === 'string' ? inputs.feel.trim() : '';
+  const found = requested === '' ? null : getPreset<Partial<JellyConfig>>('feel', requested, inputs.document);
+  // An unknown feel silently becomes gel, overlay included, since a document may
+  // override gel itself; warning is the element's job.
+  const feel = found === null ? DEFAULT_FEEL : requested;
+  const preset = found ?? getPreset<Partial<JellyConfig>>('feel', DEFAULT_FEEL, inputs.document);
   applyLayer(config, provenance, preset, 'feel');
 
   applyLayer(config, provenance, inputs.raw, 'raw');

@@ -18,13 +18,15 @@ import type { Quality }                       from '../../resolve/index.js';
 import { HTMLElementBase }   from '../../element/base.js';
 
 import { canonicalizeQualityAttribute } from '../../element/configure.js';
+import { readNamedAxis }                from '../../element/configure.js';
 import { readQuality }                  from '../../element/configure.js';
 import { replayProperties }             from '../../element/configure.js';
+import { writeNamedAxis }               from '../../element/configure.js';
 import { writeQuality }                 from '../../element/configure.js';
 
 import collapsibleStyles     from './collapsible.css?inline';
 
-const REPLAYED = ['open', 'quality'] as const;
+const REPLAYED = ['open', 'quality', 'palette', 'material'] as const;
 
 /**
  * A bouncy disclosure section with a springy expand / collapse.
@@ -144,6 +146,23 @@ export class JellyCollapsible extends HTMLElementBase {
 
   set quality (value: Quality | string | null | undefined) {
     writeQuality(this, value);
+  }
+
+  // Parsed and reported only until Phases 5 and 6 act on them (attribute-matrix.md)
+  get palette (): string | null {
+    return readNamedAxis(this, 'palette');
+  }
+
+  set palette (value: string | null | undefined) {
+    writeNamedAxis(this, 'palette', value);
+  }
+
+  get material (): string {
+    return readNamedAxis(this, 'material') ?? 'matte';
+  }
+
+  set material (value: string | null | undefined) {
+    writeNamedAxis(this, 'material', value);
   }
 
   // Route programmatic host focus onto the header button

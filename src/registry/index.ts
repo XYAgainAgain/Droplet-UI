@@ -29,7 +29,7 @@ export class RegistrationError extends Error {
   readonly result: DefineResult;
 
   constructor (result: DefineResult) {
-    super(`[${TAG_PREFIX}] ${result.collisions.map((c) => c.tag).join(', ')} already owned by another constructor`);
+    super(`[${TAG_PREFIX}] ${[...new Set(result.collisions.map((c) => c.tag))].join(', ')} already owned by another constructor`);
     this.name = 'RegistrationError';
     this.result = result;
   }
@@ -55,8 +55,8 @@ export function defineElements (entries: ReadonlyArray<DefineEntry>, options: De
   if (!registry) return result;
 
   const pending: DefineEntry[] = [];
-  // A tag repeated inside one batch is classified against the earlier pending
-  // entry, or registry.define would throw NotSupportedError mid-batch.
+  // A tag repeated in one batch is classified against its earlier entry; a constructor
+  // reused under a second tag still throws NotSupportedError (registration.md).
   const claimed = new Map<string, CustomElementConstructor>();
   for (const [tag, ctor] of entries) {
     const existing = claimed.get(tag) ?? registry.get(tag);

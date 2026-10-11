@@ -55,6 +55,27 @@ export function writeQuality (el: Element, value: Quality | string | null | unde
   }
 }
 
+export type NamedAxis = 'palette' | 'material';
+
+// The element attribute beats any ancestor scope; a blank one counts as absent
+export function readNamedAxis (el: Element, axis: NamedAxis): string | null {
+  const own = el.getAttribute(axis)?.trim();
+
+  return own ? own : readScopedAxis(el, axis);
+}
+
+// Verbatim, like feel: names are looked up as written (attribute-matrix.md)
+export function writeNamedAxis (el: Element, axis: NamedAxis, value: string | null | undefined): void {
+  if (value === null || value === undefined) {
+    el.removeAttribute(axis);
+    return;
+  }
+
+  if (el.getAttribute(axis) !== String(value)) {
+    el.setAttribute(axis, String(value));
+  }
+}
+
 // A property set before upgrade shadows the accessor, so replay it through the
 // setter; markup wins over the captured value (state-and-reflection.md)
 export function replayProperties (el: Element, names: readonly string[]): void {

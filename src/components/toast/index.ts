@@ -23,8 +23,10 @@ import { HTMLElementBase }   from '../../element/base.js';
 import { PALETTE }           from '../../theme/index.js';
 
 import { canonicalizeQualityAttribute } from '../../element/configure.js';
+import { readNamedAxis }                from '../../element/configure.js';
 import { readQuality }                  from '../../element/configure.js';
 import { replayProperties }             from '../../element/configure.js';
+import { writeNamedAxis }               from '../../element/configure.js';
 import { writeQuality }                 from '../../element/configure.js';
 
 import toastStyles           from './toast.css?inline';
@@ -38,7 +40,7 @@ export interface ToastOptions {
   duration?: number;
 }
 
-const REPLAYED = ['quality'] as const;
+const REPLAYED = ['quality', 'palette', 'material'] as const;
 
 // Dot color and spoken prefix for each tone (color is never the only signal)
 const TONES: Record<ToastTone, { color: string; spoken: string }> = {
@@ -130,6 +132,23 @@ export class JellyToaster extends HTMLElementBase {
 
   set quality (value: Quality | string | null | undefined) {
     writeQuality(this, value);
+  }
+
+  // Parsed and reported only until Phases 5 and 6 act on them (attribute-matrix.md)
+  get palette (): string | null {
+    return readNamedAxis(this, 'palette');
+  }
+
+  set palette (value: string | null | undefined) {
+    writeNamedAxis(this, 'palette', value);
+  }
+
+  get material (): string {
+    return readNamedAxis(this, 'material') ?? 'matte';
+  }
+
+  set material (value: string | null | undefined) {
+    writeNamedAxis(this, 'material', value);
   }
 
   // Add one toast; returns its element (click or timeout removes it)

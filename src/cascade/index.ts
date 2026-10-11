@@ -24,7 +24,8 @@ function apply (el: Element, axis: Axis): void {
   const style = (el as Partial<ElementCSSInlineStyle>).style;
   if (!style) return;
   const value = el.getAttribute(`data-droplet-${axis}`);
-  if (value === null) {
+  // A blank scope is transparent, matching the first-connect fallback in readScopedAxis
+  if (value === null || value.trim() === '') {
     style.removeProperty(`--droplet-${axis}`);
   } else {
     style.setProperty(`--droplet-${axis}`, value);
@@ -48,8 +49,14 @@ export function readScopedAxis (el: Element, axis: Axis): string | null {
   const view = el.ownerDocument.defaultView;
   const value = view ? view.getComputedStyle(el).getPropertyValue(`--droplet-${axis}`).trim() : '';
   if (value !== '') return value;
-  const authored = el.closest(`[data-droplet-${axis}]`)?.getAttribute(`data-droplet-${axis}`)?.trim();
-  return authored === undefined || authored === '' ? null : authored;
+  // Shadow-local scopes are never bridged, so the fallback must not honor them either
+  if (el.getRootNode() !== el.ownerDocument) return null;
+  const attribute = `data-droplet-${axis}`;
+  for (let scope = el.closest(`[${attribute}]`); scope; scope = scope.parentElement?.closest(`[${attribute}]`) ?? null) {
+    const authored = scope.getAttribute(attribute)?.trim();
+    if (authored) return authored;
+  }
+  return null;
 }
 
 export function installScopeBridge (doc: Document): void {

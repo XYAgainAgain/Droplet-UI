@@ -113,4 +113,24 @@ describe('cascade bridge', () => {
     expect(fired).toBe(0);
     host.remove();
   });
+
+  it('never honors a scope authored inside a shadow tree, even on first connect', () => {
+    installScopeBridge(document);
+    const host = mount(`<div id="h"></div>`);
+    const shadow = host.querySelector('#h')!.attachShadow({ mode: 'open' });
+    shadow.innerHTML = `<section data-droplet-feel="shadow-local"><span id="deep"></span></section>`;
+    expect(readScopedAxis(shadow.querySelector('#deep')!, 'feel')).toBeNull();
+    host.remove();
+  });
+
+  it('treats a blank scope attribute as transparent on both paths', async () => {
+    installScopeBridge(document);
+    const host = mount(`<section data-droplet-feel="goo"><div data-droplet-feel="  "><span id="t"></span></div></section>`);
+    const target = host.querySelector('#t')!;
+    // First connect, before the bridge's records arrive
+    expect(readScopedAxis(target, 'feel')).toBe('goo');
+    await raf();
+    expect(readScopedAxis(target, 'feel')).toBe('goo');
+    host.remove();
+  });
 });

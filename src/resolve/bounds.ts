@@ -21,11 +21,18 @@ export function isConfigKey (key: string): key is keyof JellyConfig {
 
 // The body rounds these when it stores them, so the resolved record has to carry
 // the rounded value or every comparison against body.config disagrees forever.
-const INTEGER_KEYS: ReadonlySet<string> = new Set<string>(['normalBlendPasses', 'samples']);
+export const INTEGER_KEYS: ReadonlySet<string> = new Set<string>(['normalBlendPasses', 'samples']);
 
+// A non-finite value has no place in the stable region, so it falls back to the baseline
 export function clampToBounds (key: keyof JellyConfig, value: number): number {
+  if (!Number.isFinite(value)) return DEFAULT_CONFIG[key];
   const rounded = INTEGER_KEYS.has(key) ? Math.round(value) : value;
   const bound = SAFETY_BOUNDS[key];
   if (!bound) return rounded;
   return Math.min(Math.max(rounded, bound[0]), bound[1]);
+}
+
+// Field-by-field, because a record is rebuilt from scratch on every input change
+export function sameConfig (a: Readonly<JellyConfig>, b: Readonly<JellyConfig>): boolean {
+  return CONFIG_KEYS.every((key) => Object.is(a[key], b[key]));
 }

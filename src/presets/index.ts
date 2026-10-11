@@ -1,7 +1,7 @@
 // Presets are records people fork, not code they patch: every one of them,
 // built-in included, comes through registerPreset and is stored as a deep copy.
 
-import { SAFETY_BOUNDS, isConfigKey } from '../resolve/bounds.js';
+import { INTEGER_KEYS, SAFETY_BOUNDS, isConfigKey } from '../resolve/bounds.js';
 
 export type PresetAxis = 'feel' | 'material' | 'palette' | 'substance';
 
@@ -118,14 +118,20 @@ function validateFeel (record: object): void {
       throw new PresetError(`feel preset key "${key}" must be a finite number`);
     }
     const bound = SAFETY_BOUNDS[key];
-    if (bound && (value < bound[0] || value > bound[1])) {
+    // Check what the resolver will store: integer keys round before they clamp
+    const stored = INTEGER_KEYS.has(key) ? Math.round(value) : value;
+    if (bound && (stored < bound[0] || stored > bound[1])) {
       throw new PresetError(`feel preset key "${key}" must be within ${bound[0]}–${bound[1]}`);
     }
   }
 }
 
 export function registerPreset (axis: PresetAxis, name: string, record: object, options: RegisterOptions = {}): void {
-  if (!NAME_PATTERN.test(name)) throw new PresetError(`preset name "${name}" must match /^[a-z][a-z0-9-]*$/`);
+  // Checked before anything touches a registry, so a bad call from plain JS leaves no partial state
+  if (!Object.hasOwn(BUILT_INS, axis)) throw new PresetError(`preset axis "${String(axis)}" is not one of feel, material, palette, substance`);
+  if (typeof name !== 'string' || !NAME_PATTERN.test(name)) {
+    throw new PresetError(`preset name "${String(name)}" must match /^[a-z][a-z0-9-]*$/`);
+  }
   if (record === null || typeof record !== 'object' || Array.isArray(record)) {
     throw new PresetError(`preset "${name}" must be a plain object`);
   }

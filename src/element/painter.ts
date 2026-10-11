@@ -19,7 +19,7 @@ export interface PainterFrame {
 
 export interface FrameInput {
   ctx: CanvasRenderingContext2D;
-  points: SurfacePoint[];
+  points: readonly SurfacePoint[];
   resting: boolean;
   dpr: number;
   width: number;
@@ -38,7 +38,8 @@ export function buildFrame ({ ctx, points, resting, dpr, width, height }: FrameI
   const frame: PainterFrame = {
     ctx,
     path,
-    points: Object.freeze(points),
+    // A copy, so freezing it never locks a buffer the caller still writes to
+    points: Object.freeze(points.slice()),
     resting,
     dpr,
     width,

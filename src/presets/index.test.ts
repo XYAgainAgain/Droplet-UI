@@ -124,4 +124,24 @@ describe('preset registry', () => {
     expect(listPresets('feel', scoped)).toContain('gel');
     expect(listPresets('feel', scoped)).toContain('my-goo');
   });
+
+  it('rejects an unknown axis or a non-string name before touching any registry', () => {
+    expect(() => registerPreset('motion' as never, 'soft', {})).toThrow(PresetError);
+    expect(listPresets('motion' as never)).toEqual([]);
+    expect(() => registerPreset('feel', undefined as never, {})).toThrow(PresetError);
+    expect(() => registerPreset('feel', null as never, {})).toThrow(PresetError);
+    expect(getPreset('feel', 'undefined')).toBeNull();
+  });
+
+  it('lets a document override a built-in for itself alone', () => {
+    const doc = document.implementation.createHTMLDocument('scoped');
+    registerPreset('feel', 'gel', { pressure: 333 }, { document: doc, override: true });
+    expect(getPreset<{ pressure: number }>('feel', 'gel', doc)!.pressure).toBe(333);
+    expect(getPreset<{ pressure?: number }>('feel', 'gel')!.pressure).toBeUndefined();
+  });
+
+  it('bounds-checks integer keys after rounding, as the resolver stores them', () => {
+    expect(() => registerPreset('feel', 'round-down', { samples: 480.4 })).not.toThrow();
+    expect(() => registerPreset('feel', 'round-up', { samples: 480.6 })).toThrow(PresetError);
+  });
 });
