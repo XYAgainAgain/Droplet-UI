@@ -65,7 +65,8 @@
   z-index: var(--jelly-dropdown-z-index, var(--droplet-dropdown-z-index, 9999));
 }
 
-:host([disabled]) {
+:host([disabled]),
+:host(:disabled) {
   --droplet-fill: var(--jelly-color-background-neutral, var(--droplet-color-background-neutral)); --jelly-fill: var(--droplet-fill);
 
   opacity:        0.55;
@@ -93,8 +94,6 @@
   touch-action:   manipulation;
 }
 
-/* The focus ring is painted on the canvas so it follows the jiggle;
-   this element is only a forced-colors fallback, where canvas is ignored. */
 .trigger::after {
   content:        "";
   position:       absolute;
@@ -130,8 +129,7 @@
   transform: rotate(180deg);
 }
 
-/* The panel only fades; the canvas surface does the unfold in frame(), so
-   DOM rows are never scaled or skewed. data-side="top" re-anchors it above. */
+/* The panel only fades; frame() unfolds the canvas surface, so rows never scale */
 .panel {
   position:           absolute;
   inset-inline-start: 0;
@@ -148,6 +146,18 @@
   bottom: calc(100% + 10px);
 }
 
+/* Top layer: placePanel() writes the coordinates; the UA popover styles come off */
+.panel:popover-open {
+  position:   fixed;
+  inset:      auto;
+  margin:     0;
+  padding:    0;
+  border:     0;
+  background: transparent;
+  color:      inherit;
+  overflow:   visible;
+}
+
 :host([open]) .panel {
   pointer-events: auto;
 }
@@ -160,8 +170,6 @@
   pointer-events: none;
 }
 
-/* The list is revealed away from the trigger edge (clip) to track the
-   unfolding surface; each row settles at its natural size, never stretched. */
 .panel-mask {
   position:      relative;
   z-index:       1;

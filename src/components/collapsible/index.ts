@@ -1,9 +1,3 @@
-/*
- * A bouncy disclosure section: a header button springs its panel open and
- * closed, with expand/collapse semantics for assistive technology and
- * exactly one toggle event per change.
- */
-
 import { canonicalizeSize }  from '../../utilities/index.js';
 import { emit }              from '../../utilities/index.js';
 import { uniqueId }          from '../../utilities/index.js';
@@ -48,13 +42,11 @@ export class DropletCollapsible extends HTMLElementBase {
 
   built = false;
 
-  // Populated in connectedCallback()
   head!: HTMLButtonElement;
 
   readonly #internals: ElementInternals;
 
-  // An `open` attribute already on the element when it upgrades is initial
-  // state, not a transition, so it must not fire toggle (<details> parity).
+  // An `open` present at upgrade is initial state and fires no toggle, like <details>
   #upgradedOpen: boolean;
 
   constructor () {
@@ -106,8 +98,7 @@ export class DropletCollapsible extends HTMLElementBase {
       return;
     }
 
-    // Boolean attribute: only presence changes are transitions, so rewriting
-    // open="" to open="whatever" is silent.
+    // Only presence changes are transitions
     if ((previous === null) === (next === null)) {
       return;
     }
@@ -122,7 +113,6 @@ export class DropletCollapsible extends HTMLElementBase {
     }
   }
 
-  // Flip (or force) the open state; the attribute change is what fires toggle
   toggle (force?: boolean): void {
     this.toggleAttribute('open', force ?? !this.open);
   }
@@ -135,8 +125,6 @@ export class DropletCollapsible extends HTMLElementBase {
     this.toggleAttribute('open', !!value);
   }
 
-  // The effective rendering budget: the element attribute beats any ancestor
-  // scope. Only reported; nothing acts on it yet.
   get quality (): Quality {
     return readQuality(this);
   }
@@ -145,7 +133,6 @@ export class DropletCollapsible extends HTMLElementBase {
     writeQuality(this, value);
   }
 
-  // Parsed and reported only until Phases 5 and 6 act on them (attribute-matrix.md)
   get palette (): string | null {
     return readNamedAxis(this, 'palette');
   }
@@ -190,7 +177,6 @@ export class DropletCollapsible extends HTMLElementBase {
     this.head.addEventListener('click', () => this.toggle());
   }
 
-  // One path adds and removes :state(open) alongside the ARIA mirror
   #syncOpen (): void {
     const open = this.hasAttribute('open');
 

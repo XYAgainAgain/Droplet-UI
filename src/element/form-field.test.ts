@@ -37,7 +37,7 @@ const track = (form: HTMLFormElement): { submits: number } => {
   return counts;
 };
 
-// Throws from every getter implicit submission could once have read
+// Throws from every getter implicit submission might read
 class ThrowingProbe extends HTMLElement {
   static formAssociated = true;
 
@@ -143,7 +143,7 @@ test('a file-type field ignores a markup default and throws on a scripted filena
   host.remove();
 });
 
-// A File list assigned through DataTransfer, where the engine lets script set input.files
+// False where the engine won't let script set input.files through DataTransfer
 function assignFiles (input: HTMLInputElement, files: File[]): boolean {
   try {
     const transfer = new DataTransfer();
@@ -188,7 +188,6 @@ test('a file-type field submits its selected files under its name, and nothing w
   el.removeAttribute('name');
   expect([...new FormData(form).keys()]).toEqual([]);
 
-  // A reset empties the selection, as natively
   el.name = 'upload';
   form.reset();
   expect(input.files?.length ?? 0).toBe(0);
@@ -255,7 +254,6 @@ test('explicitly set host ARIA elements forward onto the inner control', async (
   await reactions();
   expect(input.ariaDescribedByElements).toEqual([other]);
 
-  // A later IDREF attribute replaces the explicit elements
   other!.id = 'ff-explicit-other';
   hint!.id  = 'ff-explicit-hint';
   el.setAttribute('aria-describedby', 'ff-explicit-hint');

@@ -1,10 +1,9 @@
-/*
- * A combobox/listbox dropdown. The trigger and the option panel are separate
- * soft bodies; the panel unfolds from the trigger edge and flips above the
- * field when the viewport has no room below.
- */
+// The open panel sits in the top layer, so clipping and scrolling ancestors can't cut it off
 
 import { DropletElement }     from '../../element/index.js';
+import { FORM_ATTRIBUTES }    from '../../element/form-control.js';
+import { FormControl }        from '../../element/form-control.js';
+import type { RestoreState }  from '../../element/form-control.js';
 import type { Shape }       from '../../element/index.js';
 import type { Ring }        from '../../element/index.js';
 import type { Border }      from '../../element/index.js';
@@ -30,16 +29,16 @@ import { readToken } from '../../theme/token-read.js';
 
 import selectStyles         from './select.css?inline';
 
-// Inner padding of the option list, in px
+// px, inside the option list
 const PANEL_PAD = 8;
 
-// Gap between the trigger and the open panel, in px
+// px, trigger to panel
 const PANEL_MARGIN = 10;
 
-// Corner radius of the panel surface, in px
+// px
 const PANEL_RADIUS = 20;
 
-// Minimum clearance the panel keeps from the viewport edge, in px
+// px
 const VIEWPORT_MARGIN = 8;
 
 /**
@@ -53,12 +52,23 @@ const VIEWPORT_MARGIN = 8;
  * @attr {string} label - Accessible name for the trigger.
  * @attr {string} placeholder - Text shown when nothing is selected.
  * @attr {string} name - Form field name submitted with the value.
+ * @attr {boolean} required - Invalid (valueMissing) until an option is chosen.
  * @attr {boolean} disabled - Disable the control.
  * @attr {boolean} open - Reflects whether the option panel is open (set by the control).
  * @attr {"small"|"medium"|"large"} size - Control size.
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Accent hue.
+ * @attr {string} color - Any CSS color for the fill or accent (beats intent and variant); text or a mark on it turns white or near-black, whichever reads better.
+ * @attr {"accent"|"neutral"|"info"|"success"|"warning"|"danger"|"highlight"} intent - Semantic color role (never an ARIA role); beats variant.
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
  * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
+ * @attr {string} material - Registered material preset: "matte" (the default) or "gloss" (Experimental); inherits from a `data-droplet-material` scope.
+ * @attr {number} gloss - Sheen sharpness 0–1 for a lit material (Experimental); defaults to the material's sharpness.
+ * @attr {number} softness - Feel knob 0–1: how far the surface gives under a press; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} bounce - Feel knob 0–1: how long it keeps wobbling before it settles; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} viscosity - Feel knob 0–1: how thick and slow it moves; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} spread - Feel knob 0–1: how far a dent travels around the edge; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} depth - Feel knob 0–1: how far it presses in and tilts; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} intensity - Feel knob 0–1: master gain on every push the surface takes; unset keeps the feel preset's setting, and 0.5 is neutral.
  *
  * @fires change - When the selection changes.
  *
@@ -67,7 +77,7 @@ const VIEWPORT_MARGIN = 8;
  * @csspart panel - The dropdown panel.
  * @csspart panel-mask - The clipped list surface.
  */
-export class DropletSelect extends DropletElement {
+export class DropletSelect extends FormControl(DropletElement) {
 
   static define (options?: DefineOptions): DefineResult {
     return defineSelect(options);
@@ -75,10 +85,9 @@ export class DropletSelect extends DropletElement {
 
   static override usesResolver = true;
 
-  // Participate in native form submission through ElementInternals
   static formAssociated = true;
 
-  internals: ElementInternals;
+  override internals: ElementInternals;
 
   isOpen        = false;
   focused       = false;
@@ -88,12 +97,10 @@ export class DropletSelect extends DropletElement {
   instanceId: string;
   panelSide: 'top' | 'bottom' = 'bottom';
 
-  // Underdamped spring state driving the panel unfold (position/velocity/target)
   openT              = 0;
   openTargetVelocity = 0;
   openTarget         = 0;
 
-  // Populated in onBuilt()
   trigger!: HTMLButtonElement;
   valueEl!: HTMLElement;
   panel!: HTMLElement;
@@ -112,8 +119,11 @@ export class DropletSelect extends DropletElement {
   typeaheadBuffer = '';
   typeaheadTimer: ReturnType<typeof setTimeout> | undefined;
 
+  visibilityObserver: IntersectionObserver | null = null;
+  reposition = (): void => this.placePanel();
+
   static get observedAttributes (): string[] {
-    return ['disabled', 'label', 'placeholder', 'size', 'value', ...DropletElement.AXIS_ATTRIBUTES];
+    return ['disabled', 'label', 'placeholder', 'size', 'value', ...DropletElement.AXIS_ATTRIBUTES, ...FORM_ATTRIBUTES];
   }
 
   constructor () {
@@ -138,7 +148,7 @@ export class DropletSelect extends DropletElement {
           <path d="M6 9l6 6 6-6" />
         </svg>
       </button>
-      <div class="panel" part="panel" data-side="bottom">
+      <div class="panel" part="panel" data-side="bottom" popover="manual">
         <canvas class="panel-canvas" aria-hidden="true"></canvas>
         <div class="panel-mask" part="panel-mask">
           <ul class="list" id="${this.instanceId}-list" role="listbox" tabindex="-1"></ul>
@@ -147,7 +157,7 @@ export class DropletSelect extends DropletElement {
       <slot style="display:none"></slot>`;
   }
 
-  // The rounded rectangle the trigger body takes, inset so the wobble stays inside the host
+  // Inset so the wobble stays inside the host
   override shape (width: number, height: number): Shape {
     const w = width - 8;
     const h = height - 8;
@@ -167,7 +177,7 @@ export class DropletSelect extends DropletElement {
     this.panelCtx    = this.panelCanvas.getContext('2d')!;
     this.list        = this.shadowRoot!.querySelector('.list')!;
 
-    this.trigger.disabled = this.hasAttribute('disabled');
+    this.trigger.disabled = this.isDisabled;
     this.syncLabel();
     this.useHostFocusTarget(this.trigger);
 
@@ -183,7 +193,6 @@ export class DropletSelect extends DropletElement {
     this.list.addEventListener('pointermove', this);
     this.list.addEventListener('click',       this);
 
-    // Rebuild rows when the light-DOM options change
     this.mutationObserver = new MutationObserver(() => this.syncOptions());
     this.mutationObserver.observe(this, { childList: true, subtree: true, characterData: true });
 
@@ -193,9 +202,12 @@ export class DropletSelect extends DropletElement {
   override connectedCallback (): void {
     const rebuilt = this.built;
 
+    if (this.authoredValue === undefined) {
+      this.authoredValue = this.getAttribute('value');
+    }
+
     super.connectedCallback();
 
-    // Re-arm the option observer when the element is re-inserted after removal
     if (rebuilt && this.mutationObserver) {
       this.mutationObserver.observe(this, { childList: true, subtree: true, characterData: true });
       this.syncOptions();
@@ -207,8 +219,9 @@ export class DropletSelect extends DropletElement {
 
     this.mutationObserver?.disconnect();
     document.removeEventListener('pointerdown', this, true);
+    this.unwatchViewport();
 
-    // Removed while open: drop the open bookkeeping so a re-insert starts closed
+    // A re-insert starts closed
     if (this.isOpen) {
       this.isOpen             = false;
       this.openTarget         = 0;
@@ -221,9 +234,8 @@ export class DropletSelect extends DropletElement {
     }
   }
 
-  // Route events from the trigger, the option list, and the document
   handleEvent (event: Event): void {
-    // Capture-phase document listener: presses outside the select close the panel
+    // The capture-phase document listener: outside presses close the panel
     if (event.currentTarget === document) {
       if (this.isOpen && !event.composedPath().includes(this)) {
         this.close();
@@ -251,26 +263,28 @@ export class DropletSelect extends DropletElement {
   }
 
   pressTrigger (event: PointerEvent): void {
-    if (this.hasAttribute('disabled')) {
+    if (this.isDisabled) {
       return;
     }
 
     this.pressAt(event.clientX, event.clientY, 0.9);
   }
 
-  // Track trigger focus so the fill, border, and painted ring can respond
   setFocused (focused: boolean): void {
     this.focused = focused;
     this.requestFrame();
   }
 
-  // Rebuild the listbox rows from the light-DOM options and re-derive the selection
   syncOptions (): void {
     if (!this.list) {
       return;
     }
 
     this.options = [...this.querySelectorAll<DropletOption>(anyTag('option'))];
+
+    for (const option of this.options) {
+      if (!this.authoredSelected.has(option)) this.authoredSelected.set(option, option.hasAttribute('selected'));
+    }
 
     const valueAttr    = this.getAttribute('value');
     const hasValueAttr = valueAttr != null && valueAttr !== '';
@@ -285,7 +299,6 @@ export class DropletSelect extends DropletElement {
 
     this.selectedIndex = selectedIndex;
 
-    // Option labels are author or user content, so escape them before innerHTML
     this.list.innerHTML = this.options
       .map((opt, i) => {
         const selected = i === this.selectedIndex;
@@ -309,14 +322,17 @@ export class DropletSelect extends DropletElement {
   renderValue (): void {
     const selected = this.options[this.selectedIndex];
 
+
     if (selected) {
       this.valueEl.textContent = selected.label;
       this.valueEl.classList.remove('placeholder');
       this.internals.setFormValue(selected.value);
+      this.updateValidity();
     } else {
       this.valueEl.textContent = this.getAttribute('placeholder') || 'Select…';
       this.valueEl.classList.add('placeholder');
       this.internals.setFormValue(null);
+      this.updateValidity();
     }
   }
 
@@ -354,25 +370,88 @@ export class DropletSelect extends DropletElement {
     }
   }
 
-  // The current row height in px, read from the size-scaled token
+  // The panel paints on a separate canvas, so lights need its rect too
+  override lightCanvases (): HTMLCanvasElement[] {
+    return this.panelCanvas ? [...super.lightCanvases(), this.panelCanvas] : super.lightCanvases();
+  }
+
+  // px
   get rowHeight (): number {
     return parseFloat(readToken(getComputedStyle(this), 'select-row-height')) || 44;
   }
 
-  /*
-   * Anchor below when the panel fits, above when it would clip and there's
-   * room overhead (the same flip rule as placeAnchored()). data-side carries
-   * the choice to CSS, and frame() mirrors the reveal to unfold away from the trigger.
-   */
+  // The flip rule of placeAnchored(); data-side tells the CSS and frame() which way to unfold
   placePanel (): void {
     const rect   = this.getBoundingClientRect();
-    const height = this.panel.offsetHeight || parseFloat(this.panel.style.height) || 0;
+    const height = parseFloat(this.panel.style.height) || this.panel.offsetHeight || 0;
 
     const clipsBelow = rect.bottom + PANEL_MARGIN + height > window.innerHeight - VIEWPORT_MARGIN;
     const fitsAbove  = rect.top - PANEL_MARGIN - height > 0;
 
     this.panelSide = clipsBelow && fitsAbove ? 'top' : 'bottom';
     this.panel.setAttribute('data-side', this.panelSide);
+
+    // The panel moved, so any cached rect is stale
+    this.lightRects.delete(this.panelCanvas);
+
+    // The top layer is viewport-fixed, so the panel needs real coordinates
+    if (this.panelInTopLayer()) {
+      const top = this.panelSide === 'top' ? rect.top - PANEL_MARGIN - height : rect.bottom + PANEL_MARGIN;
+
+      this.panel.style.left = `${rect.left}px`;
+      this.panel.style.top  = `${top}px`;
+    }
+  }
+
+  // Guarded: without the Popover API, :popover-open is an invalid selector
+  panelInTopLayer (): boolean {
+    return typeof this.panel?.showPopover === 'function' && this.panel.matches(':popover-open');
+  }
+
+  // If showing fails, dropping popover falls back to absolute positioning under the host
+  showPanelLayer (): void {
+    if (typeof this.panel.showPopover !== 'function' || this.panelInTopLayer()) {
+      return;
+    }
+
+    try {
+      this.panel.showPopover();
+    } catch {
+      this.panel.removeAttribute('popover');
+      this.panel.style.left = '';
+      this.panel.style.top  = '';
+    }
+  }
+
+  hidePanelLayer (): void {
+    if (this.panelInTopLayer()) {
+      this.panel.hidePopover();
+    }
+  }
+
+  watchViewport (): void {
+    window.addEventListener('scroll', this.reposition, true);
+    window.addEventListener('resize', this.reposition);
+
+    // A clipped-away trigger has nothing to fold into, so the panel goes at once
+    this.visibilityObserver = new IntersectionObserver((entries) => {
+      if (this.isOpen && entries.some((entry) => !entry.isIntersecting)) {
+        this.close();
+
+        this.openT              = 0;
+        this.openTargetVelocity = 0;
+        this.hidePanelLayer();
+      }
+    });
+    this.visibilityObserver.observe(this);
+  }
+
+  unwatchViewport (): void {
+    window.removeEventListener('scroll', this.reposition, true);
+    window.removeEventListener('resize', this.reposition);
+
+    this.visibilityObserver?.disconnect();
+    this.visibilityObserver = null;
   }
 
   toggle (): void {
@@ -384,12 +463,14 @@ export class DropletSelect extends DropletElement {
   }
 
   openPanel (): void {
-    if (this.isOpen || !this.options.length) {
+    if (this.isOpen || !this.options.length || !this.isConnected) {
       return;
     }
 
     this.sizePanel();
+    this.showPanelLayer();
     this.placePanel();
+    this.watchViewport();
 
     this.isOpen = true;
     this.setAttribute('open', '');
@@ -401,8 +482,6 @@ export class DropletSelect extends DropletElement {
     this.openTarget = 1;
 
     if (!this.reducedMotion && this.panelBody) {
-      // Bulge the surface as it unfolds and ripple the edge nearest the
-      // trigger, so it reads as swelling out of the field rather than snapping
       const edge = this.panelSide === 'top'
         ? this.panelBody.height / 2
         : -this.panelBody.height / 2;
@@ -416,7 +495,6 @@ export class DropletSelect extends DropletElement {
     this.requestFrame();
   }
 
-  // Close the panel and hand focus back to the trigger
   close (): void {
     if (!this.isOpen) {
       return;
@@ -430,8 +508,10 @@ export class DropletSelect extends DropletElement {
     this.trigger.removeAttribute('aria-activedescendant');
 
     document.removeEventListener('pointerdown', this, true);
+    this.unwatchViewport();
 
-    this.trigger.focus();
+    // A close from scrolling away must not drag the trigger back into view
+    this.trigger.focus({ preventScroll: true });
     this.requestFrame();
   }
 
@@ -448,7 +528,6 @@ export class DropletSelect extends DropletElement {
     }
   }
 
-  // Step the active row by delta, wrapping and skipping disabled options
   moveActive (delta: number): void {
     const n = this.options.length;
 
@@ -491,7 +570,6 @@ export class DropletSelect extends DropletElement {
     emit(this, 'change');
   }
 
-  // Mirror the current value into the value attribute without re-entering sync
   reflectValue (value: string): void {
     this.reflectingValue = true;
 
@@ -515,7 +593,7 @@ export class DropletSelect extends DropletElement {
     this.requestFrame();
   }
 
-  // Select the option whose value matches; unknown values are ignored
+  // Unknown values are ignored
   setValue (value: string | null): void {
     const next = value == null ? '' : String(value);
 
@@ -540,9 +618,8 @@ export class DropletSelect extends DropletElement {
     this.requestFrame();
   }
 
-  // Keyboard on the trigger: closed it opens; open it navigates and selects
   onTriggerKey (event: KeyboardEvent): void {
-    if (this.hasAttribute('disabled')) {
+    if (this.isDisabled) {
       return;
     }
 
@@ -565,15 +642,13 @@ export class DropletSelect extends DropletElement {
       case 'Escape':    event.preventDefault(); this.close();                                break;
       case 'Tab':       this.close();                                                        break;
       default:
-        // Printable keys feed type-ahead (APG select-only combobox)
+        // Type-ahead, per the APG select-only combobox
         if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
           this.typeahead(event.key);
         }
     }
   }
 
-  // Accumulate typed characters and move the active row to the first enabled
-  // option whose label starts with the buffer (case-insensitive)
   typeahead (char: string): void {
     clearTimeout(this.typeaheadTimer);
     this.typeaheadTimer = setTimeout(() => { this.typeaheadBuffer = ''; }, 500);
@@ -586,8 +661,7 @@ export class DropletSelect extends DropletElement {
       return;
     }
 
-    // A fresh single character advances past the current row so repeated
-    // presses cycle same-initial options; a growing buffer refines in place
+    // A fresh character skips the current row, so repeats cycle same-initial options
     const base  = this.typeaheadBuffer.length === 1 ? this.activeIndex + 1 : this.activeIndex;
     const start = ((base % n) + n) % n;
 
@@ -628,8 +702,6 @@ export class DropletSelect extends DropletElement {
     this.selectIndex(Number(row.dataset.index));
   }
 
-  // Resolve the trigger surface color: platinum when disabled, the elevated
-  // surface while focused or open, the resting field fill otherwise
   override fill (): string {
     if (this.hasAttribute('disabled')) {
       return this.resolveColor(`var(--jelly-color-background-neutral, var(--droplet-color-background-neutral, ${PALETTE['background-neutral']}))`);
@@ -644,8 +716,7 @@ export class DropletSelect extends DropletElement {
     return custom || this.resolveColor(`var(--jelly-color-background-muted, var(--droplet-color-background-muted, ${PALETTE['background-muted']}))`);
   }
 
-  // The ring shows on any focus, pointer included, or while open, to match
-  // droplet-input rather than lighting only on :focus-visible
+  // Any focus, pointer included, lights the ring, matching droplet-input
   override focusRing (): Ring | null {
     if (!this.focused && !this.isOpen) {
       return null;
@@ -654,7 +725,6 @@ export class DropletSelect extends DropletElement {
     return { color: this.ringColor(), width: FOCUS_RING.width, gap: FOCUS_RING.gap };
   }
 
-  // Hairline border on the trigger surface: accent while focused or open
   override surfaceBorder (): Border {
     const color = this.focused || this.isOpen
       ? this.resolveColor(`var(--jelly-accent, var(--droplet-accent, var(--jelly-color-background-accent, var(--droplet-color-background-accent, ${PALETTE['background-accent']}))))`)
@@ -681,7 +751,6 @@ export class DropletSelect extends DropletElement {
 
     let keep = !trigger.isResting();
 
-    // Bouncy unfold: an underdamped spring drives the panel's reveal
     if (this.reducedMotion) {
       this.openT              = this.openTarget;
       this.openTargetVelocity = 0;
@@ -698,11 +767,14 @@ export class DropletSelect extends DropletElement {
     const flipped = this.panelSide === 'top';
 
     if (this.panel) {
+      // Held in the top layer through the fold-away
+      if (!visible) {
+        this.hidePanelLayer();
+      }
+
       this.panel.style.visibility = visible ? 'visible' : 'hidden';
       this.panel.style.opacity    = String(clamp(t * 2, 0, 1));
 
-      // Reveal rows away from the trigger edge to match the surface (top-down
-      // below, bottom-up above), each settling at natural size with a light stagger
       const hidden = (1 - tc) * 100;
 
       this.panelMask.style.clipPath = flipped
@@ -730,8 +802,6 @@ export class DropletSelect extends DropletElement {
       this.panelBody.update(dt);
       this.panelCtx.clearRect(0, 0, this.panelCssW, this.panelCssH);
 
-      // The surface unfolds with scaleY anchored at the trigger edge plus a slight
-      // width squash; colors resolve at paint time, so it follows dark-mode flips live
       const H    = this.panelBody.height;
       const sy   = Math.max(0.02, t);
       const lift = (1 - sy) * H / 2;
@@ -757,7 +827,7 @@ export class DropletSelect extends DropletElement {
   }
 
   attributeChangedCallback (name: string): void {
-    if (this.axisAttributeChanged(name)) {
+    if (this.axisAttributeChanged(name) || this.formAttributeChanged(name)) {
       return;
     }
 
@@ -781,18 +851,7 @@ export class DropletSelect extends DropletElement {
         break;
 
       case 'disabled':
-        if (!this.trigger) {
-          break;
-        }
-
-        this.trigger.disabled = this.hasAttribute('disabled');
-
-        if (this.hasAttribute('disabled')) {
-          this.focused = false;
-        }
-
-        this.syncHostFocusTarget();
-        this.requestFrame();
+        this.syncDisabled();
         break;
 
       case 'size':
@@ -826,19 +885,74 @@ export class DropletSelect extends DropletElement {
     }
   }
 
-  // The selected option's value ('' when nothing is selected)
   get value (): string {
     const opt = this.options[this.selectedIndex];
 
     return opt ? opt.value : '';
   }
 
-  // Select the option whose value matches (empty clears the selection)
   set value (v: string) {
     this.setValue(v);
   }
 
-  // Route programmatic host focus onto the trigger button
+  // Reset defaults, captured before user choices rewrite value and selected
+  authoredValue: string | null | undefined = undefined;
+  authoredSelected = new WeakMap<Element, boolean>();
+
+  override formAnchor (): HTMLElement | null {
+    return this.trigger ?? null;
+  }
+
+  override formValueMissing (): boolean {
+    return this.selectedIndex < 0;
+  }
+
+  override formReset (): void {
+    const authored = this.authoredValue;
+
+    let index = -1;
+
+    this.options.forEach((option, i) => {
+      if (authored ? option.value === authored : this.authoredSelected.get(option)) index = i;
+    });
+
+    if (index < 0) {
+      this.clearSelection();
+      return;
+    }
+
+    this.options.forEach((option, i) => option.toggleAttribute('selected', i === index));
+    this.selectedIndex = index;
+    this.reflectValue(this.options[index]!.value);
+
+    ([...this.list.children] as HTMLElement[]).forEach((row, i) => row.setAttribute('aria-selected', String(i === index)));
+
+    this.renderValue();
+    this.requestFrame();
+  }
+
+  override formRestore (state: RestoreState): void {
+    if (typeof state === 'string') {
+      this.value = state;
+    }
+  }
+
+  override syncDisabled (): void {
+    if (!this.trigger) {
+      return;
+    }
+
+    this.trigger.disabled = this.isDisabled;
+
+    if (this.isDisabled) {
+      this.focused = false;
+      this.close();
+    }
+
+    this.syncHostFocusTarget();
+    this.requestFrame();
+  }
+
   override focus (options?: FocusOptions): void {
     this.trigger?.focus(options);
   }

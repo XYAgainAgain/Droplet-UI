@@ -1,9 +1,3 @@
-/*
- * Each child becomes a flexible pane; direction="both" makes a 2×2 split with
- * two resize axes. Dividers follow the window-splitter pattern (focusable,
- * arrow keys, live aria-valuenow) and respect reading direction.
- */
-
 import { emit }              from '../../utilities/index.js';
 import { horizontalStep }    from '../../utilities/index.js';
 import { isRTL }             from '../../utilities/index.js';
@@ -15,7 +9,6 @@ import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import resizableStyles       from './resizable.css?inline';
 
-// The pane fractions carried in the change event detail
 type ResizableSizes = number[] | { cols: number[]; rows: number[] };
 
 /**
@@ -43,7 +36,6 @@ export class DropletResizable extends HTMLElementBase {
   rowGrow: [number, number] = [1, 1];
   endDrag: (() => void) | null = null;
 
-  // Populated in render()
   container!: HTMLElement;
 
   static get observedAttributes (): string[] {
@@ -65,7 +57,6 @@ export class DropletResizable extends HTMLElementBase {
   }
 
   disconnectedCallback (): void {
-    // A drag in progress must not leave window listeners behind
     this.endDrag?.();
   }
 
@@ -83,8 +74,7 @@ export class DropletResizable extends HTMLElementBase {
     return this.getAttribute('direction') === 'vertical';
   }
 
-  // Pane fractions (each axis sums to 1): a flat array for single-axis layouts,
-  // { cols, rows } for 2×2. The change event carries this as detail.sizes.
+  // Fractions summing to 1 per axis; { cols, rows } for direction="both"
   get sizes (): ResizableSizes {
     const normalize = (weights: number[]): number[] => {
       const sum = weights.reduce((a, b) => a + b, 0) || 1;
@@ -99,7 +89,6 @@ export class DropletResizable extends HTMLElementBase {
     return normalize(this.grow);
   }
 
-  // Rebuild panes and dividers for the current direction
   render (): void {
     const panels = [...this.children] as HTMLElement[];
 
@@ -152,7 +141,6 @@ export class DropletResizable extends HTMLElementBase {
     this.syncSeparatorValues();
   }
 
-  // Keep aria-orientation (and the 2×2 tracks) in sync with the direction
   syncDirection (): void {
     if (this.isBothAxes) {
       this.shadowRoot?.querySelector('.divider-x')?.setAttribute('aria-orientation', 'vertical');
@@ -168,8 +156,7 @@ export class DropletResizable extends HTMLElementBase {
     });
   }
 
-  // Window-splitter values: each separator reports its first pane's share of
-  // the pair as a percentage (0–100)
+  // Window-splitter pattern: aria-valuenow is the first pane's percent of its pair
   syncSeparatorValues (): void {
     const percent = (a: number, b: number): string => String(Math.round((a / (a + b)) * 100));
 
@@ -192,7 +179,6 @@ export class DropletResizable extends HTMLElementBase {
     }
   }
 
-  // Start a divider drag (single-axis layouts)
   onDividerDown (event: PointerEvent, div: HTMLElement): void {
     if (this.isBothAxes) {
       this.onDividerDownBoth(event, div);
@@ -208,8 +194,7 @@ export class DropletResizable extends HTMLElementBase {
     const total = this.vertical ? rect.height : rect.width;
     const start = this.vertical ? event.clientY : event.clientX;
 
-    // In RTL the first pane sits at the physical right, so a rightward drag
-    // shrinks it: mirror the pixel delta
+    // In RTL the first pane sits at the physical right
     const mirror = !this.vertical && isRTL(this) ? -1 : 1;
 
     const g0  = this.grow[i];
@@ -229,7 +214,6 @@ export class DropletResizable extends HTMLElementBase {
       const n0 = Math.max(0.08, g0 + dG);
       const n1 = Math.max(0.08, g1 - dG);
 
-      // Keep the pair's total constant
       const s = n0 + n1;
 
       this.grow[i]     = (n0 / s) * sum;
@@ -258,7 +242,6 @@ export class DropletResizable extends HTMLElementBase {
     window.addEventListener('pointercancel', up);
   }
 
-  // Start a divider drag (2×2 layout)
   onDividerDownBoth (event: PointerEvent, div: HTMLElement): void {
     const axis = div.dataset.axis;
 
@@ -314,8 +297,7 @@ export class DropletResizable extends HTMLElementBase {
     window.addEventListener('pointercancel', up);
   }
 
-  // Keyboard resize: arrows move the divider (direction-aware), one step at a
-  // time; Home/End drive it to the minimum/maximum (nudge clamps the ends)
+  // Home/End pass ±1; nudge floors each side at 0.08
   onDividerKey (event: KeyboardEvent, i: number): void {
     const step = 0.12;
     const axis = (event.currentTarget as HTMLElement | null)?.dataset.axis;
@@ -365,7 +347,6 @@ export class DropletResizable extends HTMLElementBase {
     }
   }
 
-  // Grow one pane of a pair by d (single-axis layouts)
   nudge (i: number, d: number): void {
     const before = this.grow[i];
     const after = this.grow[i + 1];
@@ -381,7 +362,6 @@ export class DropletResizable extends HTMLElementBase {
     emit(this, 'change', { sizes: this.sizes });
   }
 
-  // Grow one track of an axis by d (2×2 layout)
   nudgeBoth (axis: string | undefined, d: number): void {
     const grow = axis === 'x' ? this.colGrow : this.rowGrow;
     const sum  = grow[0] + grow[1];
@@ -398,7 +378,6 @@ export class DropletResizable extends HTMLElementBase {
     emit(this, 'change', { sizes: this.sizes });
   }
 
-  // Push the flex weights onto the panes
   apply (): void {
     const panels = [...this.children] as HTMLElement[];
 
@@ -409,7 +388,6 @@ export class DropletResizable extends HTMLElementBase {
     this.syncSeparatorValues();
   }
 
-  // Push the track weights onto the 2×2 grid
   applyBoth (): void {
     this.container?.style.setProperty('--droplet-resizable-col-a', `${this.colGrow[0]}fr`);
     this.container?.style.setProperty('--droplet-resizable-col-b', `${this.colGrow[1]}fr`);
@@ -419,7 +397,6 @@ export class DropletResizable extends HTMLElementBase {
     this.syncSeparatorValues();
   }
 
-  // Route programmatic host focus onto the first divider
   override focus (options?: FocusOptions): void {
     this.shadowRoot?.querySelector<HTMLElement>('.divider')?.focus(options);
   }

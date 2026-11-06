@@ -58,7 +58,6 @@
   color:      var(--jelly-color-foreground-on-neutral, var(--droplet-color-foreground-on-neutral));
 }
 
-/* --droplet-motion mirrors data-droplet-motion (or data-jelly-motion) on <html>; see src/theme/runtime.ts */
 @media (prefers-reduced-motion: reduce) {
   @container not style(--droplet-motion: no-preference) {
     .close { transition: none; }
@@ -74,7 +73,6 @@
   outline-offset: 1px;
 }
 
-/* Side placement: logical values follow the reading direction */
 :host([side="end"]) .sheet,
 :host([side="right"]) .sheet,
 :host([side="left"]) .sheet,

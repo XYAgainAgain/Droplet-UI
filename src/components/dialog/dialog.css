@@ -23,8 +23,7 @@
   opacity: 1;
 }
 
-/* Flex layer centers the dialog, so its own transform is free for the
-   spring-pop (translate(-50%) centering would fight the animation) */
+/* Flex centering leaves the dialog's transform free for the entrance animation */
 .wrap {
   position:        absolute;
   inset:           0;
@@ -74,7 +73,6 @@
   color:      var(--jelly-color-foreground-on-neutral, var(--droplet-color-foreground-on-neutral));
 }
 
-/* --droplet-motion mirrors data-droplet-motion (or data-jelly-motion) on <html>; see src/theme/runtime.ts */
 @media (prefers-reduced-motion: reduce) {
   @container not style(--droplet-motion: no-preference) {
     .close { transition: none; }

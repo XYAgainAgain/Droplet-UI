@@ -1,22 +1,25 @@
-// One pure function computes every physics record, so attribute order is
-// unobservable and quality is a cap rather than another opinion.
+// One pure function builds every physics record, so attribute order is unobservable
 
 import { DEFAULT_CONFIG } from '../core/index.js';
 import type { DropletConfig } from '../core/index.js';
 import { CONFIG_KEYS, clampToBounds, isConfigKey } from './bounds.js';
 import { getPreset } from '../presets/index.js';
-// Built-ins register through the public loading path, so every consumer of the
-// resolver sees gel without importing an internal module.
+// Registers the built-in feels, so every resolver consumer sees gel
 import '../presets/feel.js';
+import { applyKnobs } from './knobs.js';
+import type { Knobs } from './knobs.js';
 
 export { SAFETY_BOUNDS, clampToBounds, isConfigKey, sameConfig } from './bounds.js';
+export { KNOBS, applyKnobs, readKnob } from './knobs.js';
+export type { Knob, Knobs } from './knobs.js';
 
 export type Quality = 'low' | 'medium' | 'high';
-export type Source = 'baseline' | 'profile' | 'feel' | 'raw' | 'quality';
+export type Source = 'baseline' | 'profile' | 'feel' | 'knob' | 'raw' | 'quality';
 
 export interface ResolveInputs {
   profile?: Partial<DropletConfig>;
   feel?: string | null;
+  knobs?: Knobs | null;
   raw?: Partial<DropletConfig> | null;
   quality?: Quality;
   document?: Document;
@@ -48,8 +51,7 @@ export function parseQuality (value: string | null | undefined): Quality {
   return QUALITY_ALIASES[value.trim().toLowerCase()] ?? 'medium';
 }
 
-// Safety bounds bind every layer above the baseline, and a clamped value keeps
-// the provenance of the layer that asked for it.
+// Bounds bind every layer above the baseline; a clamped value keeps its layer's provenance
 function applyLayer (
   config: DropletConfig,
   provenance: Record<keyof DropletConfig, Source>,
@@ -72,14 +74,20 @@ export function resolveConfig (inputs: ResolveInputs = {}): Resolved {
 
   applyLayer(config, provenance, inputs.profile, 'profile');
 
-  // Names are looked up exactly as written, so mixed case never matches (attribute-matrix.md).
+  // Exact lookup: mixed case never matches
   const requested = typeof inputs.feel === 'string' ? inputs.feel.trim() : '';
   const found = requested === '' ? null : getPreset<Partial<DropletConfig>>('feel', requested, inputs.document);
-  // An unknown feel silently becomes gel, overlay included, since a document may
-  // override gel itself; warning is the element's job.
+  // An unknown feel becomes gel, overlay included (a document may override gel); the element warns
   const feel = found === null ? DEFAULT_FEEL : requested;
-  const preset = found ?? getPreset<Partial<DropletConfig>>('feel', DEFAULT_FEEL, inputs.document);
+  const preset = found ?? getPreset<Partial<DropletConfig> & { knobs?: Knobs }>('feel', DEFAULT_FEEL, inputs.document);
   applyLayer(config, provenance, preset, 'feel');
+
+  // A preset's knob bundle first, the element's knobs over it, both relative to the record so far
+  const knobs = { ...(preset as { knobs?: Knobs } | null)?.knobs, ...inputs.knobs };
+  for (const key of applyKnobs(config, knobs)) {
+    config[key] = clampToBounds(key, config[key]);
+    provenance[key] = 'knob';
+  }
 
   applyLayer(config, provenance, inputs.raw, 'raw');
 

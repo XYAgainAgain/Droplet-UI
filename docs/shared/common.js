@@ -1,5 +1,3 @@
-// Shared behavior for the docs pages: inline-code formatting and the theme and motion toggles
-
 import { dropletIcon }    from '../../package.js';
 import { dropletToast }   from '../../package.js';
 import { setThemeMode } from '../../package.js';
@@ -8,20 +6,17 @@ import { escapeHTML }   from '../../package.js';
 
 export { escapeHTML };
 
-// Escape first, then turn backtick spans into <code>, so the data file can't inject HTML
+// Escape first, so the data file can't inject HTML
 export function formatInlineCode (text) {
   return escapeHTML(text).replace(/`([^`]+)`/g, '<code>$1</code>');
 }
 
-// "auto" carries no forced mode, so the page follows the OS/browser preference live;
-// light and dark are explicit overrides
 const ORDER   = ['auto', 'light', 'dark'];
 const ICON    = { auto: 'theme-auto', light: 'weather-sunny', dark: 'weather-moon' };
 const NAME    = { auto: 'system', light: 'light', dark: 'dark' };
 const TOOLTIP = { auto: 'System Settings', light: 'Light Mode', dark: 'Dark Mode' };
 
-// The pre-paint boot script in each page's <head> reads the same localStorage key,
-// so a saved choice never flashes
+// Each page's pre-paint <head> script reads the same storage keys
 export function wireThemeToggle (button) {
   if (!button) {
     return;
@@ -40,7 +35,6 @@ export function wireThemeToggle (button) {
 
     setThemeMode(next);
 
-    // The Jelly-era key is dropped once a choice is saved under the new one
     localStorage.removeItem('jelly-docs-theme');
 
     if (next === 'auto') {
@@ -87,10 +81,7 @@ function getMotionMode () {
   return mode === 'no-preference' || mode === 'reduce' ? mode : 'system';
 }
 
-/*
- * Previews reduced motion without changing the OS setting. The library's motion helper and
- * CSS fallbacks both read the root attribute; each page's pre-paint script applies the saved value.
- */
+// Previews reduced motion via the root attribute, which the motion helper and CSS both read
 export function wireMotionToggle (button) {
   if (!button) {
     return;
@@ -106,8 +97,7 @@ export function wireMotionToggle (button) {
     button.closest('droplet-tooltip')?.setAttribute('text', MOTION_TOOLTIP[mode]);
   };
 
-  // An OS-preference notice, not feedback for the docs control: shown once per browser
-  // session so navigation and reloads don't keep raising a persistent toast
+  // Once per session, so reloads don't keep raising a persistent toast
   const announceSystemReducedMotion = () => {
     if (!systemMotionQuery.matches || sessionStorage.getItem(MOTION_NOTICE_STORAGE)) {
       return;

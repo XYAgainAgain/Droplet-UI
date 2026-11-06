@@ -52,7 +52,6 @@
   width: 380px;
 }
 
-/* :disabled also catches an ancestor <fieldset disabled> */
 :host([disabled]),
 :host(:disabled) {
   --droplet-fill: var(--jelly-color-background-neutral, var(--droplet-color-background-neutral)); --jelly-fill: var(--droplet-fill);
@@ -84,8 +83,6 @@ textarea::placeholder {
   color: var(--jelly-color-foreground-muted, var(--droplet-color-foreground-muted));
 }
 
-/* The focus ring is painted on the canvas so it follows the jiggle;
-   this element is only a forced-colors fallback, where canvas is ignored. */
 .ring {
   position:       absolute;
   inset:          4px;

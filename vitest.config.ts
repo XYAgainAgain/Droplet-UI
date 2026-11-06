@@ -1,8 +1,7 @@
 import { defineConfig } from 'vitest/config';
 import { playwright } from '@vitest/browser-playwright';
 
-// Package scripts select one configured browser instance at a time so failures
-// remain attributable to Chromium, Firefox, or WebKit.
+// Scripts run one browser at a time, so each failure names its browser
 export default defineConfig({
   test: {
     include: ['src/**/*.test.ts'],

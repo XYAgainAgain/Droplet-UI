@@ -49,7 +49,8 @@
   --droplet-segmented-font-size: 16px; --jelly-segmented-font-size: var(--droplet-segmented-font-size);
 }
 
-:host([disabled]) {
+:host([disabled]),
+:host(:disabled) {
   opacity:        0.55;
   pointer-events: none;
 }
@@ -91,8 +92,7 @@
   color: var(--jelly-label-on, var(--droplet-label-on));
 }
 
-/* The segmented control bolds its active option; tabs (tablist) keep a
-   constant weight so switching a tab never changes its typography. */
+/* Only radiogroup mode bolds; tabs keep a constant weight */
 .segment[aria-checked="true"] {
   font-weight: 750;
 }
@@ -102,9 +102,7 @@
   opacity: 0.45;
 }
 
-/* A hidden always-bold copy shares each label's grid cell, so bolding the
-   active label can't resize the canvas and flicker the pill. Tabs never bold,
-   so they skip the copy. */
+/* A hidden bold copy shares the label's cell so bolding can't resize the canvas; tabs skip it */
 .segment-top {
   display:     inline-grid;
   place-items: center;
@@ -124,8 +122,6 @@
   display: none;
 }
 
-/* The focus ring is painted on the canvas so it follows the jiggle;
-   this ::after is only for forced-colors mode, where canvas is ignored. */
 .segment::after {
   content:        "";
   position:       absolute;

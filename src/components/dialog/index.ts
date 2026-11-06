@@ -1,12 +1,3 @@
-/*
- * A modal dialog that springs in with a jello pop. While open it locks
- * the page scroll, inerts everything behind it, and returns focus where
- * it came from on close. Portaled to <body> so no ancestor can clip it.
- *
- *   <droplet-dialog id="d" label="Confirm"><h2>Title</h2><p>…</p></droplet-dialog>
- *   document.getElementById('d').open = true;   // or .showModal()
- */
-
 import { lockScroll }           from '../../anchor/index.js';
 import { unlockScroll }         from '../../anchor/index.js';
 import { inertOutside }         from '../../anchor/index.js';
@@ -53,7 +44,6 @@ export class DropletDialog extends HTMLElementBase {
   closing = false;
   modalActive = false;
 
-  // Populated in connectedCallback()
   dialog!: HTMLElement;
   wrap!: HTMLElement;
 
@@ -62,8 +52,7 @@ export class DropletDialog extends HTMLElementBase {
   restoreInert: (() => void) | null = null;
 
   onDocumentKey = (event: KeyboardEvent): void => {
-    // An inner overlay (select, menu, or popover) that handled Escape first
-    // marks it defaultPrevented; don't tear the dialog down in the same press
+    // An inner overlay that handled Escape marks it defaultPrevented
     if (event.key === 'Escape' && !event.defaultPrevented) {
       this.open = false;
     }
@@ -100,7 +89,6 @@ export class DropletDialog extends HTMLElementBase {
     this.dialog = this.shadowRoot!.querySelector('.dialog')!;
     this.wrap   = this.shadowRoot!.querySelector('.wrap')!;
 
-    // A click on the backdrop area (outside the dialog itself) dismisses
     this.wrap.addEventListener('click', (event) => {
       if (event.target === this.wrap) {
         this.open = false;
@@ -113,8 +101,7 @@ export class DropletDialog extends HTMLElementBase {
   }
 
   disconnectedCallback (): void {
-    // Portaling to <body> disconnects and reconnects synchronously, so only
-    // clean up when the dialog is truly gone from the document while open
+    // Portaling disconnects and reconnects synchronously; only a real removal tears down
     queueMicrotask(() => {
       if (!this.isConnected && this.modalActive) {
         this.teardownModal();
@@ -139,8 +126,7 @@ export class DropletDialog extends HTMLElementBase {
     }
   }
 
-  // An explicit label attribute wins; otherwise the first heading's text is mirrored
-  // onto aria-label, since IDREFs can't cross the shadow boundary to slotted content
+  // Mirrors the heading into aria-label because IDREFs can't cross the shadow boundary
   syncLabel (): void {
     const label   = this.getAttribute('label');
     const heading = this.querySelector('h1, h2, h3, [data-dialog-title]');
@@ -152,7 +138,6 @@ export class DropletDialog extends HTMLElementBase {
     }
   }
 
-  // Everything that happens when the open attribute arrives
   afterOpen (): void {
     this.closing = false;
 
@@ -160,23 +145,19 @@ export class DropletDialog extends HTMLElementBase {
     this.dialog.style.opacity   = '';
     this.dialog.style.transform = '';
 
-    // Capture the trigger before portaling; moving the host disconnects it
-    // briefly and can otherwise collapse document.activeElement to <body>.
+    // Captured before portaling, which can collapse activeElement to <body>
     this.prevFocus     = document.activeElement;
     this.restorePortal = portalToBody(this);
     this.modalActive   = true;
 
     document.addEventListener('keydown', this.onDocumentKey);
 
-    // Trap focus: freeze the page scroll and make everything behind inert so
-    // the tab order and screen readers stay inside the dialog
     lockScroll();
     this.restoreInert = inertOutside(this);
 
     this.syncLabel();
 
     if (!prefersReducedMotion() && this.dialog.animate) {
-      // Rise gently while fading in, with a barely-there settle instead of a hard pop from tiny
       this.dialog.animate(
         [
           { opacity: 0, transform: 'translateY(12px) scale(0.97)' },
@@ -193,7 +174,6 @@ export class DropletDialog extends HTMLElementBase {
     emit(this, 'open');
   }
 
-  // Everything that happens when the open attribute drops
   afterClose (): void {
     if (this.closing) {
       return;
@@ -205,7 +185,6 @@ export class DropletDialog extends HTMLElementBase {
     emit(this, 'close');
   }
 
-  // Release every page-level effect the open dialog holds (idempotent)
   teardownModal (): void {
     if (!this.modalActive) {
       return;
@@ -224,7 +203,6 @@ export class DropletDialog extends HTMLElementBase {
     this.restorePortal = null;
   }
 
-  // Open the dialog (mirrors the native dialog API)
   showModal (): void {
     this.open = true;
   }
@@ -249,7 +227,6 @@ export class DropletDialog extends HTMLElementBase {
       return;
     }
 
-    // Animate the dialog out, then hide (the backdrop fades via CSS meanwhile)
     this.closing = true;
 
     springOut(this.dialog, () => {

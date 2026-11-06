@@ -43,12 +43,10 @@
   padding-inline: 10px;
 }
 
-/* A real key travels down when held */
 :host(.pressed) .cap {
   transform: translateY(2px);
 }
 
-/* --droplet-motion mirrors data-droplet-motion (or data-jelly-motion) on <html>; see src/theme/runtime.ts */
 @media (prefers-reduced-motion: reduce) {
   @container not style(--droplet-motion: no-preference) {
     .cap { transition: none; }

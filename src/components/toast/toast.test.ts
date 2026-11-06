@@ -40,7 +40,7 @@ test('clicking the toast removes it', async () => {
   expect(el.isConnected).toBe(true);
 
   el.click();
-  // Long enough for the 320 ms exit animation when motion isn't reduced
+  // Outlasts toastOut's 320 ms exit
   await new Promise((resolve) => setTimeout(resolve, 400));
 
   expect(el.isConnected).toBe(false);
@@ -81,7 +81,6 @@ describe('droplet-toaster contracts', () => {
     expect(el.getAttribute('quality')).toBe('low');
     expect(el.quality).toBe('low');
 
-    // Unrecognized text resolves to the default and is left as written
     el.setAttribute('quality', 'potato');
     expect(el.quality).toBe('medium');
     expect(el.getAttribute('quality')).toBe('potato');
@@ -93,8 +92,7 @@ describe('droplet-toaster contracts', () => {
   });
 
   it('registers the toaster on demand when the tag is not defined', async () => {
-    // A realm that imported the module but never called defineAll(): dropletToast
-    // has to register the tag itself or push() lands on an unupgraded element.
+    // A realm that imported the module but never called defineAll()
     const url   = new URL('./index.ts', import.meta.url).href;
     const frame = document.createElement('iframe');
 
@@ -143,8 +141,7 @@ describe('droplet-toaster contracts', () => {
 });
 
 describe('droplet-toaster timers', () => {
-  // toastOut resolves synchronously under reduced motion, so these tests can
-  // assert removal on a short wait instead of the 320 ms exit animation.
+  // Reduced motion makes toastOut synchronous, so short waits suffice
   beforeEach(() => {
     document.documentElement.setAttribute('data-jelly-motion', 'reduce');
     document.querySelector('droplet-toaster')?.remove();
@@ -173,7 +170,6 @@ describe('droplet-toaster timers', () => {
     await new Promise((r) => setTimeout(r, 120));
     expect(el.isConnected).toBe(true);
 
-    // Focus moving between the toast's own children must not resume it
     close.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: el.querySelector('.toast-text') }));
     await new Promise((r) => setTimeout(r, 120));
     expect(el.isConnected).toBe(true);
@@ -209,8 +205,7 @@ describe('droplet-toaster timers', () => {
     const el   = dropletToast('bye', { duration: 100 });
     const rail = (document.querySelector('droplet-toaster') as DropletToaster).shadowRoot!.querySelector('.rail')!;
 
-    // The click cancels the timer and starts the exit; a pointer crossing the
-    // toast during that window must not schedule an untracked second timeout.
+    // A pointer crossing during the exit must not schedule an untracked timeout
     el.click();
     el.dispatchEvent(new PointerEvent('pointerenter', { bubbles: true }));
     el.dispatchEvent(new PointerEvent('pointerleave', { bubbles: true }));
@@ -230,8 +225,7 @@ describe('droplet-toaster timers', () => {
     await new Promise((r) => setTimeout(r, 150));
     expect(el.isConnected).toBe(false);
 
-    // Stand in for the exit-animation window, where the toast is still in the
-    // rail but its cancel handle is already gone
+    // Simulates the exit window: still in the rail, cancel handle gone
     rail.appendChild(el);
 
     const spy = vi.spyOn(el, 'remove');

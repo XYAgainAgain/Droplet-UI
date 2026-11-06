@@ -1,12 +1,3 @@
-/*
- * Toasts: bubbly notifications that pop in from the inline-end and drift
- * away. A <droplet-toaster> host is created automatically; place one yourself
- * (optionally with position="bottom") to control stacking.
- *
- *   import { dropletToast } from './src/droplet.js';
- *   dropletToast('Saved!', { tone: 'success' });
- */
-
 import { toastIn }           from '../../anchor/index.js';
 import { toastOut }          from '../../anchor/index.js';
 
@@ -40,7 +31,7 @@ export interface ToastOptions {
 
 const REPLAYED = ['quality', 'palette', 'material'] as const;
 
-// Dot color and spoken prefix for each tone (color is never the only signal)
+// The spoken prefix keeps color from being the only signal (WCAG 1.4.1)
 const TONES: Record<ToastTone, { color: string; spoken: string }> = {
   info:    { color: `var(--jelly-color-background-azure, var(--droplet-color-background-azure, ${PALETTE['background-azure']}))`, spoken: 'Info' },
   success: { color: `var(--jelly-color-background-mint, var(--droplet-color-background-mint,  ${PALETTE['background-mint']}))`,  spoken: 'Success' },
@@ -64,7 +55,6 @@ export class DropletToaster extends HTMLElementBase {
 
   built = false;
 
-  // Cancel functions for the toasts still counting down, keyed by toast element
   readonly #timers = new Map<Element, () => void>();
 
   #removals: MutationObserver | null = null;
@@ -98,7 +88,7 @@ export class DropletToaster extends HTMLElementBase {
       <div class="rail" aria-live="polite"></div>
     `;
 
-    // A toast the page removes itself must not leave a live timeout holding it
+    // A toast the page removes must not leave a live timeout holding it
     this.#removals = new MutationObserver((records) => {
       for (const record of records) {
         for (const node of record.removedNodes) {
@@ -120,8 +110,6 @@ export class DropletToaster extends HTMLElementBase {
     }
   }
 
-  // The effective rendering budget: the element attribute beats any ancestor
-  // scope. Phase 1 only reports it; nothing acts on it yet.
   get quality (): Quality {
     return readQuality(this);
   }
@@ -130,7 +118,6 @@ export class DropletToaster extends HTMLElementBase {
     writeQuality(this, value);
   }
 
-  // Parsed and reported only until Phases 5 and 6 act on them (attribute-matrix.md)
   get palette (): string | null {
     return readNamedAxis(this, 'palette');
   }
@@ -147,7 +134,7 @@ export class DropletToaster extends HTMLElementBase {
     writeNamedAxis(this, 'material', value);
   }
 
-  // Add one toast; returns its element (click or timeout removes it)
+  // A click or the timeout removes the returned toast
   push (message: string, { tone = 'info', duration = 3500 }: ToastOptions = {}): HTMLElement {
     const toneInfo = TONES[tone] || TONES.info;
     const doc      = this.ownerDocument;
@@ -196,16 +183,13 @@ export class DropletToaster extends HTMLElementBase {
       this.#armTimer(el, duration, remove);
     }
 
-    // Clicking anywhere dismisses; the close button stops propagation so it doesn't
-    // dismiss twice, and it gives keyboard users something to press.
     el.addEventListener('click', remove);
     close.addEventListener('click', (event) => { event.stopPropagation(); remove(); });
 
     return el;
   }
 
-  // Auto-dismiss that holds still while the reader is on it: hover or focus
-  // inside banks the remaining time, leaving both spends it again.
+  // Hover or focus inside banks the remaining time; leaving both spends it
   #armTimer (el: HTMLElement, duration: number, expire: () => void): void {
     let remaining = duration;
     let startedAt = 0;
@@ -214,8 +198,7 @@ export class DropletToaster extends HTMLElementBase {
     let focused = false;
     let settled = false;
 
-    // Once the toast has expired or been dismissed its cancel handle is gone
-    // from #timers, so a re-armed timeout would be unreachable and leak it.
+    // Once settled the cancel handle is gone, so a re-armed timeout would leak
     const start = (): void => {
       if (settled || timer !== undefined || hovered || focused) {
         return;
@@ -261,7 +244,6 @@ export class DropletToaster extends HTMLElementBase {
     el.addEventListener('focusin', () => { focused = true; pause(); });
 
     el.addEventListener('focusout', (event) => {
-      // Focus moving between the toast's own children is not a departure
       if (el.contains((event as FocusEvent).relatedTarget as Node | null)) {
         return;
       }
@@ -283,11 +265,9 @@ export function defineToaster (options: DefineOptions = {}): DefineResult {
   return defineStrict([[TAGS.toaster, DropletToaster]], options);
 }
 
-// Show a toast, creating the shared toaster host on first use. The lookup is
-// against the global document; per-document hosts are a Phase 7 iframe item.
+// Uses the global document's toaster, creating it on first use
 export function dropletToast (message: string, options?: ToastOptions): HTMLElement {
-  // Importing this module defines no tag, so the host is registered on use;
-  // strict: false keeps a foreign owner of the tag from throwing out of a toast.
+  // Importing defines no tag; strict: false tolerates a foreign owner of the tag
   if (typeof customElements !== 'undefined' && !customElements.get(TAGS.toaster)) {
     defineToaster({ strict: false });
   }
@@ -302,10 +282,9 @@ export function dropletToast (message: string, options?: ToastOptions): HTMLElem
   return toaster.push(message, options);
 }
 
-// Convenience global so inline handlers can fire toasts
 if (typeof window !== 'undefined') {
   window.dropletToast = dropletToast;
-  // The Jelly UI global keeps working for inline handlers written against it
+  // Legacy Jelly UI alias
   window.jellyToast = dropletToast;
 }
 

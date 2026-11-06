@@ -13,14 +13,13 @@ import { readToken } from '../../theme/token-read.js';
 
 import inputStyles          from './input.css?inline';
 
-// Input types that block implicit submission (HTML "implicit submission"), which are
-// also the text-entry types droplet-input is built for
+// The types that block HTML implicit submission, which are also the supported text types
 const BLOCKING_TYPES = new Set([
   'text', 'search', 'url', 'tel', 'email', 'password', 'date', 'month',
   'week', 'time', 'datetime-local', 'number',
 ]);
 
-// Any other type (checkbox, range, the button types...) reads as text, as an unknown native type does
+// Anything else runs as text, like an unknown native type
 function fieldType (value: string | null): string {
   const type = (value ?? '').toLowerCase();
 
@@ -53,6 +52,14 @@ function fieldType (value: string | null): string {
  * @attr {"small"|"medium"|"large"} size - Control size.
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
  * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
+ * @attr {string} material - Registered material preset: "matte" (the default) or "gloss" (Experimental); inherits from a `data-droplet-material` scope.
+ * @attr {number} gloss - Sheen sharpness 0–1 for a lit material (Experimental); defaults to the material's sharpness.
+ * @attr {number} softness - Feel knob 0–1: how far the surface gives under a press; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} bounce - Feel knob 0–1: how long it keeps wobbling before it settles; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} viscosity - Feel knob 0–1: how thick and slow it moves; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} spread - Feel knob 0–1: how far a dent travels around the edge; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} depth - Feel knob 0–1: how far it presses in and tilts; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} intensity - Feel knob 0–1: master gain on every push the surface takes; unset keeps the feel preset's setting, and 0.5 is neutral.
  *
  * @prop {string} value - The live value; setting it marks the value dirty and fires no event.
  * @prop {string} defaultValue - Reflects the `value` attribute.
@@ -114,7 +121,6 @@ export class DropletInput extends DropletFormField {
     return `<input part="input" /><div class="ring" part="ring" aria-hidden="true"></div>`;
   }
 
-  // The rounded rectangle the physics body takes, inset so the wobble stays inside the host
   override shape (width: number, height: number): Shape {
     const w = width - 8;
     const h = height - 8;
@@ -158,12 +164,10 @@ export class DropletInput extends DropletFormField {
       this.requestFrame();
     }
 
-    // The native input's composed event already crosses the shadow boundary;
-    // re-emitting would give consumers two 'input' events per keystroke
+    // No re-emit: the native composed input event already reaches consumers
   }
 
-  // Enter submits after the keydown dispatch ends, so a host listener can still
-  // preventDefault() it as it could natively
+  // Submits after dispatch, so a host listener can still preventDefault() it
   handleKeydown (event: KeyboardEvent): void {
     if (event.key !== 'Enter' || event.isComposing || event.keyCode === 229) {
       return;
@@ -182,8 +186,7 @@ export class DropletInput extends DropletFormField {
     return BLOCKING_TYPES.has(this.type);
   }
 
-  // The caret's x in the body's local frame (0 = shape center, +x = right), mirrored
-  // in RTL so the ripple lands under the caret in either direction
+  // Body-local x (0 is the center, +x is right) in LTR and RTL alike
   caretLocalX (): number {
     const input = this.input;
     let caret: number | null;
@@ -191,7 +194,7 @@ export class DropletInput extends DropletFormField {
     try {
       caret = input.selectionStart;
     } catch {
-      caret = null; // some input types (e.g. number/email in older engines) throw
+      caret = null; // number and email throw in older engines
     }
 
     if (caret == null) {
@@ -207,21 +210,17 @@ export class DropletInput extends DropletFormField {
 
     measure.font = cs.font || `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
 
-    // Password fields render bullets, not the raw characters
     const shown = input.type === 'password'
       ? '•'.repeat(caret)
       : input.value.slice(0, caret);
     const textWidth = measure.measureText(shown).width;
 
-    // Distance from the inline-start edge: padding plus text advance, minus
-    // how far the field has scrolled away from its start. In RTL the scroll
-    // origin is the inline start (right edge) and scrollLeft runs negative.
+    // In RTL, scrollLeft runs negative from the right edge
     const rtl            = isRTL(this);
     const paddingStart   = parseFloat(cs.paddingInlineStart || (rtl ? cs.paddingRight : cs.paddingLeft)) || 0;
     const scrolled       = rtl ? -input.scrollLeft : input.scrollLeft;
     const caretFromStart = paddingStart + textWidth - scrolled;
 
-    // Convert into the physical, center-origin frame the physics use
     const localX = rtl
       ? input.clientWidth / 2 - caretFromStart
       : caretFromStart - input.clientWidth / 2;
@@ -237,12 +236,11 @@ export class DropletInput extends DropletFormField {
 
       this.input.type = fieldType(this.getAttribute('type'));
 
-      // HTML's type-change steps: leaving the file type restores the default and clears the dirty flag
+      // HTML type-change steps: leaving file clears the dirty flag
       if (wasFile && this.input.type !== 'file') {
         this.dirty = false;
       }
 
-      // A new type can sanitize the value away, so the form value follows it
       if (this.dirty) {
         this.syncFormValue();
       } else {
@@ -250,7 +248,7 @@ export class DropletInput extends DropletFormField {
       }
     }
 
-    // Selected files enter the form as FormData entries keyed by the name
+    // File entries are keyed by the name
     if (name === 'name' && this.input?.type === 'file') {
       this.syncFormValue();
     }
@@ -258,8 +256,7 @@ export class DropletInput extends DropletFormField {
     super.sync(name);
   }
 
-  // A file field submits each selected File under the host's name, and nothing when unnamed
-  // or empty: FormData entries join the form data set whether or not the host has a name
+  // FormData entries submit even from an unnamed host, hence the name check
   override formValue (): string | FormData | null {
     const input = this.input;
 

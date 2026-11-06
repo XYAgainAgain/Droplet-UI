@@ -5,8 +5,6 @@
   --droplet-pagination-font-size: 14px; --jelly-pagination-font-size: var(--droplet-pagination-font-size);
   --droplet-pagination-gap-padding: 2px; --jelly-pagination-gap-padding: var(--droplet-pagination-gap-padding);
 
-  /* Each page button is a fixed square so numbers stay circular at
-     every size (min-width follows the height, not the label width). */
   --droplet-pagination-button: 40px; --jelly-pagination-button: var(--droplet-pagination-button);
   --droplet-pagination-button-pad: 10px; --jelly-pagination-button-pad: var(--droplet-pagination-button-pad);
 }
@@ -35,8 +33,7 @@
 }
 
 droplet-button {
-  /* Override the button's size scale so every page control stays square with light
-     padding; otherwise medium/large buttons inherit a 168–200px min-width and stretch into pills */
+  /* Square controls; the button's 168–200px medium and large min-widths would make pills */
   --droplet-button-height: var(--jelly-pagination-button, var(--droplet-pagination-button)); --jelly-button-height: var(--droplet-button-height);
   --droplet-button-min-width: var(--jelly-pagination-button, var(--droplet-pagination-button)); --jelly-button-min-width: var(--droplet-button-min-width);
   --droplet-button-padding-inline: var(--jelly-pagination-button-pad, var(--droplet-pagination-button-pad)); --jelly-button-padding-inline: var(--droplet-button-padding-inline);

@@ -1,10 +1,3 @@
-/*
- * Page navigation built from soft-body buttons, with a windowed page list
- * and previous/next arrows that follow the reading direction
- *
- * Emits `change` with event.detail.page when the page changes.
- */
-
 import { canonicalizeSize }  from '../../utilities/index.js';
 import { emit }              from '../../utilities/index.js';
 import { isRTL }             from '../../utilities/index.js';
@@ -70,7 +63,7 @@ export class DropletPagination extends HTMLElementBase {
 
     this.row = this.shadowRoot!.querySelector('.row')!;
 
-    // The arrow glyphs are direction-dependent, so re-render on a dir flip
+    // Re-renders the direction-dependent arrows on a dir flip
     window.addEventListener('droplet-theme-change', this.onDirectionChange);
 
     this.render();
@@ -90,12 +83,10 @@ export class DropletPagination extends HTMLElementBase {
     }
   }
 
-  // Total page count (at least one)
   get total (): number {
     return Math.max(1, parseInt(this.getAttribute('total') ?? '', 10) || 1);
   }
 
-  // The current page, clamped into range
   get page (): number {
     return Math.min(this.total, Math.max(1, parseInt(this.getAttribute('page') ?? '', 10) || 1));
   }
@@ -104,12 +95,10 @@ export class DropletPagination extends HTMLElementBase {
     this.setAttribute('page', String(value));
   }
 
-  // The size passed to the child buttons (pagination defaults to small)
   get buttonSize (): string {
     return this.getAttribute('size') || 'small';
   }
 
-  // The windowed page list: first, last, current ±1, with … in the gaps
   pagesToShow (): (number | '…')[] {
     const total = this.total;
     const cur   = this.page;
@@ -164,7 +153,6 @@ export class DropletPagination extends HTMLElementBase {
       return button;
     };
 
-    // The arrow glyphs point along the reading direction
     const prevGlyph = rtl ? '›' : '‹';
     const nextGlyph = rtl ? '‹' : '›';
 
@@ -189,7 +177,6 @@ export class DropletPagination extends HTMLElementBase {
     this.row.appendChild(makeButton(nextGlyph, cur + 1, { disabled: cur === this.total, name: 'Next page' }));
   }
 
-  // Route programmatic host focus onto the current (or first enabled) page
   override focus (options?: FocusOptions): void {
     const current = this.shadowRoot!.querySelector('[aria-current]') as HTMLElement | null;
     const first   = [...this.shadowRoot!.querySelectorAll(TAGS.button)].find((b) => !b.hasAttribute('disabled'));

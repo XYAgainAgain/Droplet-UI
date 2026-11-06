@@ -43,7 +43,8 @@
   --droplet-checkbox-stroke-width: 3.7; --jelly-checkbox-stroke-width: var(--droplet-checkbox-stroke-width);
 }
 
-:host([disabled]) {
+:host([disabled]),
+:host(:disabled) {
   opacity:        0.5;
   pointer-events: none;
 }
@@ -76,8 +77,6 @@ input {
   flex:     0 0 auto;
 }
 
-/* The focus ring is painted on the canvas so it follows the jiggle;
-   this ::after is only for forced-colors mode, where canvas is ignored. */
 .box::after {
   content:        "";
   position:       absolute;
@@ -98,8 +97,6 @@ input {
   stroke-linecap:  round;
   stroke-linejoin: round;
 
-  /* The mark draws itself on (dash sweep) and plops in with a slight
-     overshoot instead of fading, like ink flowing into place. */
   stroke-dasharray:  30;
   stroke-dashoffset: 30;
   transform:         scale(0.7);
@@ -118,7 +115,6 @@ input {
   opacity:           1;
 }
 
-/* --droplet-motion mirrors data-droplet-motion (or data-jelly-motion) on <html>; see src/theme/runtime.ts */
 @media (prefers-reduced-motion: reduce) {
   @container not style(--droplet-motion: no-preference) {
     .mark {

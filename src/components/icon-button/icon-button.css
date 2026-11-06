@@ -4,11 +4,9 @@
   --droplet-icon-button-font-size: 18px; --jelly-icon-button-font-size: var(--droplet-icon-button-font-size);
   --droplet-icon-button-icon-size: 20px; --jelly-icon-button-icon-size: var(--droplet-icon-button-icon-size);
 
-  /* The ring tracks the button's own fill (see droplet-button) */
   --droplet-ring: var(--jelly-fill, var(--droplet-fill, var(--jelly-color-border-focus, var(--droplet-color-border-focus)))); --jelly-ring: var(--droplet-ring);
 }
 
-/* :disabled also covers a disabled ancestor fieldset (form-associated host) */
 :host([disabled]),
 :host(:disabled) {
   opacity:        0.55;
@@ -62,7 +60,6 @@ button {
     height 0.42s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* --droplet-motion mirrors data-droplet-motion (or data-jelly-motion) on <html>; see src/theme/runtime.ts */
 @media (prefers-reduced-motion: reduce) {
   @container not style(--droplet-motion: no-preference) {
     button { transition: none; }
@@ -77,8 +74,6 @@ button:focus-visible {
   outline: none;
 }
 
-/* The focus ring is painted on the canvas so it follows the jiggle;
-   this ::after is only for forced-colors mode, where canvas is ignored. */
 button::after {
   content:        "";
   position:       absolute;

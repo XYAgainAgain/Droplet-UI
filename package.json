@@ -44,6 +44,11 @@
       "import": "./dist/esm/register.js",
       "default": "./dist/esm/register.js"
     },
+    "./experimental": {
+      "types": "./dist/esm/experimental.d.ts",
+      "import": "./dist/esm/experimental.js",
+      "default": "./dist/esm/experimental.js"
+    },
     "./compat": {
       "types": "./dist/esm/compat/index.d.ts",
       "import": "./dist/esm/compat/index.js",

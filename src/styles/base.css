@@ -1,4 +1,4 @@
-/* Styles shared by every Droplet canvas host (imported as a string by src/element/index.ts). */
+/* Imported as a string by src/element/index.ts */
 
 :host {
   display:                     inline-block;
@@ -14,8 +14,7 @@
   display: none;
 }
 
-/* Host-sized with visible overflow: the canvas overhangs by PAD as ink overflow,
-   so it never widens a scroll container (see build() in element/index.ts). */
+/* The PAD overhang is ink overflow, so it never widens a scroll container (see build()) */
 .droplet-overhang {
   position:       absolute;
   left:           0;
@@ -39,10 +38,7 @@
   height:   100%;
 }
 
-/* Focus fallback: the canvas ring embellishes focus, it never owns it. */
-
-/* delegatesFocus does not propagate :focus-visible to the host in any engine
-   (Chromium, Firefox, WebKit), so the delegated control carries the fallback. */
+/* delegatesFocus never gives the host :focus-visible, so the delegated control carries the fallback */
 
 @media (forced-colors: active) {
   :host(:focus-visible),

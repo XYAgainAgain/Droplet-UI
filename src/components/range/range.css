@@ -7,7 +7,7 @@
   --droplet-ring: var(--jelly-accent, var(--droplet-accent, var(--jelly-color-border-focus, var(--droplet-color-border-focus)))); --jelly-ring: var(--droplet-ring);
 
   display: inline-block;
-  width:   260px;
+  width:   var(--droplet-range-width, 260px);
   height:  36px;
   outline: none;
 }
@@ -16,7 +16,7 @@
   --droplet-range-track-height: 9px; --jelly-range-track-height: var(--droplet-range-track-height);
   --droplet-range-thumb-size: 24px; --jelly-range-thumb-size: var(--droplet-range-thumb-size);
 
-  width:  220px;
+  width:  var(--droplet-range-width, 220px);
   height: 30px;
 }
 
@@ -24,7 +24,7 @@
   --droplet-range-track-height: 12px; --jelly-range-track-height: var(--droplet-range-track-height);
   --droplet-range-thumb-size: 28px; --jelly-range-thumb-size: var(--droplet-range-thumb-size);
 
-  width:  260px;
+  width:  var(--droplet-range-width, 260px);
   height: 36px;
 }
 
@@ -32,11 +32,12 @@
   --droplet-range-track-height: 14px; --jelly-range-track-height: var(--droplet-range-track-height);
   --droplet-range-thumb-size: 34px; --jelly-range-thumb-size: var(--droplet-range-thumb-size);
 
-  width:  320px;
+  width:  var(--droplet-range-width, 320px);
   height: 44px;
 }
 
-:host([disabled]) {
+:host([disabled]),
+:host(:disabled) {
   opacity:        0.5;
   pointer-events: none;
 }
@@ -56,8 +57,7 @@
   touch-action: none;
 }
 
-/* Stretch the pointer target to at least 24px tall (WCAG 2.5.8) without
-   changing the visual track geometry */
+/* A 24px pointer target (WCAG 2.5.8) without changing the visible track */
 .track::before {
   content:      "";
   position:     absolute;
@@ -83,8 +83,7 @@
   cursor: grabbing;
 }
 
-/* The painted canvas carries no forced-colors information, so render
-   the track and knobs in system colors there */
+/* Forced colors can't reach the canvas, so system colors stand in */
 @media (forced-colors: active) {
   .droplet-canvas {
     display: none;

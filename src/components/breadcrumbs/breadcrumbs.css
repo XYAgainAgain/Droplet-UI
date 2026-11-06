@@ -72,13 +72,11 @@ a:focus-visible {
   user-select: none;
 }
 
-/* The chevron points along the reading direction, so mirror it in RTL */
 :host(:dir(rtl)) .separator {
   display:   inline-block;
   transform: scaleX(-1);
 }
 
-/* --droplet-motion mirrors data-droplet-motion (or data-jelly-motion) on <html>; see src/theme/runtime.ts */
 @media (prefers-reduced-motion: reduce) {
   @container not style(--droplet-motion: no-preference) {
     a { transition: none; }

@@ -56,3 +56,17 @@ test('submits its interval as "low,high" in a form', async () => {
 
   host.remove();
 });
+
+test('keeps each size\'s default width and takes --droplet-range-width from an ancestor', async () => {
+  const host = mount('<droplet-range></droplet-range><droplet-range size="small"></droplet-range><droplet-range size="large"></droplet-range><div style="--droplet-range-width: 100%; width: 420px"><droplet-range id="fluid"></droplet-range></div>');
+  await settle(10);
+
+  const [a, b, c] = [...host.querySelectorAll(':scope > droplet-range')].map((el) => el.getBoundingClientRect().width);
+  const fluid = host.querySelector('#fluid') as DropletRange;
+
+  expect([a, b, c]).toEqual([260, 220, 320]);
+  expect(fluid.getBoundingClientRect().width).toBe(420);
+  expect(fluid.trackW).toBe(420);
+
+  host.remove();
+});

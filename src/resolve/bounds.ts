@@ -1,11 +1,9 @@
-// Split out of the resolver so the preset registry can validate against the same
-// bounds without an import cycle; src/resolve/index.ts re-exports all of it.
+// Apart from the resolver so presets can validate against it without an import cycle
 
 import { DEFAULT_CONFIG } from '../core/index.js';
 import type { DropletConfig } from '../core/index.js';
 
-// Phase 6 adds entries as the integrator's stable region is measured; a bound
-// may narrow later, never widen.
+// A bound may narrow as the integrator's stable region is measured, never widen
 export const SAFETY_BOUNDS: Readonly<Partial<Record<keyof DropletConfig, readonly [min: number, max: number]>>> = Object.freeze({
   samples: Object.freeze([24, 480]) as readonly [number, number],
   normalBlendPasses: Object.freeze([0, 6]) as readonly [number, number],
@@ -19,11 +17,10 @@ export function isConfigKey (key: string): key is keyof DropletConfig {
   return CONFIG_KEY_SET.has(key);
 }
 
-// The body rounds these when it stores them, so the resolved record has to carry
-// the rounded value or every comparison against body.config disagrees forever.
+// The body rounds these, so the record must too or it never matches body.config
 export const INTEGER_KEYS: ReadonlySet<string> = new Set<string>(['normalBlendPasses', 'samples']);
 
-// A non-finite value has no place in the stable region, so it falls back to the baseline
+// Non-finite values fall back to the baseline
 export function clampToBounds (key: keyof DropletConfig, value: number): number {
   if (!Number.isFinite(value)) return DEFAULT_CONFIG[key];
   const rounded = INTEGER_KEYS.has(key) ? Math.round(value) : value;

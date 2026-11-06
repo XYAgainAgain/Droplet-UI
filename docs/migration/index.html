@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Droplet UI: Migrating From Jelly UI</title>
     <meta name="description" content="Move from Jelly UI to Droplet UI: change one package specifier, keep every jelly-* tag and --jelly-* token working, and learn the handful of things that changed." />
-    <!-- No favicon: an empty data URI stops the browser requesting /favicon.ico -->
+    <!-- An empty data URI stops the /favicon.ico request -->
     <link rel="icon" href="data:," />
 
-    <!-- Apply saved visual preferences before first paint so there is no flash -->
     <script>
       const savedMode = localStorage.getItem('droplet-docs-theme') ?? localStorage.getItem('jelly-docs-theme');
       if (savedMode === 'light' || savedMode === 'dark') {
@@ -20,7 +19,7 @@
       }
     </script>
 
-    <!-- Authored for its final URL depth, /migration/, like the API page -->
+    <!-- Paths assume the deployed URL, /migration/ -->
     <link rel="stylesheet" href="../docs/shared/site.css" />
     <link rel="stylesheet" href="../docs/migration/migration.css" />
 

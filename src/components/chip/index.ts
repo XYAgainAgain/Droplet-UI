@@ -1,9 +1,3 @@
-/*
- * A small soft-body capsule. Static by default; `selectable` makes it a
- * toggle and `removable` adds a ✕ that pops it out. Selecting bulges
- * outward; deselecting or removing sucks inward.
- */
-
 import { DropletElement }  from '../../element/index.js';
 import type { Shape }    from '../../element/index.js';
 
@@ -31,8 +25,18 @@ import chipStyles        from './chip.css?inline';
  * @attr {"pill"|"square"} shape - Full pill (default) or rounded-square.
  * @attr {"small"|"medium"|"large"} size - Chip size.
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Selected fill hue.
+ * @attr {string} color - Any CSS color for the fill or accent (beats intent and variant); text or a mark on it turns white or near-black, whichever reads better.
+ * @attr {"accent"|"neutral"|"info"|"success"|"warning"|"danger"|"highlight"} intent - Semantic color role (never an ARIA role); beats variant.
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
  * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
+ * @attr {string} material - Registered material preset: "matte" (the default) or "gloss" (Experimental); inherits from a `data-droplet-material` scope.
+ * @attr {number} gloss - Sheen sharpness 0–1 for a lit material (Experimental); defaults to the material's sharpness.
+ * @attr {number} softness - Feel knob 0–1: how far the surface gives under a press; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} bounce - Feel knob 0–1: how long it keeps wobbling before it settles; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} viscosity - Feel knob 0–1: how thick and slow it moves; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} spread - Feel knob 0–1: how far a dent travels around the edge; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} depth - Feel knob 0–1: how far it presses in and tilts; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} intensity - Feel knob 0–1: master gain on every push the surface takes; unset keeps the feel preset's setting, and 0.5 is neutral.
  *
  * @fires change - When a selectable chip toggles.
  * @fires remove - Cancelable; fires before a removable chip animates out.
@@ -49,12 +53,11 @@ export class DropletChip extends DropletElement {
 
   static override usesResolver = true;
 
-  // Theme flips repaint so the crossfade re-resolves against the new tokens
+  // A resting body never repaints, so a token change needs a frame
   onThemeFlip = (): void => {
     this.requestFrame();
   };
 
-  // Populated in onBuilt()
   main!: HTMLElement;
   removeButton: HTMLElement | null = null;
   selectTarget: number | null = null;
@@ -97,34 +100,27 @@ export class DropletChip extends DropletElement {
     return `<div class="chip" part="chip">${main}${remove}</div>`;
   }
 
-  // The capsule (or, with shape="square", rounded rectangle) the physics body
-  // takes, inset so the wobble stays inside
   override shape (width: number, height: number): Shape {
     const w      = width - 6;
     const h      = height - 6;
     const square = this.getAttribute('shape') === 'square';
 
-    // A plain-px --droplet-chip-radius override reaches the painted surface; the
-    // 999px pill default falls through to the ratio
+    // A px radius token wins; the 999px pill default takes the ratio
     const declared = parseFloat(readToken(getComputedStyle(this), 'chip-radius'));
     const radius   = Number.isFinite(declared) && declared < 900 ? Math.min(declared, h / 2) : (square ? h * 0.32 : h / 2);
 
     return { width: w, height: h, radius };
   }
 
-  // The current fill along the off → on crossfade
   override fill (): string {
     return this.mixFill(this.hasAttribute('selected') ? 1 : 0);
   }
 
-  // Blend the off → on fills at t (0–1). Both ends re-resolve every paint, so a runtime --droplet-on
-  // or --droplet-fill override (or its legacy --jelly-* name) recolors the chip; nothing is cached.
+  // Resolved every paint so runtime token overrides recolor the chip; don't cache
   mixFill (t: number): string {
     return this.mixColor('var(--jelly-fill, var(--droplet-fill))', 'var(--jelly-on, var(--droplet-on))', t);
   }
 
-  // Ease the selection factor so the fill fades between tones instead of flipping.
-  // Runs whenever `selected` changes or the body is still moving.
   override frame (dt: number): boolean {
     const body = this.body;
 
@@ -155,8 +151,7 @@ export class DropletChip extends DropletElement {
     this.main         = this.shadowRoot!.querySelector('.main')!;
     this.removeButton = this.shadowRoot!.querySelector('.remove');
 
-    // Seed the fade factor to the initial state so the first toggle always
-    // eases (rather than depending on a frame having run while mounted)
+    // Seeded so the first toggle eases even if no frame has run
     this.selectTarget = this.hasAttribute('selected') ? 1 : 0;
 
     const interactive = this.hasAttribute('selectable') || this.hasAttribute('removable');
@@ -166,9 +161,7 @@ export class DropletChip extends DropletElement {
       this.useHostFocusTarget(focusTarget);
     }
 
-    // Presses are wired by hand (not wirePress): capturing the pointer on
-    // the chip would retarget pointerup away from the ✕ button and swallow
-    // its click, so the press releases on pointerleave instead
+    // Not wirePress: pointer capture on the chip swallows the ✕ button's click
     const chip = this.shadowRoot!.querySelector('.chip') as HTMLElement;
 
     chip.addEventListener('pointerdown', (event) => {
@@ -193,8 +186,7 @@ export class DropletChip extends DropletElement {
           return;
         }
 
-        // Route keyboard activation through the same click path as pointer
-        // activation so composed click listeners observe both consistently.
+        // Keyboard takes the pointer's click path, so click listeners see both alike
         event.preventDefault();
 
         if (event.repeat || this.hasAttribute('disabled')) {
@@ -213,7 +205,6 @@ export class DropletChip extends DropletElement {
     }
   }
 
-  // Flip the selection, pop the soft body, and notify listeners
   toggleSelected (): void {
     const next = !this.hasAttribute('selected');
 
@@ -226,7 +217,6 @@ export class DropletChip extends DropletElement {
     emit(this, 'change');
   }
 
-  // Fire the cancelable remove event, then collapse out of the layout
   removeChip (): void {
     if (emit(this, 'remove', null, { cancelable: true }) === false) {
       return;
@@ -240,8 +230,7 @@ export class DropletChip extends DropletElement {
       return;
     }
 
-    // Freeze the width, then collapse it to 0 with the scale and fade so the row closes up instead
-    // of jumping; a negative margin swallows one flex gap so neighbors are in place when it leaves.
+    // The negative margin swallows one flex gap so neighbors land in place
     const gap = parseFloat(getComputedStyle(this.parentElement || this).columnGap) || 0;
     const w   = this.getBoundingClientRect().width;
 
@@ -286,14 +275,10 @@ export class DropletChip extends DropletElement {
     switch (name) {
       case 'selectable':
       case 'removable':
-        // These decide whether the ✕ and toggle buttons exist, so re-render the
-        // interactive markup (the canvas and body are untouched siblings)
         this.rebuildContent();
         break;
 
       case 'variant':
-        // A new variant swaps --droplet-on via CSS; repaint so the fill
-        // re-resolves (a resting body won't on its own)
         this.requestFrame();
         break;
 
@@ -320,7 +305,7 @@ export class DropletChip extends DropletElement {
     }
   }
 
-  // Re-render the chip's interactive markup in place and re-wire it
+  // The canvas and body are siblings of the content and survive this
   rebuildContent (): void {
     const content = this.shadowRoot!.querySelector('.droplet-content');
 

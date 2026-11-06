@@ -1,5 +1,4 @@
-/* Variant fill/label map for every fillable component, prepended to its own styles.
-   Static because the token sheet always defines --droplet-color-*, so no JS fallback is needed. */
+/* Static: the token sheet always defines --droplet-color-*, so no JS fallback is needed */
 
 :host {
   --droplet-fill: var(--jelly-color-background-accent, var(--droplet-color-background-accent)); --jelly-fill: var(--droplet-fill);
@@ -13,3 +12,13 @@
 :host([variant="mint"])     { --droplet-fill: var(--jelly-color-background-mint, var(--droplet-color-background-mint)); --jelly-fill: var(--droplet-fill);             --droplet-label: var(--jelly-color-foreground-on-emphasis, var(--droplet-color-foreground-on-emphasis)); --jelly-label: var(--droplet-label); }
 :host([variant="platinum"]) { --droplet-fill: var(--jelly-color-background-neutral, var(--droplet-color-background-neutral)); --jelly-fill: var(--droplet-fill);          --droplet-label: var(--jelly-color-foreground-on-neutral, var(--droplet-color-foreground-on-neutral)); --jelly-label: var(--droplet-label); }
 :host([variant="graphite"]) { --droplet-fill: var(--jelly-color-background-neutral-emphasis, var(--droplet-color-background-neutral-emphasis)); --jelly-fill: var(--droplet-fill); --droplet-label: var(--jelly-color-foreground-on-emphasis, var(--droplet-color-foreground-on-emphasis)); --jelly-label: var(--droplet-label); }
+
+/* Intent; the later pick rule beats both */
+:host([intent="accent"]) { --droplet-fill: var(--jelly-color-background-accent, var(--droplet-color-background-accent)); --jelly-fill: var(--droplet-fill); --droplet-label: var(--jelly-color-foreground-on-accent, var(--droplet-color-foreground-on-accent)); --jelly-label: var(--droplet-label); }
+:host([intent="neutral"]) { --droplet-fill: var(--jelly-color-background-neutral, var(--droplet-color-background-neutral)); --jelly-fill: var(--droplet-fill); --droplet-label: var(--jelly-color-foreground-on-neutral, var(--droplet-color-foreground-on-neutral)); --jelly-label: var(--droplet-label); }
+:host([intent="info"]) { --droplet-fill: var(--jelly-color-background-azure, var(--droplet-color-background-azure)); --jelly-fill: var(--droplet-fill); --droplet-label: var(--jelly-color-foreground-on-emphasis, var(--droplet-color-foreground-on-emphasis)); --jelly-label: var(--droplet-label); }
+:host([intent="success"]) { --droplet-fill: var(--jelly-color-background-mint, var(--droplet-color-background-mint)); --jelly-fill: var(--droplet-fill); --droplet-label: var(--jelly-color-foreground-on-emphasis, var(--droplet-color-foreground-on-emphasis)); --jelly-label: var(--droplet-label); }
+:host([intent="warning"]) { --droplet-fill: var(--jelly-color-background-amber, var(--droplet-color-background-amber)); --jelly-fill: var(--droplet-fill); --droplet-label: var(--jelly-color-foreground-on-emphasis, var(--droplet-color-foreground-on-emphasis)); --jelly-label: var(--droplet-label); }
+:host([intent="danger"]) { --droplet-fill: var(--jelly-color-background-rose, var(--droplet-color-background-rose)); --jelly-fill: var(--droplet-fill); --droplet-label: var(--jelly-color-foreground-on-emphasis, var(--droplet-color-foreground-on-emphasis)); --jelly-label: var(--droplet-label); }
+:host([intent="highlight"]) { --droplet-fill: var(--jelly-color-background-highlight, var(--droplet-color-background-highlight, oklch(0.9 0.18 100))); --jelly-fill: var(--droplet-fill); --droplet-label: var(--jelly-color-foreground-on-highlight, var(--droplet-color-foreground-on-highlight, oklch(0.2 0 0))); --jelly-label: var(--droplet-label); }
+:host([data-droplet-pick]) { --droplet-fill: var(--droplet-pick); --jelly-fill: var(--droplet-fill); --droplet-label: var(--droplet-pick-on); --jelly-label: var(--droplet-label); }

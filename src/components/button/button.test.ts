@@ -11,7 +11,7 @@ import { defineButton, DropletButton } from './index.js';
 
 defineAll({ strict: false });
 
-// Gecko runs the attribute reaction of an ARIA element set from a microtask, not before the setter returns
+// Gecko runs an ARIA element setter's attribute reaction in a microtask
 const reactions = (): Promise<void> => Promise.resolve();
 
 test('upgrades and renders a real inner <button>', async () => {
@@ -108,8 +108,7 @@ describe('droplet-button contracts', () => {
 
     const host = mount('<div data-droplet-feel="test-stiff"><droplet-button>A</droplet-button><droplet-button feel="gel">B</droplet-button></div>');
 
-    // Read before any frame: the scope and its children were inserted together,
-    // so this is the case the bridge's observer has not seen yet
+    // Before any frame, so the bridge's observer hasn't seen the scope yet
     const first = host.querySelector('droplet-button') as DropletButton;
     expect(first.feel).toBe('test-stiff');
     expect(first.resolvedConfig.pressure).toBe(900);
@@ -205,7 +204,7 @@ describe('droplet-button contracts', () => {
     const elsewhere = document.implementation.createHTMLDocument('second page');
     const framed = document.createElement('droplet-button') as DropletButton;
 
-    // Still this document's element, and its one warning is already spent
+    // Still this document's, whose one warning is spent
     framed.setAttribute('feel', 'ghost-feel');
     expect(warn).toHaveBeenCalledTimes(1);
 
@@ -449,8 +448,7 @@ describe('droplet-button contracts', () => {
     expect(el.matches(':state(pressed)')).toBe(false);
   });
 
-  // :host(:focus-visible) never matches under delegatesFocus in any of the three
-  // browsers, so the focus fallback has to land on the delegated control
+  // :host(:focus-visible) never matches under delegatesFocus, so the fallback sits on the inner control
   test('shows a canvas-free focus indicator when the inner button is keyboard-focused', async () => {
     const host = mount('<droplet-button data-droplet-nocanvas>F</droplet-button>');
     await settle();
@@ -592,7 +590,6 @@ describe('droplet-button as a native button', () => {
     expect(data!.get('q')).toBe('jelly');
     expect(data!.get('intent')).toBe('save');
 
-    // The stand-in leaves the form before requestSubmit returns
     expect(native.isConnected).toBe(false);
     expect(form.elements.length).toBe(before);
 
@@ -792,7 +789,7 @@ describe('droplet-button as a native button', () => {
     }
 
     expect(button.ariaControlsElements).toEqual([host.querySelector('#jb-panel')]);
-    // A raw IDREF would not resolve from inside the shadow root (reflection writes "")
+    // A raw IDREF can't resolve from inside the shadow root
     expect(button.getAttribute('aria-controls') ?? '').toBe('');
 
     el.removeAttribute('aria-controls');

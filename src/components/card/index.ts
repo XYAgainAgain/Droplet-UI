@@ -24,6 +24,14 @@ import cardStyles        from './card.css?inline';
  * @attr {"small"|"medium"|"large"} size - Padding/radius scale.
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
  * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
+ * @attr {string} material - Registered material preset: "matte" (the default) or "gloss" (Experimental); inherits from a `data-droplet-material` scope.
+ * @attr {number} gloss - Sheen sharpness 0–1 for a lit material (Experimental); defaults to the material's sharpness.
+ * @attr {number} softness - Feel knob 0–1: how far the surface gives under a press; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} bounce - Feel knob 0–1: how long it keeps wobbling before it settles; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} viscosity - Feel knob 0–1: how thick and slow it moves; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} spread - Feel knob 0–1: how far a dent travels around the edge; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} depth - Feel knob 0–1: how far it presses in and tilts; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} intensity - Feel knob 0–1: master gain on every push the surface takes; unset keeps the feel preset's setting, and 0.5 is neutral.
  *
  * @fires click - When a squish card is activated by keyboard: Enter on keydown, Space on keyup.
  *
@@ -40,7 +48,6 @@ export class DropletCard extends DropletElement {
 
   static override usesResolver = true;
 
-  // Populated in onBuilt()
   card!: HTMLElement;
   pressing = false;
   squishWired = false;
@@ -62,7 +69,6 @@ export class DropletCard extends DropletElement {
     return `<div class="card" part="card" ${attrs}><slot></slot></div>`;
   }
 
-  // The rounded surface the physics body takes (radius follows the token)
   override shape (width: number, height: number): Shape {
     const radius = parseFloat(readToken(getComputedStyle(this), 'radius')) || 22;
 
@@ -86,8 +92,7 @@ export class DropletCard extends DropletElement {
     this.syncSquish();
   }
 
-  // Wire (or unwire) button behavior for squish mode. The card is a div with role="button",
-  // so Space/Enter need preventDefault by hand; the shared wirePress helper would let Space scroll.
+  // Hand-rolled instead of wirePress, which would let Space scroll a role="button" div
   syncSquish (): void {
     if (!this.card) {
       return;
@@ -124,7 +129,7 @@ export class DropletCard extends DropletElement {
       try {
         this.card.setPointerCapture(event.pointerId);
       } catch {
-        // Capture can fail if the pointer is already gone; the press still works
+        // Pointer already gone
       }
 
       this.pressing = true;
@@ -148,8 +153,7 @@ export class DropletCard extends DropletElement {
     this.card.addEventListener('pointerup', endPress);
     this.card.addEventListener('pointercancel', endPress);
 
-    // Native button timing: Enter clicks on keydown, Space on its own keyup. The target
-    // check skips keys bubbling up from focusable slotted content.
+    // Native timing: Enter clicks on keydown, Space on keyup; the target check skips slotted controls
     this.card.addEventListener('keydown', (event) => {
       if (!this.hasAttribute('squish') || event.target !== this.card || (event.key !== 'Enter' && event.key !== ' ')) {
         return;
@@ -182,7 +186,7 @@ export class DropletCard extends DropletElement {
       }
     });
 
-    // A Space press interrupted by focus loss is canceled, as on a native button
+    // Focus loss cancels a held key press, as on a native button
     this.card.addEventListener('blur', () => {
       if (this.enterHeld || this.spaceArmed) {
         this.enterHeld = false;
@@ -192,7 +196,6 @@ export class DropletCard extends DropletElement {
     });
   }
 
-  // Let the surface spring back once no key or pointer is still holding it down
   settleKeyPress (): void {
     if (!this.enterHeld && !this.spaceArmed && !this.pressing) {
       this.releaseBody();

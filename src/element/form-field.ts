@@ -1,9 +1,3 @@
-/*
- * The native-form half shared by droplet-input and droplet-textarea: the inner shadow
- * control owns the editing, while the form-associated host answers the form (value,
- * validity mirrored from the control, reset/disable/restore, ARIA, and labels).
- */
-
 import { DropletElement }     from './index.js';
 import type { Border }      from './index.js';
 
@@ -21,13 +15,13 @@ import { readToken } from '../theme/token-read.js';
 
 export type FieldControl = HTMLInputElement | HTMLTextAreaElement;
 
-// Attributes every text field observes; components append their own
+// Each component appends more
 export const FIELD_ATTRIBUTES: readonly string[] = [
   'id', 'value', 'placeholder', 'label', 'disabled', 'readonly',
   'autocomplete', 'no-autofill', 'size', ...FORWARDED_ARIA, ...DropletElement.AXIS_ATTRIBUTES,
 ];
 
-// Properties a framework may assign before upgrade (state-and-reflection.md)
+// Properties a framework may assign before upgrade
 export const FIELD_REPLAYED: readonly string[] = [
   'value', 'name', 'disabled', 'required', 'readOnly', 'placeholder',
   'minLength', 'maxLength', 'autocomplete',
@@ -38,7 +32,7 @@ const VALIDITY_FLAGS = [
   'rangeUnderflow', 'rangeOverflow', 'stepMismatch', 'badInput', 'customError',
 ] as const;
 
-// Input types that block implicit submission (HTML "implicit submission")
+// Per HTML "implicit submission"
 const BLOCKING_TYPES = new Set([
   'text', 'search', 'url', 'tel', 'email', 'password', 'date', 'month',
   'week', 'time', 'datetime-local', 'number',
@@ -46,7 +40,7 @@ const BLOCKING_TYPES = new Set([
 
 type LabelRefs = { ariaLabelledByElements: Element[] | null };
 
-// HTML "rules for parsing non-negative integers"; anything else is -1, as natively
+// HTML "rules for parsing non-negative integers"; anything else is -1
 function readLength (el: Element, name: string): number {
   const n = parseInt(el.getAttribute(name) ?? '', 10);
 
@@ -63,7 +57,7 @@ function writeLength (el: Element, name: string, value: number): void {
   reflectAttribute(el, name, n);
 }
 
-// Native submit buttons by their own type, droplet-button by its brand; never a foreign element's getters
+// droplet-button answers by its brand; a foreign element's getters are never read
 function isSubmitButton (el: Element): boolean {
   if (el instanceof HTMLButtonElement) {
     return el.type === 'submit';
@@ -88,11 +82,7 @@ function blocksImplicitSubmission (el: Element): boolean {
   return el instanceof DropletFormField && el.blocksImplicitSubmission();
 }
 
-/*
- * HTML implicit submission: click the default button (the first submit button in
- * tree order) unless it is disabled; with none, submit only when at most one field
- * blocks implicit submission
- */
+// HTML implicit submission: click the first submit button unless disabled; with none, submit if at most one field blocks
 export function implicitlySubmit (form: HTMLFormElement): void {
   let blocking = 0;
 
@@ -116,12 +106,11 @@ export function implicitlySubmit (form: HTMLFormElement): void {
 
 export abstract class DropletFormField extends DropletElement implements EventListenerObject {
 
-  // Participate in native form submission, validation and reset through ElementInternals
   static formAssociated = true;
 
   static override usesResolver = true;
 
-  // Constraint and hint attributes copied verbatim onto the inner control
+  // Copied verbatim onto the inner control
   static CONSTRAINTS: readonly string[] = ['required', 'minlength', 'maxlength', 'inputmode', 'enterkeyhint'];
 
   internals: ElementInternals;
@@ -129,18 +118,18 @@ export abstract class DropletFormField extends DropletElement implements EventLi
 
   control: FieldControl | null = null;
 
-  // Native dirty value flag: once set, the value attribute no longer drives the value
+  // HTML dirty value flag: once set, the value attribute stops driving the value
   dirty = false;
 
-  // A value written before the inner control exists, applied at build
+  // Applied when the inner control is built
   pendingValue: string | null = null;
 
   customMessage = '';
 
-  // Disabled by an ancestor fieldset (or our own attribute), per formDisabledCallback
+  // Set by formDisabledCallback
   formDisabled = false;
 
-  // The user committed an edit or a submission found the field invalid (:user-invalid)
+  // Set once the user commits an edit or a submit finds the field invalid
   userInteracted = false;
 
   ariaLink = new AriaLink(this, () => this.refreshAria());
@@ -154,7 +143,7 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     this.addEventListener('click', this);
   }
 
-  // Wire the inner control once the shadow DOM exists; subclasses call it from onBuilt()
+  // Subclasses call this from onBuilt()
   attachControl (control: FieldControl): void {
     this.control = control;
 
@@ -219,7 +208,7 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     return FIELD_REPLAYED;
   }
 
-  // Each explicit ARIA element set rewrites the same "" attribute, so aria-* syncs even when unchanged
+  // An explicit ARIA element set rewrites the same "" attribute, so aria-* syncs even unchanged
   attributeChangedCallback (name: string, oldValue: string | null, newValue: string | null): void {
     if (this.axisAttributeChanged(name)) {
       return;
@@ -230,7 +219,6 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     }
   }
 
-  // Push one observed attribute into the inner control; subclasses add their own cases
   sync (name: string): void {
     const control = this.control;
 
@@ -297,7 +285,6 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     }
   }
 
-  // Forward every host aria-* (IDREFs by reference, resolved now) and relink labels
   refreshAria (): void {
     if (!this.control) {
       return;
@@ -312,11 +299,7 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     this.syncName();
   }
 
-  /*
-   * Name the inner control. `label` beats host aria-label; with neither and no
-   * aria-labelledby, the host's <label>s (internals.labels) are linked by reference,
-   * because a label names the roleless host, never the control inside it
-   */
+  // `label` beats aria-label; with neither, host <label>s link by reference, since they name the roleless host
   syncName (): void {
     const control    = this.control!;
     const own        = this.getAttribute('label') || this.getAttribute('aria-label') || '';
@@ -324,8 +307,7 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     const reflects   = 'ariaLabelledByElements' in (control as object);
     const labels     = own || labelledBy ? [] : Array.from(this.internals.labels ?? []) as HTMLElement[];
 
-    // Without element reflection the labels' text stands in. syncName is the inner aria-label's
-    // only writer, so clearing it whenever neither name applies can never drop an authored one.
+    // Without element reflection the labels' text stands in; this is the inner aria-label's only writer
     const fallback = reflects ? '' : labels.map((label) => label.textContent?.trim() ?? '').join(' ').trim();
     const name     = own || fallback;
 
@@ -342,8 +324,7 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     }
   }
 
-  // no-autofill turns off autocomplete, autocorrect, autocapitalize, and spellcheck, and
-  // sets the opt-out attributes the common password managers respect
+  // The data-* attributes are opt-outs the common password managers respect
   syncAutofill (): void {
     const control      = this.control!;
     const off          = this.hasAttribute('no-autofill');
@@ -367,8 +348,7 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     }
   }
 
-  // Write a value into the control and the form; never emits (programmatic set). A file
-  // input only ever clears: markup leaves it empty and a reset empties its selection.
+  // Never emits; a file input only ever clears
   applyValue (value: string): void {
     const control = this.control!;
 
@@ -378,7 +358,7 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     this.onValueApplied();
   }
 
-  // What the form submits for this field; droplet-input's file type overrides it
+  // droplet-input's file type overrides this
   formValue (): string | FormData | null {
     return this.control!.value;
   }
@@ -387,14 +367,10 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     this.internals.setFormValue(this.formValue());
   }
 
-  // Hook for value-dependent layout (the textarea's auto-grow)
+  // For value-dependent layout (the textarea's auto-grow)
   onValueApplied (): void {}
 
-  /*
-   * Mirror the inner control's constraint validation onto the host, anchored on
-   * the control so the native invalid-submit flow focuses it and points its bubble
-   * there. A barred control reports no message, so fall back rather than throw.
-   */
+  // Anchored on the control so native invalid-submit focuses it; a barred control has no message, hence the fallback
   updateValidity (): void {
     const control = this.control;
 
@@ -422,7 +398,7 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     this.updateUserInvalid();
   }
 
-  // Assert :state(user-invalid) from one path, on every transition
+  // The only writer of :state(user-invalid)
   updateUserInvalid (): void {
     const invalid = this.userInteracted && this.internals.willValidate && !this.internals.validity.valid;
 
@@ -437,20 +413,18 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     }
   }
 
-  // Disabled by our own attribute or by an ancestor <fieldset disabled>
   get fieldDisabled (): boolean {
     return this.hasAttribute('disabled') || this.formDisabled;
   }
 
-  // Paint the error hairline for user-invalid, or any aria-invalid ARIA treats as true
-  // (tokens are case-insensitive; absent, empty, and false mean valid)
+  // aria-invalid tokens are case-insensitive; absent, empty, and false mean valid
   get paintsInvalid (): boolean {
     const aria = this.getAttribute('aria-invalid')?.trim().toLowerCase() ?? '';
 
     return this.internals.states.has('user-invalid') || (aria !== '' && aria !== 'false');
   }
 
-  // Only droplet-input takes part; a textarea never blocks implicit submission
+  // droplet-input overrides; a textarea never blocks implicit submission
   blocksImplicitSubmission (): boolean {
     return false;
   }
@@ -483,7 +457,6 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     return { color, width: 1 };
   }
 
-  // Route the inner control's events and the host's own invalid/click
   handleEvent (event: Event): void {
     switch (event.type) {
       case 'focus':
@@ -532,10 +505,10 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     this.requestFrame();
   }
 
-  // The user edited the value; subclasses ripple the membrane here
+  // Subclasses ripple the membrane here
   handleInput (): void {}
 
-  // A click aimed at the host itself (a <label> activating it) moves focus inside
+  // A <label> activating the host moves focus inside
   handleHostClick (event: Event): void {
     const control = this.control;
 
@@ -560,8 +533,7 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     this.sync('disabled');
   }
 
-  // A file selection saves as FormData and is never restored, as natively; a string
-  // saved before a type change to file would throw in the value setter
+  // File selections never restore, as natively; a string state would throw in the file value setter
   formStateRestoreCallback (state: string | File | FormData | null): void {
     if (typeof state === 'string' && !this.fileField) {
       this.value = state;
@@ -572,7 +544,7 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     return (this.control?.type ?? this.getAttribute('type')?.toLowerCase()) === 'file';
   }
 
-  // The live value; the `value` attribute is only the default (native parity)
+  // The `value` attribute is only the default
   get value (): string {
     return this.control ? this.control.value : this.pendingValue ?? this.defaultValue;
   }
@@ -710,7 +682,6 @@ export abstract class DropletFormField extends DropletElement implements EventLi
     }
   }
 
-  // Route programmatic host focus into the inner native control
   override focus (options?: FocusOptions): void {
     this.control?.focus(options);
   }

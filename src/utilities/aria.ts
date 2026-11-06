@@ -1,10 +1,5 @@
-/*
- * IDREF attributes can't resolve light-DOM ids from inside the shadow tree, so they cross as
- * element references. Setting ariaControlsElements and friends leaves aria-controls="" on the
- * inner element; that is the platform's behavior.
- */
-
-// IDREF attributes and the element-reflection property each one crosses as
+// IDREFs can't reach light-DOM ids from the shadow tree, so they cross as element references.
+// The aria-controls="" that leaves on the inner element is platform behavior.
 const ELEMENT_REFS: Record<string, string> = {
   'aria-activedescendant': 'ariaActiveDescendantElement',
   'aria-controls':         'ariaControlsElements',
@@ -16,8 +11,7 @@ const ELEMENT_REFS: Record<string, string> = {
   'aria-owns':             'ariaOwnsElements',
 };
 
-// Global states and properties a host may carry for its inner control. aria-hidden and
-// aria-live/atomic/relevant stay on the host: as the control's ancestor they already apply natively.
+// aria-hidden and aria-live/atomic/relevant stay on the host, where they apply as an ancestor
 export const FORWARDED_ARIA: readonly string[] = [
   'aria-activedescendant', 'aria-autocomplete', 'aria-busy', 'aria-controls',
   'aria-current', 'aria-describedby', 'aria-description', 'aria-details',
@@ -27,7 +21,6 @@ export const FORWARDED_ARIA: readonly string[] = [
   'aria-roledescription',
 ];
 
-// Resolve a space-separated id list in the host's own tree scope
 export function resolveIdRefs (host: Element, value: string): Element[] {
   const root = host.getRootNode() as Document | ShadowRoot;
   const find = typeof root.getElementById === 'function'
@@ -39,7 +32,6 @@ export function resolveIdRefs (host: Element, value: string): Element[] {
     .filter((el): el is HTMLElement => el !== null);
 }
 
-// Mirror one host aria-* attribute onto the inner control; IDREFs go by reference
 export function forwardAria (host: Element, target: Element, name: string): void {
   const value = host.getAttribute(name);
   const prop  = ELEMENT_REFS[name];
@@ -60,8 +52,7 @@ export function forwardAria (host: Element, target: Element, name: string): void
 
   const reflect = target as unknown as Record<string, Element | readonly Element[] | null>;
 
-  // The host's own reflection resolves an IDREF attribute and explicitly set elements alike, live
-  // in its tree scope; parsing the attribute would read the "" that explicit elements leave behind
+  // Read the host's reflection: explicitly set elements leave "" for an attribute parse
   if (prop in host) {
     reflect[prop] = (host as unknown as Record<string, Element | readonly Element[] | null>)[prop] ?? null;
     return;
@@ -80,8 +71,7 @@ export function forwardAllAria (host: Element, target: Element, names: readonly 
   }
 }
 
-// Forward on connect, once more when parsing reaches later ids, and on focusin so a target inserted
-// since links before assistive technology reads the control. Only the host's own tree scope, like native.
+// Re-forwards on focusin, and at DOMContentLoaded while parsing, to link targets inserted later
 export class AriaLink {
 
   host: HTMLElement;
@@ -108,7 +98,7 @@ export class AriaLink {
     this.host.addEventListener('focusin', () => this.forward(), { signal: controller.signal });
   }
 
-  // Drops both listeners, so a detached host is never retained by its document
+  // So the document never retains a detached host
   disconnect (): void {
     this.controller?.abort();
     this.controller = null;

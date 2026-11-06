@@ -14,7 +14,7 @@ test('mode="dark" scopes the dark tokens to its subtree', async () => {
 
   const child = host.querySelector('.child') as HTMLElement;
   const bg = getComputedStyle(child).getPropertyValue('--droplet-color-background-default').trim();
-  // dark background-default is oklch(0.2198 …)
+  // DARK background-default
   expect(bg).toContain('0.2198');
 
   host.remove();
@@ -29,7 +29,7 @@ test('a custom accent publishes a resolved accent + readable on-color', async ()
   const onAccent = getComputedStyle(child).getPropertyValue('--droplet-color-foreground-on-accent').trim();
 
   expect(accent).toBe('#7C3AED');
-  expect(onAccent).toBe('#FFFFFF'); // white is the readable label on this purple
+  expect(onAccent).toBe('#FFFFFF');
 
   host.remove();
 });

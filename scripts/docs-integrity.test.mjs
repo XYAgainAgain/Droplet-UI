@@ -1,5 +1,3 @@
-// The generated docs and the package surface agree with the source: every tag is
-// documented, demoed or deliberately not, and every published entry exists.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
@@ -62,7 +60,7 @@ test('the package never declares itself free of side effects', () => {
   assert.notEqual(pkg.sideEffects, false);
 });
 
-// HTML resolves from its served URL (showcase at /, the others at /<dir>/), modules from their own
+// HTML resolves from its served URL (showcase at /, the others at /<dir>/), a module from its file
 test('every dist file the docs pages load exists in the build', () => {
   const sources = [{ file: join(ROOT, 'package.js'), base: ROOT }];
   for (const dir of ['showcase', 'api', 'migration']) {

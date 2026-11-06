@@ -1,10 +1,9 @@
-/*
- * Two role="slider" knobs carry focus and all the ARIA while the painted
- * thumbs squish and lean. It submits "low,high", and in RTL the painting,
- * knob placement, and arrow keys all mirror like native sliders.
- */
+// Two role="slider" knobs carry focus and ARIA over the painted thumbs; submits "low,high"
 
 import { DropletElement }     from '../../element/index.js';
+import { FORM_ATTRIBUTES }    from '../../element/form-control.js';
+import { FormControl }        from '../../element/form-control.js';
+import type { RestoreState }  from '../../element/form-control.js';
 import type { Shape }       from '../../element/index.js';
 
 import { DropletBody }        from '../../core/index.js';
@@ -36,14 +35,13 @@ interface RangeSize {
 
 type ThumbIndex = 0 | 1;
 
-// Host geometry per size: footprint, thumb diameter, track height
+// px, mirroring range.css
 const RANGE_SIZES: Record<Size, RangeSize> = {
   small:  { width: 220, height: 30, thumb: 24, track: 9 },
   medium: { width: 260, height: 36, thumb: 28, track: 12 },
   large:  { width: 320, height: 44, thumb: 34, track: 14 },
 };
 
-// Thumb physics: small, tight drops that stay lively under drag
 const THUMB_CONFIG: Partial<DropletConfig> = {
   membraneSpring:          82,
   membraneDamping:         14,
@@ -69,8 +67,18 @@ const THUMB_CONFIG: Partial<DropletConfig> = {
  * @attr {boolean} disabled - Disable the control and remove it from the tab order.
  * @attr {"small"|"medium"|"large"} size - Control size.
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Accent fill hue.
+ * @attr {string} color - Any CSS color for the fill or accent (beats intent and variant); text or a mark on it turns white or near-black, whichever reads better.
+ * @attr {"accent"|"neutral"|"info"|"success"|"warning"|"danger"|"highlight"} intent - Semantic color role (never an ARIA role); beats variant.
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
  * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
+ * @attr {string} material - Registered material preset: "matte" (the default) or "gloss" (Experimental); inherits from a `data-droplet-material` scope.
+ * @attr {number} gloss - Sheen sharpness 0–1 for a lit material (Experimental); defaults to the material's sharpness.
+ * @attr {number} softness - Feel knob 0–1: how far the surface gives under a press; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} bounce - Feel knob 0–1: how long it keeps wobbling before it settles; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} viscosity - Feel knob 0–1: how thick and slow it moves; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} spread - Feel knob 0–1: how far a dent travels around the edge; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} depth - Feel knob 0–1: how far it presses in and tilts; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} intensity - Feel knob 0–1: master gain on every push the surface takes; unset keeps the feel preset's setting, and 0.5 is neutral.
  *
  * @fires input - Continuously as a bound changes.
  * @fires change - When a bound is committed.
@@ -81,8 +89,9 @@ const THUMB_CONFIG: Partial<DropletConfig> = {
  *
  * @cssprop [--droplet-accent] - Selected-interval fill and thumb color.
  * @cssprop [--droplet-track] - Empty-track color.
+ * @cssprop [--droplet-range-width] - Host width, inherited from any ancestor; defaults to 220/260/320px by size.
  */
-export class DropletRange extends DropletElement implements EventListenerObject {
+export class DropletRange extends FormControl(DropletElement) implements EventListenerObject {
 
   static define (options?: DefineOptions): DefineResult {
     return defineRange(options);
@@ -90,12 +99,12 @@ export class DropletRange extends DropletElement implements EventListenerObject 
 
   static override usesResolver = true;
 
-  // Participate in native form submission through ElementInternals
+  static override textOnFill = false;
+
   static formAssociated = true;
 
-  internals: ElementInternals;
+  override internals: ElementInternals;
 
-  // Populated in onBuilt()/onShape()
   track!: HTMLElement;
   knobs!: HTMLElement[];
   thumbs: [DropletBody, DropletBody] | null = null;
@@ -115,7 +124,7 @@ export class DropletRange extends DropletElement implements EventListenerObject 
   trackH = 0;
 
   static get observedAttributes (): string[] {
-    return ['min', 'max', 'step', 'low', 'high', 'label', 'disabled', 'size', ...DropletElement.AXIS_ATTRIBUTES];
+    return ['min', 'max', 'step', 'low', 'high', 'label', 'disabled', 'size', ...DropletElement.AXIS_ATTRIBUTES, ...FORM_ATTRIBUTES];
   }
 
   constructor () {
@@ -162,14 +171,13 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     return numberAttribute(this, 'max', 100);
   }
 
-  // The step increment (always positive)
   get step (): number {
     const step = numberAttribute(this, 'step', 1);
 
     return step > 0 ? step : 1;
   }
 
-  // How far a thumb center can travel along the track, in pixels
+  // px
   get travel (): number {
     return Math.max(0, this.trackW - this.sizeConfig.thumb);
   }
@@ -206,7 +214,6 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     this.pointerId = null;
   }
 
-  // Route knob-, track-, and window-level events registered with `this`
   handleEvent (event: Event): void {
     switch (event.type) {
       case 'pointerdown':   this.down(event as PointerEvent, this.knobIndex(event)); break;
@@ -219,14 +226,12 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     }
   }
 
-  // The knob index an event was wired on, or null for the track/window
   knobIndex (event: Event): ThumbIndex | null {
     const index = (event.currentTarget as HTMLElement | null)?.dataset?.k;
 
     return index === '0' ? 0 : index === '1' ? 1 : null;
   }
 
-  // Rebuild the two thumb bodies and settle them onto their targets
   override onShape (): void {
     this.trackW = this.body ? this.body.width : this.getBoundingClientRect().width;
     this.trackH = this.body ? this.body.height : this.sizeConfig.track;
@@ -251,24 +256,22 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     this.requestFrame();
   }
 
-  // A value as a 0–1 fraction of the min → max span
   fraction (value: number): number {
     return (value - this.min) / ((this.max - this.min) || 1);
   }
 
-  // A value's logical x-offset from the track center (+ toward the inline end)
+  // Offset from the track center, + toward the inline end
   logicalX (value: number): number {
     return -this.travel / 2 + this.fraction(value) * this.travel;
   }
 
-  // A value's physical canvas x, mirrored in RTL where values grow leftward
+  // Physical canvas x, mirrored in RTL
   valToX (value: number): number {
     const x = this.logicalX(value);
 
     return isRTL(this) ? -x : x;
   }
 
-  // A physical canvas x back to a stepped value, honoring reading direction
   xToVal (x: number): number {
     const half = this.travel / 2 || 1;
 
@@ -283,7 +286,6 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     return Math.round(raw / this.step) * this.step;
   }
 
-  // Clamp both values into [min, max] and keep low ≤ high
   normalizeValues (): void {
     const min  = this.min;
     const max  = this.max;
@@ -296,7 +298,6 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     ];
   }
 
-  // Re-derive targets, knob placement, ARIA, and the form value after a bound change
   syncValueState (): void {
     if (!this.val) {
       return;
@@ -314,7 +315,6 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     this.requestFrame();
   }
 
-  // Set one bound (0 = low, 1 = high), clamped against the other and reflect it
   setVal (i: ThumbIndex, value: number, fromUser = false): void {
     if (!Number.isFinite(value)) {
       return;
@@ -342,7 +342,6 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     this.requestFrame();
   }
 
-  // Place the knobs along the track via direction-aware inset-inline-start
   reflectKnobs (): void {
     if (!this.knobs || !Number.isFinite(this.trackW)) {
       return;
@@ -363,14 +362,13 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     });
   }
 
-  // Mirror state onto the two role=slider knobs, which carry all the ARIA
   syncA11y (): void {
     if (!this.knobs) {
       return;
     }
 
-    const disabled = this.hasAttribute('disabled');
-    const label    = this.getAttribute('label');
+    const disabled = this.isDisabled;
+    const label    = this.getAttribute('label') || this.hostName();
 
     this.removeAttribute('tabindex');
 
@@ -388,12 +386,10 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     });
   }
 
-  // Mirror the "low,high" value into the host form
   syncFormValue (): void {
     this.internals.setFormValue(this.val.join(','));
   }
 
-  // The knob index whose thumb sits closest to a physical canvas x
   nearest (x: number): ThumbIndex {
     return Math.abs(x - this.valToX(this.val[0])) <= Math.abs(x - this.valToX(this.val[1])) ? 0 : 1;
   }
@@ -422,9 +418,8 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     window.removeEventListener('pointercancel', this);
   }
 
-  // Begin a drag: pick the pressed (or nearest) knob and jump it to the pointer
   down (event: PointerEvent, forced: ThumbIndex | null): void {
-    if (this.hasAttribute('disabled')) {
+    if (this.isDisabled) {
       return;
     }
 
@@ -476,7 +471,6 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     this.requestFrame();
   }
 
-  // Keyboard stepping per knob: arrows follow reading direction, Shift ×10, Home/End
   key (event: KeyboardEvent, i: ThumbIndex | null): void {
     if (i == null) {
       return;
@@ -488,7 +482,7 @@ export class DropletRange extends DropletElement implements EventListenerObject 
 
     if (delta === 0 && event.key === 'ArrowUp')   delta = step;
     if (delta === 0 && event.key === 'ArrowDown') delta = -step;
-    // PageUp/PageDown page by the ×10 step, matching droplet-slider's native range
+    // Pages by ×10, matching droplet-slider's native range
     if (event.key === 'PageUp')   delta = this.step * 10;
     if (event.key === 'PageDown') delta = -this.step * 10;
 
@@ -511,7 +505,6 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     emit(this, 'change');
   }
 
-  // A knob taking keyboard focus becomes the active thumb and shows the ring
   focusKnob (event: FocusEvent): void {
     const knob = event.currentTarget as HTMLElement;
     const index = this.knobIndex(event);
@@ -539,7 +532,6 @@ export class DropletRange extends DropletElement implements EventListenerObject 
       return false;
     }
 
-    // Resolve the theme tokens at paint time so a mode flip recolors live
     const ctx    = this.ctx;
     const cx     = this.cssW / 2;
     const cy     = this.cssH / 2;
@@ -551,7 +543,6 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     let settled = true;
 
     for (const i of [0, 1] as const) {
-      // Reduced motion snaps each knob straight to its value instead of gliding
       if (this.reducedMotion) {
         this.x[i]         = this.target[i];
         this.xVelocity[i] = 0;
@@ -575,21 +566,24 @@ export class DropletRange extends DropletElement implements EventListenerObject 
 
     this.clearCanvas();
 
-    // The accent fill spans the interval between both physical thumb
-    // positions, so RTL mirrors for free
-    ctx.save();
-    ctx.beginPath();
-    ctx.roundRect(cx - tW / 2, cy - trackH / 2, tW, trackH, trackH / 2);
-    ctx.fillStyle = track;
-    ctx.fill();
-    ctx.clip();
-
+    // Physical thumb positions, so RTL mirrors for free
     const xa = cx + this.x[0];
     const xb = cx + this.x[1];
 
-    ctx.fillStyle = accent;
-    ctx.fillRect(Math.min(xa, xb), cy - trackH / 2, Math.abs(xb - xa), trackH);
-    ctx.restore();
+    const paintTrack = (target: CanvasRenderingContext2D): void => {
+      target.save();
+      target.beginPath();
+      target.roundRect(cx - tW / 2, cy - trackH / 2, tW, trackH, trackH / 2);
+      target.fillStyle = track;
+      target.fill();
+      target.clip();
+      target.fillStyle = accent;
+      target.fillRect(Math.min(xa, xb), cy - trackH / 2, Math.abs(xb - xa), trackH);
+      target.restore();
+    };
+
+    paintTrack(ctx);
+    this.shadeTrack(ctx, cx - tW / 2, cy - trackH / 2, tW, trackH, track, paintTrack);
 
     for (const i of [0, 1] as const) {
       const speed       = Math.abs(this.xVelocity[i]);
@@ -604,8 +598,6 @@ export class DropletRange extends DropletElement implements EventListenerObject 
       const stretchX       = travelStretchX * this.pressScale[i];
       const stretchY       = (1 / Math.sqrt(travelStretchX)) * this.pressScale[i];
 
-      // The focus ring is painted from the thumb's own deformed surface so it
-      // stays in lockstep with the wobble and travel
       this.paintBody(thumbs[i], {
         fill:    accent,
         cx:      this.x[i],
@@ -624,7 +616,7 @@ export class DropletRange extends DropletElement implements EventListenerObject 
   }
 
   attributeChangedCallback (name: string): void {
-    if (this.axisAttributeChanged(name)) {
+    if (this.axisAttributeChanged(name) || this.formAttributeChanged(name)) {
       return;
     }
 
@@ -656,8 +648,11 @@ export class DropletRange extends DropletElement implements EventListenerObject 
         break;
 
       case 'label':
-      case 'disabled':
         this.syncA11y();
+        break;
+
+      case 'disabled':
+        this.syncDisabled();
         break;
 
       case 'size':
@@ -670,9 +665,55 @@ export class DropletRange extends DropletElement implements EventListenerObject 
     return this.val.join(',');
   }
 
-  // Route programmatic host focus into the active knob
   override focus (options?: FocusOptions): void {
     this.knobs?.[this.active]?.focus(options);
+  }
+
+  override formAnchor (): HTMLElement | null {
+    return this.knobs?.[this.active] ?? null;
+  }
+
+  // Both knobs carry host aria-*; the host's name prefixes Minimum and Maximum
+  override refreshAria (): void {
+    const forwarded = new Set(this.forwardedAria);
+
+    for (const knob of this.knobs ?? []) {
+      this.forwardedAria = new Set(forwarded);
+      this.forwardAriaTo(knob, ['aria-label', 'aria-labelledby']);
+    }
+
+    this.syncA11y();
+  }
+
+  hostName (): string {
+    const root = this.getRootNode() as Document | ShadowRoot;
+    const ids  = this.getAttribute('aria-labelledby')?.trim().split(/\s+/) ?? [];
+    const text = (nodes: (Element | null | undefined)[]): string => nodes.map((node) => node?.textContent?.trim() ?? '').filter(Boolean).join(' ');
+
+    return text(ids.map((id) => root.getElementById?.(id)))
+      || this.getAttribute('aria-label')?.trim()
+      || text(Array.from(this.internals?.labels ?? []) as Element[]);
+  }
+
+  // The low and high attributes are the authored defaults
+  override formReset (): void {
+    this.val[0] = numberAttribute(this, 'low', this.min);
+    this.val[1] = numberAttribute(this, 'high', this.max);
+    this.syncValueState();
+  }
+
+  override formRestore (state: RestoreState): void {
+    const [low, high] = typeof state === 'string' ? state.split(',').map(Number) : [];
+
+    if (Number.isFinite(low) && Number.isFinite(high)) {
+      this.val[0] = low!;
+      this.val[1] = high!;
+      this.syncValueState();
+    }
+  }
+
+  override syncDisabled (): void {
+    this.syncA11y();
   }
 
 }

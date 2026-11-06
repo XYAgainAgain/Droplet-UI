@@ -1,7 +1,4 @@
-/*
- * The radios still group by their own shared `name`; this container only adds
- * the radiogroup role, the legend as its accessible name, layout, and sizing.
- */
+// Radios group by their shared `name`; this adds only the role, legend, and sizing
 
 import { canonicalizeSize }  from '../../utilities/index.js';
 import { propagateSize }     from '../../utilities/index.js';
@@ -39,7 +36,6 @@ export class DropletRadioGroup extends HTMLElementBase {
   built = false;
   legendId = '';
 
-  // Populated in build()
   legend!: HTMLElement;
   items!: HTMLElement;
   slotEl!: HTMLSlotElement;
@@ -75,7 +71,6 @@ export class DropletRadioGroup extends HTMLElementBase {
     this.items  = this.shadowRoot!.querySelector('.items')!;
     this.slotEl = this.shadowRoot!.querySelector('slot')!;
 
-    // Radios slotted in later still pick up the group's size
     this.slotEl.addEventListener('slotchange', () => propagateSize(this, anyTag('radio')));
   }
 

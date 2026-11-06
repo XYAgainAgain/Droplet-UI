@@ -1,6 +1,6 @@
-/* Migration-page-only styles (/migration); shared page chrome lives in docs/shared/site.css */
+/* Migration page; shared chrome lives in docs/shared/site.css */
 
-/* The tables render from data; hold space so the footer does not leap */
+/* Holds space until the tables render */
 #tokenGroups:empty { min-block-size: 60vh; }
 
 html { scroll-padding-top: calc(var(--header-h) + 16px); }
@@ -125,7 +125,7 @@ body { font-size: 15.5px; }
   .features { grid-template-columns: 1fr 1fr; }
 }
 
-/* Code blocks: the shared .code shell plus a title on the toolbar's left */
+/* Code blocks */
 .block .code { margin-block: 14px 18px; }
 .code-head { justify-content: space-between; }
 .code-title {
@@ -178,7 +178,7 @@ td code { color: var(--text); }
 .token-group { margin-block-start: 26px; }
 .token-group h3 { margin-block-start: 0; font-family: var(--mono); font-size: 15px; }
 
-/* Focus (the droplet-button copy controls paint their own ring) */
+/* Focus (droplet-button copy controls paint the ring themselves) */
 a:focus-visible {
   outline:        2px solid var(--accent);
   outline-offset: 2px;
@@ -189,5 +189,4 @@ footer {
   border-block-start: 1px solid var(--line);
 }
 
-/* Motion: the only animated thing here is smooth scrolling, which site.css
-   already gates on prefers-reduced-motion and data-droplet-motion */
+/* No motion rules: site.css gates the smooth scroll */

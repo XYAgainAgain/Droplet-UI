@@ -1,9 +1,3 @@
-/*
- * A progress bar with a soft-body fill. The leading edge wobbles as the
- * value advances; `indeterminate` swaps in a blob that travels the track,
- * leaning into its motion and splatting softly against each wall.
- */
-
 import { DropletElement } from '../../element/index.js';
 import type { Shape }   from '../../element/index.js';
 
@@ -43,8 +37,18 @@ const PROGRESS_SIZES: Record<string, ProgressSize> = {
  * @attr {string} label - Accessible name for the bar.
  * @attr {"small"|"medium"|"large"} size - Bar size.
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Fill hue.
+ * @attr {string} color - Any CSS color for the fill or accent (beats intent and variant); text or a mark on it turns white or near-black, whichever reads better.
+ * @attr {"accent"|"neutral"|"info"|"success"|"warning"|"danger"|"highlight"} intent - Semantic color role (never an ARIA role); beats variant.
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
  * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
+ * @attr {string} material - Registered material preset: "matte" (the default) or "gloss" (Experimental); inherits from a `data-droplet-material` scope.
+ * @attr {number} gloss - Sheen sharpness 0–1 for a lit material (Experimental); defaults to the material's sharpness.
+ * @attr {number} softness - Feel knob 0–1: how far the surface gives under a press; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} bounce - Feel knob 0–1: how long it keeps wobbling before it settles; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} viscosity - Feel knob 0–1: how thick and slow it moves; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} spread - Feel knob 0–1: how far a dent travels around the edge; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} depth - Feel knob 0–1: how far it presses in and tilts; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} intensity - Feel knob 0–1: master gain on every push the surface takes; unset keeps the feel preset's setting, and 0.5 is neutral.
  *
  * @cssprop [--droplet-accent] - Fill color.
  * @cssprop [--droplet-track] - Empty-track color.
@@ -56,6 +60,8 @@ export class DropletProgress extends DropletElement {
   }
 
   static override usesResolver = true;
+
+  static override textOnFill = false;
 
   fraction = 0;
   shownFrac = 0;
@@ -76,12 +82,11 @@ export class DropletProgress extends DropletElement {
     return progressStyles + variantColors({ color: '--droplet-accent' });
   }
 
-  // No interactive content: the bar is pure canvas
   override content (): string {
     return '';
   }
 
-  // The full track is the physics body; the fill is painted clipped
+  // The whole track is the body; the fill is painted clipped to it
   override shape (width: number, height: number): Shape {
     const trackH = height || this.sizeConfig.track;
 
@@ -169,8 +174,6 @@ export class DropletProgress extends DropletElement {
     let keepAnimating = false;
 
     if (this.indeterminate) {
-      // One soft body bounces wall to wall, leaning into its travel (teardrop),
-      // easing to a stop at each end, and splatting before it springs back.
       const blobW = Math.max(trackH * 1.8, tW * 0.24);
 
       if (!this.blob) {
@@ -185,14 +188,12 @@ export class DropletProgress extends DropletElement {
       const blob = this.blob;
 
       if (this.reducedMotion) {
-        // Static centered blob: signals "busy" without any motion
         blob.leanAmount = 0;
         blob.update(dt);
         this.paintBody(blob, { fill: accent, cx: 0 });
         return false;
       }
 
-      // Sinusoidal travel → fast through the middle, easing to rest at each wall
       const travel = Math.max(0, tW - blobW);
 
       this.phase += dt * 2.0;
@@ -202,8 +203,7 @@ export class DropletProgress extends DropletElement {
       const vel   = Math.cos(this.phase);
       const speed = Math.abs(vel);
 
-      // Keep the forward lean gentle: leaning past the end radius would tuck
-      // the trailing tip into a sharp point. Stretch and lean ease off at the turnarounds.
+      // Keep the lean gentle: past the end radius the trailing tip tucks into a point
       const stretch = speed * 0.34;
 
       if (speed > 0.06) {
@@ -211,7 +211,7 @@ export class DropletProgress extends DropletElement {
       }
       blob.leanAmount = speed * (trackH / 2) * 0.4;
 
-      // One splat per turnaround; re-arming only below 0.9 stops it re-firing at the wall
+      // Re-arms only below 0.9, so each turnaround splats once
       if (Math.abs(s) > 0.985) {
         if (!this.wall) {
           this.wall = true;
@@ -231,8 +231,7 @@ export class DropletProgress extends DropletElement {
 
       keepAnimating = true;
     } else {
-      // Ease the fill length toward the target with no overshoot: a bouncing
-      // edge reads as a clunk, not a wobble
+      // Eased, not sprung: an overshooting edge reads as a clunk
       this.shownFrac += (this.fraction - this.shownFrac) * Math.min(1, dt * 9);
 
       const remaining = Math.abs(this.fraction - this.shownFrac);
@@ -241,13 +240,11 @@ export class DropletProgress extends DropletElement {
         this.shownFrac = this.fraction;
       }
 
-      // The fill grows from the inline-start edge, so mirror in RTL
       const lx = rtl
         ? clamp(tW / 2 - this.shownFrac * tW, -tW / 2, tW / 2)
         : clamp(-tW / 2 + this.shownFrac * tW, -tW / 2, tW / 2);
 
-      // Ripple the leading edge while it advances, throttled so pulses don't
-      // pile up into a jittery wobble
+      // Throttled so pulses don't pile up into jitter
       this.rip += dt;
 
       if (!this.reducedMotion && remaining > 0.003 && this.rip > 0.13) {
@@ -270,8 +267,7 @@ export class DropletProgress extends DropletElement {
     return keepAnimating;
   }
 
-  // Guard on built-state, not body (which needs a nonzero-size layout), so
-  // value changes land even before the first paint.
+  // Gate on built, not body: body waits for layout, and values must land before first paint
   attributeChangedCallback (name: string): void {
     if (this.axisAttributeChanged(name)) {
       return;

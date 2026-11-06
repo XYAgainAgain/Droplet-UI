@@ -6,7 +6,7 @@
   --droplet-ring: var(--jelly-accent, var(--droplet-accent, var(--jelly-color-border-focus, var(--droplet-color-border-focus)))); --jelly-ring: var(--droplet-ring);
 
   display: inline-block;
-  width:   240px;
+  width:   var(--droplet-slider-width, 240px);
   height:  36px;
   outline: none;
 }
@@ -14,25 +14,26 @@
 :host([size="small"]) {
   --droplet-slider-track-height: 9px; --jelly-slider-track-height: var(--droplet-slider-track-height);
 
-  width:  200px;
+  width:  var(--droplet-slider-width, 200px);
   height: 30px;
 }
 
 :host([size="medium"]) {
   --droplet-slider-track-height: 12px; --jelly-slider-track-height: var(--droplet-slider-track-height);
 
-  width:  240px;
+  width:  var(--droplet-slider-width, 240px);
   height: 36px;
 }
 
 :host([size="large"]) {
   --droplet-slider-track-height: 14px; --jelly-slider-track-height: var(--droplet-slider-track-height);
 
-  width:  300px;
+  width:  var(--droplet-slider-width, 300px);
   height: 44px;
 }
 
-:host([disabled]) {
+:host([disabled]),
+:host(:disabled) {
   opacity:        0.5;
   pointer-events: none;
 }
@@ -62,8 +63,7 @@ input {
   touch-action: none;
 }
 
-/* Stretch the pointer target to at least 24px tall (WCAG 2.5.8) without
-   changing the visual track geometry */
+/* A 24px pointer target (WCAG 2.5.8) without changing the visible track */
 .track::before {
   content:      "";
   position:     absolute;
@@ -73,8 +73,7 @@ input {
   height:       max(100%, 24px);
 }
 
-/* With no 2D context the canvas can never show the value, so hand the control
-   back to the native range input (canvas-is-decoration.md) */
+/* With no 2D context the native input takes over */
 :host([data-droplet-nocanvas]) .droplet-canvas,
 :host([data-droplet-nocanvas]) .track {
   display: none;
@@ -85,8 +84,7 @@ input {
   pointer-events: auto;
 }
 
-/* The painted canvas carries no forced-colors information, so hand the
-   control back to the fully styleable native range input there */
+/* Forced colors can't reach the canvas, so the native input takes over */
 @media (forced-colors: active) {
   .droplet-canvas,
   .track {

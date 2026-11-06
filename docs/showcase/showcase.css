@@ -1,7 +1,6 @@
-/* Showcase-only styles (index.html); shared page chrome lives in docs/shared/site.css */
+/* Showcase page; shared chrome lives in docs/shared/site.css */
 
-/* The panels render from docs/content/data.js; hold their space so the footer
-   doesn't flash at the top and then leap away */
+/* Holds space until data.js renders, so the footer doesn't flash up top */
 #panels:empty { min-height: 200vh; }
 
 /* Scroll progress */
@@ -19,8 +18,7 @@
 [dir="rtl"] .scroll-progress { transform-origin: 100% 0; }
 
 /* Hero */
-/* Azure is the same value in light and dark, so the white text stays legible in both.
-   overflow: hidden clips the glow bleed without breaking sticky (nothing sticky sits inside). */
+/* Azure is theme-invariant, so white text holds; overflow: hidden is safe (nothing sticky inside) */
 .hero {
   position:        relative;
   box-sizing:      border-box;
@@ -78,7 +76,6 @@
   to   { transform: translate3d(5vw, 4vh, 0) scale(1.1); }
 }
 
-/* Fine monochrome grain kills the flat, poster-blue feel */
 .hero-backdrop .grain {
   position:   absolute;
   inset:      0;
@@ -90,33 +87,26 @@
 
 .hero-grid {
   position:      relative;
-  z-index:       1; /* keep the copy above the illustration where they meet */
+  z-index:       1; /* above the illustration */
   width:         min(1040px, 100%);
   margin-inline: auto;
 }
 
-/* Allow the copy to shrink below its content's natural width, or the headline
-   would push the hero past a narrow viewport */
 .hero-copy { min-width: 0; }
 
-/* Positioned against the hero, not the centered copy column, and pushed past the
-   bottom edge so overflow: hidden crops it into peeking up from the fold. The
-   translate is a percentage of its own height, so the crop scales at every viewport. */
+/* Anchored to the hero, not the copy column; overflow: hidden crops it at the fold */
 .hero-anim {
   position:         absolute;
   inset-inline-end: clamp(-54px, calc(2vw - 30px), 26px);
   bottom:           0;
   width:            min(780px, 62vw);
-  /* The artwork has ~13% empty canvas below the figure; translating past it seats
-     the figure on the bottom edge with no blue gap */
+  /* Past the artwork's ~13% empty canvas below the figure, so no blue gap shows */
   transform:        translateY(23%);
   pointer-events:   none;
 }
 .hero-lottie {
   width:        100%;
   aspect-ratio: 1;
-  /* Hidden until the player and JSON arrive, then faded in so the illustration
-     never pops in mid-frame */
   opacity:      0;
   transition:   opacity 0.6s ease;
 }
@@ -149,8 +139,7 @@
   margin:    24px 0 0;
 }
 
-/* The hero is a fixed blue surface, so its outline badges keep white labels and rims
-   in light and dark alike (an outline badge otherwise uses the theme text token) */
+/* Outline badges on the fixed blue keep white labels and rims in both themes */
 .hero-stats droplet-badge {
   --jelly-color-foreground-default:  #FFFFFF;
   --jelly-color-background-white: #FFFFFF;
@@ -162,14 +151,10 @@
   align-items: center;
   gap:         14px;
   margin-top:  30px;
-  /* The button's soft body is inset ~4px inside its host box, more than the
-     stat badges above and the code panel below; pull the row back so the
-     first button's left edge lines up with them */
+  /* The button body sits ~4px inside its host; this aligns it with the badges and code */
   margin-inline-start: -5px;
 }
 
-/* Dark glass for legibility on the blue, nearly opaque so the illustration peeks
-   out from behind it rather than bleeding through */
 .quickstart {
   position:      relative;
   z-index:       1;
@@ -214,14 +199,12 @@
 
 :root[data-droplet-motion="reduce"] .hero-backdrop .glow { animation: none; }
 
-/* The illustration needs a wide viewport to sit beside the copy without crowding the
-   code block; below that, display: none also keeps it from loading its payload */
+/* Too crowded beside the code block on narrower screens */
 @media (max-width: 1300px) {
   .hero-anim { display: none; }
 }
 
 /* Panels */
-/* Each panel is at least one viewport tall, minus the sticky top bar */
 .panel {
   position:      relative;
   display:       flex;
@@ -234,8 +217,7 @@
   display:     flex;
   align-items: center;
   width:       100%;
-  /* Clip the components' decorative canvas bleed horizontally so it can't
-     widen the page; vertical stays visible so tall tables flow naturally. */
+  /* Clips canvas bleed sideways so it can't widen the page */
   overflow-x:  clip;
 }
 
@@ -279,7 +261,7 @@
 .attr {
   display:               grid;
   grid-template-columns: minmax(0, 150px) minmax(0, 1fr);
-  align-items:           center; /* center the name against its wrapping option row */
+  align-items:           center;
   gap:                   6px 24px;
   padding:               14px 12px;
   border-top:            1px solid var(--line);
@@ -307,7 +289,7 @@
   font-size: 13px;
 }
 
-/* The live-updating HTML snippet (block styles shared in site.css) */
+/* Snippet; block styles live in site.css */
 .doc .code     { margin-top: 24px; }
 .doc .code pre { max-height: 150px; }
 
@@ -320,8 +302,7 @@
 }
 .api-link:hover { text-decoration: underline; }
 
-/* The stage's transparency checkerboard is a neutral ground every fill reads against;
-   white components interrupt the checks where a flat background would swallow them */
+/* The checkerboard keeps white components visible where a flat ground would hide them */
 .stage { min-width: 0; min-height: 0; max-height: 100%; }
 
 .stage-frame {
@@ -342,8 +323,6 @@
   overflow: hidden;
 }
 
-/* Fill the frame exactly so it centers the demo without adding its own
-   scrollbars; the frame already clips any rare oversized preview. */
 .stage-inner {
   display:         flex;
   flex-direction:  column;
@@ -358,8 +337,7 @@
   overflow:        hidden;
 }
 
-/* Size changes glide instead of snapping (the canvas body follows via its ResizeObserver).
-   Chip, divider, and resizable keep their own transitions, so they're left out. */
+/* Chip, divider, and resizable set separate transitions, so they stay off this list */
 .stage-inner :is(droplet-button, droplet-icon-button, droplet-input, droplet-textarea,
   droplet-checkbox, droplet-radio, droplet-switch, droplet-slider, droplet-badge,
   droplet-kbd, droplet-spinner, droplet-select, droplet-segmented, droplet-otp,
@@ -396,13 +374,11 @@
 }
 .stage-inner .pg-tab p { margin: 0; color: var(--muted); font-size: 14px; }
 
-/* droplet-resizable panes: literal colors, not theme tokens, so the grey tiles stay
-   legible in light and dark; this preview's ground is always white */
+/* Literal colors, not tokens: this preview's ground is always white */
 .stage-inner .pg-pane {
   display:         grid;
   place-items:     center;
-  /* No explicit height: as a flex item (flex: 1 1 0) the pane fills its cell around
-     the margin, where height: 100% would ignore it and overflow by 8px */
+  /* No height: 100%; it ignores the margin and overflows by 8px */
   margin:          4px;
   border-radius:   10px;
   background:      #E8E9ED;
@@ -421,8 +397,6 @@
   pointer-events:     none;
 }
 
-/* The fired-event ticker: real droplet-badges dropped in by the showcase, so
-   only the fade-out is styled here */
 .event-chip {
   opacity:    0.95;
   transition: opacity .6s ease, transform .6s ease;
@@ -485,7 +459,6 @@
 :root[data-droplet-motion="reduce"] .footer-lottie { transition: none; }
 
 /* Mobile */
-/* Narrow screens stack each panel and let it grow to its content */
 @media (max-width: 900px) {
   .panel { min-height: 0; }
 
@@ -498,13 +471,11 @@
     padding:               clamp(28px, 6vw, 48px) clamp(18px, 5vw, 32px);
   }
 
-  /* The preview leads, the docs follow beneath it */
   .stage       { order: -1; max-height: none; }
   .stage-frame { height: min(46vh, 360px); }
 
   .doc { max-height: none; }
 
-  /* Stack each row so the value component gets the full column width */
   .attr {
     grid-template-columns: 1fr;
     gap:                   4px;
@@ -512,7 +483,6 @@
 
   .attr-field { max-width: none; }
 
-  /* Wrap long code snippets instead of scrolling them sideways */
   .code pre { white-space: pre-wrap; word-break: break-word; }
 
   .outro { min-height: 0; }

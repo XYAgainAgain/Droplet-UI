@@ -29,10 +29,8 @@
     minmax(0, var(--droplet-resizable-row-b, 1fr));
 }
 
-/* A slot defaults to display: contents, which makes no box, so the 2×2
-   grid-area placements would be ignored and panes would auto-place into the
-   wrong tracks. Each slot becomes a flex box pinned to its cell, clipped so
-   a fully collapsed track never spills its content. */
+/* A display: contents slot ignores grid-area, so each slot is a flex box
+   pinned to its cell, clipped so a collapsed track can't spill */
 :host([direction="both"]) slot {
   display:    flex;
   min-width:  0;
@@ -59,8 +57,6 @@
   border-radius:   999px;
 }
 
-/* A full-length hairline seam keeps the panes visibly separated at rest,
-   under the grabber pill. The default vertical divider gets a full-height rule. */
 .divider::before {
   content:    "";
   position:   absolute;

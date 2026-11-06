@@ -6,8 +6,6 @@
   --droplet-on: var(--jelly-color-background-accent, var(--droplet-color-background-accent)); --jelly-on: var(--droplet-on);
   --droplet-label: var(--jelly-color-foreground-on-neutral, var(--droplet-color-foreground-on-neutral)); --jelly-label: var(--droplet-label);
   --droplet-label-on: var(--jelly-color-foreground-on-accent, var(--droplet-color-foreground-on-accent)); --jelly-label-on: var(--droplet-label-on);
-  /* Focus follows the chip's visible fill: neutral while unselected,
-     then the configured variant once selected. */
   --droplet-ring: var(--jelly-fill, var(--droplet-fill, var(--jelly-color-border-focus, var(--droplet-color-border-focus)))); --jelly-ring: var(--droplet-ring);
   --droplet-chip-radius: 999px; --jelly-chip-radius: var(--droplet-chip-radius);
 
@@ -17,8 +15,7 @@
 :host([size="small"]) { height: 30px; font-size: 12.5px; }
 :host([size="large"]) { height: 42px; font-size: 15.5px; }
 
-/* A smaller rounded-rectangle radius instead of the full pill, matching
-   shape="square" on droplet-button and droplet-badge */
+/* Matches shape="square" on droplet-button and droplet-badge */
 :host([shape="square"]) { --droplet-chip-radius: 11px; --jelly-chip-radius: var(--droplet-chip-radius); }
 :host([shape="square"][size="small"]) { --droplet-chip-radius: 9px; --jelly-chip-radius: var(--droplet-chip-radius); }
 :host([shape="square"][size="large"]) { --droplet-chip-radius: 13px; --jelly-chip-radius: var(--droplet-chip-radius); }
@@ -32,8 +29,7 @@
   pointer-events: none;
 }
 
-/* Removal collapses width and margin (set from JS) so neighbors slide in
-   instead of snapping shut the instant the chip leaves the DOM */
+/* removeChip() sets the width and margin these transition */
 :host {
   transition:
     transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
@@ -53,8 +49,7 @@
   align-items: center;
   height:      100%;
   position:    relative;
-  /* The removal animation collapses the host's width; the label must
-     clip out of view rather than wrap onto a second line */
+  /* Clips instead of wrapping while removal collapses the width */
   white-space: nowrap;
 }
 
@@ -118,8 +113,6 @@ span.main {
   background:  color-mix(in srgb, currentColor 10%, transparent);
 }
 
-/* The hover fill echoes the chip silhouette: round on a pill chip, a
-   rounded square on a shape="square" chip */
 :host([shape="square"]) .remove { border-radius: 7px; }
 
 .remove:focus-visible {
@@ -138,7 +131,7 @@ span.main {
 
 :host([size="small"]) .remove     { width: 20px; height: 20px; margin-inline-end: 5px; }
 :host([size="small"]) .remove svg { width: 11px; height: 11px; }
-/* Keep the 20px glyph but extend the hit area to the 24px WCAG minimum */
+/* 24px hit area, WCAG 2.2 SC 2.5.8 */
 :host([size="small"]) .remove::before { content: ""; position: absolute; inset: -2px; }
 :host([size="large"]) .remove     { width: 28px; height: 28px; margin-inline-end: 8px; }
 :host([size="large"]) .remove svg { width: 15px; height: 15px; }

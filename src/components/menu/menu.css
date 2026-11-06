@@ -33,7 +33,6 @@
   --droplet-menu-item-radius: 12px; --jelly-menu-item-radius: var(--droplet-menu-item-radius);
 }
 
-/* The light-DOM items are data; the shadow rows are the rendering */
 .source {
   display: none;
 }

@@ -1,7 +1,4 @@
-/*
- * Dependency-free static server for local preview: ES modules need an HTTP origin,
- * so file:// won't do. Serves on port 4173 unless PORT=n says otherwise.
- */
+// Dependency-free dev server (ES modules need an HTTP origin); port 4173 unless PORT is set
 
 import { createServer }   from 'node:http';
 import { readFile }       from 'node:fs/promises';
@@ -46,12 +43,10 @@ const TYPES = {
   '.wasm':  'application/wasm',
 };
 
-// Resolve a request path to a file inside ROOT, or null when it escapes
 function resolvePath (url) {
   let path = decodeURIComponent(url.split('?')[0]);
 
-  // Mirror the layout scripts/build-site.mjs deploys, straight from the source tree so docs
-  // edits are live; the lottie player comes from node_modules, which the build copies into _site
+  // Mirrors the layout build-site.mjs deploys, straight from the source tree
   if (path === '/') {
     return join(ROOT, 'docs', 'showcase', 'index.html');
   }
@@ -74,8 +69,7 @@ function resolvePath (url) {
 
   const filePath = normalize(join(ROOT, path));
 
-  // Contain to ROOT: require the separator so a sibling like ROOT + "-backup"
-  // can't pass the prefix test and escape the served directory
+  // The separator stops a sibling like ROOT + "-backup" passing the prefix test
   return filePath === ROOT || filePath.startsWith(ROOT + sep) ? filePath : null;
 }
 
@@ -92,7 +86,7 @@ createServer(async (request, response) => {
 
     response.writeHead(200, {
       'Content-Type':  TYPES[extname(filePath).toLowerCase()] || 'application/octet-stream',
-      'Cache-Control': 'no-cache', // always fresh in dev
+      'Cache-Control': 'no-cache',
     });
 
     response.end(data);

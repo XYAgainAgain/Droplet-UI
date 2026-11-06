@@ -1,8 +1,3 @@
-/*
- * Escape or an outside click dismisses the panel; focus moves into it on
- * open and returns to the trigger on close.
- */
-
 import { placeAnchored }     from '../../anchor/index.js';
 import { trackAnchor }       from '../../anchor/index.js';
 import { springIn }          from '../../anchor/index.js';
@@ -45,12 +40,10 @@ export class DropletPopover extends HTMLElementBase {
   built = false;
   isOpen = false;
 
-  // Populated in connectedCallback()
   panel!: HTMLElement;
 
   untrack: (() => void) | null = null;
 
-  // Document-level dismissal, attached only while open
   onDocumentPointer = (event: PointerEvent): void => {
     if (this.isOpen && !event.composedPath().includes(this)) {
       this.close();
@@ -59,7 +52,7 @@ export class DropletPopover extends HTMLElementBase {
 
   onDocumentKey = (event: KeyboardEvent): void => {
     if (event.key === 'Escape' && !event.defaultPrevented) {
-      // Mark it handled so an enclosing dialog/drawer doesn't also close
+      // Marks it handled so an enclosing dialog or drawer stays open
       event.preventDefault();
       this.close();
     }
@@ -140,7 +133,6 @@ export class DropletPopover extends HTMLElementBase {
     }
   }
 
-  // The current trigger, resolved live from the slot (never stale)
   get trigger (): HTMLElement {
     const slot = this.shadowRoot?.querySelector('slot[name="trigger"]') as HTMLSlotElement | null;
 
@@ -182,7 +174,6 @@ export class DropletPopover extends HTMLElementBase {
     document.addEventListener('pointerdown', this.onDocumentPointer, true);
     document.addEventListener('keydown', this.onDocumentKey);
 
-    // Focus lands on the first focusable content, else the panel itself
     const focusable = this.querySelector<HTMLElement>(
       '[slot="content"] a, [slot="content"] button, [slot="content"] input, [slot="content"] [tabindex]',
     );
@@ -203,8 +194,6 @@ export class DropletPopover extends HTMLElementBase {
     placeAnchored(anchor, this.panel, placement, 8);
 
     this.untrack?.();
-    // Scroll-out closes without returning focus: focusing the trigger would
-    // scroll it back into view and undo the dismissal.
     this.untrack = trackAnchor(anchor, this.panel, placement, 8, () => this.close({ returnFocus: false }));
   }
 

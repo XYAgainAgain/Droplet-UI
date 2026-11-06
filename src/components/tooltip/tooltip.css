@@ -7,7 +7,7 @@
   --droplet-tooltip-radius: 11px; --jelly-tooltip-radius: var(--droplet-tooltip-radius);
   --droplet-tooltip-max-width: 240px; --jelly-tooltip-max-width: var(--droplet-tooltip-max-width);
 
-  /* Text on background inverts cleanly in dark mode and stays AA */
+  /* Inverted colors stay AA in both themes */
   --droplet-tooltip-background: var(--jelly-color-foreground-default, var(--droplet-color-foreground-default)); --jelly-tooltip-background: var(--droplet-tooltip-background);
   --droplet-tooltip-color: var(--jelly-color-background-default, var(--droplet-color-background-default)); --jelly-tooltip-color: var(--droplet-tooltip-color);
 }
@@ -42,8 +42,7 @@
   padding-block:  var(--jelly-tooltip-padding-block, var(--droplet-tooltip-padding-block));
   padding-inline: var(--jelly-tooltip-padding-inline, var(--droplet-tooltip-padding-inline));
   border-radius:  var(--jelly-tooltip-radius, var(--droplet-tooltip-radius));
-  /* A fixed bubble near the viewport edge otherwise shrink-wraps only into
-     the space remaining to its right before placement can move it left. */
+  /* Without max-content a fixed bubble near the edge shrink-wraps before placement moves it */
   width:          max-content;
   max-width:      var(--jelly-tooltip-max-width, var(--droplet-tooltip-max-width));
 

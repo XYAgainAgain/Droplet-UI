@@ -1,5 +1,4 @@
-// The whole library in one table, shared by defineAll() and defineCompat() so both
-// register in the same order; internal, never a package entry
+// Shared by defineAll() and defineCompat() so both register in one order; never a package entry
 
 import { TAGS } from './registry/index.js';
 import type { DefineEntry } from './registry/index.js';
@@ -43,8 +42,7 @@ import { DropletMenuItem, DropletMenu } from './components/menu/index.js';
 import { DropletDialog } from './components/dialog/index.js';
 import { DropletDrawer } from './components/drawer/index.js';
 
-// Jelly UI's registration order, which is also the order nested families upgrade
-// in (collapsible before accordion, option after select, menu items before menus)
+// Nested families upgrade in this order (collapsible before accordion, option after select)
 export const REGISTRATION: ReadonlyArray<DefineEntry> = [
   [TAGS.theme, DropletTheme],
   [TAGS.button, DropletButton],

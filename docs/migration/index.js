@@ -1,7 +1,4 @@
-/*
- * The migration page renderer (/migration): the name tables are generated
- * from the shipped registry and the docs data so they cannot drift from the code.
- */
+// /migration renderer: tables come from the shipped registry and docs data, so they can't drift
 
 import '../../package.js';
 
@@ -13,7 +10,6 @@ import { COMPONENTS }       from '../content/data.js';
 wireMotionToggle(document.getElementById('motionToggle'));
 wireThemeToggle(document.getElementById('themeToggle'));
 
-// The top bar's page links are droplet-buttons, not anchors, so wire navigation
 document.querySelector('[data-subnav-showcase]')?.addEventListener('click', () => {
   window.location.href = '../';
 });
@@ -23,8 +19,6 @@ document.querySelector('[data-subnav-api]')?.addEventListener('click', () => {
 document.querySelector('[data-subnav-migration]')?.addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
-
-// Element Names
 
 const PREFIX = /^(jelly|droplet)-/;
 
@@ -44,9 +38,6 @@ const elementRows = Object.keys(TAGS).sort((a, b) => TAGS[a].localeCompare(TAGS[
 document.querySelector('#elementTable tbody').innerHTML = elementRows
   || '<tr><td colspan="4">The registry exported no tags; rebuild <code>dist/</code>.</td></tr>';
 
-// CSS Custom Properties
-
-// Reduce either prefix to the stem and emit both names from it
 const stemOf = (name) => name.replace(/^--(jelly|droplet)-/, '');
 
 function tokenGroup (item) {
@@ -86,8 +77,6 @@ function tokenGroup (item) {
 document.getElementById('tokenGroups').innerHTML = COMPONENTS.map(tokenGroup).join('')
   || '<p class="note">No token data yet; run <code>npm run docs</code>.</p>';
 
-// Copy buttons
-
 document.addEventListener('click', (event) => {
   const button = event.target.closest('[data-copy]');
 
@@ -97,7 +86,7 @@ document.addEventListener('click', (event) => {
 
   const code = button.closest('.code')?.querySelector('code')?.textContent || '';
 
-  // The label changes too, so a screen reader hears the result, not just the old name
+  // aria-label changes too, or a screen reader only hears the old name
   const label = button.getAttribute('aria-label');
 
   navigator.clipboard?.writeText(code).then(() => {

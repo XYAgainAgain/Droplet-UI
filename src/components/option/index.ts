@@ -1,14 +1,7 @@
-/*
- * Declarative option data for <droplet-select>: the parent select reads each
- * option's value, label, and disabled state and renders its own listbox
- * rows, so this element hides itself and never takes part in layout
- */
-
 import { HTMLElementBase } from '../../element/base.js';
 import { anyTag, defineStrict, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
-// The minimal surface of a parent that re-reads its options
 interface OptionParent extends HTMLElement {
   syncOptions?: () => void;
 }
@@ -38,6 +31,10 @@ export class DropletOption extends HTMLElementBase {
     return this.hasAttribute('value')
       ? this.getAttribute('value') ?? ''
       : (this.textContent ?? '').trim();
+  }
+
+  set value (value: string) {
+    this.setAttribute('value', String(value));
   }
 
   get label (): string {

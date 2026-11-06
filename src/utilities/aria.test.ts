@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 
 import { AriaLink, FORWARDED_ARIA, forwardAria } from './aria.js';
 
-// A detached document still parsing, so DOMContentLoaded can be fired without touching the page
+// Still parsing, so DOMContentLoaded fires without touching the page
 function loadingDocument (): Document {
   const doc = document.implementation.createHTMLDocument('');
 
@@ -90,7 +90,6 @@ test('IDREF attributes and explicitly set elements both forward by reference', (
   forwardAria(host, target, 'aria-describedby');
   expect(target.ariaDescribedByElements).toEqual([hint]);
 
-  // Explicit elements leave aria-describedby="" on the host, which must not wipe the link
   host.ariaDescribedByElements = [other, hint];
   expect(host.getAttribute('aria-describedby')).toBe('');
   forwardAria(host, target, 'aria-describedby');

@@ -7,6 +7,7 @@ import type { PainterFrame } from './painter.js';
 import type { Border, Shape } from './types.js';
 import { traceSmoothPath }    from '../core/index.js';
 import type { SurfacePoint }  from '../core/index.js';
+import { setLights }          from '../light/index.js';
 
 import { mount, settle }     from '../testing/index.js';
 
@@ -31,10 +32,7 @@ class ProbeElement extends DropletElement {
 
 }
 
-/*
- * Leaks transform, clip and fill style before throwing: the fallback fill and
- * the border must still land undistorted in the surface color.
- */
+// Leaks transform, clip, and fill style before throwing
 class HostileElement extends ProbeElement {
 
   calls = 0;
@@ -59,6 +57,12 @@ class HostileElement extends ProbeElement {
 
 }
 
+class TranslucentHostileElement extends HostileElement {
+  override fill (): string {
+    return 'rgba(18, 52, 86, 0.5)';
+  }
+}
+
 class AsyncElement extends ProbeElement {
   override paintSurface (frame: PainterFrame): unknown {
     super.paintSurface(frame);
@@ -69,6 +73,7 @@ class AsyncElement extends ProbeElement {
 customElements.define('x-probe-paint', ProbeElement);
 customElements.define('x-hostile-paint', HostileElement);
 customElements.define('x-async-paint', AsyncElement);
+customElements.define('x-hostile-lit-paint', TranslucentHostileElement);
 
 const SIZED = 'style="width:100px;height:40px"';
 
@@ -82,7 +87,7 @@ function centerPainted (el: DropletElement): boolean {
   return (data[3] ?? 0) > 0;
 }
 
-// Any strongly red pixel, i.e. the border stroke survived the failed painter
+// A strongly red pixel means the border stroke survived
 function hasRedStroke (el: DropletElement): boolean {
   const { data } = el.ctx.getImageData(0, 0, el.canvas.width, el.canvas.height);
 
@@ -175,8 +180,7 @@ describe('painter frame', () => {
 
     const el = host.firstElementChild as ProbeElement;
 
-    // The frame is only valid during the call; the recorded value is the
-    // eased surface color the base class set before the hook ran
+    // Recorded inside the hook, since the frame is only valid during the call
     expect(el.fillStyles.at(-1)).toBe('#123456');
 
     host.remove();
@@ -193,7 +197,6 @@ describe('painter frame', () => {
     expect(el.calls).toBe(1);
     expect(error).toHaveBeenCalledTimes(1);
 
-    // Later frames skip the hook entirely and still paint the matte surface
     el.frame(16);
 
     expect(el.calls).toBe(1);
@@ -219,6 +222,34 @@ describe('painter frame', () => {
 
     error.mockRestore();
     host.remove();
+  });
+
+  it('disables a throwing painter on a lit translucent surface too', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    setLights([{ kind: 'ambient', intensity: 0.6 }], { flashSafety: false });
+
+    const host = mount(`<x-hostile-lit-paint ${SIZED}></x-hostile-lit-paint>`);
+
+    try {
+      await settle(8);
+
+      const el = host.firstElementChild as TranslucentHostileElement;
+
+      el.frame(16);
+
+      const calls = el.calls;
+
+      el.frame(16);
+
+      expect(error).toHaveBeenCalledTimes(1);
+      expect(el.calls).toBe(calls);
+      expect(centerPainted(el)).toBe(true);
+    } finally {
+      setLights(null, { flashSafety: false });
+      error.mockRestore();
+      host.remove();
+    }
   });
 
   it('warns once when a painter returns a thenable', async () => {

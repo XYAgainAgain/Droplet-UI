@@ -1,5 +1,4 @@
-// Explicit registration entry: importing it hands over the component classes,
-// calling defineAll() is what puts them on tags.
+// Importing hands over the classes; defineAll() or a define helper puts them on tags
 
 import { defineStrict } from './registry/index.js';
 import type { DefineOptions, DefineResult } from './registry/index.js';

@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import { userEvent } from 'vitest/browser';
 
 import { mount, settle } from '../../testing/index.js';
@@ -181,7 +181,10 @@ test(':state(user-invalid) follows a committed edit and paints the danger border
   const form = host.querySelector('form') as HTMLFormElement;
   const el = host.querySelector('droplet-textarea') as DropletTextarea;
 
+  // A loaded suite lags, and keys typed before focus lands are lost
+  await settle(3);
   el.focus();
+  await vi.waitFor(() => expect(el.shadowRoot!.activeElement).toBe(inner(el)));
   await userEvent.keyboard('abc');
   expect(el.matches(':state(user-invalid)')).toBe(false);
 

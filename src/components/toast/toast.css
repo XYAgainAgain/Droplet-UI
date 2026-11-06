@@ -9,7 +9,6 @@
   --droplet-toast-font-size: 14px; --jelly-toast-font-size: var(--droplet-toast-font-size);
 }
 
-/* Toasts stack downward from the top, or upward from the bottom */
 .rail {
   display:        flex;
   flex-direction: column;
@@ -63,8 +62,7 @@
   flex: 1;
 }
 
-/* A real dismiss control so keyboard-only users can close a toast (a
-   persistent duration:0 toast is otherwise impossible to remove) */
+/* The only keyboard way to close a duration: 0 toast */
 .close {
   flex:            0 0 auto;
   appearance:      none;
@@ -91,7 +89,6 @@
   outline-offset: 1px;
 }
 
-/* Screen readers hear the tone word; sighted users see the dot */
 .sr-tone {
   position:    absolute;
   width:       1px;

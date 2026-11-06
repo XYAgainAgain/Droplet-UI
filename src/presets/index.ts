@@ -1,5 +1,4 @@
-// Presets are records people fork, not code they patch: every one of them,
-// built-in included, comes through registerPreset and is stored as a deep copy.
+// Every preset, built-in included, comes through registerPreset and is stored as a deep copy
 
 import { INTEGER_KEYS, SAFETY_BOUNDS, isConfigKey } from '../resolve/bounds.js';
 
@@ -22,14 +21,13 @@ type AxisRegistry = Map<PresetAxis, Map<string, object>>;
 const NAME_PATTERN = /^[a-z][a-z0-9-]*$/;
 
 const BUILT_INS: Readonly<Record<PresetAxis, ReadonlySet<string>>> = Object.freeze({
-  feel: new Set<string>(['gel']),
-  material: new Set<string>(),
+  feel: new Set<string>(['gel', 'solid', 'liquid', 'goo', 'plasma', 'gas']),
+  material: new Set<string>(['matte', 'gloss']),
   palette: new Set<string>(),
   substance: new Set<string>(),
 });
 
-// An omitted document means the module-level registry in browsers and Node alike,
-// so registration never reads globalThis.document and stays import-pure.
+// No document means the module registry, so registration never reads globalThis.document
 const documentRegistries = new WeakMap<Document, AxisRegistry>();
 const moduleRegistry: AxisRegistry = new Map();
 
@@ -54,8 +52,7 @@ function scopeFor (doc: Document | undefined, create: boolean): AxisRegistry | n
 
 const ARRAY_INDEX = /^(0|[1-9][0-9]*)$/;
 
-// Enumerable data properties only: a getter, a hidden property, a symbol key, or
-// an array hole all change shape under JSON.parse(JSON.stringify(record)).
+// Rejects what a JSON round trip reshapes: getters, hidden or symbol keys, array holes
 function assertJsonSafe (value: unknown, path: string, seen: Set<object>): void {
   if (value === null || typeof value === 'string' || typeof value === 'boolean') return;
   if (typeof value === 'number') {
@@ -70,8 +67,7 @@ function assertJsonSafe (value: unknown, path: string, seen: Set<object>): void 
 
   const isArray = Array.isArray(object);
   if (!isArray) {
-    // Chain depth, not identity: a record built in another document carries that
-    // realm's Object.prototype, and rejecting it would be a nasty surprise.
+    // Chain depth, not identity, so a record from another realm passes
     const prototype = Object.getPrototypeOf(object) as object | null;
     if (prototype !== null && Object.getPrototypeOf(prototype) !== null) {
       throw new PresetError(`preset value at ${path} must be a plain object`);
@@ -109,8 +105,43 @@ function assertJsonSafe (value: unknown, path: string, seen: Set<object>): void 
   seen.delete(object);
 }
 
+// diffuse, specular, sharpness, and rim are 0–1; defaultLight uses the default rig on an unlit page
+const MATERIAL_KEYS = new Set(['diffuse', 'specular', 'sharpness', 'rim', 'glint', 'transmission', 'meniscus']);
+
+function validateMaterial (record: object): void {
+  for (const [key, value] of Object.entries(record)) {
+    if (key === 'defaultLight') {
+      if (typeof value !== 'boolean') throw new PresetError('material preset key "defaultLight" must be a boolean');
+      continue;
+    }
+    if (!MATERIAL_KEYS.has(key)) throw new PresetError(`material preset key "${key}" is not one of diffuse, specular, sharpness, rim, glint, transmission, meniscus, defaultLight`);
+    if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 1) {
+      throw new PresetError(`material preset key "${key}" must be a number within 0–1`);
+    }
+  }
+}
+
+// A feel's knob bundle (resolve/knobs.ts), each 0–1
+const KNOB_KEYS = new Set(['softness', 'bounce', 'viscosity', 'spread', 'depth', 'intensity']);
+
+function validateKnobs (knobs: unknown): void {
+  if (knobs === null || typeof knobs !== 'object' || Array.isArray(knobs)) {
+    throw new PresetError('feel preset key "knobs" must be a plain object');
+  }
+  for (const [key, value] of Object.entries(knobs)) {
+    if (!KNOB_KEYS.has(key)) throw new PresetError(`feel knob "${key}" is not one of softness, bounce, viscosity, spread, depth, intensity`);
+    if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 1) {
+      throw new PresetError(`feel knob "${key}" must be a number within 0–1`);
+    }
+  }
+}
+
 function validateFeel (record: object): void {
   for (const [key, value] of Object.entries(record)) {
+    if (key === 'knobs') {
+      validateKnobs(value);
+      continue;
+    }
     if (!isConfigKey(key)) throw new PresetError(`feel preset key "${key}" is not a physics config key`);
     if (typeof value !== 'number' || !Number.isFinite(value)) {
       throw new PresetError(`feel preset key "${key}" must be a finite number`);
@@ -124,8 +155,18 @@ function validateFeel (record: object): void {
   }
 }
 
+type PresetListener = (axis: PresetAxis, name: string) => void;
+
+const listeners = new Set<PresetListener>();
+
+// How a material re-registered live reaches controls already painted with it
+export function onPresetRegistered (listener: PresetListener): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
 export function registerPreset (axis: PresetAxis, name: string, record: object, options: RegisterOptions = {}): void {
-  // Checked before anything touches a registry, so a bad call from plain JS leaves no partial state
+  // Validated before any registry write, so a bad call leaves no partial state
   if (!Object.hasOwn(BUILT_INS, axis)) throw new PresetError(`preset axis "${String(axis)}" is not one of feel, material, palette, substance`);
   if (typeof name !== 'string' || !NAME_PATTERN.test(name)) {
     throw new PresetError(`preset name "${String(name)}" must match /^[a-z][a-z0-9-]*$/`);
@@ -134,9 +175,9 @@ export function registerPreset (axis: PresetAxis, name: string, record: object, 
     throw new PresetError(`preset "${name}" must be a plain object`);
   }
   assertJsonSafe(record, name, new Set<object>());
-  // Phases 5 and 6 give material, palette, and substance their schemas; until then
-  // any JSON-safe record is accepted on those axes.
+  // Palette and substance have no schema yet: any JSON-safe record passes
   if (axis === 'feel') validateFeel(record);
+  if (axis === 'material') validateMaterial(record);
 
   const target = scopeFor(options.document, true)!;
   const byName = axisMap(target, axis);
@@ -146,6 +187,8 @@ export function registerPreset (axis: PresetAxis, name: string, record: object, 
   }
 
   byName.set(name, structuredCopy(record));
+
+  for (const listener of listeners) listener(axis, name);
 }
 
 export function getPreset<T extends object = object> (axis: PresetAxis, name: string, doc?: Document): Readonly<T> | null {

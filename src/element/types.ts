@@ -1,11 +1,8 @@
-// Shared shape, paint, and wiring types for DropletElement and its subclasses
-
 import type { SurfacePoint } from '../core/index.js';
 
-// [r, g, b, a] with rgb in 0–255 and alpha in 0–1
+// rgb 0–255, alpha 0–1
 export type RGBA = [number, number, number, number];
 
-// The soft-body shape a subclass builds from its measured host size
 export interface Shape {
   width: number;
   height: number;

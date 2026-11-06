@@ -8,10 +8,9 @@
       name="description"
       content="Droplet UI is a dependency-free Web Components library for tactile product interfaces: soft-body physics, real form controls, dark mode, RTL and WCAG AA accessibility."
     />
-    <!-- No favicon: an empty data URI stops the browser requesting /favicon.ico -->
+    <!-- An empty data URI stops the /favicon.ico request -->
     <link rel="icon" href="data:," />
 
-    <!-- Apply saved visual preferences before first paint so there is no flash -->
     <script>
       const savedMode = localStorage.getItem('droplet-docs-theme') ?? localStorage.getItem('jelly-docs-theme');
       if (savedMode === 'light' || savedMode === 'dark') {
@@ -23,12 +22,10 @@
       }
     </script>
 
-    <!-- Page styles: shared chrome and showcase-specific (see docs/README.md) -->
     <link rel="stylesheet" href="./docs/shared/site.css" />
     <link rel="stylesheet" href="./docs/showcase/showcase.css" />
 
-    <!-- Performance hint, not an import: fetching package.js and the bundle it re-exports
-         in parallel registers the components sooner. Removing it only slows first load. -->
+    <!-- Preload hint, not an import: fetches the bundle alongside package.js -->
     <link rel="modulepreload" href="./package.js" />
     <link rel="modulepreload" href="./dist/droplet.js" />
   </head>
@@ -90,14 +87,11 @@
           </div>
         </div>
 
-        <!-- Decorative Lottie illustration, lazy-loaded by docs/lottie/index.js and
-             hidden from assistive tech -->
         <div class="hero-anim" aria-hidden="true">
           <div id="heroLottie" class="hero-lottie"></div>
         </div>
       </section>
 
-      <!-- The shared top bar (styles in site.css); sticks once it reaches the top -->
       <nav class="subnav" aria-label="Site">
         <a class="subnav-brand" href="#top">Droplet UI <span class="subnav-ver">v0.1</span></a>
 

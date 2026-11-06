@@ -40,7 +40,8 @@
   --droplet-switch-font-size: 16.5px; --jelly-switch-font-size: var(--droplet-switch-font-size);
 }
 
-:host([disabled]) {
+:host([disabled]),
+:host(:disabled) {
   opacity:        0.5;
   pointer-events: none;
 }
@@ -66,21 +67,18 @@ input {
   pointer-events:     none;
 }
 
-/* The track is a drag surface: the thumb follows the finger, so the
-   browser must not claim the gesture for scrolling. */
+/* A drag surface, so touch-action keeps scrolling from claiming the gesture */
 .track {
   position:     relative;
   width:        var(--jelly-switch-width, var(--droplet-switch-width));
   height:       var(--jelly-switch-height, var(--droplet-switch-height));
   flex:         0 0 auto;
   touch-action: none;
-  /* Glide between size steps instead of snapping */
   transition:
     width 0.42s cubic-bezier(0.4, 0, 0.2, 1),
     height 0.42s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* --droplet-motion mirrors data-droplet-motion (or data-jelly-motion) on <html>; see src/theme/runtime.ts */
 @media (prefers-reduced-motion: reduce) {
   @container not style(--droplet-motion: no-preference) {
     .track { transition: none; }
@@ -91,8 +89,6 @@ input {
   .track { transition: none; }
 }
 
-/* The focus ring is painted on the canvas so it follows the jiggle;
-   this ::after is only for forced-colors mode, where canvas is ignored. */
 .track::after {
   content:        "";
   position:       absolute;

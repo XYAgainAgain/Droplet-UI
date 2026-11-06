@@ -8,7 +8,6 @@ import { prefersReducedMotion } from '../utilities/index.js';
 import { DARK_TOKENS, ensureThemeTokens, getThemeMode, notifyThemeChange, onThemeChange, setThemeMode, VARIANT_CSS } from './index.js';
 import { readToken } from './token-read.js';
 
-// A page-level stylesheet standing in for a consumer's own CSS
 function pageStyle (css: string): () => void {
   const style = document.createElement('style');
   style.textContent = css;
@@ -16,7 +15,6 @@ function pageStyle (css: string): () => void {
   return () => style.remove();
 }
 
-// The resolved color a token produces on an element, in one comparable format
 function tokenColor (el: DropletButton, target: Element, name: string): string {
   return el.resolveColor(readToken(getComputedStyle(target), name));
 }
@@ -41,7 +39,7 @@ describe('legacy token compatibility', () => {
   });
 
   it('applies a component token set on the host under either name, the legacy one winning a tie', async () => {
-    // The canonical motion attribute stops the height transition, so a size reads at once
+    // Stops the height transition, so a size reads at once
     document.documentElement.setAttribute('data-droplet-motion', 'reduce');
     const host = mount('<droplet-button style="--droplet-button-height: 50px">A</droplet-button>');
     const el = host.firstElementChild as DropletButton;

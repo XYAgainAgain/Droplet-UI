@@ -1,9 +1,5 @@
-/*
- * Build docs/content/data.js from the hand-authored docs/content/content.js, reconciled
- * against custom-elements.json (the manifest `cem analyze` emits). The manifest decides which
- * members exist and their types; content.js supplies the prose, defaults, and examples. Drift
- * either way becomes a warning. Run via `npm run docs`, which runs `cem analyze` first.
- */
+// Builds data.js from content.js, reconciled against custom-elements.json: the manifest decides
+// which members exist, content.js supplies the prose, and drift either way warns
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -15,8 +11,6 @@ import { documentationWarningsFailBuild } from './docs-drift.mjs';
 const root         = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const manifestPath = resolve(root, 'custom-elements.json');
 const outputPath   = resolve(root, 'docs/content/data.js');
-
-// Load the manifest, indexed by tag name
 
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 
@@ -30,21 +24,17 @@ for (const module of manifest.modules ?? []) {
   }
 }
 
-// Reconcile one list against the manifest
-
 const warnings = [];
 
 // aria-* and role are host-forwarding implementation detail, not public API
 const isInternalAttribute = (name) => name.startsWith('aria-') || name === 'role';
 
-// CSS parts provided by the DropletElement base class, so a canvas component may
-// document them without repeating the JSDoc.
+// Parts from the DropletElement base, documented without repeating the JSDoc
 const BASE_PARTS = new Set(['droplet']);
 
 // The canvas also answers to ::part(jelly), a legacy alias documented only on /migration/
 const LEGACY_PARTS = new Set(['jelly']);
 
-// The manifest names the default slot ""; the docs label it "(default)".
 const normalizeSlot = (name) => (name === '' ? '(default)' : name);
 
 function reconcile (tag, kind, manItems, contentItems, { includeType = false } = {}) {
@@ -87,8 +77,7 @@ function reconcile (tag, kind, manItems, contentItems, { includeType = false } =
     merged.push(entry);
   }
 
-  // Documented but missing from the manifest means stale, except the base-class
-  // parts every canvas component inherits
+  // Documented but absent from the manifest is stale, except the inherited base parts
   for (const item of contentItems ?? []) {
     const name = key(item.name);
 
@@ -106,17 +95,13 @@ function reconcile (tag, kind, manItems, contentItems, { includeType = false } =
     }
 
     warnings.push(`${tag}: ${kind} "${name}" is documented in content.js but not found in the source`);
-    merged.push(item); // keep it so the docs page still renders; the warning flags it
+    merged.push(item); // still rendered; the warning flags it
   }
 
   return merged;
 }
 
-/*
- * CSS custom properties are content-authoritative (tokens and defaults live in the
- * component .css), so no `@cssprop` is required. Any `@cssprop` the source does
- * declare that content.js forgot is still reported.
- */
+// CSS properties are content-authoritative, so @cssprop is optional; an undocumented one still warns
 function reconcileCssProperties (tag, manProps, contentProps) {
   const documented = new Set((contentProps ?? []).map((prop) => prop.name));
 
@@ -129,7 +114,6 @@ function reconcileCssProperties (tag, manProps, contentProps) {
   return contentProps ?? [];
 }
 
-// Events carry an optional detail payload shape alongside their description
 function reconcileEvents (tag, manEvents, contentEvents) {
   const content = new Map((contentEvents ?? []).map((event) => [event.name, event]));
   const seen    = new Set();
@@ -163,8 +147,6 @@ function reconcileEvents (tag, manEvents, contentEvents) {
   return merged;
 }
 
-// Build each component descriptor
-
 const built = COMPONENTS.map((component) => {
   const element = elements.get(component.tag);
 
@@ -190,14 +172,11 @@ const built = COMPONENTS.map((component) => {
   };
 });
 
-// Every manifest element should be documented somewhere
 for (const tag of elements.keys()) {
   if (!COMPONENTS.some((component) => component.tag === tag)) {
     warnings.push(`${tag}: exists in the source but is not documented in content.js`);
   }
 }
-
-// Emit docs/content/data.js
 
 const header = `/*
  * GENERATED FILE — do not edit by hand.
@@ -206,15 +185,12 @@ const header = `/*
  * against custom-elements.json. Edit docs/content/content.js and run \`npm run docs\`.
  */
 
-// The order component groups appear in the sidebar and on the page
 export const GROUP_ORDER = ${JSON.stringify(GROUP_ORDER)};
 
 export const COMPONENTS = ${JSON.stringify(built, null, 2)};
 `;
 
 writeFileSync(outputPath, header);
-
-// Report
 
 if (warnings.length) {
   console.warn(`\n⚠ ${warnings.length} documentation drift warning(s):`);

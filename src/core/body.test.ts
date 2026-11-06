@@ -56,7 +56,7 @@ test('normalBlendPasses clamps to the 0-6 safety bound at the constructor', () =
   expect(low.config.normalBlendPasses).toBe(0);
   expect(bogus.config.normalBlendPasses).toBe(DEFAULT_CONFIG.normalBlendPasses);
 
-  // The stored value is not enough: the membrane must be built with the clamped count
+  // The membrane must be built with the clamped count, not just store it
   expect(normalsOf(high)).toEqual(normalsOf(capped));
   expect(normalsOf(low)).toEqual(normalsOf(zero));
   expect(normalsOf(bogus)).toEqual(normalsOf(fallback));

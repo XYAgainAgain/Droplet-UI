@@ -1,14 +1,12 @@
 export type Size = 'small' | 'medium' | 'large';
 
-// Short aliases accepted for input
 const SIZE_ALIASES: Record<string, Size> = {
   sm: 'small',
   md: 'medium',
   lg: 'large',
 };
 
-// Lets a container size its items in one place, clearing the copy when the host's size is
-// removed. Children that declared their own size are left alone.
+// A child that declared a size keeps it; inherited copies clear when the host's size goes
 export function propagateSize (host: Element, selector: string): void {
   const size = host.getAttribute('size');
 
@@ -27,7 +25,7 @@ export function propagateSize (host: Element, selector: string): void {
   }
 }
 
-// Rewrites the sm/md/lg aliases in place, so component CSS only needs the canonical selectors
+// In place, so component CSS only needs the canonical selectors
 export function canonicalizeSize (element: Element): void {
   const size = element.getAttribute('size');
 
@@ -36,8 +34,7 @@ export function canonicalizeSize (element: Element): void {
   }
 }
 
-// Resolves sm/md/lg without mutating the element, for components that key geometry off the size.
-// Falls back when the attribute is absent or unrecognized.
+// Unlike canonicalizeSize, leaves the element untouched
 export function sizeName (element: Element, fallback: Size = 'medium'): Size {
   const raw = (element.getAttribute('size') || '').toLowerCase();
 

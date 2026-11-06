@@ -1,7 +1,4 @@
-/*
- * API reference renderer (/api): each component in docs/content/data.js becomes a section
- * of aligned tables plus its examples as text. Live previews belong to the showcase.
- */
+// /api renderer: each component in data.js becomes a section of tables; live previews are the showcase's
 
 import '../../package.js';
 
@@ -16,8 +13,6 @@ import { GROUP_ORDER }      from '../content/data.js';
 wireMotionToggle(document.getElementById('motionToggle'));
 wireThemeToggle(document.getElementById('themeToggle'));
 
-// The top bar's page links are droplet-buttons, not anchors, so their navigation
-// is wired here (the showcase installs the same handlers)
 document.querySelector('[data-subnav-showcase]')?.addEventListener('click', () => {
   window.location.href = '../';
 });
@@ -28,17 +23,13 @@ document.querySelector('[data-subnav-migration]')?.addEventListener('click', () 
   window.location.href = '../migration/';
 });
 
-// Rendering
-
-// Every layout starts the name column at 20% and ends the description column at 44%, so all
-// tables share one vertical grid; table-layout: fixed makes these widths exact, not hints
+// Shared by every table so they line up on one grid (table-layout: fixed in reference.css)
 const COLUMN_WIDTHS = {
   2: ['56%', '44%'],
   3: ['20%', '36%', '44%'],
   4: ['20%', '24%', '12%', '44%'],
 };
 
-// One aligned API table, omitted entirely when there are no rows
 function apiTable (title, rows, columns) {
   if (!rows || rows.length === 0) {
     return '';
@@ -67,7 +58,6 @@ function apiTable (title, rows, columns) {
     </section>`;
 }
 
-// Example code rendered as text (the showcase renders it live)
 function exampleBlock (example, index, tag) {
   const title = example.title ? `<h4>${escapeHTML(example.title)}</h4>` : '';
 
@@ -138,8 +128,6 @@ function componentSection (item) {
     </section>`;
 }
 
-// Build the page
-
 const groups = GROUP_ORDER.filter((group) => COMPONENTS.some((c) => c.group === group));
 
 document.getElementById('nav').innerHTML = groups.map((group) => `
@@ -155,9 +143,6 @@ document.getElementById('sections').innerHTML = groups.map((group) =>
   COMPONENTS.filter((c) => c.group === group).map(componentSection).join(''),
 ).join('');
 
-// Page behavior
-
-// Copy buttons
 document.addEventListener('click', (event) => {
   const button = event.target.closest('[data-copy]');
 
@@ -173,7 +158,6 @@ document.addEventListener('click', (event) => {
   });
 });
 
-// Highlight the section currently in view
 const sectionObserver = new IntersectionObserver((entries) => {
   for (const entry of entries) {
     if (!entry.isIntersecting) {
@@ -187,10 +171,7 @@ const sectionObserver = new IntersectionObserver((entries) => {
 
 document.querySelectorAll('.component').forEach((section) => sectionObserver.observe(section));
 
-/*
- * Sections use content-visibility: auto, so off-screen ones are only size-estimated and a
- * plain anchor jump lands off once neighbors render. Re-pin until the target stops moving.
- */
+// content-visibility: auto only estimates off-screen sections, so re-pin until the target settles
 function scrollToSection (id) {
   const target = document.getElementById(id);
 
@@ -207,12 +188,10 @@ function scrollToSection (id) {
   const pin = () => {
     const top = Math.round(window.scrollY + target.getBoundingClientRect().top - pad);
 
-    // behavior:instant overrides the page's smooth scroll-behavior, so the jump
-    // lands immediately instead of animating slowly across a tall reference page.
+    // 'instant' overrides the page's smooth scroll-behavior
     window.scrollTo({ top: Math.max(0, top), left: 0, behavior: 'instant' });
     tries += 1;
 
-    // Late font or layout settling can shift the target a frame or two after the jump
     if (Math.abs(top - prev) > 1 && tries < 30) {
       prev = top;
       requestAnimationFrame(pin);
@@ -222,7 +201,6 @@ function scrollToSection (id) {
   pin();
 }
 
-// In-page nav links (the sidebar) scroll through the correction loop above
 document.addEventListener('click', (event) => {
   const link = event.target.closest('a[href^="#"]');
 
@@ -241,7 +219,6 @@ document.addEventListener('click', (event) => {
   scrollToSection(id);
 });
 
-// Mobile sidebar
 const navToggle = document.getElementById('navToggle');
 const sidebar   = document.getElementById('sidebar');
 

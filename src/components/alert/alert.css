@@ -12,8 +12,6 @@
 
   --tone: var(--jelly-color-background-azure, var(--droplet-color-background-azure));
 
-  /* Filled rather than outlined: a soft wash of the tone with a slightly stronger edge.
-     Both track --tone, so every tone and dark mode tints automatically. */
   --droplet-fill: color-mix(in srgb, var(--tone) 15%, var(--jelly-color-background-surface, var(--droplet-color-background-surface))); --jelly-fill: var(--droplet-fill);
   --droplet-alert-border: color-mix(in srgb, var(--tone) 34%, var(--jelly-color-background-surface, var(--droplet-color-background-surface))); --jelly-alert-border: var(--droplet-alert-border);
 
@@ -55,8 +53,6 @@
   padding-inline: var(--jelly-alert-padding-inline, var(--droplet-alert-padding-inline));
 }
 
-/* The Fluent tone icon renders in the tone color; the glyphs carry their own
-   circle or triangle outline */
 .icon {
   flex:            0 0 auto;
   width:           var(--jelly-alert-icon, var(--droplet-alert-icon));
@@ -93,7 +89,7 @@
   color:           var(--jelly-color-foreground-muted, var(--droplet-color-foreground-muted));
   width:           var(--jelly-alert-close, var(--droplet-alert-close));
   height:          var(--jelly-alert-close, var(--droplet-alert-close));
-  /* Never smaller than the 24px WCAG 2.5.8 target (the small size is 22px) */
+  /* WCAG 2.5.8 target; the small size is 22px */
   min-width:       24px;
   min-height:      24px;
   border-radius:   8px;
@@ -111,7 +107,6 @@
   background: var(--jelly-alert-border, var(--droplet-alert-border));
 }
 
-/* --droplet-motion mirrors data-droplet-motion (or data-jelly-motion) on <html>; see src/theme/runtime.ts */
 @media (prefers-reduced-motion: reduce) {
   @container not style(--droplet-motion: no-preference) {
     .close { transition: none; }

@@ -1,10 +1,9 @@
-/*
- * A single-value range slider with a soft-body thumb. A hidden native range
- * input owns the value, form participation, and accessibility semantics; in
- * RTL the value origin, painted fill, and arrow keys mirror like a native range
- */
+// A hidden native range input owns the value and the accessibility semantics
 
 import { DropletElement }         from '../../element/index.js';
+import { FORM_ATTRIBUTES }    from '../../element/form-control.js';
+import { FormControl }        from '../../element/form-control.js';
+import type { RestoreState }  from '../../element/form-control.js';
 import type { PainterFrame }    from '../../element/index.js';
 import type { Shape }           from '../../element/index.js';
 
@@ -41,15 +40,14 @@ interface SliderSize {
   track: number;
 }
 
-// Host geometry per size: footprint, thumb diameter, track height
+// px, mirroring slider.css
 const SLIDER_SIZES: Record<Size, SliderSize> = {
   small:  { width: 200, height: 30, thumb: 24, track: 9 },
   medium: { width: 240, height: 36, thumb: 28, track: 12 },
   large:  { width: 300, height: 44, thumb: 34, track: 14 },
 };
 
-// The thumb body's component profile: a small, tight drop that stays lively
-// under drag. Resolved through the same feel/quality axes as the track.
+// Resolved through the same feel and quality axes as the track
 export const THUMB_CONFIG: Partial<DropletConfig> = {
   membraneSpring:          82,
   membraneDamping:         14,
@@ -73,9 +71,20 @@ export const THUMB_CONFIG: Partial<DropletConfig> = {
  * @attr {string} name - Form field name submitted with the value.
  * @attr {boolean} disabled - Disable the control and remove it from the tab order.
  * @attr {"small"|"medium"|"large"} size - Control size.
+ * @attr {string} origin - Where the accent fill starts: "start" (default), "center", "end", or a value between min and max.
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Accent fill hue.
+ * @attr {string} color - Any CSS color for the fill or accent (beats intent and variant); text or a mark on it turns white or near-black, whichever reads better.
+ * @attr {"accent"|"neutral"|"info"|"success"|"warning"|"danger"|"highlight"} intent - Semantic color role (never an ARIA role); beats variant.
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
  * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
+ * @attr {string} material - Registered material preset: "matte" (the default) or "gloss" (Experimental); inherits from a `data-droplet-material` scope.
+ * @attr {number} gloss - Sheen sharpness 0–1 for a lit material (Experimental); defaults to the material's sharpness.
+ * @attr {number} softness - Feel knob 0–1: how far the surface gives under a press; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} bounce - Feel knob 0–1: how long it keeps wobbling before it settles; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} viscosity - Feel knob 0–1: how thick and slow it moves; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} spread - Feel knob 0–1: how far a dent travels around the edge; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} depth - Feel knob 0–1: how far it presses in and tilts; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} intensity - Feel knob 0–1: master gain on every push the surface takes; unset keeps the feel preset's setting, and 0.5 is neutral.
  *
  * @fires input - Continuously as the value changes (drag/arrow keys).
  * @fires change - When the value is committed.
@@ -86,30 +95,31 @@ export const THUMB_CONFIG: Partial<DropletConfig> = {
  *
  * @cssprop [--droplet-accent] - Filled-track and thumb color.
  * @cssprop [--droplet-track] - Empty-track color.
+ * @cssprop [--droplet-slider-width] - Host width, inherited from any ancestor; defaults to 200/240/300px by size.
  */
-export class DropletSlider extends DropletElement implements EventListenerObject {
+export class DropletSlider extends FormControl(DropletElement) implements EventListenerObject {
 
-  // Participate in native form submission through ElementInternals
   static formAssociated = true;
 
   static override usesResolver = true;
 
-  // A value assigned before upgrade has to survive to the first build
-  static override REPLAYED: readonly string[] = ['value', ...DropletElement.REPLAYED];
+  static override textOnFill = false;
 
-  internals: ElementInternals;
+  // Pre-upgrade writes survive to the first build
+  static override REPLAYED: readonly string[] = ['value', 'origin', ...DropletElement.REPLAYED];
 
-  // Populated in onBuilt()/onShape()
+  override internals: ElementInternals;
+
   input!: HTMLInputElement;
   track!: HTMLElement;
   thumbBody: DropletBody | null = null;
 
   thumbRecord: Resolved | undefined = undefined;
 
-  // The value as last set, so a write before build is not lost
+  // The last-set value, so a write before build survives
   storedValue: string | null = null;
 
-  // The value at the last committed change, so a no-op commit stays silent
+  // Last committed value, so a no-op commit stays silent
   committedValue: string | null = null;
 
   thumbX = 0;
@@ -119,8 +129,7 @@ export class DropletSlider extends DropletElement implements EventListenerObject
   pointerId: number | null = null;
   statePointerId: number | null = null;
 
-  // The track pass owns its own failure flag: a thrown paintSurface must not
-  // take the track down with it (painter.md isolation)
+  // Separate from the surface flag, so one failing painter spares the other
   trackPainterFailed = false;
   pressScale = 1;
   pressScaleVelocity = 0;
@@ -128,13 +137,13 @@ export class DropletSlider extends DropletElement implements EventListenerObject
   trackH = 0;
 
   static get observedAttributes (): string[] {
-    return ['value', 'min', 'max', 'step', 'label', 'disabled', 'size', ...DropletElement.AXIS_ATTRIBUTES];
+    return ['value', 'min', 'max', 'step', 'label', 'disabled', 'size', 'origin', ...DropletElement.AXIS_ATTRIBUTES, ...FORM_ATTRIBUTES];
   }
 
   constructor () {
     super();
 
-    // Once, in the constructor: attachInternals() throws on a second call
+    // attachInternals() throws on a second call
     this.internals = this.attachInternals();
   }
 
@@ -142,13 +151,11 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     return defineSlider(options);
   }
 
-  // The thumb's resolved physics record, on its own track from the main body
   get thumbConfig (): Readonly<DropletConfig> {
     return (this.thumbRecord ?? this.resolveThumb()).config;
   }
 
-  // Both membranes re-resolve together, so a scope, attribute or config change
-  // can never leave the thumb on a stale record
+  // Re-resolve the thumb too, so it never keeps a stale record
   override resolve (): Resolved {
     const resolved = super.resolve();
 
@@ -178,7 +185,7 @@ export class DropletSlider extends DropletElement implements EventListenerObject
       </div>`;
   }
 
-  // The base body is the track capsule; the thumb body rides on top
+  // The base body is the track capsule; the thumb rides on top
   override shape (width: number, height: number): Shape {
     const trackH = height || this.sizeConfig.track;
 
@@ -224,7 +231,6 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     this.trackDraggingState();
   }
 
-  // Route the inner-control events registered with `this` as the listener
   handleEvent (event: Event): void {
     switch (event.type) {
       case 'input':         this.onNativeInput(event);           break;
@@ -237,8 +243,7 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     }
   }
 
-  // The hidden input's own composed events would surface beside ours, so stop
-  // them at the boundary and re-emit one of each (state-and-reflection.md)
+  // Stop the hidden input's composed events and re-emit one of each
   onNativeInput (event: Event): void {
     event.stopPropagation();
 
@@ -246,8 +251,7 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     emit(this, 'input');
   }
 
-  // Firefox's range fires change for a Page key at a bound even though nothing
-  // moved; a commit that changed nothing is not a change (state-and-reflection.md)
+  // Firefox fires change for a Page key at a bound; an unchanged commit stays silent
   onNativeChange (event: Event): void {
     event.stopPropagation();
 
@@ -259,8 +263,7 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     emit(this, 'change');
   }
 
-  // Pointer capture retargets the rest of the drag, so the state clears from
-  // the host, where every ending path still arrives (state-and-reflection.md)
+  // Capture retargets the drag, so every ending arrives at the host
   trackDraggingState (): void {
     const clear = (event: PointerEvent): void => {
       if (event.pointerId === this.statePointerId) {
@@ -273,8 +276,6 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     this.addEventListener('lostpointercapture', clear);
   }
 
-  // Every ending path lands here, including the ones with no pointerup at all,
-  // so the drag flags clear where the visual state does (state-and-reflection.md)
   clearDragging (): void {
     this.dragging       = false;
     this.pointerId      = null;
@@ -282,7 +283,6 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     this.internals.states.delete('dragging');
   }
 
-  // Rebuild the thumb body whenever the track shape (re)builds
   override onShape (): void {
     this.trackW = this.body ? this.body.width : this.getBoundingClientRect().width;
     this.trackH = this.body ? this.body.height : this.sizeConfig.track;
@@ -290,7 +290,7 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     const thumb = this.sizeConfig.thumb;
 
     if (!this.thumbBody) {
-      // Born with its resolved record, so the first shape never rebuilds it
+      // Born with its record, so the first shape never rebuilds it
       const record = this.thumbRecord ?? this.resolveThumb();
 
       this.thumbBody = new DropletBody({ width: thumb, height: thumb, radius: thumb / 2, config: { ...record.config } });
@@ -304,29 +304,45 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     this.thumbXVelocity = 0;
   }
 
-  // How far the thumb center can travel along the track, in pixels
+  // px
   get travel (): number {
     return Math.max(0, this.trackW - this.sizeConfig.thumb);
   }
 
-  // The current value as a 0..1 fraction of the min → max span
-  fraction (): number {
+  fraction (value = this.input.valueAsNumber): number {
     const min  = +this.input.min;
     const max  = +this.input.max;
     const span = max - min || 1;
 
-    return (this.input.valueAsNumber - min) / span;
+    return (value - min) / span;
   }
 
-  // The thumb's physical canvas x for the current value; mirrored in RTL,
-  // where the value origin sits at the right edge
+  // Physical canvas x, mirrored in RTL
   valueToX (): number {
-    const x = -this.travel / 2 + this.fraction() * this.travel;
+    return this.fractionToX(this.fraction());
+  }
+
+  fractionToX (fraction: number): number {
+    const x = -this.travel / 2 + fraction * this.travel;
 
     return isRTL(this) ? -x : x;
   }
 
-  // Reflect the input's value into the thumb target, ARIA and the form
+  // The fill anchor, in thumbX space
+  originX (): number {
+    const edge   = isRTL(this) ? this.trackW / 2 : -this.trackW / 2;
+    const origin = this.origin;
+
+    if (origin === 'start') return edge;
+    if (origin === 'end')   return -edge;
+    if (origin === 'center') return 0;
+
+    // A collapsed span pins the native value to min, so the origin follows
+    const span = +this.input.max - +this.input.min;
+
+    return this.fractionToX(span > 0 ? clamp(this.fraction(Number(origin)), 0, 1) : 0);
+  }
+
   updateFromInput (): void {
     this.thumbTarget = this.valueToX();
 
@@ -345,9 +361,8 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     }
   }
 
-  // Keep the hidden input's tab order and ARIA value state in sync
   syncA11y (): void {
-    const disabled = this.hasAttribute('disabled');
+    const disabled = this.isDisabled;
 
     this.input.tabIndex = disabled ? -1 : 0;
     this.removeAttribute('tabindex');
@@ -358,7 +373,6 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     this.input.setAttribute('aria-disabled', String(disabled));
   }
 
-  // Set the value from a pointer position, honoring reading direction
   setFromClientX (clientX: number): void {
     const local = this.toLocal(clientX, 0);
     const half  = this.travel / 2 || 1;
@@ -378,7 +392,6 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     emit(this, 'input');
   }
 
-  // Step the value by direction × step (× the Shift multiplier), clamped
   setFromStep (direction: number, multiplier = 1): void {
     const min        = +this.input.min || 0;
     const max        = +this.input.max || 100;
@@ -394,7 +407,6 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     emit(this, 'input');
   }
 
-  // Keyboard stepping: arrows follow reading direction, Shift ×10, Home/End jump
   onKey (event: KeyboardEvent): void {
     let direction = horizontalStep(event.key, isRTL(this));
 
@@ -417,11 +429,9 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     }
   }
 
-  // Begin a drag on the track: capture the pointer and jump to the press point
   onDown (event: PointerEvent): void {
-    // One pointer at a time, like the base class's press wiring: a second
-    // finger must not steal the membrane mid-drag
-    if (this.hasAttribute('disabled') || this.pointerId !== null) {
+    // One pointer at a time, like the base press wiring
+    if (this.isDisabled || this.pointerId !== null) {
       return;
     }
 
@@ -434,7 +444,7 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     try {
       this.track.setPointerCapture(event.pointerId);
     } catch {
-      // Capture can fail if the pointer is already gone; the drag still works
+      // Pointer already gone
     }
 
     this.setFromClientX(event.clientX);
@@ -454,7 +464,6 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     this.setFromClientX(event.clientX);
   }
 
-  // End the drag: release capture, let the thumb settle, commit the change
   onUp (event: PointerEvent): void {
     if (this.pointerId !== event.pointerId) {
       return;
@@ -465,7 +474,7 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     try {
       this.track.releasePointerCapture(event.pointerId);
     } catch {
-      // The capture may already be gone; releasing is best-effort
+      // Capture already gone
     }
 
     this.thumbBody?.release();
@@ -473,7 +482,6 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     emit(this, 'change');
   }
 
-  // One animation step: advance the travel spring, repaint track, fill and thumb
   override frame (dt: number): boolean {
     const thumb = this.thumbBody;
 
@@ -481,8 +489,6 @@ export class DropletSlider extends DropletElement implements EventListenerObject
       return false;
     }
 
-    // Soft travel spring: enough follow-through to feel alive, without snapping.
-    // Reduced motion snaps the thumb straight to its value instead.
     if (this.reducedMotion) {
       this.thumbX         = this.thumbTarget;
       this.thumbXVelocity = 0;
@@ -490,8 +496,7 @@ export class DropletSlider extends DropletElement implements EventListenerObject
       [this.thumbX, this.thumbXVelocity] = integrateSpring(this.thumbX, this.thumbXVelocity, this.thumbTarget, 310, 22, dt);
     }
 
-    // Shape the thumb into a soft, even stretch as it travels. Keep this
-    // symmetric so dragging feels like jello instead of forming a pointy tail.
+    // Keep the stretch symmetric; an uneven one forms a pointy tail
     const speed = Math.abs(this.thumbXVelocity);
 
     if (speed > 6) {
@@ -513,14 +518,11 @@ export class DropletSlider extends DropletElement implements EventListenerObject
 
     thumb.update(dt);
 
-    // Resolve the theme token at paint time so a mode flip recolors live
     const accent = this.resolveColor(`var(--jelly-accent, var(--droplet-accent, ${PALETTE['background-accent']}))`);
 
     this.clearCanvas();
     this.paintTrackPass();
 
-    // The focus ring is painted from the same deformed surface as the thumb,
-    // so it wobbles and travels in lockstep with it
     this.paintBody(thumb, {
       fill:   accent,
       cx:     this.thumbX,
@@ -539,8 +541,7 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     return !settled || this.dragging;
   }
 
-  // Isolated exactly like paintSurface: a built frame, save/restore, and one
-  // console.error that disables a painter which would corrupt the thumb
+  // A throwing paintTrack is caught and disables only the track painter
   paintTrackPass (ctx: CanvasRenderingContext2D = this.ctx): void {
     const body = this.body;
 
@@ -551,11 +552,10 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     const cx = this.cssW / 2;
     const cy = this.cssH / 2;
 
-    // The shipped paintTrack reads only width/height, so projecting and
-    // tracing every surface point is wasted work unless the slot is overridden
+    // The shipped paintTrack ignores points, so only an override pays for them
     const custom = this.paintTrack !== DropletSlider.prototype.paintTrack;
 
-    // Canvas-space points, so a painter drawing frame.path lands on the track
+    // Canvas space, so frame.path lands on the track
     const points = custom ? body.getSurfacePoints().map((point) => {
       const projected = body.projectPoint(point);
 
@@ -581,17 +581,41 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     } finally {
       ctx.restore();
     }
+
+    if (this.trackPainterFailed) {
+      return;
+    }
+
+    const trackH = this.trackH || this.sizeConfig.track;
+
+    this.shadeTrack(ctx, cx - this.trackW / 2, cy - trackH / 2, this.trackW, trackH, this.trackColor(), (target) => {
+      if (this.trackPainterFailed) return;
+
+      target.save();
+
+      try {
+        this.paintTrack(Object.freeze({ ...frame, ctx: target }));
+      } catch (error) {
+        this.trackPainterFailed = true;
+        console.error(`${LOG_PREFIX} painter error`, error);
+      } finally {
+        target.restore();
+      }
+    });
   }
 
-  // Track base, then the accent fill from the value origin (the inline-start
-  // edge, so the right one in RTL). An overridable painter slot; ctx is canvas space.
+  trackColor (): string {
+    return this.resolveColor(`var(--jelly-track, var(--droplet-track, ${PALETTE['background-neutral']}))`);
+  }
+
+  // Overridable painter slot; ctx is canvas space
   paintTrack (frame: PainterFrame): void {
     const ctx    = frame.ctx;
     const cx     = frame.width / 2;
     const cy     = frame.height / 2;
     const tW     = this.trackW;
     const trackH = this.trackH || this.sizeConfig.track;
-    const track  = this.resolveColor(`var(--jelly-track, var(--droplet-track, ${PALETTE['background-neutral']}))`);
+    const track  = this.trackColor();
     const accent = this.resolveColor(`var(--jelly-accent, var(--droplet-accent, ${PALETTE['background-accent']}))`);
 
     ctx.beginPath();
@@ -601,15 +625,15 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     ctx.clip();
     ctx.fillStyle = accent;
 
-    if (isRTL(this)) {
-      ctx.fillRect(cx + this.thumbX, cy - trackH / 2, tW / 2 - this.thumbX, trackH);
-    } else {
-      ctx.fillRect(cx - tW / 2, cy - trackH / 2, this.thumbX + tW / 2, trackH);
-    }
+    const from  = this.originX();
+    const left  = Math.min(from, this.thumbX);
+    const right = Math.max(from, this.thumbX);
+
+    ctx.fillRect(cx + left, cy - trackH / 2, right - left, trackH);
   }
 
   attributeChangedCallback (name: string): void {
-    if (this.axisAttributeChanged(name)) {
+    if (this.axisAttributeChanged(name) || this.formAttributeChanged(name)) {
       return;
     }
 
@@ -622,7 +646,6 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     }
   }
 
-  // Push one observed attribute into the hidden native input, then re-sync
   sync (name: string, value: string | null): void {
     switch (name) {
       case 'value':
@@ -647,23 +670,25 @@ export class DropletSlider extends DropletElement implements EventListenerObject
         break;
 
       case 'disabled':
-        this.input.disabled = this.hasAttribute('disabled');
+        this.syncDisabled();
         break;
 
       case 'size':
         this.applyShape();
+        break;
+
+      case 'origin':
+        this.requestFrame();
         break;
     }
 
     this.updateFromInput();
   }
 
-  // The current value (read live from the inner control once built)
   get value (): string {
     return this.input ? this.input.value : this.getAttribute('value') || this.storedValue || '50';
   }
 
-  // A write before build is kept and applied in onBuilt(), never dropped
   set value (v: string) {
     this.storedValue = String(v);
 
@@ -673,13 +698,53 @@ export class DropletSlider extends DropletElement implements EventListenerObject
     }
   }
 
-  // Route programmatic host focus into the hidden native input
+  get origin (): string {
+    const raw = (this.getAttribute('origin') ?? '').trim().toLowerCase();
+
+    if (raw === 'center' || raw === 'end') {
+      return raw;
+    }
+
+    return raw !== '' && Number.isFinite(Number(raw)) ? String(Number(raw)) : 'start';
+  }
+
+  set origin (value: string | number | null) {
+    if (value === null || value === undefined) {
+      this.removeAttribute('origin');
+    } else {
+      this.setAttribute('origin', String(value));
+    }
+  }
+
   override focus (options?: FocusOptions): void {
     this.input?.focus(options);
   }
 
-  // painter.md: a reconnect gives a disabled painter one more chance, and the
-  // base class only resets its own surface slot
+  override formAnchor (): HTMLElement | null {
+    return this.input ?? null;
+  }
+
+  // The value attribute is the authored default
+  override formReset (): void {
+    this.value = this.getAttribute('value') ?? '50';
+  }
+
+  override formRestore (state: RestoreState): void {
+    if (typeof state === 'string') {
+      this.value = state;
+    }
+  }
+
+  override syncDisabled (): void {
+    if (!this.input) {
+      return;
+    }
+
+    this.input.disabled = this.isDisabled;
+    this.syncA11y();
+  }
+
+  // A reconnect retries a failed painter; the base resets only the surface flag
   override connectedCallback (): void {
     this.trackPainterFailed = false;
 

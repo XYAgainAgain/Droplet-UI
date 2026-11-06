@@ -1,6 +1,6 @@
-/* API-reference-only styles (/api); shared page chrome lives in docs/shared/site.css */
+/* API page; shared chrome lives in docs/shared/site.css */
 
-/* The reference renders from docs/content/data.js; hold space so nothing leaps */
+/* Holds space until data.js renders */
 #sections:empty { min-height: 100vh; }
 #nav:empty      { min-height: 50vh; }
 
@@ -8,7 +8,6 @@ html { scroll-padding-top: calc(var(--header-h) + 16px); }
 
 body { font-size: 15.5px; }
 
-/* The sidebar toggle (a droplet-button) only exists on narrow screens */
 #navToggle { display: none; }
 
 /* Layout */
@@ -100,8 +99,7 @@ main { min-width: 0; }
   color:          var(--muted);
 }
 
-/* Fixed layout plus the shared column widths set in docs/api/index.js keep every
-   table on the page on one vertical grid */
+/* With table-layout: fixed, COLUMN_WIDTHS in index.js put every table on one grid */
 .table-scroll {
   overflow-x:    auto;
   border:        1px solid var(--line);

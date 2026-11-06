@@ -1,11 +1,3 @@
-/*
- * `end` (the default) and `start` follow the reading direction; right, left,
- * and bottom are physical.
- *
- *   <droplet-drawer id="d" side="end"><nav>…</nav></droplet-drawer>
- *   document.getElementById('d').open = true;
- */
-
 import { lockScroll }           from '../../anchor/index.js';
 import { unlockScroll }         from '../../anchor/index.js';
 import { inertOutside }         from '../../anchor/index.js';
@@ -66,8 +58,6 @@ export class DropletDrawer extends HTMLElementBase {
   restoreInert: (() => void) | null = null;
 
   onDocumentKey = (event: KeyboardEvent): void => {
-    // An inner overlay that handled Escape first marks it defaultPrevented;
-    // don't tear the drawer down in the same press
     if (event.key === 'Escape' && !event.defaultPrevented) {
       this.open = false;
     }
@@ -115,8 +105,7 @@ export class DropletDrawer extends HTMLElementBase {
   }
 
   disconnectedCallback (): void {
-    // Portaling to <body> disconnects and reconnects synchronously, so only
-    // clean up when the drawer is truly gone from the document while open
+    // Modal lifecycle mirrors DropletDialog, which explains this guard
     queueMicrotask(() => {
       if (!this.isConnected && this.modalActive) {
         this.teardownModal();
@@ -159,8 +148,6 @@ export class DropletDrawer extends HTMLElementBase {
     this.sheet.style.opacity   = '';
     this.sheet.style.transform = '';
 
-    // Capture the trigger before portaling; moving the host disconnects it
-    // briefly and can otherwise collapse document.activeElement to <body>.
     this.prevFocus     = document.activeElement;
     this.restorePortal = portalToBody(this);
     this.modalActive   = true;
@@ -189,7 +176,6 @@ export class DropletDrawer extends HTMLElementBase {
     emit(this, 'close');
   }
 
-  // Release every page-level effect the open drawer holds (idempotent)
   teardownModal (): void {
     if (!this.modalActive) {
       return;
@@ -279,7 +265,6 @@ export class DropletDrawer extends HTMLElementBase {
       return;
     }
 
-    // Let the slide-out play (the sheet stays visible until the attribute drops)
     const m = this.frames();
 
     this.closing = true;

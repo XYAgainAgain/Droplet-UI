@@ -30,7 +30,6 @@ label {
   font-weight: 800;
 }
 
-/* Screen readers hear "required" instead of the visual asterisk */
 .sr-required {
   position: absolute;
   width:    1px;

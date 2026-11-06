@@ -1,13 +1,3 @@
-/*
- * A lightweight, accessible tooltip that anchors a themed bubble over
- * its trigger element on hover or keyboard focus. Escape dismisses it
- * without moving the pointer (WCAG 1.4.13).
- *
- *   <droplet-tooltip text="Copy link" placement="top">
- *     <droplet-icon-button label="Copy"><svg>…</svg></droplet-icon-button>
- *   </droplet-tooltip>
- */
-
 import { placeAnchored }     from '../../anchor/index.js';
 import { trackAnchor }       from '../../anchor/index.js';
 import { springIn }          from '../../anchor/index.js';
@@ -43,13 +33,12 @@ export class DropletTooltip extends HTMLElementBase {
 
   built = false;
 
-  // Populated in connectedCallback()
   bubble!: HTMLElement;
   contentSlot!: HTMLSlotElement;
 
   untrack: (() => void) | null = null;
 
-  // Escape dismisses the tooltip without moving the pointer (WCAG 1.4.13)
+  // Escape dismisses without moving the pointer (WCAG 2.2 SC 1.4.13)
   onDocumentKey = (event: KeyboardEvent): void => {
     if (event.key === 'Escape') {
       this.hide();
@@ -92,7 +81,6 @@ export class DropletTooltip extends HTMLElementBase {
     this.addEventListener('focusin', this);
     this.addEventListener('focusout', this);
 
-    // The description lands on the slotted trigger when it (re)arrives
     this.shadowRoot!.querySelector('slot:not([name])')!
       .addEventListener('slotchange', () => this.syncDescription());
 
@@ -124,8 +112,6 @@ export class DropletTooltip extends HTMLElementBase {
     }
   }
 
-  // Content and size changes resize the bubble, so re-anchor a visible one now
-  // rather than waiting for the next pointer movement, scroll, or resize event
   reposition (): void {
     if (!this.bubble?.hasAttribute('data-show')) {
       return;
@@ -136,12 +122,7 @@ export class DropletTooltip extends HTMLElementBase {
     placeAnchored(this, this.bubble, placement, 8);
   }
 
-  /*
-   * Expose the tooltip text as the trigger's accessible description.
-   * An aria-describedby idref cannot point into this shadow root from the
-   * light-DOM trigger, so the description is set via ARIA reflection
-   * directly on the slotted element (skipped gracefully where unsupported).
-   */
+  // aria-describedby can't reach into this shadow root, so ARIA reflection sets it on the trigger
   syncDescription (): void {
     const trigger = this.querySelector(':scope > :not([slot])') || this.firstElementChild;
 

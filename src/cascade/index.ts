@@ -1,9 +1,9 @@
 // Scope attributes become inline custom properties so shadow roots and later insertions
 // resolve through the cascade instead of closest() or per-element observers.
 
-export type Axis = 'feel' | 'material' | 'palette' | 'quality' | 'substance';
+export type Axis = 'feel' | 'light' | 'material' | 'palette' | 'quality' | 'substance';
 
-export const AXES: ReadonlyArray<Axis> = ['feel', 'material', 'palette', 'quality', 'substance'];
+export const AXES: ReadonlyArray<Axis> = ['feel', 'light', 'material', 'palette', 'quality', 'substance'];
 
 export const SCOPE_CHANGE_EVENT = 'droplet-scope-change';
 
@@ -18,8 +18,7 @@ const axisOf = (attribute: string): Axis | null => {
   return AXES.includes(axis) ? axis : null;
 };
 
-// Reads the attribute live rather than trusting the record's oldValue, so a
-// set-then-remove batch settles on the final state whatever order records arrive in.
+// Reads the attribute live, not oldValue, so a set-then-remove batch settles on the final state
 function apply (el: Element, axis: Axis): void {
   const style = (el as Partial<ElementCSSInlineStyle>).style;
   if (!style) return;
@@ -89,8 +88,7 @@ export function installScopeBridge (doc: Document): void {
     generations.set(doc, generation);
     doc.dispatchEvent(new CustomEvent(SCOPE_CHANGE_EVENT, { detail: { generation } }));
   });
-  // childList too: attributeFilter records say nothing about elements that arrive
-  // already carrying a scope attribute, which the initial scan has long missed.
+  // childList too: attributeFilter misses elements that arrive already carrying a scope
   observer.observe(doc, { attributes: true, childList: true, subtree: true, attributeFilter: [...ATTRIBUTES] });
 }
 

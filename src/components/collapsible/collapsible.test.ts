@@ -82,7 +82,6 @@ describe('droplet-collapsible contracts', () => {
     expect(seen).toHaveBeenCalledTimes(1);
     expect(el.matches(':state(open)')).toBe(true);
 
-    // Rewriting a present boolean attribute is not a transition
     el.setAttribute('open', 'still-open');
     expect(seen).toHaveBeenCalledTimes(1);
 
@@ -153,7 +152,6 @@ describe('droplet-collapsible contracts', () => {
     expect(el.getAttribute('quality')).toBe('low');
     expect(el.quality).toBe('low');
 
-    // Unrecognized text resolves to the default and is left as written
     el.setAttribute('quality', 'potato');
     expect(el.quality).toBe('medium');
     expect(el.getAttribute('quality')).toBe('potato');

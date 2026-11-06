@@ -27,8 +27,18 @@ import variantStyles         from '../../styles/variants.css?inline';
  * @attr {"square"|"circle"} shape - Rounded square (default) or circle.
  * @attr {"small"|"medium"|"large"} size - Control size.
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Fill hue.
+ * @attr {string} color - Any CSS color for the fill or accent (beats intent and variant); text or a mark on it turns white or near-black, whichever reads better.
+ * @attr {"accent"|"neutral"|"info"|"success"|"warning"|"danger"|"highlight"} intent - Semantic color role (never an ARIA role); beats variant.
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
  * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
+ * @attr {string} material - Registered material preset: "matte" (the default) or "gloss" (Experimental); inherits from a `data-droplet-material` scope.
+ * @attr {number} gloss - Sheen sharpness 0–1 for a lit material (Experimental); defaults to the material's sharpness.
+ * @attr {number} softness - Feel knob 0–1: how far the surface gives under a press; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} bounce - Feel knob 0–1: how long it keeps wobbling before it settles; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} viscosity - Feel knob 0–1: how thick and slow it moves; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} spread - Feel knob 0–1: how far a dent travels around the edge; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} depth - Feel knob 0–1: how far it presses in and tilts; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} intensity - Feel knob 0–1: master gain on every push the surface takes; unset keeps the feel preset's setting, and 0.5 is neutral.
  *
  * @prop {boolean} disabled - Reflects the `disabled` attribute.
  * @prop {string} name - Reflects the `name` attribute.
@@ -50,7 +60,7 @@ export class DropletIconButton extends DropletElement {
 
   static override REPLAYED: readonly string[] = [...DropletElement.REPLAYED, 'disabled', 'name'];
 
-  // :disabled and fieldset disabling come from the platform; it never submits
+  // For :disabled and fieldset disabling; it never submits
   static formAssociated = true;
 
   button!: HTMLButtonElement;
@@ -94,7 +104,6 @@ export class DropletIconButton extends DropletElement {
   override connectedCallback (): void {
     super.connectedCallback();
 
-    // A move can change the tree scope IDREFs resolve in
     this.ariaLink.connect();
   }
 
@@ -104,8 +113,6 @@ export class DropletIconButton extends DropletElement {
     this.ariaLink.disconnect();
   }
 
-  // Native HTMLButtonElement.click(): nothing while disabled, otherwise the inner
-  // button activates, so the host still sees exactly one composed click
   override click (): void {
     if (this.effectivelyDisabled) {
       return;
@@ -132,13 +139,10 @@ export class DropletIconButton extends DropletElement {
     return `<button part="button"><slot></slot></button>`;
   }
 
-  // Inset so the wobble stays inside the host
   override shape (width: number, height: number): Shape {
     const size   = Math.min(width, height) - 6;
     const circle = this.getAttribute('shape') === 'circle';
 
-    // The square shape honors a --droplet-icon-button-radius override on the
-    // painted surface; circle always draws a full round
     const declared = parseFloat(readToken(getComputedStyle(this), 'icon-button-radius'));
     const radius   = circle ? size / 2 : (Number.isFinite(declared) ? Math.min(declared, size / 2) : size * 0.32);
 
@@ -157,7 +161,6 @@ export class DropletIconButton extends DropletElement {
     this.wirePress(this.button, { disabled: () => this.effectivelyDisabled });
   }
 
-  // Every forwarded aria-* the host carries, then the name so label keeps precedence
   forwardHostAria (): void {
     if (!this.button) {
       return;
@@ -167,9 +170,6 @@ export class DropletIconButton extends DropletElement {
     this.sync('label');
   }
 
-  // Pointer capture keeps a drag routed to the button after the pointer leaves
-  // it. Cancel the resulting native click unless the release is back inside
-  // the button; keyboard-originated clicks are unaffected.
   preventReleaseOutsideActivation (): void {
     this.button.addEventListener('pointerdown', (event) => {
       this.activationPointerId = event.pointerId;
@@ -204,9 +204,7 @@ export class DropletIconButton extends DropletElement {
       event.stopImmediatePropagation();
     };
 
-    // Native clicks from a shadow button are composed. Guard on both the
-    // source button and the host boundary so an outside release cannot leak
-    // through to a consumer's host-level click listener.
+    // The click is composed, so the host needs the guard too
     this.button.addEventListener('click', cancelOutsideRelease);
     this.addEventListener('click', cancelOutsideRelease, { capture: true });
   }
@@ -251,7 +249,6 @@ export class DropletIconButton extends DropletElement {
     }
   }
 
-  // The base class only sees the attribute; a disabled fieldset must leave the tab order too
   override syncHostFocusTarget (): void {
     super.syncHostFocusTarget();
 

@@ -1,5 +1,4 @@
-// The whole batch is preflighted before anything is defined, so a collision
-// never leaves a half-defined library.
+// The whole batch is preflighted, so a strict collision never half-defines the library
 
 import { LOG_PREFIX } from './tags.js';
 
@@ -35,7 +34,7 @@ export class RegistrationError extends Error {
   }
 }
 
-// One warning per tag per registry; repeat collisions on the same tag stay silent
+// One warning per tag per registry
 const warnedTags = new WeakMap<CustomElementRegistry, Set<string>>();
 
 function warnOnce (registry: CustomElementRegistry, tag: string): void {
@@ -56,7 +55,7 @@ export function defineElements (entries: ReadonlyArray<DefineEntry>, options: De
 
   const pending: DefineEntry[] = [];
   // A tag repeated in one batch is classified against its earlier entry; a constructor
-  // reused under a second tag still throws NotSupportedError (registration.md).
+  // reused under a second tag still throws NotSupportedError.
   const claimed = new Map<string, CustomElementConstructor>();
   for (const [tag, ctor] of entries) {
     const existing = claimed.get(tag) ?? registry.get(tag);
@@ -77,8 +76,7 @@ export function defineElements (entries: ReadonlyArray<DefineEntry>, options: De
   return result;
 }
 
-// The explicit helpers' shared default: a foreign constructor on a library tag
-// throws rather than being warned past (registration.md)
+// The explicit helpers throw on a foreign constructor instead of warning
 export function defineStrict (entries: ReadonlyArray<DefineEntry>, options: DefineOptions = {}): DefineResult {
   return defineElements(entries, { ...options, strict: options.strict ?? true });
 }

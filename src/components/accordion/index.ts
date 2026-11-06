@@ -52,7 +52,6 @@ export class DropletAccordion extends HTMLElementBase {
       <slot></slot>
     `;
 
-    // Newly slotted items pick up the group size
     this.shadowRoot!.querySelector('slot')!.addEventListener('slotchange', () => {
       propagateSize(this, anyTag('collapsible'));
     });
@@ -84,8 +83,7 @@ export class DropletAccordion extends HTMLElementBase {
       propagateSize(this, anyTag('collapsible'));
     }
 
-    // Turning single mode on collapses all but the first already-open item, so
-    // the invariant holds immediately, not only on the next toggle
+    // Turning single on closes all but the first open item at once
     if (name === 'single' && this.built && this.hasAttribute('single')) {
       let keptOpen = false;
 
@@ -103,7 +101,6 @@ export class DropletAccordion extends HTMLElementBase {
     }
   }
 
-  // Route programmatic host focus onto the first item
   override focus (options?: FocusOptions): void {
     this.querySelector<DropletCollapsible>(anyTag('collapsible'))?.focus(options);
   }

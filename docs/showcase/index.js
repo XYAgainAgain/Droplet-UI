@@ -1,8 +1,4 @@
-/*
- * Showcase renderer: one live panel per component, its attribute table built from the
- * library's own chips and inputs. Picking or typing updates the preview and snippet, and
- * interacting with the preview writes back into the table. Demo config: playgrounds.js.
- */
+// One live panel per component; its attribute table and preview update each other (config: playgrounds.js)
 
 import '../../package.js';
 
@@ -26,7 +22,7 @@ wireThemeToggle(document.getElementById('themeToggle'));
 initLottie(document.getElementById('heroLottie'), './docs/lottie/hero-lottie.json');
 initLottie(document.getElementById('footerLottie'), './docs/lottie/footer-lottie.json');
 
-// The hero and top-bar buttons are droplet-buttons, not links, so their navigation is wired here
+// These are droplet-buttons, not links, so navigation is wired here
 document.querySelector('[data-hero-scroll]')?.addEventListener('click', () => {
   document.getElementById('panels')?.scrollIntoView({ behavior: 'smooth' });
 });
@@ -47,17 +43,12 @@ const ordered = GROUP_ORDER
   .flatMap((group) => COMPONENTS.filter((c) => c.group === group))
   .filter((c) => !NO_PANEL.has(c.tag) && PLAYGROUNDS[c.tag]);
 
-// Keep the hero's public custom-element count honest as the library grows
 const countStat = document.querySelector('[data-stat-count]');
 
 if (countStat) {
   countStat.textContent = `${COMPONENTS.length} custom elements`;
 }
 
-// Attribute values
-
-// Resolve an attribute's starting value: an explicit playground default,
-// else the documented default parsed for the control's kind
 function controlDefault (item, spec, cfg) {
   if (cfg.defaults && spec.attr in cfg.defaults) {
     return cfg.defaults[spec.attr];
@@ -73,8 +64,7 @@ function controlDefault (item, spec, cfg) {
   return raw && !raw.startsWith('(') ? raw : '';
 }
 
-// Numbers walk evenly from min to max with the default merged in, so the selected
-// chip always exists. Field controls render an input instead (see valueControl).
+// The default is merged in so its chip always exists
 function optionsFor (spec, def) {
   if (spec.kind === 'bool') {
     return [false, true];
@@ -112,8 +102,6 @@ function typedValue (spec, raw) {
   return raw;
 }
 
-// Number controls flagged `field` (an OTP length, say) get a spinner, which reads
-// better than a row of counts
 function isField (spec) {
   return spec.kind === 'text' || (spec.kind === 'number' && spec.field);
 }
@@ -151,9 +139,7 @@ function valueControl (spec, value) {
   return `<div class="attr-options" data-value="${spec.attr}">${chips}</div>`;
 }
 
-// Applying state to the preview and the code
-
-// An alias's `off` value (a default like shape="pill") clears the attribute instead of writing it
+// An alias's `off` value (a default like shape="pill") removes the attribute
 function applyToRoot (root, spec, value, cfg) {
   const alias = cfg.aliases?.[spec.attr];
 
@@ -233,7 +219,7 @@ function refreshCode (panel) {
   panel.querySelector('[data-code]').innerHTML = codeFor(panel.item, panel.cfg, panel.state);
 }
 
-// A field is only rewritten when its value differs, so typing never fights the caret
+// Rewriting an unchanged field would fight the caret
 function updateValue (panel, attr) {
   const spec  = panel.specByAttr[attr];
   const value = panel.state[attr];
@@ -254,8 +240,6 @@ function updateValue (panel, attr) {
     chip.toggleAttribute('selected', chip.getAttribute('data-opt') === String(value));
   }
 }
-
-// Panel construction
 
 function panelMarkup (item, index) {
   const events = (item.events || []).map((e) => e.name);
@@ -328,8 +312,7 @@ function buildPreview (panel, item, cfg, state) {
   }
 
   if (cfg.wrap === 'block') {
-    // A real height lets a vertical divider stretch; the host's own align-self keeps
-    // a horizontal one centered and full-width
+    // A real height lets a vertical divider stretch
     rootHTML = `<div style="display: flex; align-items: stretch; justify-content: center; width: 280px; height: 150px">${rootHTML}</div>`;
   }
 
@@ -346,14 +329,12 @@ function buildPreview (panel, item, cfg, state) {
   }
 }
 
-// Rebuild the preview after a self-removing demo (chip removed, alert dismissed)
 function rebuildPreview (panel) {
   buildPreview(panel, panel.item, panel.cfg, panel.state);
   wirePreview(panel);
 }
 
-// The reverse direction: a bound preview event (typing, toggling, selecting) writes
-// the new value back into the table and the snippet
+// Preview → table: a bound event writes its value back
 function wireBinds (panel) {
   const binds = panel.cfg.bind;
 
@@ -393,8 +374,7 @@ function wirePreview (panel) {
     button.addEventListener('click', () => dropletToast('Droplet toast', { tone: panel.state.tone }));
   });
 
-  // Demo links must not navigate. composedPath() catches links inside shadow DOM
-  // (droplet-breadcrumbs), where event.target is retargeted to the host.
+  // composedPath() sees links in shadow DOM (breadcrumbs), where event.target is the host
   panel.querySelector('.stage-inner').addEventListener('click', (event) => {
     if (event.composedPath().some((node) => node instanceof HTMLAnchorElement)) {
       event.preventDefault();
@@ -411,8 +391,6 @@ function wirePreview (panel) {
   root.addEventListener('remove', () => setTimeout(() => rebuildPreview(panel), 1500));
   root.addEventListener('dismiss', () => setTimeout(() => rebuildPreview(panel), 400));
 
-  // Fired events tick along the stage edge as graphite badges, so they read as
-  // telemetry rather than as option chips
   const ticker = panel.querySelector('.stage-events');
 
   for (const name of (panel.dataset.events || '').split(',').filter(Boolean)) {
@@ -436,7 +414,6 @@ function wirePreview (panel) {
   }
 }
 
-// Returns true only when the value changed, so callers repaint the snippet only then
 function setValue (panel, attr, value) {
   if (String(panel.state[attr]) === String(value)) {
     return false;
@@ -477,8 +454,7 @@ function mountPanel (panel) {
   wirePreview(panel);
   refreshCode(panel);
 
-  // Number fields clamp to the documented range once they hold a number; an empty
-  // field is left alone so it can be cleared while editing
+  // An empty field stays unclamped so it can be cleared mid-edit
   for (const field of panel.querySelectorAll('.attr-field')) {
     field.addEventListener('input', () => {
       const spec = panel.specByAttr[field.dataset.value];
@@ -491,8 +467,7 @@ function mountPanel (panel) {
         if (Number.isFinite(n)) {
           value = Math.max(spec.min, Math.min(spec.max, n));
 
-          // Pagination's page can never exceed its total, so the snippet never
-          // shows a page the component would clamp away
+          // The component clamps page to total, so the snippet does too
           if (field.dataset.value === 'page' && Number.isFinite(+panel.state?.total)) {
             value = Math.min(value, +panel.state.total);
           }
@@ -506,8 +481,6 @@ function mountPanel (panel) {
   }
 }
 
-// Render
-
 document.getElementById('panels').innerHTML = ordered.map(panelMarkup).join('');
 
 const panels = [...document.querySelectorAll('.panel')];
@@ -517,8 +490,7 @@ panels.forEach((panel) => {
   panel.cfg  = PLAYGROUNDS[panel.dataset.tag];
 });
 
-// Panels publish their tag as the URL hash; the hero stands for the bare showcase URL,
-// so returning to it drops only the hash and keeps the path and query
+// The hero stands for the bare URL; clearing the hash keeps path and query
 const hero = document.querySelector('.hero');
 const hashSections = [hero, ...panels].filter(Boolean);
 
@@ -539,9 +511,6 @@ function heroIsActive () {
   return rect.top <= center && rect.bottom > center;
 }
 
-// Scroll
-
-// Mount panels just before they arrive
 const mountObserver = new IntersectionObserver((entries) => {
   for (const entry of entries) {
     if (entry.isIntersecting) mountPanel(entry.target);
@@ -550,7 +519,6 @@ const mountObserver = new IntersectionObserver((entries) => {
 
 panels.forEach((p) => mountObserver.observe(p));
 
-// Scroll progress bar, throttled to one update per animation frame
 const progress = document.getElementById('scrollProgress');
 
 let ticking = false;
@@ -568,8 +536,7 @@ function onScroll () {
     const max = document.documentElement.scrollHeight - window.innerHeight;
     progress.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
 
-    // IntersectionObserver can skip states during a long smooth scroll, so the hero
-    // is checked here too and arriving at the top always clears the last fragment
+    // IntersectionObserver can skip states in a long smooth scroll, so check the hero here too
     if (heroIsActive()) {
       clearShowcaseHash();
     }
@@ -579,7 +546,6 @@ function onScroll () {
 window.addEventListener('scroll', onScroll, { passive: true });
 onScroll();
 
-// Copy buttons
 document.getElementById('panels').addEventListener('click', (event) => {
   const button = event.target.closest('[data-copy]');
   if (!button) {
@@ -594,8 +560,7 @@ document.getElementById('panels').addEventListener('click', (event) => {
   });
 });
 
-// A selectable chip self-toggles on click; updateValue always runs to re-assert
-// single-select, so clicking the current option keeps it selected
+// Chips self-toggle on click; updateValue re-asserts single-select
 document.getElementById('panels').addEventListener('click', (event) => {
   const chip = event.target.closest('.attr-chip');
   if (!chip) {
@@ -614,8 +579,6 @@ document.getElementById('panels').addEventListener('click', (event) => {
   updateValue(panel, row.dataset.row);
   refreshCode(panel);
 });
-
-// Keep the URL hash on the component in view, so deep links stay shareable.
 
 function syncSectionHash () {
   const center = window.innerHeight / 2;

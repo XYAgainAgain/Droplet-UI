@@ -1,10 +1,4 @@
-/*
- * Custom Elements Manifest analyzer config: reads the component sources and their
- * JSDoc and emits custom-elements.json, which the docs data build reconciles against.
- */
-
-// Each canonical element records its permanent Jelly UI tag as metadata, so tools
-// see one component with an alias rather than two primary components
+// Records each Jelly UI tag as metadata, so tools see one component with an alias, not two
 const legacyAliases = {
   name: 'droplet-legacy-aliases',
   packageLinkPhase ({ customElementsManifest }) {

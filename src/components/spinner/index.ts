@@ -1,8 +1,3 @@
-/*
- * Loading indicators: a gooey blob gliding between three dots (default), or a
- * blob that morphs and spins (type="blob"). Reduced motion holds both still.
- */
-
 import { DropletElement } from '../../element/index.js';
 import type { Shape }   from '../../element/index.js';
 
@@ -22,8 +17,18 @@ import variantStyles    from '../../styles/variants.css?inline';
  * @attr {"small"|"medium"|"large"} size - Spinner size.
  * @attr {string} label - Accessible loading label (defaults to "Loading").
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Fill hue.
+ * @attr {string} color - Any CSS color for the fill or accent (beats intent and variant); text or a mark on it turns white or near-black, whichever reads better.
+ * @attr {"accent"|"neutral"|"info"|"success"|"warning"|"danger"|"highlight"} intent - Semantic color role (never an ARIA role); beats variant.
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
  * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
+ * @attr {string} material - Registered material preset: "matte" (the default) or "gloss" (Experimental); inherits from a `data-droplet-material` scope.
+ * @attr {number} gloss - Sheen sharpness 0–1 for a lit material (Experimental); defaults to the material's sharpness.
+ * @attr {number} softness - Feel knob 0–1: how far the surface gives under a press; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} bounce - Feel knob 0–1: how long it keeps wobbling before it settles; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} viscosity - Feel knob 0–1: how thick and slow it moves; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} spread - Feel knob 0–1: how far a dent travels around the edge; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} depth - Feel knob 0–1: how far it presses in and tilts; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} intensity - Feel knob 0–1: master gain on every push the surface takes; unset keeps the feel preset's setting, and 0.5 is neutral.
  *
  * @cssprop [--droplet-fill] - Dot/blob color.
  */
@@ -34,6 +39,8 @@ export class DropletSpinner extends DropletElement {
   }
 
   static override usesResolver = true;
+
+  static override textOnFill = false;
 
   timeAccumulator = 0;
   idx = 0;
@@ -55,8 +62,7 @@ export class DropletSpinner extends DropletElement {
 
     switch (name) {
       case 'type':
-        // Blob and dots differ in markup and geometry; the host's CSS size flip
-        // reshapes the body through the ResizeObserver
+        // The host's CSS size flip reshapes the body through the ResizeObserver
         this.shadowRoot!.querySelector('.droplet-content')!.innerHTML = this.content();
         this.clearCanvas();
         break;
@@ -81,7 +87,6 @@ export class DropletSpinner extends DropletElement {
     return variantStyles + spinnerStyles;
   }
 
-  // Dots render as gooey SVG; the blob is pure canvas
   override content (): string {
     if (this.type === 'dots') {
       return `
@@ -105,7 +110,6 @@ export class DropletSpinner extends DropletElement {
     return '';
   }
 
-  // The blob is a circle; the dots body is unused (SVG draws instead)
   override shape (width: number, height: number): Shape {
     if (this.type === 'dots') {
       return { width, height, radius: height / 2 };
@@ -125,7 +129,6 @@ export class DropletSpinner extends DropletElement {
   }
 
   override frame (dt: number): boolean {
-    // The dots loader is CSS/SVG-driven; no canvas animation loop needed
     if (this.type === 'dots') {
       return false;
     }
@@ -142,8 +145,6 @@ export class DropletSpinner extends DropletElement {
       return false;
     }
 
-    // Keep it alive: jump around the rim dropping gentle impulses so the
-    // blob never settles into a circle
     this.timeAccumulator += dt;
 
     if (this.timeAccumulator > 0.13) {
@@ -162,8 +163,6 @@ export class DropletSpinner extends DropletElement {
 
     body.update(dt);
 
-    // A slow spin plus a volume-preserving breathing squash keep the blob from
-    // reading as a wobbling circle sitting still
     this.angle += dt * 1.5;
 
     const breathe = 1 + Math.sin(this.angle * 1.7) * 0.05;

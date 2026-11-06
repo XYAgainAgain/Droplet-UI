@@ -72,7 +72,6 @@
   transition: transform .32s cubic-bezier(.34, 1.5, .5, 1);
 }
 
-/* The chevron points into the reading direction, so mirror it in RTL */
 :host(:dir(rtl)) .chevron {
   transform: scaleX(-1);
 }
@@ -91,8 +90,7 @@
   grid-template-rows: 1fr;
 }
 
-/* visibility: hidden drops collapsed content from the tab order and accessibility
-   tree; the delay keeps it visible through the closing animation. */
+/* visibility: hidden removes collapsed content from the tab order; the delay outlasts the close */
 .content {
   overflow:   hidden;
   visibility: hidden;
@@ -122,7 +120,6 @@
   100% { transform: none; }
 }
 
-/* --droplet-motion mirrors data-droplet-motion (or data-jelly-motion) on <html>; see src/theme/runtime.ts */
 @media (prefers-reduced-motion: reduce) {
   @container not style(--droplet-motion: no-preference) {
     :is(.wrap, .chevron, .content) { transition: none; }

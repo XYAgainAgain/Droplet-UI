@@ -1,7 +1,4 @@
-/*
- * Showcase playground config, one entry per tag: index.js builds each live preview and its
- * attribute table from it. A tag without an entry stays on /api only (see NO_PANEL).
- */
+// Playground config per tag for index.js; a tag without one appears only on /api
 
 import { dropletIcon } from '../../package.js';
 
@@ -13,7 +10,7 @@ const bool   = (attr) => ({ attr, kind: 'bool' });
 const size   = () => ({ attr: 'size', kind: 'enum', options: SIZES });
 const variant = () => ({ attr: 'variant', kind: 'enum', options: VARIANTS });
 const pick   = (attr, options) => ({ attr, kind: 'enum', options });
-// A number control shown as an editable spinner (clamped to min/max)
+// A number shown as a clamped spinner instead of chips
 const numField = (attr, min, max, step = 1) => ({ attr, kind: 'number', min, max, step, field: true });
 const text   = (attr, placeholder = '') => ({ attr, kind: 'text', placeholder });
 
@@ -22,8 +19,6 @@ export const PLAYGROUNDS = {
   // Theming
 
   'droplet-theme': {
-    // A roomy mini settings panel shows surface/text theming plus several
-    // controls that inherit --droplet-color-background-accent.
     inner: '<droplet-card style="padding: 26px; min-width: 320px;"><div style="display: grid; gap: 24px; justify-items: stretch;"><div style="display: grid; gap: 4px;"><strong style="font-size: 16px;">Workspace controls</strong><span style="font-size: 13px; opacity: 0.68;">Preview the scoped theme</span></div><droplet-slider label="Volume" value="62" style="width: 100%;"></droplet-slider><droplet-progress label="Completion" value="62" style="width: 100%;"></droplet-progress><div style="display: flex; flex-wrap: wrap; align-items: center; gap: 14px 20px;"><droplet-checkbox checked>Sync</droplet-checkbox><droplet-switch checked>Notifications</droplet-switch></div></div></droplet-card>',
     controls: [pick('mode', ['auto', 'light', 'dark']), text('accent', '#7C3AED')],
     defaults: { mode: 'auto' },
@@ -34,7 +29,6 @@ export const PLAYGROUNDS = {
   'droplet-button': {
     slot: 'Publish',
     controls: [variant(), size(), pick('shape', ['pill', 'square']), bool('disabled'), bool('block')],
-    // "pill" (the default) clears the attribute; "square" sets shape="square"
     aliases: { shape: { attr: 'shape', off: 'pill' } },
     defaults: { shape: 'pill' },
   },
@@ -167,7 +161,7 @@ export const PLAYGROUNDS = {
 
   'droplet-toaster': {
     trigger: true,
-    // the trigger sits beside the (invisible) toaster rail, not inside it
+    // Beside the toaster rail, not inside it
     extra: '<droplet-button data-toast variant="mint">Show a toast</droplet-button>',
     controls: [pick('tone', ['info', 'success', 'warning', 'danger'])],
     defaults: { tone: 'success' },
@@ -183,8 +177,7 @@ export const PLAYGROUNDS = {
 
   'droplet-chip': {
     slot: 'Design',
-    // variant and size come first, while the chip is still selected (a chip only
-    // shows its variant hue when selected), then the boolean toggles run
+    // Variant and size first, while the chip is still selected (only then does it show its hue)
     controls: [variant(), size(), pick('shape', ['pill', 'square']), bool('selectable'), bool('selected'), bool('removable'), bool('disabled')],
     aliases: { shape: { attr: 'shape', off: 'pill' } },
     bind: [{ event: 'change', attr: 'selected', get: (el) => el.selected }],
@@ -248,7 +241,6 @@ export const PLAYGROUNDS = {
   },
 
   'droplet-resizable': {
-    // Each pane is a solid surface tile so the split reads clearly
     inner: '<div class="pg-pane">One</div><div class="pg-pane">Two</div><div class="pg-pane">Three</div>',
     wrap: 'fill',
     controls: [pick('direction', ['row', 'vertical', 'both'])],

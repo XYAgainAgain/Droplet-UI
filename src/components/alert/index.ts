@@ -13,7 +13,6 @@ import { readToken } from '../../theme/token-read.js';
 
 import alertStyles       from './alert.css?inline';
 
-// The Fluent icon for each tone
 const TONE_ICONS: Record<string, IconName> = {
   info:    'info',
   success: 'checkmark-circle',
@@ -33,6 +32,14 @@ const TONE_ICONS: Record<string, IconName> = {
  * @attr {"small"|"medium"|"large"} size - Banner size.
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
  * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
+ * @attr {string} material - Registered material preset: "matte" (the default) or "gloss" (Experimental); inherits from a `data-droplet-material` scope.
+ * @attr {number} gloss - Sheen sharpness 0–1 for a lit material (Experimental); defaults to the material's sharpness.
+ * @attr {number} softness - Feel knob 0–1: how far the surface gives under a press; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} bounce - Feel knob 0–1: how long it keeps wobbling before it settles; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} viscosity - Feel knob 0–1: how thick and slow it moves; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} spread - Feel knob 0–1: how far a dent travels around the edge; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} depth - Feel knob 0–1: how far it presses in and tilts; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} intensity - Feel knob 0–1: master gain on every push the surface takes; unset keeps the feel preset's setting, and 0.5 is neutral.
  *
  * @fires dismiss - When the alert is dismissed.
  *
@@ -68,8 +75,7 @@ export class DropletAlert extends DropletElement {
 
     switch (name) {
       case 'tone':
-        // Tone drives the icon glyph (markup) as well as its color (CSS var),
-        // so re-render the box, re-wire its dismiss button and repaint
+        // Tone picks the icon markup too, so the box re-renders
         this.shadowRoot!.querySelector('.droplet-content')!.innerHTML = this.content();
         this.wireClose();
         this.requestFrame();
@@ -85,12 +91,10 @@ export class DropletAlert extends DropletElement {
     }
   }
 
-  // Component styles layered over the shared base styles
   override styles (): string {
     return alertStyles;
   }
 
-  // The interactive markup that sits above the canvas
   override content (): string {
     const tone = this.getAttribute('tone') || 'info';
 
@@ -102,19 +106,16 @@ export class DropletAlert extends DropletElement {
       </div>`;
   }
 
-  // The banner the physics body takes (radius follows the size token)
   override shape (width: number, height: number): Shape {
     const radius = parseFloat(readToken(getComputedStyle(this), 'alert-radius')) || 16;
 
     return { width, height, radius: Math.min(radius, height / 2) };
   }
 
-  // The surface fill resolves through the theme so dark mode recolors it
   override fill (): string {
     return this.resolveColor(`var(--jelly-fill, var(--droplet-fill, var(--jelly-color-background-surface, var(--droplet-color-background-surface, ${PALETTE['background-surface']}))))`);
   }
 
-  // Runs once after the shadow DOM and canvas exist
   override onBuilt (): void {
     this.wireClose();
 
@@ -123,7 +124,6 @@ export class DropletAlert extends DropletElement {
     }
   }
 
-  // Hook up the dismiss button (re-run after tone re-renders the box)
   wireClose (): void {
     const close = this.shadowRoot!.querySelector('.close') as (HTMLElement & { wired?: boolean }) | null;
 
@@ -143,13 +143,12 @@ export class DropletAlert extends DropletElement {
     close.addEventListener('click', () => this.dismiss());
   }
 
-  // A quick left-right soft-body shake
   shake (): void {
     if (this.reducedMotion || !this.body) {
       return;
     }
 
-    this.shaking = 0.5; // seconds of shaking
+    this.shaking = 0.5; // s
     this.shakeT  = 0;
 
     this.requestFrame();

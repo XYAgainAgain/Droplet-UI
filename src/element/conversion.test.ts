@@ -47,7 +47,7 @@ test.each(SECONDARY)('the %s follows the element feel, live', async (name, marku
 
     const el = host.querySelector('div')!.firstElementChild as DropletElement & { openPanel?: () => void };
 
-    // The select builds its panel membrane the first time it opens
+    // The select builds its panel membrane on first open
     if (name === 'select panel') {
       el.openPanel!();
       await settle(4);

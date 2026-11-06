@@ -2,7 +2,6 @@ import { HTMLElementBase } from '../../element/base.js';
 import { anyTag, defineStrict, TAGS } from '../../registry/index.js';
 import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
-// The minimal surface of a parent that re-reads its segments
 interface SegmentParent extends HTMLElement {
   sync?: () => void;
 }

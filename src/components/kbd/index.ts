@@ -5,10 +5,9 @@ import type { DefineOptions, DefineResult } from '../../registry/index.js';
 
 import kbdStyles         from './kbd.css?inline';
 
-// Input types that take no text, so a keystroke there is not typing
 const NON_TEXT_INPUTS = new Set(['button', 'checkbox', 'color', 'file', 'image', 'radio', 'range', 'reset', 'submit']);
 
-// composedPath()[0] reaches past shadow retargeting to the field inside droplet-input and friends
+// composedPath()[0] reaches past retargeting to the field inside droplet-input
 function isTyping (event: KeyboardEvent): boolean {
   const target = event.composedPath()[0] as HTMLElement | undefined;
 
@@ -25,7 +24,7 @@ function isTyping (event: KeyboardEvent): boolean {
 
 type Modifier = 'ctrlKey' | 'altKey' | 'metaKey' | 'shiftKey';
 
-// A key="…" value may lead with modifiers, as in key="Meta+k"; a Map so "constructor+k" is not a modifier
+// A Map, not an object, so "constructor+k" isn't a modifier
 const MODIFIER_NAMES = new Map<string, Modifier>([
   ['control', 'ctrlKey'], ['ctrl', 'ctrlKey'], ['alt', 'altKey'], ['meta', 'metaKey'], ['shift', 'shiftKey'],
 ]);
@@ -57,8 +56,8 @@ function parseChord (value: string): Chord {
   return { key: key.toLowerCase(), modifiers };
 }
 
-// Ctrl, Alt, and Meta must be held exactly as the chord names them; Shift is only checked when named,
-// since it is how many characters get typed. AltGr reports Ctrl+Alt on Windows yet only types a character.
+// Ctrl, Alt, and Meta must match exactly; Shift counts only when named, since it types characters.
+// AltGr reports Ctrl+Alt on Windows.
 function modifiersMatch (event: KeyboardEvent, chord: Chord): boolean {
   const altGraph = event.getModifierState?.('AltGraph') ?? false;
 
@@ -73,7 +72,7 @@ function modifiersMatch (event: KeyboardEvent, chord: Chord): boolean {
   return !chord.modifiers.has('shiftKey') || event.shiftKey;
 }
 
-// The closest data-droplet-shortcuts ancestor decides, crossing shadow roots the way the cascade inherits
+// The nearest data-droplet-shortcuts ancestor wins, crossing shadow roots like the cascade
 function shortcutsOff (el: Element): boolean {
   let node: Element | null = el;
 
@@ -106,6 +105,14 @@ function shortcutsOff (el: Element): boolean {
  * @attr {"small"|"medium"|"large"} size - Keycap size.
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
  * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
+ * @attr {string} material - Registered material preset: "matte" (the default) or "gloss" (Experimental); inherits from a `data-droplet-material` scope.
+ * @attr {number} gloss - Sheen sharpness 0–1 for a lit material (Experimental); defaults to the material's sharpness.
+ * @attr {number} softness - Feel knob 0–1: how far the surface gives under a press; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} bounce - Feel knob 0–1: how long it keeps wobbling before it settles; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} viscosity - Feel knob 0–1: how thick and slow it moves; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} spread - Feel knob 0–1: how far a dent travels around the edge; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} depth - Feel knob 0–1: how far it presses in and tilts; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} intensity - Feel knob 0–1: master gain on every push the surface takes; unset keeps the feel preset's setting, and 0.5 is neutral.
  *
  * @csspart cap - The keycap surface.
  */
@@ -120,7 +127,6 @@ export class DropletKbd extends DropletElement implements EventListenerObject {
   onDocumentKeyDown: ((event: KeyboardEvent) => void) | null = null;
   onDocumentKeyUp: ((event: KeyboardEvent) => void) | null = null;
 
-  // Each press source releases on its own; the cap rises once none is left holding it
   pointerPressed = false;
   mirrorPressed = false;
 
@@ -144,7 +150,6 @@ export class DropletKbd extends DropletElement implements EventListenerObject {
     return `<span class="cap" part="cap"><slot></slot></span>`;
   }
 
-  // The keycap the physics body takes, with gently squared corners
   override shape (width: number, height: number): Shape {
     return {
       width:  width - 2,
@@ -184,7 +189,6 @@ export class DropletKbd extends DropletElement implements EventListenerObject {
     }
   }
 
-  // A standalone cap is its own pressable control; a decorative one only labels its container
   syncDecorative (): void {
     if (!this.decorative) {
       this.tabIndex = 0;
@@ -200,7 +204,7 @@ export class DropletKbd extends DropletElement implements EventListenerObject {
     }
   }
 
-  // disconnectedCallback drops the key mirror, so a detached and re-appended kbd re-arms it here
+  // Re-arms the mirror disconnectedCallback dropped
   override connectedCallback (): void {
     super.connectedCallback();
 
@@ -209,7 +213,6 @@ export class DropletKbd extends DropletElement implements EventListenerObject {
     }
   }
 
-  // Idempotent: the old listener pair is dropped first, so reconnects and key changes never stack listeners
   armKeyMirror (): void {
     this.disarmKeyMirror();
 
@@ -235,8 +238,8 @@ export class DropletKbd extends DropletElement implements EventListenerObject {
       this.press();
     };
 
-    // Never gated, so a cap pressed before focus moved into a field still comes back up. A chord also
-    // releases with its modifier: macOS drops the keyup of a key released while Meta is held.
+    // Ungated, so a cap pressed before focus moved into a field still rises.
+    // Releasing a modifier releases too: macOS drops a key's keyup while Meta is held.
     this.onDocumentKeyUp = (event) => {
       if (matches(event) || [...chord.modifiers].some((flag) => MODIFIER_KEYS[flag] === event.key)) {
         this.releaseMirror();
@@ -247,8 +250,7 @@ export class DropletKbd extends DropletElement implements EventListenerObject {
     document.addEventListener('keyup', this.onDocumentKeyUp);
   }
 
-  // Drop the document-wide key mirror listeners, if any are wired. A held key's
-  // keyup would never arrive once they are gone, so its press is released first.
+  // Releases first: a held key's keyup never arrives once the listeners are gone
   disarmKeyMirror (): void {
     this.releaseMirror();
 
@@ -267,7 +269,7 @@ export class DropletKbd extends DropletElement implements EventListenerObject {
         try {
           this.setPointerCapture(pointer.pointerId);
         } catch {
-          // Capture can fail if the pointer is already gone; the press still works
+          // Pointer already gone
         }
         this.pointerPressed = true;
         this.press(pointer.clientX, pointer.clientY);
@@ -314,7 +316,6 @@ export class DropletKbd extends DropletElement implements EventListenerObject {
     }
   }
 
-  // Depress the cap: bulge from the pointer, or squish from the center
   press (clientX?: number, clientY?: number): void {
     this.classList.add('pressed');
 
@@ -332,7 +333,7 @@ export class DropletKbd extends DropletElement implements EventListenerObject {
     }
   }
 
-  // Let the cap travel back up and the soft body settle, unless another source still holds it
+  // Rises only once no press source still holds it
   release (): void {
     if (this.pointerPressed || this.keyboardActive || this.mirrorPressed || !this.classList.contains('pressed')) {
       return;
@@ -342,7 +343,7 @@ export class DropletKbd extends DropletElement implements EventListenerObject {
     this.releaseBody();
   }
 
-  // A detached cap never hears its pending pointerup or keyup, so every source lets go here
+  // A detached cap never hears its pending pointerup or keyup
   override disconnectedCallback (): void {
     this.pointerPressed = false;
     this.keyboardActive = false;

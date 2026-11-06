@@ -1,5 +1,4 @@
-// The only place a tag name is spelled; both prefixes are constants, not
-// configuration, and every legacy tag is the canonical one renamed.
+// The only place tag names are spelled; each legacy tag is the canonical one renamed
 
 export const TAG_PREFIX = 'droplet';
 

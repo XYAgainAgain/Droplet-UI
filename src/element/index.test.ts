@@ -9,8 +9,7 @@ import { mount, settle } from '../testing/index.js';
 import { DropletElement } from './index.js';
 import type { PainterFrame } from './index.js';
 
-// A subclass that never opts into the resolver: no attachInternals(), nothing but
-// the pre-fork base class.
+// Never opts into the resolver
 class PlainJelly extends DropletElement {}
 
 customElements.define('jelly-plain-unconverted', PlainJelly);
@@ -29,8 +28,7 @@ test('an unconverted subclass connects without the scope bridge or a resolve', a
   const el = host.firstElementChild!.firstElementChild as PlainJelly;
   const scope = host.firstElementChild as HTMLElement;
 
-  // The bridge would have mirrored the scope attributes onto inline custom
-  // properties; an unconverted connect must not install it
+  // The scope bridge mirrors these onto inline properties; an unconverted connect must not install it
   expect(scope.style.getPropertyValue('--droplet-feel')).toBe('');
   expect(scope.style.getPropertyValue('--droplet-quality')).toBe('');
 
@@ -139,7 +137,7 @@ async function expectNoPageOverflow (dir: 'ltr' | 'rtl', edge: string): Promise<
     const el = host.firstElementChild as PlainJelly;
     const canvas = el.canvas.getBoundingClientRect();
 
-    // The overhang really does cross the viewport edge by PAD, it just adds no scroll
+    // The overhang crosses the viewport edge by PAD but adds no scroll
     const crossing = dir === 'ltr' ? canvas.right - scroller.clientWidth : -canvas.left;
 
     expect(crossing).toBeCloseTo(DropletElement.PAD, 0);

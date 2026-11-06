@@ -39,8 +39,6 @@
   touch-action:   manipulation;
 }
 
-/* The focus ring is painted on the canvas; this ::after is only for
-   forced-colors mode, where canvas paint is disregarded */
 .card::after {
   content:        "";
   position:       absolute;

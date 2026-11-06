@@ -1,10 +1,5 @@
-/*
- * Hand-authored docs prose, one descriptor per component: edit this, never the generated
- * docs/content/data.js. Types come from custom-elements.json, and `npm run docs` warns when
- * a component gains or loses an attribute, event, slot, part, or token not described here.
- */
+// Hand-authored docs prose: edit this, never the generated data.js; `npm run docs` flags drift
 
-// The order component groups appear in the sidebar and on the page
 export const GROUP_ORDER = ["Theming","Actions","Forms","Feedback","Surfaces","Navigation","Overlays"];
 
 export const COMPONENTS = [
@@ -83,7 +78,7 @@ export const COMPONENTS = [
     "attributes": [
       {
         "name": "feel",
-        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "type": "string (a registered feel preset name; \"gel\", \"solid\", \"liquid\", \"goo\", \"plasma\", and \"gas\" are built in)",
         "default": "gel, or the nearest data-droplet-feel scope",
         "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
       },
@@ -94,10 +89,68 @@ export const COMPONENTS = [
         "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
       },
       {
+        "name": "material",
+        "type": "string (a registered material preset; \"matte\" and \"gloss\" are built in)",
+        "default": "matte, or the nearest data-droplet-material scope",
+        "description": "Experimental. How the surface takes light: matte (the default) paints its fill unchanged until the page sets lights, then shades softly toward them; gloss adds a wet sheen and a rim on the lit edge and lights itself from above when the page sets none. Lights come from setLights() in droplet-ui/experimental or a data-droplet-light direction. Unknown names paint as matte with one console warning per name."
+      },
+      {
+        "name": "gloss",
+        "type": "number (0–1)",
+        "default": "the material's sharpness (0.6 for gloss)",
+        "description": "Experimental. Sheen sharpness for a lit material: low is a broad wet glow, high a tighter highlight."
+      },
+      {
+        "name": "softness",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far the surface gives under a press. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "bounce",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How long it keeps wobbling before it settles. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "viscosity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How thick and slow it moves. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "spread",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far a dent travels around the edge. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "depth",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far it presses in and tilts. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "intensity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. Master gain on every push the surface takes. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
         "name": "variant",
         "type": "\"azure\" | \"white\" | \"rose\" | \"amber\" | \"mint\" | \"platinum\" | \"graphite\"",
         "default": "theme accent (azure when uncustomized)",
         "description": "Fill/label color pair, resolved through theme tokens so the same markup adapts to dark mode. Omitting variant uses the accent/on-accent pair; explicit variants use their own contrast pair."
+      },
+      {
+        "name": "color",
+        "type": "string (any CSS color)",
+        "description": "Fills the control with any CSS color the browser understands (#beef69, oklch(), named colors), beating intent and variant. The label or mark on it turns white or near-black, whichever has the stronger contrast. Anything that is not a color is ignored with one console warning."
+      },
+      {
+        "name": "intent",
+        "type": "\"accent\" | \"neutral\" | \"info\" | \"success\" | \"warning\" | \"danger\" | \"highlight\"",
+        "description": "The color role, mapped onto the theme hues (danger is rose, success mint, warning amber, info azure; highlight is a clear highlighter yellow). It beats variant and never implies an ARIA role."
       },
       {
         "name": "size",
@@ -289,7 +342,7 @@ export const COMPONENTS = [
     "attributes": [
       {
         "name": "feel",
-        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "type": "string (a registered feel preset name; \"gel\", \"solid\", \"liquid\", \"goo\", \"plasma\", and \"gas\" are built in)",
         "default": "gel, or the nearest data-droplet-feel scope",
         "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
       },
@@ -298,6 +351,54 @@ export const COMPONENTS = [
         "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
         "default": "medium, or the nearest data-droplet-quality scope",
         "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
+        "name": "material",
+        "type": "string (a registered material preset; \"matte\" and \"gloss\" are built in)",
+        "default": "matte, or the nearest data-droplet-material scope",
+        "description": "Experimental. How the surface takes light: matte (the default) paints its fill unchanged until the page sets lights, then shades softly toward them; gloss adds a wet sheen and a rim on the lit edge and lights itself from above when the page sets none. Lights come from setLights() in droplet-ui/experimental or a data-droplet-light direction. Unknown names paint as matte with one console warning per name."
+      },
+      {
+        "name": "gloss",
+        "type": "number (0–1)",
+        "default": "the material's sharpness (0.6 for gloss)",
+        "description": "Experimental. Sheen sharpness for a lit material: low is a broad wet glow, high a tighter highlight."
+      },
+      {
+        "name": "softness",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far the surface gives under a press. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "bounce",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How long it keeps wobbling before it settles. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "viscosity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How thick and slow it moves. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "spread",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far a dent travels around the edge. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "depth",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far it presses in and tilts. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "intensity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. Master gain on every push the surface takes. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
       },
       {
         "name": "label",
@@ -315,6 +416,16 @@ export const COMPONENTS = [
         "type": "\"azure\" | \"white\" | \"rose\" | \"amber\" | \"mint\" | \"platinum\" | \"graphite\"",
         "default": "theme accent (azure when uncustomized)",
         "description": "Fill/label color pair, resolved through theme tokens so the same markup adapts to dark mode. Omitting variant uses accent/on-accent."
+      },
+      {
+        "name": "color",
+        "type": "string (any CSS color)",
+        "description": "Fills the control with any CSS color the browser understands (#beef69, oklch(), named colors), beating intent and variant. The label or mark on it turns white or near-black, whichever has the stronger contrast. Anything that is not a color is ignored with one console warning."
+      },
+      {
+        "name": "intent",
+        "type": "\"accent\" | \"neutral\" | \"info\" | \"success\" | \"warning\" | \"danger\" | \"highlight\"",
+        "description": "The color role, mapped onto the theme hues (danger is rose, success mint, warning amber, info azure; highlight is a clear highlighter yellow). It beats variant and never implies an ARIA role."
       },
       {
         "name": "size",
@@ -438,8 +549,14 @@ export const COMPONENTS = [
     "description": "A visually-hidden native <input type=\"checkbox\"> carries focus, keyboard behavior and the form value (via ElementInternals), while the soft-body square is painted on a canvas behind it. The check mark draws itself on with a dash sweep and overshoot; the indeterminate state shows a dash and reports aria-checked=\"mixed\", clearing on any user toggle.",
     "attributes": [
       {
+        "name": "required",
+        "type": "boolean",
+        "default": "false",
+        "description": "Invalid (validity.valueMissing) while unchecked, so a form will not submit until it is checked. A form reset returns the box to its markup state, an ancestor <fieldset disabled> disables it, and a <label for> naming it toggles it."
+      },
+      {
         "name": "feel",
-        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "type": "string (a registered feel preset name; \"gel\", \"solid\", \"liquid\", \"goo\", \"plasma\", and \"gas\" are built in)",
         "default": "gel, or the nearest data-droplet-feel scope",
         "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
       },
@@ -448,6 +565,54 @@ export const COMPONENTS = [
         "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
         "default": "medium, or the nearest data-droplet-quality scope",
         "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
+        "name": "material",
+        "type": "string (a registered material preset; \"matte\" and \"gloss\" are built in)",
+        "default": "matte, or the nearest data-droplet-material scope",
+        "description": "Experimental. How the surface takes light: matte (the default) paints its fill unchanged until the page sets lights, then shades softly toward them; gloss adds a wet sheen and a rim on the lit edge and lights itself from above when the page sets none. Lights come from setLights() in droplet-ui/experimental or a data-droplet-light direction. Unknown names paint as matte with one console warning per name."
+      },
+      {
+        "name": "gloss",
+        "type": "number (0–1)",
+        "default": "the material's sharpness (0.6 for gloss)",
+        "description": "Experimental. Sheen sharpness for a lit material: low is a broad wet glow, high a tighter highlight."
+      },
+      {
+        "name": "softness",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far the surface gives under a press. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "bounce",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How long it keeps wobbling before it settles. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "viscosity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How thick and slow it moves. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "spread",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far a dent travels around the edge. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "depth",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far it presses in and tilts. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "intensity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. Master gain on every push the surface takes. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
       },
       {
         "name": "checked",
@@ -489,6 +654,16 @@ export const COMPONENTS = [
         "type": "\"azure\" | \"white\" | \"rose\" | \"amber\" | \"mint\" | \"platinum\" | \"graphite\"",
         "default": "(accent)",
         "description": "The checked fill hue, resolved through theme tokens. Unset, the theme accent is used."
+      },
+      {
+        "name": "color",
+        "type": "string (any CSS color)",
+        "description": "Fills the control with any CSS color the browser understands (#beef69, oklch(), named colors), beating intent and variant. The label or mark on it turns white or near-black, whichever has the stronger contrast. Anything that is not a color is ignored with one console warning."
+      },
+      {
+        "name": "intent",
+        "type": "\"accent\" | \"neutral\" | \"info\" | \"success\" | \"warning\" | \"danger\" | \"highlight\"",
+        "description": "The color role, mapped onto the theme hues (danger is rose, success mint, warning amber, info azure; highlight is a clear highlighter yellow). It beats variant and never implies an ARIA role."
       },
       {
         "name": "label",
@@ -631,7 +806,7 @@ export const COMPONENTS = [
     "attributes": [
       {
         "name": "feel",
-        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "type": "string (a registered feel preset name; \"gel\", \"solid\", \"liquid\", \"goo\", \"plasma\", and \"gas\" are built in)",
         "default": "gel, or the nearest data-droplet-feel scope",
         "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
       },
@@ -640,6 +815,54 @@ export const COMPONENTS = [
         "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
         "default": "medium, or the nearest data-droplet-quality scope",
         "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
+        "name": "material",
+        "type": "string (a registered material preset; \"matte\" and \"gloss\" are built in)",
+        "default": "matte, or the nearest data-droplet-material scope",
+        "description": "Experimental. How the surface takes light: matte (the default) paints its fill unchanged until the page sets lights, then shades softly toward them; gloss adds a wet sheen and a rim on the lit edge and lights itself from above when the page sets none. Lights come from setLights() in droplet-ui/experimental or a data-droplet-light direction. Unknown names paint as matte with one console warning per name."
+      },
+      {
+        "name": "gloss",
+        "type": "number (0–1)",
+        "default": "the material's sharpness (0.6 for gloss)",
+        "description": "Experimental. Sheen sharpness for a lit material: low is a broad wet glow, high a tighter highlight."
+      },
+      {
+        "name": "softness",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far the surface gives under a press. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "bounce",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How long it keeps wobbling before it settles. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "viscosity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How thick and slow it moves. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "spread",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far a dent travels around the edge. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "depth",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far it presses in and tilts. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "intensity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. Master gain on every push the surface takes. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
       },
       {
         "name": "value",
@@ -941,7 +1164,7 @@ export const COMPONENTS = [
     "properties": [
       {
         "name": "value",
-        "description": "Read-only: the value attribute, else the trimmed text content.",
+        "description": "The value attribute, else the trimmed text content; setting it writes the value attribute.",
         "type": "string"
       },
       {
@@ -979,6 +1202,12 @@ export const COMPONENTS = [
     "description": "Form-associated (the joined code submits like a native field). The digit row is pinned left-to-right even on RTL pages, because codes read that way in every locale. The first box carries autocomplete=\"one-time-code\" so SMS autofill works.",
     "attributes": [
       {
+        "name": "required",
+        "type": "boolean",
+        "default": "false",
+        "description": "Invalid (validity.valueMissing) until every box is filled, since a partial code is not usable. A form reset clears it, and an ancestor <fieldset disabled> disables every box."
+      },
+      {
         "name": "length",
         "type": "number",
         "default": "6",
@@ -995,6 +1224,16 @@ export const COMPONENTS = [
         "type": "\"azure\" | \"white\" | \"rose\" | \"amber\" | \"mint\" | \"platinum\" | \"graphite\"",
         "default": "(theme accent)",
         "description": "Caret and focus accent hue, resolved through theme tokens. Without a variant the theme's --droplet-color-background-accent is used."
+      },
+      {
+        "name": "color",
+        "type": "string (any CSS color)",
+        "description": "Fills the control with any CSS color the browser understands (#beef69, oklch(), named colors), beating intent and variant. The label or mark on it turns white or near-black, whichever has the stronger contrast. Anything that is not a color is ignored with one console warning."
+      },
+      {
+        "name": "intent",
+        "type": "\"accent\" | \"neutral\" | \"info\" | \"success\" | \"warning\" | \"danger\" | \"highlight\"",
+        "description": "The color role, mapped onto the theme hues (danger is rose, success mint, warning amber, info azure; highlight is a clear highlighter yellow). It beats variant and never implies an ARIA role."
       },
       {
         "name": "disabled",
@@ -1111,8 +1350,19 @@ export const COMPONENTS = [
     "description": "Because each radio's control lives in its own shadow root, grouping (by the name attribute, scoped to the nearest document or shadow root), selection, roving tabindex and arrow-key navigation are coordinated by the component itself. The selected control pops with a scale spring and the dot lands with an overshoot.",
     "attributes": [
       {
+        "name": "form",
+        "type": "string (a form id)",
+        "description": "Associates the radio with a form by id, as on native controls. Radios group by tree, name, and form owner, so the same name in two forms makes two groups."
+      },
+      {
+        "name": "required",
+        "type": "boolean",
+        "default": "false",
+        "description": "Makes the whole group (every radio sharing the name) invalid until one of them is selected, as native radios do. A form reset returns each radio to its markup state."
+      },
+      {
         "name": "feel",
-        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "type": "string (a registered feel preset name; \"gel\", \"solid\", \"liquid\", \"goo\", \"plasma\", and \"gas\" are built in)",
         "default": "gel, or the nearest data-droplet-feel scope",
         "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
       },
@@ -1121,6 +1371,54 @@ export const COMPONENTS = [
         "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
         "default": "medium, or the nearest data-droplet-quality scope",
         "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
+        "name": "material",
+        "type": "string (a registered material preset; \"matte\" and \"gloss\" are built in)",
+        "default": "matte, or the nearest data-droplet-material scope",
+        "description": "Experimental. How the surface takes light: matte (the default) paints its fill unchanged until the page sets lights, then shades softly toward them; gloss adds a wet sheen and a rim on the lit edge and lights itself from above when the page sets none. Lights come from setLights() in droplet-ui/experimental or a data-droplet-light direction. Unknown names paint as matte with one console warning per name."
+      },
+      {
+        "name": "gloss",
+        "type": "number (0–1)",
+        "default": "the material's sharpness (0.6 for gloss)",
+        "description": "Experimental. Sheen sharpness for a lit material: low is a broad wet glow, high a tighter highlight."
+      },
+      {
+        "name": "softness",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far the surface gives under a press. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "bounce",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How long it keeps wobbling before it settles. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "viscosity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How thick and slow it moves. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "spread",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far a dent travels around the edge. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "depth",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far it presses in and tilts. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "intensity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. Master gain on every push the surface takes. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
       },
       {
         "name": "name",
@@ -1156,6 +1454,16 @@ export const COMPONENTS = [
         "type": "\"azure\" | \"white\" | \"rose\" | \"amber\" | \"mint\" | \"platinum\" | \"graphite\"",
         "default": "(accent)",
         "description": "The selected fill hue, resolved through theme tokens."
+      },
+      {
+        "name": "color",
+        "type": "string (any CSS color)",
+        "description": "Fills the control with any CSS color the browser understands (#beef69, oklch(), named colors), beating intent and variant. The label or mark on it turns white or near-black, whichever has the stronger contrast. Anything that is not a color is ignored with one console warning."
+      },
+      {
+        "name": "intent",
+        "type": "\"accent\" | \"neutral\" | \"info\" | \"success\" | \"warning\" | \"danger\" | \"highlight\"",
+        "description": "The color role, mapped onto the theme hues (danger is rose, success mint, warning amber, info azure; highlight is a clear highlighter yellow). It beats variant and never implies an ARIA role."
       },
       {
         "name": "label",
@@ -1382,7 +1690,7 @@ export const COMPONENTS = [
     "attributes": [
       {
         "name": "feel",
-        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "type": "string (a registered feel preset name; \"gel\", \"solid\", \"liquid\", \"goo\", \"plasma\", and \"gas\" are built in)",
         "default": "gel, or the nearest data-droplet-feel scope",
         "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
       },
@@ -1391,6 +1699,54 @@ export const COMPONENTS = [
         "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
         "default": "medium, or the nearest data-droplet-quality scope",
         "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
+        "name": "material",
+        "type": "string (a registered material preset; \"matte\" and \"gloss\" are built in)",
+        "default": "matte, or the nearest data-droplet-material scope",
+        "description": "Experimental. How the surface takes light: matte (the default) paints its fill unchanged until the page sets lights, then shades softly toward them; gloss adds a wet sheen and a rim on the lit edge and lights itself from above when the page sets none. Lights come from setLights() in droplet-ui/experimental or a data-droplet-light direction. Unknown names paint as matte with one console warning per name."
+      },
+      {
+        "name": "gloss",
+        "type": "number (0–1)",
+        "default": "the material's sharpness (0.6 for gloss)",
+        "description": "Experimental. Sheen sharpness for a lit material: low is a broad wet glow, high a tighter highlight."
+      },
+      {
+        "name": "softness",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far the surface gives under a press. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "bounce",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How long it keeps wobbling before it settles. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "viscosity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How thick and slow it moves. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "spread",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far a dent travels around the edge. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "depth",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far it presses in and tilts. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "intensity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. Master gain on every push the surface takes. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
       },
       {
         "name": "min",
@@ -1437,13 +1793,23 @@ export const COMPONENTS = [
         "name": "size",
         "type": "\"small\" | \"medium\" | \"large\"",
         "default": "medium",
-        "description": "Size scale (220×30 / 260×36 / 320×44 host, 9/12/14px track, 24/28/34px knobs). The sm/md/lg aliases are accepted and rewritten in place to the canonical names."
+        "description": "Size scale (220×30 / 260×36 / 320×44 host, 9/12/14px track, 24/28/34px knobs); --droplet-range-width overrides the width. The sm/md/lg aliases are accepted and rewritten in place to the canonical names."
       },
       {
         "name": "variant",
         "type": "\"azure\" | \"white\" | \"rose\" | \"amber\" | \"mint\" | \"platinum\" | \"graphite\"",
         "default": "(theme accent)",
         "description": "Accent hue for the interval fill and thumbs, resolved through theme tokens so dark mode adapts. Without a variant the theme's --droplet-color-background-accent is used."
+      },
+      {
+        "name": "color",
+        "type": "string (any CSS color)",
+        "description": "Fills the control with any CSS color the browser understands (#beef69, oklch(), named colors), beating intent and variant. The label or mark on it turns white or near-black, whichever has the stronger contrast. Anything that is not a color is ignored with one console warning."
+      },
+      {
+        "name": "intent",
+        "type": "\"accent\" | \"neutral\" | \"info\" | \"success\" | \"warning\" | \"danger\" | \"highlight\"",
+        "description": "The color role, mapped onto the theme hues (danger is rose, success mint, warning amber, info azure; highlight is a clear highlighter yellow). It beats variant and never implies an ARIA role."
       },
       {
         "name": "name",
@@ -1500,6 +1866,11 @@ export const COMPONENTS = [
         "name": "--droplet-range-track-height",
         "default": "12px (9/12/14 per size)",
         "description": "Visual height of the track capsule, set per size attribute."
+      },
+      {
+        "name": "--droplet-range-width",
+        "default": "220px / 260px / 320px by size",
+        "description": "Host width. Inherited, so one declaration on :root, a panel, or a scope sizes every range below it; 100% makes it fill its container, and the track re-measures on resize. A width rule on the element itself still wins."
       },
       {
         "name": "--droplet-range-thumb-size",
@@ -1623,7 +1994,7 @@ export const COMPONENTS = [
     "attributes": [
       {
         "name": "feel",
-        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "type": "string (a registered feel preset name; \"gel\", \"solid\", \"liquid\", \"goo\", \"plasma\", and \"gas\" are built in)",
         "default": "gel, or the nearest data-droplet-feel scope",
         "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
       },
@@ -1632,6 +2003,54 @@ export const COMPONENTS = [
         "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
         "default": "medium, or the nearest data-droplet-quality scope",
         "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
+        "name": "material",
+        "type": "string (a registered material preset; \"matte\" and \"gloss\" are built in)",
+        "default": "matte, or the nearest data-droplet-material scope",
+        "description": "Experimental. How the surface takes light: matte (the default) paints its fill unchanged until the page sets lights, then shades softly toward them; gloss adds a wet sheen and a rim on the lit edge and lights itself from above when the page sets none. Lights come from setLights() in droplet-ui/experimental or a data-droplet-light direction. Unknown names paint as matte with one console warning per name."
+      },
+      {
+        "name": "gloss",
+        "type": "number (0–1)",
+        "default": "the material's sharpness (0.6 for gloss)",
+        "description": "Experimental. Sheen sharpness for a lit material: low is a broad wet glow, high a tighter highlight."
+      },
+      {
+        "name": "softness",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far the surface gives under a press. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "bounce",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How long it keeps wobbling before it settles. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "viscosity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How thick and slow it moves. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "spread",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far a dent travels around the edge. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "depth",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far it presses in and tilts. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "intensity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. Master gain on every push the surface takes. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
       },
       {
         "name": "value",
@@ -1762,11 +2181,17 @@ export const COMPONENTS = [
     "tag": "droplet-select",
     "group": "Forms",
     "summary": "A form-associated dropdown on the ARIA combobox/listbox pattern whose trigger and option panel are both soft-body surfaces, with the panel unfolding out of the field — flipping above it when the viewport has no room below.",
-    "description": "The trigger is one canvas-painted soft body and the option panel is a second one that springs open with an underdamped unfold, revealing rows with a light stagger. Options are declared as light-DOM <droplet-option> children and re-read live through a MutationObserver. Keyboard navigation, aria-expanded/aria-activedescendant, outside-press dismissal, dark-mode theme tokens, RTL layout and native form submission via ElementInternals are all built in.",
+    "description": "The trigger is one canvas-painted soft body and the option panel is a second one that springs open with an underdamped unfold, revealing rows with a light stagger. Options are declared as light-DOM <droplet-option> children and re-read live through a MutationObserver. Keyboard navigation, aria-expanded/aria-activedescendant, outside-press dismissal, dark-mode theme tokens, RTL layout and native form submission via ElementInternals are all built in. The open panel lives in the top layer (Popover API), so a scrolling or clipping ancestor never cuts it off: it follows the field as ancestors scroll and closes at once if the field is scrolled out of sight.",
     "attributes": [
       {
+        "name": "required",
+        "type": "boolean",
+        "default": "false",
+        "description": "Invalid (validity.valueMissing) until an option is chosen. A form reset returns to the option selected in markup, and an ancestor <fieldset disabled> closes and disables it."
+      },
+      {
         "name": "feel",
-        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "type": "string (a registered feel preset name; \"gel\", \"solid\", \"liquid\", \"goo\", \"plasma\", and \"gas\" are built in)",
         "default": "gel, or the nearest data-droplet-feel scope",
         "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
       },
@@ -1775,6 +2200,54 @@ export const COMPONENTS = [
         "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
         "default": "medium, or the nearest data-droplet-quality scope",
         "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
+        "name": "material",
+        "type": "string (a registered material preset; \"matte\" and \"gloss\" are built in)",
+        "default": "matte, or the nearest data-droplet-material scope",
+        "description": "Experimental. How the surface takes light: matte (the default) paints its fill unchanged until the page sets lights, then shades softly toward them; gloss adds a wet sheen and a rim on the lit edge and lights itself from above when the page sets none. Lights come from setLights() in droplet-ui/experimental or a data-droplet-light direction. Unknown names paint as matte with one console warning per name."
+      },
+      {
+        "name": "gloss",
+        "type": "number (0–1)",
+        "default": "the material's sharpness (0.6 for gloss)",
+        "description": "Experimental. Sheen sharpness for a lit material: low is a broad wet glow, high a tighter highlight."
+      },
+      {
+        "name": "softness",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far the surface gives under a press. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "bounce",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How long it keeps wobbling before it settles. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "viscosity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How thick and slow it moves. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "spread",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far a dent travels around the edge. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "depth",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far it presses in and tilts. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "intensity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. Master gain on every push the surface takes. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
       },
       {
         "name": "value",
@@ -1810,6 +2283,16 @@ export const COMPONENTS = [
         "description": "Accent hue used for the focus ring, focused border, active-row highlight and selected tick: rose, azure, mint, amber, or graphite. Unset, the accent follows the theme's --droplet-color-background-accent.",
         "type": "string",
         "default": "theme accent"
+      },
+      {
+        "name": "color",
+        "type": "string (any CSS color)",
+        "description": "Fills the control with any CSS color the browser understands (#beef69, oklch(), named colors), beating intent and variant. The label or mark on it turns white or near-black, whichever has the stronger contrast. Anything that is not a color is ignored with one console warning."
+      },
+      {
+        "name": "intent",
+        "type": "\"accent\" | \"neutral\" | \"info\" | \"success\" | \"warning\" | \"danger\" | \"highlight\"",
+        "description": "The color role, mapped onto the theme hues (danger is rose, success mint, warning amber, info azure; highlight is a clear highlighter yellow). It beats variant and never implies an ARIA role."
       },
       {
         "name": "open",
@@ -1914,7 +2397,7 @@ export const COMPONENTS = [
       },
       {
         "name": "--droplet-dropdown-z-index",
-        "description": "z-index applied to the host while the panel is open.",
+        "description": "z-index applied to the host while the panel is open. The panel itself sits in the top layer, above any z-index; this only lifts the field.",
         "default": "9999"
       },
       {
@@ -1987,7 +2470,7 @@ export const COMPONENTS = [
     "attributes": [
       {
         "name": "feel",
-        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "type": "string (a registered feel preset name; \"gel\", \"solid\", \"liquid\", \"goo\", \"plasma\", and \"gas\" are built in)",
         "default": "gel, or the nearest data-droplet-feel scope",
         "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
       },
@@ -1996,6 +2479,54 @@ export const COMPONENTS = [
         "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
         "default": "medium, or the nearest data-droplet-quality scope",
         "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
+        "name": "material",
+        "type": "string (a registered material preset; \"matte\" and \"gloss\" are built in)",
+        "default": "matte, or the nearest data-droplet-material scope",
+        "description": "Experimental. How the surface takes light: matte (the default) paints its fill unchanged until the page sets lights, then shades softly toward them; gloss adds a wet sheen and a rim on the lit edge and lights itself from above when the page sets none. Lights come from setLights() in droplet-ui/experimental or a data-droplet-light direction. Unknown names paint as matte with one console warning per name."
+      },
+      {
+        "name": "gloss",
+        "type": "number (0–1)",
+        "default": "the material's sharpness (0.6 for gloss)",
+        "description": "Experimental. Sheen sharpness for a lit material: low is a broad wet glow, high a tighter highlight."
+      },
+      {
+        "name": "softness",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far the surface gives under a press. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "bounce",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How long it keeps wobbling before it settles. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "viscosity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How thick and slow it moves. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "spread",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far a dent travels around the edge. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "depth",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far it presses in and tilts. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "intensity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. Master gain on every push the surface takes. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
       },
       {
         "name": "value",
@@ -2036,7 +2567,7 @@ export const COMPONENTS = [
         "name": "size",
         "type": "\"small\" | \"medium\" | \"large\"",
         "default": "medium",
-        "description": "Size scale (200×30 / 240×36 / 300×44 host, 9/12/14px track, 24/28/34px thumb). The sm/md/lg aliases are accepted and rewritten in place to the canonical names."
+        "description": "Size scale (200×30 / 240×36 / 300×44 host, 9/12/14px track, 24/28/34px thumb); --droplet-slider-width overrides the width. The sm/md/lg aliases are accepted and rewritten in place to the canonical names."
       },
       {
         "name": "variant",
@@ -2045,9 +2576,25 @@ export const COMPONENTS = [
         "description": "Accent hue for the fill and thumb, resolved through theme tokens so dark mode adapts. Without a variant the theme's --droplet-color-background-accent is used."
       },
       {
+        "name": "color",
+        "type": "string (any CSS color)",
+        "description": "Fills the control with any CSS color the browser understands (#beef69, oklch(), named colors), beating intent and variant. The label or mark on it turns white or near-black, whichever has the stronger contrast. Anything that is not a color is ignored with one console warning."
+      },
+      {
+        "name": "intent",
+        "type": "\"accent\" | \"neutral\" | \"info\" | \"success\" | \"warning\" | \"danger\" | \"highlight\"",
+        "description": "The color role, mapped onto the theme hues (danger is rose, success mint, warning amber, info azure; highlight is a clear highlighter yellow). It beats variant and never implies an ARIA role."
+      },
+      {
         "name": "name",
         "type": "string",
         "description": "Form field name (standard form-associated custom element behavior via ElementInternals)."
+      },
+      {
+        "name": "origin",
+        "type": "\"start\" | \"center\" | \"end\" | number",
+        "default": "start",
+        "description": "Where the accent fill starts. start fills from the inline-start edge like a native range; end fills from the far edge; center fills outward from the middle of the span; a number fills from that value (origin=\"0\" on a -1 to 1 slider), so a signed control reads as a push either way. Mirrors in RTL. Anything else reads as start."
       }
     ],
     "events": [
@@ -2067,6 +2614,11 @@ export const COMPONENTS = [
         "name": "value",
         "type": "string",
         "description": "Gets or sets the current value. Setting reflects into the thumb position, ARIA and the form value."
+      },
+      {
+        "name": "origin",
+        "type": "string",
+        "description": "Reflects the origin attribute: reads the canonical start, center, end, or number (start for anything unrecognized); setting a string or number writes the attribute, and null removes it."
       }
     ],
     "methods": [
@@ -2099,6 +2651,11 @@ export const COMPONENTS = [
         "name": "--droplet-slider-track-height",
         "default": "12px (9/12/14 per size)",
         "description": "Visual height of the track capsule; the smoke-tested size scale sets it per size attribute."
+      },
+      {
+        "name": "--droplet-slider-width",
+        "default": "200px / 240px / 300px by size",
+        "description": "Host width. Inherited, so one declaration on :root, a panel, or a scope sizes every slider below it; 100% makes sliders fill their container, and the track and thumb travel re-measure on resize. A width rule on the element itself still wins."
       },
       {
         "name": "--droplet-track",
@@ -2144,6 +2701,10 @@ export const COMPONENTS = [
         "code": "<droplet-slider label=\"Warmth\" variant=\"amber\" size=\"small\" step=\"5\" value=\"25\"></droplet-slider>\n<droplet-slider label=\"Growth\" variant=\"mint\" size=\"large\" value=\"70\"></droplet-slider>"
       },
       {
+        "title": "Signed values filling from zero",
+        "code": "<droplet-slider label=\"Wind\" min=\"-1\" max=\"1\" step=\"0.01\" value=\"-0.4\" origin=\"center\"></droplet-slider>\n<droplet-slider label=\"Offset\" min=\"-20\" max=\"80\" value=\"35\" origin=\"0\"></droplet-slider>"
+      },
+      {
         "title": "In a form, reacting to commits",
         "code": "<form id=\"mix\">\n  <droplet-slider name=\"volume\" label=\"Volume\" value=\"60\"></droplet-slider>\n</form>\n<script type=\"module\">\n  import './package.js';\n  document.querySelector('droplet-slider').addEventListener('change', (event) => {\n    console.log('committed', event.target.value);\n  });\n</script>"
       }
@@ -2156,8 +2717,14 @@ export const COMPONENTS = [
     "description": "A visually-hidden native checkbox with role=\"switch\" carries focus, keyboard and the form value; the track and thumb are two coupled physics bodies painted on canvas. The thumb can be tapped or dragged past the midpoint; \"on\" always travels toward the inline end, so RTL pages mirror the travel, the drag release decision and the color progress.",
     "attributes": [
       {
+        "name": "required",
+        "type": "boolean",
+        "default": "false",
+        "description": "Invalid (validity.valueMissing) while off, so a form will not submit until it is on. A form reset returns it to its markup state, an ancestor <fieldset disabled> disables it, and a <label for> naming it toggles it."
+      },
+      {
         "name": "feel",
-        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "type": "string (a registered feel preset name; \"gel\", \"solid\", \"liquid\", \"goo\", \"plasma\", and \"gas\" are built in)",
         "default": "gel, or the nearest data-droplet-feel scope",
         "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
       },
@@ -2166,6 +2733,54 @@ export const COMPONENTS = [
         "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
         "default": "medium, or the nearest data-droplet-quality scope",
         "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
+        "name": "material",
+        "type": "string (a registered material preset; \"matte\" and \"gloss\" are built in)",
+        "default": "matte, or the nearest data-droplet-material scope",
+        "description": "Experimental. How the surface takes light: matte (the default) paints its fill unchanged until the page sets lights, then shades softly toward them; gloss adds a wet sheen and a rim on the lit edge and lights itself from above when the page sets none. Lights come from setLights() in droplet-ui/experimental or a data-droplet-light direction. Unknown names paint as matte with one console warning per name."
+      },
+      {
+        "name": "gloss",
+        "type": "number (0–1)",
+        "default": "the material's sharpness (0.6 for gloss)",
+        "description": "Experimental. Sheen sharpness for a lit material: low is a broad wet glow, high a tighter highlight."
+      },
+      {
+        "name": "softness",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far the surface gives under a press. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "bounce",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How long it keeps wobbling before it settles. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "viscosity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How thick and slow it moves. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "spread",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far a dent travels around the edge. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "depth",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far it presses in and tilts. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "intensity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. Master gain on every push the surface takes. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
       },
       {
         "name": "checked",
@@ -2201,6 +2816,16 @@ export const COMPONENTS = [
         "type": "\"azure\" | \"white\" | \"rose\" | \"amber\" | \"mint\" | \"platinum\" | \"graphite\"",
         "default": "theme accent",
         "description": "The \"on\" track hue, resolved through theme tokens. Explicit variants also pair the thumb foreground with the variant's on-color."
+      },
+      {
+        "name": "color",
+        "type": "string (any CSS color)",
+        "description": "Fills the control with any CSS color the browser understands (#beef69, oklch(), named colors), beating intent and variant. The label or mark on it turns white or near-black, whichever has the stronger contrast. Anything that is not a color is ignored with one console warning."
+      },
+      {
+        "name": "intent",
+        "type": "\"accent\" | \"neutral\" | \"info\" | \"success\" | \"warning\" | \"danger\" | \"highlight\"",
+        "description": "The color role, mapped onto the theme hues (danger is rose, success mint, warning amber, info azure; highlight is a clear highlighter yellow). It beats variant and never implies an ARIA role."
       },
       {
         "name": "label",
@@ -2342,7 +2967,7 @@ export const COMPONENTS = [
     "attributes": [
       {
         "name": "feel",
-        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "type": "string (a registered feel preset name; \"gel\", \"solid\", \"liquid\", \"goo\", \"plasma\", and \"gas\" are built in)",
         "default": "gel, or the nearest data-droplet-feel scope",
         "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
       },
@@ -2351,6 +2976,54 @@ export const COMPONENTS = [
         "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
         "default": "medium, or the nearest data-droplet-quality scope",
         "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
+        "name": "material",
+        "type": "string (a registered material preset; \"matte\" and \"gloss\" are built in)",
+        "default": "matte, or the nearest data-droplet-material scope",
+        "description": "Experimental. How the surface takes light: matte (the default) paints its fill unchanged until the page sets lights, then shades softly toward them; gloss adds a wet sheen and a rim on the lit edge and lights itself from above when the page sets none. Lights come from setLights() in droplet-ui/experimental or a data-droplet-light direction. Unknown names paint as matte with one console warning per name."
+      },
+      {
+        "name": "gloss",
+        "type": "number (0–1)",
+        "default": "the material's sharpness (0.6 for gloss)",
+        "description": "Experimental. Sheen sharpness for a lit material: low is a broad wet glow, high a tighter highlight."
+      },
+      {
+        "name": "softness",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far the surface gives under a press. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "bounce",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How long it keeps wobbling before it settles. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "viscosity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How thick and slow it moves. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "spread",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far a dent travels around the edge. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "depth",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far it presses in and tilts. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "intensity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. Master gain on every push the surface takes. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
       },
       {
         "name": "value",
@@ -2561,7 +3234,7 @@ export const COMPONENTS = [
     "attributes": [
       {
         "name": "feel",
-        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "type": "string (a registered feel preset name; \"gel\", \"solid\", \"liquid\", \"goo\", \"plasma\", and \"gas\" are built in)",
         "default": "gel, or the nearest data-droplet-feel scope",
         "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
       },
@@ -2570,6 +3243,54 @@ export const COMPONENTS = [
         "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
         "default": "medium, or the nearest data-droplet-quality scope",
         "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
+        "name": "material",
+        "type": "string (a registered material preset; \"matte\" and \"gloss\" are built in)",
+        "default": "matte, or the nearest data-droplet-material scope",
+        "description": "Experimental. How the surface takes light: matte (the default) paints its fill unchanged until the page sets lights, then shades softly toward them; gloss adds a wet sheen and a rim on the lit edge and lights itself from above when the page sets none. Lights come from setLights() in droplet-ui/experimental or a data-droplet-light direction. Unknown names paint as matte with one console warning per name."
+      },
+      {
+        "name": "gloss",
+        "type": "number (0–1)",
+        "default": "the material's sharpness (0.6 for gloss)",
+        "description": "Experimental. Sheen sharpness for a lit material: low is a broad wet glow, high a tighter highlight."
+      },
+      {
+        "name": "softness",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far the surface gives under a press. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "bounce",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How long it keeps wobbling before it settles. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "viscosity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How thick and slow it moves. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "spread",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far a dent travels around the edge. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "depth",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far it presses in and tilts. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "intensity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. Master gain on every push the surface takes. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
       },
       {
         "name": "tone",
@@ -2690,7 +3411,7 @@ export const COMPONENTS = [
     "attributes": [
       {
         "name": "feel",
-        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "type": "string (a registered feel preset name; \"gel\", \"solid\", \"liquid\", \"goo\", \"plasma\", and \"gas\" are built in)",
         "default": "gel, or the nearest data-droplet-feel scope",
         "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
       },
@@ -2701,10 +3422,68 @@ export const COMPONENTS = [
         "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
       },
       {
+        "name": "material",
+        "type": "string (a registered material preset; \"matte\" and \"gloss\" are built in)",
+        "default": "matte, or the nearest data-droplet-material scope",
+        "description": "Experimental. How the surface takes light: matte (the default) paints its fill unchanged until the page sets lights, then shades softly toward them; gloss adds a wet sheen and a rim on the lit edge and lights itself from above when the page sets none. Lights come from setLights() in droplet-ui/experimental or a data-droplet-light direction. Unknown names paint as matte with one console warning per name."
+      },
+      {
+        "name": "gloss",
+        "type": "number (0–1)",
+        "default": "the material's sharpness (0.6 for gloss)",
+        "description": "Experimental. Sheen sharpness for a lit material: low is a broad wet glow, high a tighter highlight."
+      },
+      {
+        "name": "softness",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far the surface gives under a press. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "bounce",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How long it keeps wobbling before it settles. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "viscosity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How thick and slow it moves. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "spread",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far a dent travels around the edge. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "depth",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far it presses in and tilts. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "intensity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. Master gain on every push the surface takes. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
         "name": "variant",
         "type": "palette name",
         "default": "theme accent",
         "description": "Fill/label pair through the theme tokens; explicit variants use their paired on-color."
+      },
+      {
+        "name": "color",
+        "type": "string (any CSS color)",
+        "description": "Fills the control with any CSS color the browser understands (#beef69, oklch(), named colors), beating intent and variant. The label or mark on it turns white or near-black, whichever has the stronger contrast. Anything that is not a color is ignored with one console warning."
+      },
+      {
+        "name": "intent",
+        "type": "\"accent\" | \"neutral\" | \"info\" | \"success\" | \"warning\" | \"danger\" | \"highlight\"",
+        "description": "The color role, mapped onto the theme hues (danger is rose, success mint, warning amber, info azure; highlight is a clear highlighter yellow). It beats variant and never implies an ARIA role."
       },
       {
         "name": "size",
@@ -2783,7 +3562,7 @@ export const COMPONENTS = [
     "attributes": [
       {
         "name": "feel",
-        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "type": "string (a registered feel preset name; \"gel\", \"solid\", \"liquid\", \"goo\", \"plasma\", and \"gas\" are built in)",
         "default": "gel, or the nearest data-droplet-feel scope",
         "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
       },
@@ -2792,6 +3571,54 @@ export const COMPONENTS = [
         "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
         "default": "medium, or the nearest data-droplet-quality scope",
         "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
+        "name": "material",
+        "type": "string (a registered material preset; \"matte\" and \"gloss\" are built in)",
+        "default": "matte, or the nearest data-droplet-material scope",
+        "description": "Experimental. How the surface takes light: matte (the default) paints its fill unchanged until the page sets lights, then shades softly toward them; gloss adds a wet sheen and a rim on the lit edge and lights itself from above when the page sets none. Lights come from setLights() in droplet-ui/experimental or a data-droplet-light direction. Unknown names paint as matte with one console warning per name."
+      },
+      {
+        "name": "gloss",
+        "type": "number (0–1)",
+        "default": "the material's sharpness (0.6 for gloss)",
+        "description": "Experimental. Sheen sharpness for a lit material: low is a broad wet glow, high a tighter highlight."
+      },
+      {
+        "name": "softness",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far the surface gives under a press. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "bounce",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How long it keeps wobbling before it settles. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "viscosity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How thick and slow it moves. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "spread",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far a dent travels around the edge. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "depth",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far it presses in and tilts. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "intensity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. Master gain on every push the surface takes. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
       },
       {
         "name": "value",
@@ -2820,6 +3647,16 @@ export const COMPONENTS = [
         "name": "variant",
         "type": "palette name",
         "description": "Accent hue for the fill."
+      },
+      {
+        "name": "color",
+        "type": "string (any CSS color)",
+        "description": "Fills the control with any CSS color the browser understands (#beef69, oklch(), named colors), beating intent and variant. The label or mark on it turns white or near-black, whichever has the stronger contrast. Anything that is not a color is ignored with one console warning."
+      },
+      {
+        "name": "intent",
+        "type": "\"accent\" | \"neutral\" | \"info\" | \"success\" | \"warning\" | \"danger\" | \"highlight\"",
+        "description": "The color role, mapped onto the theme hues (danger is rose, success mint, warning amber, info azure; highlight is a clear highlighter yellow). It beats variant and never implies an ARIA role."
       },
       {
         "name": "label",
@@ -2873,7 +3710,7 @@ export const COMPONENTS = [
     "attributes": [
       {
         "name": "feel",
-        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "type": "string (a registered feel preset name; \"gel\", \"solid\", \"liquid\", \"goo\", \"plasma\", and \"gas\" are built in)",
         "default": "gel, or the nearest data-droplet-feel scope",
         "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
       },
@@ -2882,6 +3719,54 @@ export const COMPONENTS = [
         "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
         "default": "medium, or the nearest data-droplet-quality scope",
         "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
+        "name": "material",
+        "type": "string (a registered material preset; \"matte\" and \"gloss\" are built in)",
+        "default": "matte, or the nearest data-droplet-material scope",
+        "description": "Experimental. How the surface takes light: matte (the default) paints its fill unchanged until the page sets lights, then shades softly toward them; gloss adds a wet sheen and a rim on the lit edge and lights itself from above when the page sets none. Lights come from setLights() in droplet-ui/experimental or a data-droplet-light direction. Unknown names paint as matte with one console warning per name."
+      },
+      {
+        "name": "gloss",
+        "type": "number (0–1)",
+        "default": "the material's sharpness (0.6 for gloss)",
+        "description": "Experimental. Sheen sharpness for a lit material: low is a broad wet glow, high a tighter highlight."
+      },
+      {
+        "name": "softness",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far the surface gives under a press. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "bounce",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How long it keeps wobbling before it settles. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "viscosity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How thick and slow it moves. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "spread",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far a dent travels around the edge. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "depth",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far it presses in and tilts. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "intensity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. Master gain on every push the surface takes. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
       },
       {
         "name": "shape",
@@ -2920,7 +3805,7 @@ export const COMPONENTS = [
     "attributes": [
       {
         "name": "feel",
-        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "type": "string (a registered feel preset name; \"gel\", \"solid\", \"liquid\", \"goo\", \"plasma\", and \"gas\" are built in)",
         "default": "gel, or the nearest data-droplet-feel scope",
         "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
       },
@@ -2929,6 +3814,54 @@ export const COMPONENTS = [
         "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
         "default": "medium, or the nearest data-droplet-quality scope",
         "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
+        "name": "material",
+        "type": "string (a registered material preset; \"matte\" and \"gloss\" are built in)",
+        "default": "matte, or the nearest data-droplet-material scope",
+        "description": "Experimental. How the surface takes light: matte (the default) paints its fill unchanged until the page sets lights, then shades softly toward them; gloss adds a wet sheen and a rim on the lit edge and lights itself from above when the page sets none. Lights come from setLights() in droplet-ui/experimental or a data-droplet-light direction. Unknown names paint as matte with one console warning per name."
+      },
+      {
+        "name": "gloss",
+        "type": "number (0–1)",
+        "default": "the material's sharpness (0.6 for gloss)",
+        "description": "Experimental. Sheen sharpness for a lit material: low is a broad wet glow, high a tighter highlight."
+      },
+      {
+        "name": "softness",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far the surface gives under a press. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "bounce",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How long it keeps wobbling before it settles. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "viscosity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How thick and slow it moves. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "spread",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far a dent travels around the edge. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "depth",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far it presses in and tilts. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "intensity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. Master gain on every push the surface takes. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
       },
       {
         "name": "type",
@@ -2941,6 +3874,16 @@ export const COMPONENTS = [
         "type": "palette name",
         "default": "theme accent",
         "description": "Fill hue through the theme tokens."
+      },
+      {
+        "name": "color",
+        "type": "string (any CSS color)",
+        "description": "Fills the control with any CSS color the browser understands (#beef69, oklch(), named colors), beating intent and variant. The label or mark on it turns white or near-black, whichever has the stronger contrast. Anything that is not a color is ignored with one console warning."
+      },
+      {
+        "name": "intent",
+        "type": "\"accent\" | \"neutral\" | \"info\" | \"success\" | \"warning\" | \"danger\" | \"highlight\"",
+        "description": "The color role, mapped onto the theme hues (danger is rose, success mint, warning amber, info azure; highlight is a clear highlighter yellow). It beats variant and never implies an ARIA role."
       },
       {
         "name": "size",
@@ -3103,7 +4046,7 @@ export const COMPONENTS = [
     "attributes": [
       {
         "name": "feel",
-        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "type": "string (a registered feel preset name; \"gel\", \"solid\", \"liquid\", \"goo\", \"plasma\", and \"gas\" are built in)",
         "default": "gel, or the nearest data-droplet-feel scope",
         "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
       },
@@ -3112,6 +4055,54 @@ export const COMPONENTS = [
         "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
         "default": "medium, or the nearest data-droplet-quality scope",
         "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
+        "name": "material",
+        "type": "string (a registered material preset; \"matte\" and \"gloss\" are built in)",
+        "default": "matte, or the nearest data-droplet-material scope",
+        "description": "Experimental. How the surface takes light: matte (the default) paints its fill unchanged until the page sets lights, then shades softly toward them; gloss adds a wet sheen and a rim on the lit edge and lights itself from above when the page sets none. Lights come from setLights() in droplet-ui/experimental or a data-droplet-light direction. Unknown names paint as matte with one console warning per name."
+      },
+      {
+        "name": "gloss",
+        "type": "number (0–1)",
+        "default": "the material's sharpness (0.6 for gloss)",
+        "description": "Experimental. Sheen sharpness for a lit material: low is a broad wet glow, high a tighter highlight."
+      },
+      {
+        "name": "softness",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far the surface gives under a press. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "bounce",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How long it keeps wobbling before it settles. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "viscosity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How thick and slow it moves. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "spread",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far a dent travels around the edge. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "depth",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far it presses in and tilts. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "intensity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. Master gain on every push the surface takes. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
       },
       {
         "name": "squish",
@@ -3200,7 +4191,7 @@ export const COMPONENTS = [
     "attributes": [
       {
         "name": "feel",
-        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "type": "string (a registered feel preset name; \"gel\", \"solid\", \"liquid\", \"goo\", \"plasma\", and \"gas\" are built in)",
         "default": "gel, or the nearest data-droplet-feel scope",
         "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
       },
@@ -3209,6 +4200,54 @@ export const COMPONENTS = [
         "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
         "default": "medium, or the nearest data-droplet-quality scope",
         "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
+        "name": "material",
+        "type": "string (a registered material preset; \"matte\" and \"gloss\" are built in)",
+        "default": "matte, or the nearest data-droplet-material scope",
+        "description": "Experimental. How the surface takes light: matte (the default) paints its fill unchanged until the page sets lights, then shades softly toward them; gloss adds a wet sheen and a rim on the lit edge and lights itself from above when the page sets none. Lights come from setLights() in droplet-ui/experimental or a data-droplet-light direction. Unknown names paint as matte with one console warning per name."
+      },
+      {
+        "name": "gloss",
+        "type": "number (0–1)",
+        "default": "the material's sharpness (0.6 for gloss)",
+        "description": "Experimental. Sheen sharpness for a lit material: low is a broad wet glow, high a tighter highlight."
+      },
+      {
+        "name": "softness",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far the surface gives under a press. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "bounce",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How long it keeps wobbling before it settles. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "viscosity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How thick and slow it moves. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "spread",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far a dent travels around the edge. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "depth",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far it presses in and tilts. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "intensity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. Master gain on every push the surface takes. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
       },
       {
         "name": "selectable",
@@ -3230,6 +4269,16 @@ export const COMPONENTS = [
         "type": "palette name",
         "default": "accent",
         "description": "The selected fill hue."
+      },
+      {
+        "name": "color",
+        "type": "string (any CSS color)",
+        "description": "Fills the control with any CSS color the browser understands (#beef69, oklch(), named colors), beating intent and variant. The label or mark on it turns white or near-black, whichever has the stronger contrast. Anything that is not a color is ignored with one console warning."
+      },
+      {
+        "name": "intent",
+        "type": "\"accent\" | \"neutral\" | \"info\" | \"success\" | \"warning\" | \"danger\" | \"highlight\"",
+        "description": "The color role, mapped onto the theme hues (danger is rose, success mint, warning amber, info azure; highlight is a clear highlighter yellow). It beats variant and never implies an ARIA role."
       },
       {
         "name": "size",
@@ -3509,7 +4558,7 @@ export const COMPONENTS = [
     "attributes": [
       {
         "name": "feel",
-        "type": "string (a registered feel preset name; \"gel\" is built in)",
+        "type": "string (a registered feel preset name; \"gel\", \"solid\", \"liquid\", \"goo\", \"plasma\", and \"gas\" are built in)",
         "default": "gel, or the nearest data-droplet-feel scope",
         "description": "Physics preset driving the soft body. Inherits from the closest ancestor carrying data-droplet-feel; the element attribute wins. Unknown names fall back to gel with one console warning per name. Register your own with registerPreset('feel', name, record)."
       },
@@ -3518,6 +4567,54 @@ export const COMPONENTS = [
         "type": "\"low\" | \"medium\" | \"high\" (accepts \"lo\" | \"med\" | \"md\" | \"hi\", canonicalized on connect)",
         "default": "medium, or the nearest data-droplet-quality scope",
         "description": "Caps physics cost: low limits the membrane to 120 samples and 2 normal-blend passes. Inherits from the closest ancestor carrying data-droplet-quality; the element attribute wins."
+      },
+      {
+        "name": "material",
+        "type": "string (a registered material preset; \"matte\" and \"gloss\" are built in)",
+        "default": "matte, or the nearest data-droplet-material scope",
+        "description": "Experimental. How the surface takes light: matte (the default) paints its fill unchanged until the page sets lights, then shades softly toward them; gloss adds a wet sheen and a rim on the lit edge and lights itself from above when the page sets none. Lights come from setLights() in droplet-ui/experimental or a data-droplet-light direction. Unknown names paint as matte with one console warning per name."
+      },
+      {
+        "name": "gloss",
+        "type": "number (0–1)",
+        "default": "the material's sharpness (0.6 for gloss)",
+        "description": "Experimental. Sheen sharpness for a lit material: low is a broad wet glow, high a tighter highlight."
+      },
+      {
+        "name": "softness",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far the surface gives under a press. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "bounce",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How long it keeps wobbling before it settles. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "viscosity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How thick and slow it moves. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "spread",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far a dent travels around the edge. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "depth",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. How far it presses in and tilts. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
+      },
+      {
+        "name": "intensity",
+        "type": "number (0–1)",
+        "default": "unset (the feel preset's setting, else neutral)",
+        "description": "Feel knob. Master gain on every push the surface takes. Scales one family of physics fields relative to the component and feel preset overlay, so a value means the same thing on every control; 0.5 is neutral, and setting it replaces whatever the feel preset's bundle chose for that dial. Damping is re-solved whenever stiffness moves."
       },
       {
         "name": "key",

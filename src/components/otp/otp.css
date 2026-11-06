@@ -27,8 +27,7 @@
   --droplet-otp-radius: 17px; --jelly-otp-radius: var(--droplet-otp-radius);
 }
 
-/* Codes read left-to-right in every locale; pinning the row LTR also keeps
-   the physical arrow-key navigation correct on RTL pages */
+/* Codes read LTR in every locale; the arrow keys in index.ts rely on it */
 .row {
   display:   inline-flex;
   gap:       var(--jelly-otp-gap, var(--droplet-otp-gap));
@@ -61,12 +60,14 @@ input:focus {
   outline-color: var(--jelly-ring-color, var(--droplet-ring-color));
 }
 
-:host([disabled]) {
+:host([disabled]),
+:host(:disabled) {
   opacity:        .55;
   pointer-events: none;
 }
 
-:host([disabled]) input {
+:host([disabled]) input,
+:host(:disabled) input {
   background: var(--jelly-color-background-neutral, var(--droplet-color-background-neutral));
 }
 

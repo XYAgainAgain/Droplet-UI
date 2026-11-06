@@ -50,7 +50,7 @@ test('on-state mint variant paints the mint track', async () => {
 
   await settle(16);
   const canvas = el.shadowRoot!.querySelector('canvas') as HTMLCanvasElement;
-  // sample the left third of the track (the white thumb rests on the right when on)
+  // Left third: the white thumb rests on the right when on
   const pixel = canvas.getContext('2d')!.getImageData(Math.round(canvas.width * 0.32), Math.round(canvas.height * 0.5), 1, 1).data;
 
   expect(Math.abs(pixel[0]! - 23)).toBeLessThan(12);

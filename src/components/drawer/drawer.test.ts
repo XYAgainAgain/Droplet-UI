@@ -45,7 +45,6 @@ test('the close button dismisses the drawer and emits close', async () => {
   const close = el.shadowRoot!.querySelector('.close') as HTMLButtonElement;
   expect(close.getAttribute('aria-label')).toBe('Close');
 
-  // The close plays a slide-out; the open attribute drops when it finishes
   const closed = new Promise<void>((resolve) => el.addEventListener('close', () => resolve(), { once: true }));
   close.click();
   await closed;

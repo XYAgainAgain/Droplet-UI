@@ -61,7 +61,6 @@ export class DropletLabel extends HTMLElementBase {
 
     this.label.addEventListener('click', () => this.focusTarget());
 
-    // Late-slotted text should still reach the target's accessible name
     this.shadowRoot!.querySelector('slot')!.addEventListener('slotchange', () => this.sync());
 
     this.sync();
@@ -77,7 +76,6 @@ export class DropletLabel extends HTMLElementBase {
     }
   }
 
-  // Resolve the `for` target in this label's own document/shadow root
   get target (): HTMLElement | null {
     const id = this.getAttribute('for');
 
@@ -94,8 +92,7 @@ export class DropletLabel extends HTMLElementBase {
     this.target?.focus?.();
   }
 
-  // Droplet form controls map `label` to an inner aria-label, which works across
-  // shadow roots where aria-labelledby idrefs cannot
+  // The `label` attribute crosses shadow roots where aria-labelledby idrefs can't
   sync (): void {
     const target = this.target;
 

@@ -26,6 +26,14 @@ test('the root entry and the single-file bundle evaluate in plain Node', async (
   }
 });
 
+test('the experimental entry evaluates in plain Node, where setting lights is a no-op', async () => {
+  const { setLights, getLights, materialRecord } = await import('../dist/esm/experimental.js');
+  setLights([{ kind: 'ambient', intensity: 0.5 }]);
+  assert.deepEqual(getLights(), []);
+  assert.equal(materialRecord('gloss').specular > 0, true);
+  assert.equal(materialRecord('matte').specular, 0);
+});
+
 test('the compat entry evaluates in plain Node and defines nothing', async () => {
   const { defineCompat, JellyButton } = await import('../dist/esm/compat/index.js');
   assert.equal(typeof JellyButton, 'function');

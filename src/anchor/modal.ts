@@ -1,7 +1,4 @@
-/*
- * Make everything except `el` and its ancestors inert so a modal traps focus and
- * screen readers can't wander behind it. Returns a restore function.
- */
+// Inerts everything outside `el` and its ancestors; returns a restore function
 export function inertOutside (el: HTMLElement): () => void {
   const changed: HTMLElement[] = [];
 
@@ -26,10 +23,7 @@ export function inertOutside (el: HTMLElement): () => void {
   };
 }
 
-/*
- * Move an element to document.body while open so no ancestor overflow, transform,
- * or z-index can clip it. Returns a function that puts it back where it came from.
- */
+// Moves `el` to body so no ancestor overflow, transform, or z-index clips it; returns an undo
 export function portalToBody (el: HTMLElement): () => void {
   if (el.parentNode === document.body) {
     return () => {};

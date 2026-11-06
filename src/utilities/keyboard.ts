@@ -1,7 +1,6 @@
 import { clamp } from './motion.js';
 
-// Logical step for a horizontal arrow: +1 toward the inline end, -1 back, 0 for any other key.
-// In RTL the arrows swap, as native controls do.
+// +1 toward the inline end, -1 back, 0 for any other key; RTL swaps the arrows
 export function horizontalStep (key: string, rtl = false): number {
   if (key === 'ArrowRight') {
     return rtl ? -1 : +1;
@@ -21,8 +20,7 @@ export interface ListNavigateOptions {
   vertical?: boolean;
 }
 
-// The next index for a key, or -1 when it doesn't navigate. Vertical arrows always mean
-// previous/next; horizontal arrows respect reading direction.
+// -1 when the key doesn't navigate; vertical arrows ignore reading direction
 export function listNavigate (
   key: string,
   index: number,

@@ -1,13 +1,7 @@
-/*
- * Background scroll lock for modal overlays, ref-counted so stacked modals
- * share one lock, with scrollbar-gap compensation so the page never jumps.
- */
-
 let scrollLocks        = 0;
 let savedScrollPadding = '';
 
-// Freeze background scroll, compensating for the vanished scrollbar so the
-// page doesn't jump (padding-inline-end lands on the scrollbar side in RTL too)
+// Ref-counted so stacked modals share one lock; padding-inline-end fills the scrollbar gap in LTR and RTL
 export function lockScroll (): void {
   if (scrollLocks++ > 0) {
     return;

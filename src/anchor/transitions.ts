@@ -1,10 +1,6 @@
 import { isRTL }                from '../utilities/index.js';
 import { prefersReducedMotion } from '../utilities/index.js';
 
-/*
- * Soft grow-in from near full size with a gentle settle. `origin` sets transform-origin
- * so it grows out of its trigger or anchor.
- */
 export function springIn (el: HTMLElement, origin = 'center'): void {
   el.style.transformOrigin = origin;
 
@@ -23,7 +19,7 @@ export function springIn (el: HTMLElement, origin = 'center'): void {
   );
 }
 
-// Fade and scale out, then call `done`, which usually removes the element
+// `done` always runs: after the exit, on cancel, or at once under reduced motion
 export function springOut (el: HTMLElement, done: () => void): void {
   if (prefersReducedMotion() || !el.animate) {
     done();
@@ -42,7 +38,6 @@ export function springOut (el: HTMLElement, done: () => void): void {
   animation.oncancel = done;
 }
 
-// Toast entrance: eases in from the inline-end edge (right in LTR, left in RTL), fading and scaling up
 export function toastIn (el: HTMLElement): void {
   const rtl  = isRTL(el);
   const from = rtl ? '-35%' : '35%';
@@ -64,7 +59,6 @@ export function toastIn (el: HTMLElement): void {
   );
 }
 
-// Toast exit: fades and eases out toward the inline-end, then calls `done`
 export function toastOut (el: HTMLElement, done: () => void): void {
   const rtl = isRTL(el);
   const to  = rtl ? '-30%' : '30%';

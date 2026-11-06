@@ -4,6 +4,7 @@ import { mount, settle } from '../../testing/index.js';
 
 import { installScopeBridge } from '../../cascade/index.js';
 import { DEFAULT_CONFIG }     from '../../core/index.js';
+import { setLights }          from '../../light/index.js';
 import type { PainterFrame }  from '../../element/painter.js';
 import { registerPreset }     from '../../presets/index.js';
 import { PALETTE }            from '../../theme/index.js';
@@ -104,8 +105,7 @@ describe('droplet-slider contracts', () => {
 
     const el = host.firstElementChild as DropletSlider;
 
-    // The preset wins field by field over the profile, so pressure is the
-    // preset's on both bodies while untouched profile fields survive
+    // The preset wins field by field; untouched profile fields survive
     expect(el.resolvedConfig.pressure).toBe(300);
     expect(el.thumbConfig.pressure).toBe(300);
     expect(el.thumbConfig.membraneSpring).toBe(THUMB_CONFIG.membraneSpring);
@@ -364,8 +364,7 @@ describe('droplet-slider contracts', () => {
     expect(el.dragging).toBe(false);
     expect(el.pointerId).toBe(null);
 
-    // The engine parks only when frame() reports settled, so a stuck drag flag
-    // would keep this loop alive forever
+    // frame() parks only when settled, so a stuck drag flag never ends this loop
     let live = true;
 
     for (let i = 0; i < 1200 && live; i++) {
@@ -439,7 +438,7 @@ describe('droplet-slider contracts', () => {
     const track  = el.resolveColor(`var(--droplet-track, ${PALETTE['background-neutral']})`);
     const accent = el.resolveColor(`var(--droplet-accent, ${PALETTE['background-accent']})`);
 
-    // The pre-extraction drawing, verbatim, against a matched offscreen canvas
+    // The reference drawing, against a matched offscreen canvas
     const direct = offscreen(w, h);
     direct.save();
     direct.beginPath();
@@ -506,7 +505,7 @@ describe('droplet-slider contracts', () => {
     expect(el.calls).toBe(1);
     expect(error).toHaveBeenCalledTimes(1);
 
-    // painter.md: reconnecting gives a disabled painter one more chance
+    // A reconnect gives a failed painter one more chance
     const parent = el.parentElement!;
 
     el.remove();
@@ -517,6 +516,41 @@ describe('droplet-slider contracts', () => {
 
     error.mockRestore();
     host.remove();
+  });
+
+  test('isolates a track painter that throws only on a lit redraw', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    customElements.define('droplet-slider-hostile-lit', class extends DropletSlider {
+      redraws = 0;
+
+      override paintTrack (frame: PainterFrame): void {
+        if (frame.ctx.canvas !== this.canvas) {
+          this.redraws++;
+          throw new Error('boom');
+        }
+
+        super.paintTrack(frame);
+      }
+    });
+
+    setLights([{ kind: 'ambient', intensity: 0.6 }], { flashSafety: false });
+
+    const host = mount('<droplet-slider-hostile-lit style="--droplet-track: rgba(255, 0, 0, 0.4)"></droplet-slider-hostile-lit>');
+
+    try {
+      await settle(8);
+
+      const el = host.firstElementChild as DropletSlider & { redraws: number };
+
+      expect(() => el.frame(16)).not.toThrow();
+      expect(el.redraws).toBe(1);
+      expect(error).toHaveBeenCalledTimes(1);
+    } finally {
+      setLights(null, { flashSafety: false });
+      error.mockRestore();
+      host.remove();
+    }
   });
 
   test('builds the track frame from the real render path', async () => {
@@ -602,12 +636,190 @@ describe('droplet-slider contracts', () => {
     expect(styles.pointerEvents).toBe('auto');
     expect(input.tabIndex).toBe(0);
 
-    // Zero cssW/cssH and no context: the geometry has to stay harmless
     expect(el.cssW).toBe(0);
     expect(() => { el.applyShape(); el.paintTrackPass(); el.frame(16); }).not.toThrow();
 
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, composed: true }));
     expect(el.value).toBe('45');
+
+    host.remove();
+  });
+
+});
+
+describe('droplet-slider origin', () => {
+
+  function rgbaOf (color: string): number[] {
+    const ctx = offscreen(1, 1);
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, 1, 1);
+
+    return [...ctx.getImageData(0, 0, 1, 1).data];
+  }
+
+  // Per offset from the track center: does that pixel carry the accent fill?
+  async function fillAt (html: string, offsets: number[], dir = 'ltr'): Promise<boolean[]> {
+    const host = mount(`<div dir="${dir}">${html}</div>`);
+    await settle(30);
+
+    const el     = host.querySelector('droplet-slider') as DropletSlider;
+    const ctx    = offscreen(el.cssW, el.cssH);
+    const accent = rgbaOf(el.resolveColor(`var(--droplet-accent, ${PALETTE['background-accent']})`));
+
+    el.thumbX = el.thumbTarget;
+    el.paintTrackPass(ctx);
+
+    const cy     = Math.floor(el.cssH / 2);
+    const result = offsets.map((offset) => {
+      const x = Math.floor(el.cssW / 2 + offset * el.travel / 2);
+      const p = [...ctx.getImageData(x, cy, 1, 1).data];
+
+      return p.every((channel, i) => Math.abs(channel - (accent[i] ?? 0)) <= 2);
+    });
+
+    host.remove();
+
+    return result;
+  }
+
+  test('reads start by default and canonicalizes what it accepts', async () => {
+    const host = mount('<droplet-slider></droplet-slider>');
+    const el   = host.firstElementChild as DropletSlider;
+
+    expect(el.origin).toBe('start');
+
+    for (const [written, read] of [['CENTER', 'center'], [' end ', 'end'], ['0', '0'], ['-0.50', '-0.5'], ['1e2', '100'], ['middle', 'start'], ['', 'start'], ['NaN', 'start']]) {
+      el.setAttribute('origin', written!);
+      expect(el.origin).toBe(read);
+    }
+
+    el.origin = 3;
+    expect(el.getAttribute('origin')).toBe('3');
+
+    el.origin = null;
+    expect(el.hasAttribute('origin')).toBe(false);
+
+    host.remove();
+  });
+
+  test('fills from the middle toward the thumb with origin="center"', async () => {
+    const below = await fillAt('<droplet-slider min="-1" max="1" step="0.01" value="-0.5" origin="center"></droplet-slider>', [-0.25, 0.25, -0.9]);
+
+    expect(below).toEqual([true, false, false]);
+
+    const above = await fillAt('<droplet-slider min="-1" max="1" step="0.01" value="0.5" origin="center"></droplet-slider>', [0.25, -0.25, 0.9]);
+
+    expect(above).toEqual([true, false, false]);
+  });
+
+  test('fills from a numeric origin in value units', async () => {
+    const fills = await fillAt('<droplet-slider min="0" max="100" value="80" origin="40"></droplet-slider>', [0.4, -0.5, 0.9]);
+
+    expect(fills).toEqual([true, false, false]);
+  });
+
+  test('pins a numeric origin to min when the span collapses', async () => {
+    const equal    = await fillAt('<droplet-slider min="10" max="10" value="10" origin="20"></droplet-slider>', [0.5, 0.9, -0.5]);
+    const reversed = await fillAt('<droplet-slider min="10" max="0" value="5" origin="5"></droplet-slider>', [0.5, 0.9, -0.5]);
+
+    expect(equal).toEqual([false, false, false]);
+    expect(reversed).toEqual([false, false, false]);
+  });
+
+  test('fills from the far edge with origin="end"', async () => {
+    const fills = await fillAt('<droplet-slider value="50" origin="end"></droplet-slider>', [0.5, -0.5]);
+
+    expect(fills).toEqual([true, false]);
+  });
+
+  test('mirrors a center origin in RTL', async () => {
+    const fills = await fillAt('<droplet-slider min="-1" max="1" step="0.01" value="-0.5" origin="center"></droplet-slider>', [0.25, -0.25], 'rtl');
+
+    expect(fills).toEqual([true, false]);
+  });
+
+  test('repaints at rest when origin changes', async () => {
+    const host = mount('<droplet-slider min="-1" max="1" step="0.01" value="0.5"></droplet-slider>');
+    const el   = host.firstElementChild as DropletSlider;
+
+    await settle(30);
+
+    const frame = vi.spyOn(el, 'frame');
+
+    el.origin = 'center';
+    await settle(3);
+
+    expect(frame).toHaveBeenCalled();
+
+    host.remove();
+  });
+
+  test('replays an origin assigned before upgrade', async () => {
+    const el = document.createElement('droplet-slider-origin-replay') as HTMLElement & { origin?: string };
+    el.origin = 'center';
+    document.body.appendChild(el);
+
+    customElements.define('droplet-slider-origin-replay', class extends DropletSlider {});
+    await settle(3);
+
+    expect((el as unknown as DropletSlider).origin).toBe('center');
+    expect(el.getAttribute('origin')).toBe('center');
+
+    el.remove();
+  });
+
+});
+
+describe('droplet-slider width', () => {
+
+  test('keeps each size\'s default width', async () => {
+    const host = mount('<droplet-slider></droplet-slider><droplet-slider size="small"></droplet-slider><droplet-slider size="large"></droplet-slider>');
+    await settle(3);
+
+    const widths = [...host.children].map((el) => el.getBoundingClientRect().width);
+
+    expect(widths).toEqual([240, 200, 300]);
+
+    host.remove();
+  });
+
+  test('takes --droplet-slider-width from any ancestor and lays the track out to it', async () => {
+    const host = mount('<div style="--droplet-slider-width: 100%; width: 400px"><droplet-slider size="small" value="100"></droplet-slider></div>');
+    await settle(30);
+
+    const el = host.querySelector('droplet-slider') as DropletSlider;
+
+    expect(el.getBoundingClientRect().width).toBe(400);
+    expect(el.trackW).toBe(400);
+    expect(el.thumbTarget).toBeCloseTo((400 - el.sizeConfig.thumb) / 2, 5);
+
+    (host.firstElementChild as HTMLElement).style.width = '300px';
+    await settle(30);
+
+    expect(el.trackW).toBe(300);
+    expect(el.thumbTarget).toBeCloseTo((300 - el.sizeConfig.thumb) / 2, 5);
+
+    host.remove();
+  });
+
+  test('stays harmless narrower than its thumb', async () => {
+    const host = mount('<droplet-slider style="--droplet-slider-width: 12px" value="70"></droplet-slider>');
+    await settle(10);
+
+    const el = host.firstElementChild as DropletSlider;
+
+    expect(el.travel).toBe(0);
+    expect(() => { el.setFromClientX(el.getBoundingClientRect().left + 6); el.frame(16); }).not.toThrow();
+    expect(Number.isFinite(Number(el.value))).toBe(true);
+
+    host.remove();
+  });
+
+  test('lets a page width rule win over the token', async () => {
+    const host = mount('<div style="width: 360px; --droplet-slider-width: 50px"><droplet-slider style="width: 100%"></droplet-slider></div>');
+    await settle(3);
+
+    expect(host.querySelector('droplet-slider')!.getBoundingClientRect().width).toBe(360);
 
     host.remove();
   });

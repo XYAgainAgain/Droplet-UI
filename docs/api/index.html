@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Droplet UI: API Reference</title>
     <meta name="description" content="The complete Droplet UI API reference: every attribute, property, method, event, slot, shadow part, CSS custom property and keyboard map." />
-    <!-- No favicon: an empty data URI stops the browser requesting /favicon.ico -->
+    <!-- An empty data URI stops the /favicon.ico request -->
     <link rel="icon" href="data:," />
 
-    <!-- Apply saved visual preferences before first paint so there is no flash -->
     <script>
       const savedMode = localStorage.getItem('droplet-docs-theme') ?? localStorage.getItem('jelly-docs-theme');
       if (savedMode === 'light' || savedMode === 'dark') {
@@ -20,12 +19,10 @@
       }
     </script>
 
-    <!-- Page styles: shared chrome and reference-specific (see docs/README.md) -->
     <link rel="stylesheet" href="../docs/shared/site.css" />
     <link rel="stylesheet" href="../docs/api/reference.css" />
 
-    <!-- Performance hint, not an import: fetching package.js and the bundle it re-exports
-         in parallel registers the components sooner. Removing it only slows first load. -->
+    <!-- Preload hint, not an import: fetches the bundle alongside package.js -->
     <link rel="modulepreload" href="../package.js" />
     <link rel="modulepreload" href="../dist/droplet.js" />
   </head>
@@ -33,7 +30,6 @@
   <body>
     <a class="skip" href="#sections">Skip to reference</a>
 
-    <!-- The shared top bar (styles in site.css), plus the mobile-only sidebar toggle -->
     <nav class="subnav" aria-label="Site">
       <a class="subnav-brand" href="../">Droplet UI <span class="subnav-ver">v0.1</span></a>
 

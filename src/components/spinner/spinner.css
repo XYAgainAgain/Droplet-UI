@@ -23,8 +23,6 @@
   fill: var(--jelly-fill, var(--droplet-fill));
 }
 
-/* The rover glides between the three fixed dots; the goo filter melts it
-   into whichever dot it's nearest, so it reads as one blob traveling */
 .rover {
   animation: sp-rove 1.5s cubic-bezier(.55, 0, .45, 1) infinite;
 }
@@ -36,7 +34,6 @@
   75%      { transform: translateX(12px); }
 }
 
-/* --droplet-motion mirrors data-droplet-motion (or data-jelly-motion) on <html>; see src/theme/runtime.ts */
 @media (prefers-reduced-motion: reduce) {
   @container not style(--droplet-motion: no-preference) {
     .rover { animation: none; }

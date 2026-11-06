@@ -1,10 +1,9 @@
-/*
- * A segmented control: a capsule track with a soft-body pill that slides
- * between options. Form-associated and presented as a radiogroup by default;
- * roles="tablist" switches to tab semantics (used by <droplet-tabs>)
- */
+// roles="tablist" switches to the tab semantics <droplet-tabs> uses
 
 import { DropletElement }    from '../../element/index.js';
+import { FORM_ATTRIBUTES }    from '../../element/form-control.js';
+import { FormControl }        from '../../element/form-control.js';
+import type { RestoreState }  from '../../element/form-control.js';
 import type { Shape }      from '../../element/index.js';
 
 import { DropletBody }       from '../../core/index.js';
@@ -40,12 +39,20 @@ import segmentedStyles     from './segmented.css?inline';
  * @attr {"small"|"medium"|"large"} size - Control size.
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
  * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
+ * @attr {string} material - Registered material preset: "matte" (the default) or "gloss" (Experimental); inherits from a `data-droplet-material` scope.
+ * @attr {number} gloss - Sheen sharpness 0–1 for a lit material (Experimental); defaults to the material's sharpness.
+ * @attr {number} softness - Feel knob 0–1: how far the surface gives under a press; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} bounce - Feel knob 0–1: how long it keeps wobbling before it settles; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} viscosity - Feel knob 0–1: how thick and slow it moves; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} spread - Feel knob 0–1: how far a dent travels around the edge; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} depth - Feel knob 0–1: how far it presses in and tilts; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} intensity - Feel knob 0–1: master gain on every push the surface takes; unset keeps the feel preset's setting, and 0.5 is neutral.
  *
  * @fires change - With `detail.value` when the selection changes.
  *
  * @csspart wrap - The segment container.
  */
-export class DropletSegmented extends DropletElement {
+export class DropletSegmented extends FormControl(DropletElement) {
 
   static define (options?: DefineOptions): DefineResult {
     return defineSegmented(options);
@@ -53,17 +60,14 @@ export class DropletSegmented extends DropletElement {
 
   static override usesResolver = true;
 
-  // Participate in native <form> submission through ElementInternals
   static formAssociated = true;
 
-  internals: ElementInternals;
+  override internals: ElementInternals;
 
-  // Populated in onBuilt()/onShape()
   wrap!: HTMLElement;
   pill: DropletBody | null = null;
   mutationObserver: MutationObserver | null = null;
 
-  // Pill slide spring (position, velocity, target) plus the rendered segments
   segments: DropletSegment[] = [];
   index = 0;
   pillX = 0;
@@ -76,7 +80,7 @@ export class DropletSegmented extends DropletElement {
   reflecting = false;
 
   static get observedAttributes (): string[] {
-    return ['value', 'disabled', 'size', 'roles', 'label', ...DropletElement.AXIS_ATTRIBUTES];
+    return ['value', 'disabled', 'size', 'roles', 'label', ...DropletElement.AXIS_ATTRIBUTES, ...FORM_ATTRIBUTES];
   }
 
   constructor () {
@@ -93,7 +97,7 @@ export class DropletSegmented extends DropletElement {
     return `<div class="wrap" part="wrap" role="radiogroup"></div>`;
   }
 
-  // The track capsule, inset 3px per side from the host box
+  // Track capsule, inset 3px per side
   override shape (width: number, height: number): Shape {
     const w = width - 6;
     const h = height - 6;
@@ -118,10 +122,13 @@ export class DropletSegmented extends DropletElement {
   override connectedCallback (): void {
     const alreadyBuilt = this.built;
 
+    if (this.authoredValue === undefined) {
+      this.authoredValue = this.getAttribute('value');
+    }
+
     super.connectedCallback();
 
-    // Re-arm the light-DOM observer after a re-append: removal disconnected it,
-    // and the segments may have changed since
+    // Removal disconnected the observer, and the segments may have changed since
     if (alreadyBuilt && this.mutationObserver) {
       this.mutationObserver.observe(this, { childList: true, subtree: true, characterData: true });
       this.sync();
@@ -134,7 +141,6 @@ export class DropletSegmented extends DropletElement {
     this.mutationObserver?.disconnect();
   }
 
-  // Central handler for the listeners registered with `this`
   handleEvent (event: Event): void {
     switch (event.type) {
       case 'click':    this.onClick(event as MouseEvent);    break;
@@ -152,14 +158,17 @@ export class DropletSegmented extends DropletElement {
     return this.isTablist ? 'aria-selected' : 'aria-checked';
   }
 
-  // Rebuild the shadow buttons from the light-DOM segments: on connect, on any
-  // light-DOM mutation, and when roles or disabled change the semantics
+  // Rebuilds the shadow buttons from the light-DOM segments
   sync (): void {
     if (!this.wrap) {
       return;
     }
 
     this.segments = [...this.querySelectorAll<DropletSegment>(anyTag('segment'))];
+
+    for (const seg of this.segments) {
+      if (!this.authoredSelected.has(seg)) this.authoredSelected.set(seg, seg.hasAttribute('selected'));
+    }
 
     const want  = this.getAttribute('value');
     const found = this.segments.findIndex((s) => s.value === want);
@@ -172,7 +181,8 @@ export class DropletSegmented extends DropletElement {
 
     const tablist       = this.isTablist;
     const stateAttr     = this.stateAttribute;
-    const groupDisabled = this.hasAttribute('disabled');
+    const groupDisabled = this.isDisabled;
+    const stop          = this.tabStop(this.index);
 
     this.wrap.setAttribute('role', tablist ? 'tablist' : 'radiogroup');
 
@@ -183,7 +193,7 @@ export class DropletSegmented extends DropletElement {
         return `
         <button class="segment" type="button" role="${tablist ? 'tab' : 'radio'}" data-index="${i}"
                 ${stateAttr}="${i === this.index}"
-                tabindex="${i === this.index ? 0 : -1}"
+                tabindex="${i === stop ? 0 : -1}"
                 ${s.disabled || groupDisabled ? 'disabled' : ''}><span class="segment-top"><span>${label}</span><span class="segment-bottom" aria-hidden="true">${label}</span></span></button>`;
       })
       .join('');
@@ -192,6 +202,8 @@ export class DropletSegmented extends DropletElement {
     this.syncValue();
     this.removeAttribute('tabindex');
     this.onShape();
+
+    this.refreshAria();
   }
 
   syncLabel (): void {
@@ -210,7 +222,6 @@ export class DropletSegmented extends DropletElement {
     this.internals.setFormValue(seg ? seg.value : null);
   }
 
-  // Called whenever the shape (re)builds: size the pill and aim it at the active segment
   override onShape (): void {
     if (!this.body || !this.segments.length) {
       return;
@@ -227,15 +238,13 @@ export class DropletSegmented extends DropletElement {
     if (!this.pill) {
       this.pill = this.createBody({ width: pillW, height: pillH, radius: r });
     } else if (Math.abs(this.pill.width - pillW) > 1.5 || Math.abs(this.pill.height - pillH) > 1.5) {
-      // Rebuild the membrane only on a real size change, not the sub-pixel
-      // reflow when the active label turns bold
+      // Only a real size change, not sub-pixel reflow
       this.pill.resize(pillW, pillH, r);
     }
 
     this.pillTarget = this.segX(this.index);
 
-    // Snap only on first layout: a mid-slide re-measure (the ResizeObserver
-    // firing as the active label bolds) must not reset the pill and kill the slide
+    // Snap only on first layout, so a mid-slide re-measure keeps the slide
     if (!this.placed) {
       this.pillX         = this.pillTarget;
       this.pillXVelocity = 0;
@@ -245,8 +254,7 @@ export class DropletSegmented extends DropletElement {
     this.requestFrame();
   }
 
-  // The pill's canvas-local resting center, measured from the rendered button so
-  // LTR and RTL need no direction math; an even split (mirrored) before layout
+  // Measured from the rendered button, so RTL needs no math; an even split before layout
   segX (index: number): number {
     const button = this.wrap?.children[index] as HTMLElement | undefined;
 
@@ -259,11 +267,21 @@ export class DropletSegmented extends DropletElement {
     return isRTL(this) ? -x : x;
   }
 
-  // fromUser adds the pill stretch, haptic buzz, focus move, and change event
-  select (index: number, fromUser = false): void {
+  tabStop (index: number): number {
+    if (!this.segments[index]?.disabled) {
+      return index;
+    }
+
+    const first = this.segments.findIndex((seg) => !seg.disabled);
+
+    return first >= 0 ? first : index;
+  }
+
+  // evenDisabled: a form reset may land on a disabled segment, as a native select's does
+  select (index: number, fromUser = false, evenDisabled = false): void {
     const seg = this.segments[index];
 
-    if (!seg || seg.disabled || index === this.index) {
+    if (!seg || (seg.disabled && !evenDisabled) || index === this.index) {
       if (fromUser) {
         this.focusSeg(index);
       }
@@ -273,19 +291,19 @@ export class DropletSegmented extends DropletElement {
     this.index      = index;
     this.pillTarget = this.segX(index);
 
-    // Physical travel direction (from the rect math above), so the stretch
-    // leans the right way in both LTR and RTL layouts
+    // Physical direction, so the stretch is right in RTL too
     const dir       = Math.sign(this.pillTarget - this.pillX) || 1;
     const stateAttr = this.stateAttribute;
 
+    const stop = this.tabStop(index);
+
     ([...this.wrap.children] as HTMLElement[]).forEach((button, i) => {
       button.setAttribute(stateAttr, String(i === index));
-      button.tabIndex = i === index ? 0 : -1;
+      button.tabIndex = i === stop ? 0 : -1;
     });
 
     this.syncValue();
 
-    // Reflect to the host attribute without re-entering via attributeChanged.
     this.reflecting = true;
     this.setAttribute('value', seg.value);
     this.reflecting = false;
@@ -315,8 +333,6 @@ export class DropletSegmented extends DropletElement {
     }
   }
 
-  // Roving tabindex: horizontal arrows flip with reading direction, and
-  // disabled segments are skipped in the direction of travel
   onKey (event: KeyboardEvent): void {
     const count = this.segments.length;
 
@@ -324,7 +340,10 @@ export class DropletSegmented extends DropletElement {
       return;
     }
 
-    const next = listNavigate(event.key, this.index, count, { rtl: isRTL(this) });
+    // The focused segment is the tab stop when the chosen one is disabled
+    const button = (event.target as HTMLElement).closest?.('.segment') as HTMLElement | null;
+    const from   = button ? Number(button.dataset.index) : this.tabStop(this.index);
+    const next   = listNavigate(event.key, from, count, { rtl: isRTL(this) });
 
     if (next < 0) {
       return;
@@ -332,10 +351,10 @@ export class DropletSegmented extends DropletElement {
 
     event.preventDefault();
 
-    // Keep stepping the same way while the landing segment is disabled
+    // Skip disabled segments in the direction of travel
     const step = event.key === 'Home' ? 1
                : event.key === 'End' ? -1
-               : next === (this.index + 1) % count ? 1 : -1;
+               : next === (from + 1) % count ? 1 : -1;
 
     let index = next;
 
@@ -346,7 +365,6 @@ export class DropletSegmented extends DropletElement {
     this.select(index, true);
   }
 
-  // Show the painted focus ring only for keyboard (:focus-visible) focus
   onFocusIn (event: FocusEvent): void {
     const seg = (event.target as HTMLElement).closest('.segment');
 
@@ -366,8 +384,7 @@ export class DropletSegmented extends DropletElement {
       return false;
     }
 
-    // Nearly critically damped, keeping the soft-body feel without the lumpy
-    // overshoot/clamp rhythm on long jumps; reduced motion snaps straight there
+    // Nearly critically damped; less makes long jumps overshoot into the clamp
     if (this.reducedMotion) {
       this.pillX         = this.pillTarget;
       this.pillXVelocity = 0;
@@ -375,8 +392,7 @@ export class DropletSegmented extends DropletElement {
       [this.pillX, this.pillXVelocity] = integrateSpring(this.pillX, this.pillXVelocity, this.pillTarget, 260, 32, dt);
     }
 
-    // Clamp the pill inside the track and zero its outward velocity at the wall,
-    // so spring overshoot settles instead of fighting the clamp
+    // Zero outward velocity at the wall so overshoot settles instead of fighting the clamp
     const limit = Math.max(0, this.trackW / 2 - pill.width / 2);
 
     if (this.pillX > limit) {
@@ -387,7 +403,7 @@ export class DropletSegmented extends DropletElement {
       if (this.pillXVelocity < 0) this.pillXVelocity = 0;
     }
 
-    // A subtle lean; more would pull the moving pill into an uneven shape
+    // Keep the lean subtle; more pulls the moving pill out of shape
     const speed = Math.abs(this.pillXVelocity);
 
     if (speed > 6) {
@@ -398,8 +414,6 @@ export class DropletSegmented extends DropletElement {
 
     pill.update(dt);
 
-    // Canvas colors resolve through the live theme tokens on every paint, so
-    // theme flips and token overrides recolor the control immediately
     const trackColor = this.resolveColor(`var(--jelly-track, var(--droplet-track, ${PALETTE['background-neutral']}))`);
     const pillColor  = this.resolveColor(`var(--jelly-pill, var(--droplet-pill, ${PALETTE['background-accent']}))`);
     const ctx        = this.ctx;
@@ -428,7 +442,7 @@ export class DropletSegmented extends DropletElement {
   }
 
   attributeChangedCallback (name: string): void {
-    if (this.axisAttributeChanged(name)) {
+    if (this.axisAttributeChanged(name) || this.formAttributeChanged(name)) {
       return;
     }
 
@@ -454,10 +468,13 @@ export class DropletSegmented extends DropletElement {
         break;
 
       case 'roles':
-      case 'disabled':
         if (this.wrap) {
           this.sync();
         }
+        break;
+
+      case 'disabled':
+        this.syncDisabled();
         break;
 
       case 'label':
@@ -468,12 +485,10 @@ export class DropletSegmented extends DropletElement {
     }
   }
 
-  // The active segment's value (empty until segments exist)
   get value (): string {
     return this.segments[this.index]?.value ?? '';
   }
 
-  // Select the segment whose value matches, without the user-interaction effects
   set value (v: string) {
     const index = this.segments.findIndex((s) => s.value === v);
 
@@ -482,9 +497,40 @@ export class DropletSegmented extends DropletElement {
     }
   }
 
-  // Route programmatic host focus onto the active segment's button
   override focus (options?: FocusOptions): void {
-    (this.wrap?.children[this.index] as HTMLElement | undefined)?.focus(options);
+    (this.wrap?.children[this.tabStop(this.index)] as HTMLElement | undefined)?.focus(options);
+  }
+
+  // Reset defaults: value at first connect, each segment's selected on arrival
+  authoredValue: string | null | undefined = undefined;
+  authoredSelected = new WeakMap<Element, boolean>();
+
+  override formAnchor (): HTMLElement | null {
+    return (this.wrap?.children[this.index] as HTMLElement | undefined) ?? null;
+  }
+
+  // Descriptions and outer labels belong to the radiogroup, not one segment
+  override formAriaTarget (): HTMLElement | null {
+    return this.wrap ?? null;
+  }
+
+  override formReset (): void {
+    const byValue  = this.authoredValue != null ? this.segments.find((seg) => seg.value === this.authoredValue) : undefined;
+    const selected = byValue ?? this.segments.find((seg) => this.authoredSelected.get(seg)) ?? this.segments[0];
+
+    if (selected) {
+      this.select(this.segments.indexOf(selected), false, true);
+    }
+  }
+
+  override formRestore (state: RestoreState): void {
+    if (typeof state === 'string') {
+      this.value = state;
+    }
+  }
+
+  override syncDisabled (): void {
+    this.sync();
   }
 
 }

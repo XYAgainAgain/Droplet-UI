@@ -1,17 +1,12 @@
-/*
- * A one-time-code input: one box per digit, with typing, backspace,
- * arrow and paste handling. Each filled digit settles in softly.
- * Form-associated, so the joined code submits like a native field
- *
- * Emits `input` on every change and `complete` (detail.value) when all
- * boxes are filled.
- */
-
 import { emit }                 from '../../utilities/index.js';
+import { FORWARDED_ARIA }       from '../../utilities/index.js';
+import { forwardAria }          from '../../utilities/index.js';
+import { reflectAttribute }     from '../../utilities/index.js';
 import { canonicalizeSize }     from '../../utilities/index.js';
 import { prefersReducedMotion } from '../../utilities/index.js';
 
 import { ensureThemeTokens }    from '../../theme/index.js';
+import { syncColorPick }        from '../../theme/pick.js';
 import { variantColors }        from '../../theme/index.js';
 import { HTMLElementBase }      from '../../element/base.js';
 import { defineStrict, TAGS }   from '../../registry/index.js';
@@ -28,8 +23,11 @@ import otpStyles                from './otp.css?inline';
  * @attr {string} label - Accessible name for the group.
  * @attr {string} name - Form field name submitted with the joined code.
  * @attr {boolean} disabled - Disable all boxes.
+ * @attr {boolean} required - Invalid (valueMissing) until every box is filled.
  * @attr {"small"|"medium"|"large"} size - Box size.
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Accent hue.
+ * @attr {string} color - Any CSS color for the fill or accent (beats intent and variant); text or a mark on it turns white or near-black, whichever reads better.
+ * @attr {"accent"|"neutral"|"info"|"success"|"warning"|"danger"|"highlight"} intent - Semantic color role (never an ARIA role); beats variant.
  *
  * @fires input - On every change.
  * @fires change - When the code becomes complete.
@@ -46,8 +44,14 @@ export class DropletOtp extends HTMLElementBase {
   internals?: ElementInternals;
   boxes: HTMLInputElement[] = [];
 
+  customMessage = '';
+
+  formDisabled = false;
+
+  forwardedAria = new Set<string>();
+
   static get observedAttributes (): string[] {
-    return ['length', 'size', 'variant', 'disabled', 'label'];
+    return ['length', 'size', 'variant', 'color', 'disabled', 'label', 'required', ...FORWARDED_ARIA];
   }
 
   connectedCallback (): void {
@@ -61,10 +65,42 @@ export class DropletOtp extends HTMLElementBase {
     }
 
     this.render();
+    this.refreshAria();
+    syncColorPick(this);
+    this.addEventListener('click', this.onLabelActivation);
   }
+
+  disconnectedCallback (): void {
+    this.removeEventListener('click', this.onLabelActivation);
+  }
+
+  // A host <label> click lands on the host; the first open box takes focus
+  onLabelActivation = (event: MouseEvent): void => {
+    if (event.composedPath()[0] !== this || this.isDisabled) {
+      return;
+    }
+
+    (this.boxes.find((box) => !box.value) ?? this.boxes[0])?.focus();
+  };
 
   attributeChangedCallback (name: string): void {
     if (!this.shadowRoot) {
+      return;
+    }
+
+    if (name === 'required') {
+      this.updateValidity();
+      return;
+    }
+
+    if (name === 'color') {
+      syncColorPick(this);
+      return;
+    }
+
+    if (name.startsWith('aria-')) {
+      this.syncLabel();
+      this.refreshAria();
       return;
     }
 
@@ -72,11 +108,10 @@ export class DropletOtp extends HTMLElementBase {
       case 'size':     canonicalizeSize(this);  break;
       case 'length':   this.render();           break;
       case 'disabled': this.syncDisabled();     break;
-      case 'label':    this.syncLabel();        break;
+      case 'label':    this.syncLabel(); this.refreshAria(); break;
     }
   }
 
-  // Build one input box per digit (rebuilds when `length` changes)
   render (): void {
     const count = Math.max(1, parseInt(this.getAttribute('length') ?? '', 10) || 6);
 
@@ -115,25 +150,155 @@ export class DropletOtp extends HTMLElementBase {
     this.removeAttribute('tabindex');
     this.syncDisabled();
     this.syncLabel();
+    this.refreshAria();
 
     this.internals?.setFormValue('');
+    this.updateValidity();
+  }
+
+  get isDisabled (): boolean {
+    return this.hasAttribute('disabled') || this.formDisabled;
   }
 
   syncDisabled (): void {
-    const disabled = this.hasAttribute('disabled');
+    const disabled = this.isDisabled;
 
     for (const box of this.boxes || []) {
       box.disabled = disabled;
     }
   }
 
+  // Host aria-* belongs on the group of boxes
+  refreshAria (): void {
+    const row = this.shadowRoot?.querySelector('.row');
+
+    if (!row) {
+      return;
+    }
+
+    for (const name of FORWARDED_ARIA) {
+      if (name === 'aria-label') continue;
+
+      if (this.hasAttribute(name)) {
+        forwardAria(this, row, name);
+        this.forwardedAria.add(name);
+      } else if (this.forwardedAria.has(name)) {
+        forwardAria(this, row, name);
+        this.forwardedAria.delete(name);
+      }
+    }
+
+    // An outer <label> names the group only when the host has no other name
+    const named  = this.hasAttribute('label') || this.hasAttribute('aria-label') || this.hasAttribute('aria-labelledby');
+    const labels = named ? [] : Array.from(this.internals?.labels ?? []) as Element[];
+
+    if ('ariaLabelledByElements' in row && !this.hasAttribute('aria-labelledby') && (labels.length || this.linkedLabels)) {
+      (row as unknown as { ariaLabelledByElements: Element[] | null }).ariaLabelledByElements = labels.length ? labels : null;
+      this.linkedLabels = labels.length > 0;
+    }
+  }
+
+  linkedLabels = false;
+
+  // A partial code is unusable, so required means every box is filled
+  updateValidity (): void {
+    const internals = this.internals;
+
+    if (!internals) {
+      return;
+    }
+
+    const missing = this.hasAttribute('required') && !this.isDisabled && this.value.length < this.boxes.length;
+    const anchor  = this.boxes.find((box) => !box.value) ?? this.boxes[0];
+
+    if (this.customMessage) {
+      internals.setValidity({ customError: true, valueMissing: missing }, this.customMessage, anchor);
+    } else if (missing) {
+      internals.setValidity({ valueMissing: true }, 'Please enter the whole code.', anchor);
+    } else {
+      internals.setValidity({});
+    }
+  }
+
+  formDisabledCallback (disabled: boolean): void {
+    this.formDisabled = disabled;
+    this.syncDisabled();
+    this.updateValidity();
+  }
+
+  formResetCallback (): void {
+    this.value = '';
+  }
+
+  formStateRestoreCallback (state: string | File | FormData | null): void {
+    if (typeof state === 'string') {
+      this.value = state;
+    }
+  }
+
+  get form (): HTMLFormElement | null {
+    return this.internals?.form ?? null;
+  }
+
+  get labels (): NodeList | null {
+    return this.internals?.labels ?? null;
+  }
+
+  get validity (): ValidityState | null {
+    return this.internals?.validity ?? null;
+  }
+
+  get validationMessage (): string {
+    return this.internals?.validationMessage ?? '';
+  }
+
+  get willValidate (): boolean {
+    return this.internals?.willValidate ?? false;
+  }
+
+  checkValidity (): boolean {
+    return this.internals?.checkValidity() ?? true;
+  }
+
+  reportValidity (): boolean {
+    return this.internals?.reportValidity() ?? true;
+  }
+
+  setCustomValidity (message: string): void {
+    this.customMessage = message === null ? '' : String(message);
+    this.updateValidity();
+  }
+
+  get name (): string {
+    return this.getAttribute('name') ?? '';
+  }
+
+  set name (value: string) {
+    reflectAttribute(this, 'name', value);
+  }
+
+  get disabled (): boolean {
+    return this.hasAttribute('disabled');
+  }
+
+  set disabled (value: boolean) {
+    this.toggleAttribute('disabled', Boolean(value));
+  }
+
+  get required (): boolean {
+    return this.hasAttribute('required');
+  }
+
+  set required (value: boolean) {
+    this.toggleAttribute('required', Boolean(value));
+  }
+
   syncLabel (): void {
     const row = this.shadowRoot!.querySelector('.row');
 
-    row?.setAttribute('aria-label', this.getAttribute('label') || 'One-time code');
+    row?.setAttribute('aria-label', this.getAttribute('label') || this.getAttribute('aria-label') || 'One-time code');
   }
 
-  // A filled digit settles in softly (the box itself stays put)
   reveal (index: number, delay = 0): void {
     if (prefersReducedMotion()) {
       return;
@@ -148,7 +313,6 @@ export class DropletOtp extends HTMLElementBase {
     );
   }
 
-  // A quiet confirmation when every box is filled
   completeReveal (): void {
     if (prefersReducedMotion()) {
       return;
@@ -164,8 +328,7 @@ export class DropletOtp extends HTMLElementBase {
   }
 
   onInput (event: Event, index: number): void {
-    // The box's native input event is composed and would retarget to the host
-    // on its own; stop it so announce()'s single custom 'input' is the only one
+    // The native input event is composed; stop it so announce() emits the only 'input'
     event.stopPropagation();
 
     const box   = event.target as HTMLInputElement;
@@ -184,8 +347,7 @@ export class DropletOtp extends HTMLElementBase {
     this.announce();
   }
 
-  // Backspace hops back when empty; arrows move between boxes.
-  // The row is pinned LTR, so the physical arrow directions are correct.
+  // Physical arrows are correct because otp.css pins the row LTR
   onKey (event: KeyboardEvent, index: number): void {
     const box = event.target as HTMLInputElement;
 
@@ -198,7 +360,6 @@ export class DropletOtp extends HTMLElementBase {
     }
   }
 
-  // Distribute pasted digits across the remaining boxes
   onPaste (event: ClipboardEvent, index: number): void {
     event.preventDefault();
 
@@ -222,19 +383,18 @@ export class DropletOtp extends HTMLElementBase {
     this.announce();
   }
 
-  // Push the joined value to the form and notify listeners
   announce (): void {
     const value = this.value;
 
     this.internals?.setFormValue(value);
+    this.updateValidity();
 
     emit(this, 'input');
 
     if (value.length === this.boxes.length) {
       this.completeReveal();
 
-      // 'change' matches every other form control's commit event; 'complete'
-      // stays as a code-specific alias that also carries the finished value
+      // 'change' is the shared commit event; 'complete' also carries the value
       emit(this, 'change');
       emit(this, 'complete', { value });
     }
@@ -252,6 +412,7 @@ export class DropletOtp extends HTMLElementBase {
     });
 
     this.internals?.setFormValue(this.value);
+    this.updateValidity();
   }
 
   override focus (options?: FocusOptions): void {

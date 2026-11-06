@@ -1,7 +1,4 @@
-/*
- * Page chrome shared by every docs page. Colors resolve through the Droplet theme
- * tokens once the library loads; light-dark() fallbacks keep the first paint correct.
- */
+/* Shared docs chrome; light-dark() fallbacks cover first paint before the theme tokens load */
 
 :root {
   color-scheme: light dark;
@@ -14,14 +11,12 @@
   --accent:  var(--droplet-color-background-accent,     light-dark(#0077CC, #4DA6FF));
   --field:   var(--droplet-color-background-muted,      light-dark(#F4F5F7, #262B34));
 
-  /* Route the docs type through the library font tokens so a re-theme flows
-     into the site chrome too; the fallbacks mirror theme.js exactly. */
+  /* Fallbacks mirror src/theme/tokens.ts */
   --display: var(--droplet-font-display, ui-rounded, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", sans-serif);
   --body:    var(--droplet-font-text,    system-ui, -apple-system, "Segoe UI", sans-serif);
   --mono:    var(--droplet-font-mono,     ui-monospace, "SF Mono", Menlo, monospace);
 
-  /* The shared top bar's height: a 42px small droplet-button plus the same 8px
-     of air above and below it as sits between the buttons */
+  /* A 42px small droplet-button plus 8px above and below */
   --header-h: 58px;
 }
 
@@ -30,9 +25,7 @@
 
 * { box-sizing: border-box; }
 
-/* Pre-upgrade placeholders: undefined custom elements are plain inline boxes, so each
-   reserves its upgraded box (padding and label font included, so light-DOM text keeps
-   its final width) and hides its raw content until the module registers it. */
+/* Pre-upgrade boxes match the upgraded size; padding and font keep light-DOM text at its final width */
 :not(:defined) { visibility: hidden; }
 
 droplet-button:not(:defined)      { display: inline-block; min-width: 168px; height: 62px; }
@@ -82,12 +75,11 @@ code { font-family: var(--mono); font-size: 0.92em; }
 
 :root[data-droplet-motion="reduce"] .skip { transition: none; }
 
-/* Top bar: sticky, so the showcase hero can run to the very top before it pins */
+/* Top bar */
 .subnav {
   position:        sticky;
   top:             0;
-  /* Above component popovers (droplet-select/menu/popover use z-index 9999) so an
-     open dropdown scrolls under the sticky bar instead of over it. */
+  /* Above popovers (z-index 9999), so open dropdowns scroll under the bar */
   z-index:         10000;
   display:         flex;
   align-items:     center;
@@ -96,8 +88,7 @@ code { font-family: var(--mono); font-size: 0.92em; }
   padding:         0 clamp(16px, 4vw, 32px);
   background:      var(--bg);
   border-bottom:   1px solid var(--line);
-  /* Clip the buttons' decorative canvas overflow (the bar is not an ancestor
-     of anything sticky, so pinning elsewhere is unaffected) */
+  /* Clips button canvas overflow; nothing sticky sits inside */
   overflow-x:      clip;
 }
 
@@ -107,7 +98,6 @@ code { font-family: var(--mono); font-size: 0.92em; }
   white-space:     nowrap;
 }
 
-/* A quiet version tag trailing the brand, sitting on the same baseline */
 .subnav-ver {
   margin-inline-start: 2px;
   font:                600 11px/1 var(--mono);
@@ -122,13 +112,12 @@ code { font-family: var(--mono); font-size: 0.92em; }
   margin-inline-start: auto;
 }
 
-/* Keep both preference controls reachable on phones; the brand and the API
-   page's Components button retain the two page-navigation routes. */
+/* Phones keep the toggles; the brand and the API page's Components button still navigate */
 @media (max-width: 700px) {
   .subnav-links > :is([data-subnav-showcase], [data-subnav-api]) { display: none; }
 }
 
-/* Code blocks: the copy button sits in a toolbar above the code so it can never cover it */
+/* Code blocks */
 .code {
   border:        1px solid var(--line);
   border-radius: 12px;
@@ -144,8 +133,6 @@ code { font-family: var(--mono); font-size: 0.92em; }
   border-bottom:   1px solid var(--line);
 }
 
-/* The copy control is a real droplet-button (it jiggles on press like every
-   other control); just make it compact enough for the slim toolbar. */
 .code .copy {
   --droplet-button-height:         32px;
   --droplet-button-min-width:      64px;

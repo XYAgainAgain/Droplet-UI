@@ -21,6 +21,7 @@ export default defineConfig({
       entry: {
         droplet: resolve('src/droplet.ts'),
         register: resolve('src/register.ts'),
+        experimental: resolve('src/experimental.ts'),
         'core/index': resolve('src/core/index.ts'),
         'compat/index': resolve('src/compat/index.ts'),
         ...components,

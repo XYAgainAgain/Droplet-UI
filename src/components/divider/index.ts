@@ -60,8 +60,7 @@ export class DropletDivider extends HTMLElementBase {
     }
   }
 
-  // The content attribute, else slotted text. `label` stays as an alias, though
-  // across the rest of the library `label` means the aria-label.
+  // `label` is an alias here; elsewhere in the library `label` means the aria-label
   get content (): string {
     return this.getAttribute('content') ?? (this.textContent ?? '').trim();
   }

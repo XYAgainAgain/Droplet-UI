@@ -1,4 +1,3 @@
-// Hosted entry point: one <script type="module" src="/package.js"> tag registers
-// every component and still exposes the bundle's named exports.
+// Hosted entry: one module script tag registers everything and exposes the bundle's exports
 
 export * from './dist/droplet.js';

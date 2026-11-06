@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import { userEvent } from 'vitest/browser';
 
 import { mount, settle } from '../../testing/index.js';
@@ -164,7 +164,6 @@ test('validity mirrors the inner input, so form.checkValidity() and :invalid wor
   el.setAttribute('pattern', '[0-9]+');
   expect(el.validity.patternMismatch).toBe(true);
 
-  // A read-only field is barred from constraint validation, as natively
   el.readOnly = true;
   expect(el.willValidate).toBe(false);
 
@@ -288,7 +287,9 @@ test(':state(user-invalid) follows a committed edit and a failed submit, and pai
   const [short, empty] = Array.from(host.querySelectorAll('droplet-input')) as DropletInput[];
   const neutral = short!.surfaceBorder().color;
 
+  await settle(3);
   short!.focus();
+  await vi.waitFor(() => expect(short!.shadowRoot!.activeElement).toBe(inner(short!)));
   await userEvent.keyboard('ab');
   expect(short!.validity.tooShort).toBe(true);
   expect(short!.matches(':state(user-invalid)')).toBe(false);
@@ -305,7 +306,7 @@ test(':state(user-invalid) follows a committed edit and a failed submit, and pai
   form.requestSubmit();
   expect(empty!.matches(':state(user-invalid)')).toBe(true);
 
-  // The failed submit focused the first invalid field; blur it to compare at rest
+  // The failed submit focused the first invalid field
   form.reset();
   inner(short!).blur();
   expect(short!.matches(':state(user-invalid)')).toBe(false);
@@ -340,7 +341,6 @@ test('host ARIA reaches the inner input; IDREFs cross as element references', ()
     expect((input as Reflected).ariaDescribedByElements).toEqual([host.querySelector('#hint')]);
   }
 
-  // The label attribute keeps precedence over aria-label
   el.setAttribute('label', 'Work email');
   expect(input.getAttribute('aria-label')).toBe('Work email');
 
@@ -364,7 +364,6 @@ test('a <label for> and a wrapping <label> are linked to the inner input', () =>
     expect((input as Reflected).ariaLabelledByElements).toEqual([forLabel]);
     expect((inner(wrapped!) as Reflected).ariaLabelledByElements).toEqual([wrapper]);
 
-    // An authored label attribute wins over linking
     forField!.setAttribute('label', 'Override');
     expect((input as Reflected).ariaLabelledByElements ?? null).toBe(null);
   }
@@ -384,7 +383,7 @@ test('clicking a <label for> focuses the inner input', async () => {
   host.remove();
 });
 
-// Waits out the keydown dispatch the implicit submission defers to
+// Waits out the deferred implicit submission
 const enterIn = async (el: DropletInput): Promise<void> => {
   el.focus();
   await userEvent.keyboard('{Enter}');

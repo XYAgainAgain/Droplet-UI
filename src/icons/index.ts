@@ -1,16 +1,4 @@
-/*
- * Inline icon set: Fluent System Icons (Microsoft, MIT license)
- *
- * A small, dependency-free subset of Microsoft's Fluent UI System Icons
- * (https://github.com/microsoft/fluentui-system-icons). Each glyph is a standalone
- * 24×24 SVG beside this file, imported as a raw string so nothing is fetched at
- * runtime. The paths render with `currentColor`, so an icon inherits the text color.
- *
- *   import { dropletIcon } from 'droplet-ui';
- *
- *   button.innerHTML = dropletIcon('heart', { size: 18 });
- *   alertIcon        = dropletIcon('warning', { label: 'Warning' });
- */
+// Fluent UI System Icons (Microsoft, MIT): https://github.com/microsoft/fluentui-system-icons
 
 import info            from './info.svg?raw';
 import checkmarkCircle from './checkmark-circle.svg?raw';
@@ -29,8 +17,6 @@ import animalRabbitFilled from './animal-rabbit-filled.svg?raw';
 import animalRabbitOffFilled from './animal-rabbit-off-filled.svg?raw';
 import animalRabbitRegular from './animal-rabbit-regular.svg?raw';
 
-// Every icon, keyed by its kebab-case name. Each value is a complete standalone
-// 24×24 SVG string; dropletIcon() injects size and ARIA attributes at render time.
 export const ICONS = {
   'info':             info,
   'checkmark-circle': checkmarkCircle,
@@ -50,7 +36,6 @@ export const ICONS = {
   'animal-rabbit-regular':    animalRabbitRegular,
 } satisfies Record<string, string>;
 
-// The name of any icon in the set (autocompletes at call sites)
 export type IconName = keyof typeof ICONS;
 
 export interface IconOptions {
@@ -58,10 +43,7 @@ export interface IconOptions {
   label?: string | null;
 }
 
-/*
- * Render one icon as an inline SVG string, decorative (aria-hidden) unless a label is
- * given. Only the size and ARIA attributes are stamped onto the stored glyph's opening tag.
- */
+// Size in px; aria-hidden unless a label is given
 export function dropletIcon (name: IconName, { size = 20, label = null }: IconOptions = {}): string {
   const svg = ICONS[name];
 

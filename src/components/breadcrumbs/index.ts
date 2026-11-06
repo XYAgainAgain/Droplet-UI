@@ -1,5 +1,3 @@
-// Light-DOM children supply each item's text and optional href; the last is the current page
-
 import { canonicalizeSize }  from '../../utilities/index.js';
 import { escapeHTML }        from '../../utilities/index.js';
 
@@ -86,13 +84,11 @@ export class DropletBreadcrumbs extends HTMLElementBase {
         .join('')}</ol></nav>
     `;
 
-    // The light-DOM sources stay hidden; the shadow trail is the rendering
     for (const child of children) {
       child.hidden = true;
     }
   }
 
-  // Route programmatic host focus onto the first link
   override focus (options?: FocusOptions): void {
     this.shadowRoot?.querySelector('a')?.focus(options);
   }

@@ -1,9 +1,3 @@
-/*
- * A real <button> lives in the shadow DOM for keyboard and assistive-technology
- * support while the soft body is painted on the canvas behind it; its click
- * bubbles out composed, so consumers use it like any native button.
- */
-
 import { DropletElement }   from '../../element/index.js';
 import type { Shape }      from '../../element/index.js';
 
@@ -26,7 +20,6 @@ import variantStyles       from '../../styles/variants.css?inline';
 
 export type ButtonType = 'button' | 'submit' | 'reset';
 
-// Copied onto the native stand-in submitter; the form* getters parse through it too
 const SUBMITTER_ATTRIBUTES = ['name', 'value', 'formaction', 'formenctype', 'formmethod', 'formnovalidate', 'formtarget'];
 
 /**
@@ -51,8 +44,18 @@ const SUBMITTER_ATTRIBUTES = ['name', 'value', 'formaction', 'formenctype', 'for
  * @attr {boolean} block - Stretch the button to the full width of its container.
  * @attr {"small"|"medium"|"large"} size - Control size (sm/md/lg aliases accepted).
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Fill/label color pair.
+ * @attr {string} color - Any CSS color for the fill or accent (beats intent and variant); text or a mark on it turns white or near-black, whichever reads better.
+ * @attr {"accent"|"neutral"|"info"|"success"|"warning"|"danger"|"highlight"} intent - Semantic color role (never an ARIA role); beats variant.
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
  * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
+ * @attr {string} material - Registered material preset: "matte" (the default) or "gloss" (Experimental); inherits from a `data-droplet-material` scope.
+ * @attr {number} gloss - Sheen sharpness 0–1 for a lit material (Experimental); defaults to the material's sharpness.
+ * @attr {number} softness - Feel knob 0–1: how far the surface gives under a press; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} bounce - Feel knob 0–1: how long it keeps wobbling before it settles; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} viscosity - Feel knob 0–1: how thick and slow it moves; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} spread - Feel knob 0–1: how far a dent travels around the edge; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} depth - Feel knob 0–1: how far it presses in and tilts; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} intensity - Feel knob 0–1: master gain on every push the surface takes; unset keeps the feel preset's setting, and 0.5 is neutral.
  *
  * @prop {boolean} disabled - Reflects the `disabled` attribute.
  * @prop {string} name - Reflects the `name` attribute.
@@ -81,7 +84,6 @@ export class DropletButton extends DropletElement {
 
   static override usesResolver = true;
 
-  // :disabled, fieldset disabling, and form="id" ownership all come from the platform
   static formAssociated = true;
 
   static override REPLAYED: readonly string[] = [
@@ -90,7 +92,6 @@ export class DropletButton extends DropletElement {
     'formAction', 'formMethod', 'formEnctype', 'formTarget', 'formNoValidate',
   ];
 
-  // Populated in onBuilt()
   button!: HTMLButtonElement;
   activationPointerId: number | null = null;
   cancelPointerClick = false;
@@ -99,7 +100,7 @@ export class DropletButton extends DropletElement {
 
   statePointerId: number | null = null;
 
-  // Clicks already waiting to run activation behavior, so no click drives the form twice
+  // Clicks with activation pending, so none drives the form twice
   activations = new WeakSet<Event>();
 
   ariaLink = new AriaLink(this, () => this.forwardHostAria());
@@ -107,7 +108,7 @@ export class DropletButton extends DropletElement {
   constructor () {
     super();
 
-    // Once, in the constructor: attachInternals() throws on a second call
+    // attachInternals() throws on a second call
     this.internals = this.attachInternals();
   }
 
@@ -118,12 +119,9 @@ export class DropletButton extends DropletElement {
   static get observedAttributes (): string[] {
     return [
       'disabled', 'label', 'type', 'shape', ...DropletElement.AXIS_ATTRIBUTES,
-      // Forwarded to the inner button, because the roleless host is not what AT reads
       ...FORWARDED_ARIA,
     ];
   }
-
-  // Native IDL surface
 
   get disabled (): boolean {
     return this.hasAttribute('disabled');
@@ -149,7 +147,7 @@ export class DropletButton extends DropletElement {
     reflectAttribute(this, 'value', value);
   }
 
-  // Native parity except the default: a bare droplet-button stays type="button"
+  // Defaults to button, not native's submit
   get type (): ButtonType {
     const type = this.getAttribute('type')?.toLowerCase();
 
@@ -212,13 +210,10 @@ export class DropletButton extends DropletElement {
     return this.type === 'submit';
   }
 
-  // The disabled attribute or a disabled ancestor fieldset; the attribute check
-  // keeps an engine without form-associated elements honest
+  // The attribute check covers engines without form-associated elements
   get effectivelyDisabled (): boolean {
     return this.hasAttribute('disabled') || this.matches(':disabled');
   }
-
-  // Lifecycle
 
   override connectedCallback (): void {
     super.connectedCallback();
@@ -234,8 +229,7 @@ export class DropletButton extends DropletElement {
     this.clearPressed();
   }
 
-  // Native HTMLButtonElement.click(): nothing while disabled, otherwise the inner
-  // button activates, so one composed click still drives the form
+  // Through the inner button, so one composed click drives the form
   override click (): void {
     if (this.effectivelyDisabled) {
       return;
@@ -248,7 +242,6 @@ export class DropletButton extends DropletElement {
     }
   }
 
-  // Fieldset disabling reaches the inner control without touching the host attribute
   formDisabledCallback (): void {
     if (this.button) {
       this.sync('disabled');
@@ -263,15 +256,13 @@ export class DropletButton extends DropletElement {
     return `<button part="button"><slot></slot></button>`;
   }
 
-  // The capsule (or, with shape="square", rounded-rectangle) the physics body
-  // takes, inset so the wobble stays inside the host
+  // Inset so the wobble stays inside the host
   override shape (width: number, height: number): Shape {
     const w      = width - 8;
     const h      = height - 8;
     const square = this.getAttribute('shape') === 'square';
 
-    // Honor a plain-px --droplet-button-radius override on the painted surface;
-    // the pill (999px) and square (calc) defaults fall through to the ratios
+    // A px radius token wins; the square's calc() default falls through to the ratio
     const declared = parseFloat(readToken(getComputedStyle(this), 'button-radius'));
     const radius   = Number.isFinite(declared) ? Math.min(declared, h / 2) : (square ? h * 0.32 : h / 2);
 
@@ -293,7 +284,7 @@ export class DropletButton extends DropletElement {
 
     this.button.addEventListener('click', (event) => this.activate(event));
 
-    // A <label for> activates the labelable host itself, and that click never reaches the inner button
+    // A <label for> click lands on the host and never reaches the inner button
     this.addEventListener('click', (event) => {
       if (event.composedPath()[0] === this) {
         this.activate(event);
@@ -301,8 +292,8 @@ export class DropletButton extends DropletElement {
     });
   }
 
-  // Native activation behavior runs after dispatch and honors a canceled click. The window is a bubbling
-  // click's last stop; the macrotask covers stopPropagation() (which never cancels it) and windowless hosts.
+  // Runs after dispatch so a canceled click stays canceled: the window is a bubbling click's
+  // last stop, and the macrotask covers stopPropagation() and windowless hosts
   activate (event: Event): void {
     if (this.activations.has(event)) {
       return;
@@ -333,7 +324,7 @@ export class DropletButton extends DropletElement {
     timer = window.setTimeout(() => finish());
   }
 
-  // Every forwarded aria-* the host carries, then the name so label keeps precedence
+  // The name goes last so label keeps precedence
   forwardHostAria (): void {
     if (!this.button) {
       return;
@@ -343,8 +334,7 @@ export class DropletButton extends DropletElement {
     this.sync('label');
   }
 
-  // Pointer capture keeps routing a drag to the button after the pointer leaves it,
-  // so only let the native click through when released inside; keyboard is unchanged.
+  // Pointer capture still clicks the button on a release outside it, so cancel that click
   preventReleaseOutsideActivation (): void {
     this.button.addEventListener('pointerdown', (event) => {
       this.activationPointerId = event.pointerId;
@@ -383,8 +373,7 @@ export class DropletButton extends DropletElement {
     this.addEventListener('click', cancelOutsideRelease, { capture: true });
   }
 
-  // Tracked on the host because pointer capture retargets the rest of the press
-  // lifecycle to whatever element captured it (state-and-reflection.md)
+  // On the host: pointer capture retargets the rest of the press
   trackPressedState (): void {
     this.addEventListener('pointerdown', (event) => {
       if (this.statePointerId !== null || this.effectivelyDisabled) {
@@ -421,7 +410,6 @@ export class DropletButton extends DropletElement {
     }
   }
 
-  // Push one observed attribute into the inner native button
   sync (name: string): void {
     if (name.startsWith('aria-') && name !== 'aria-label') {
       forwardAria(this, this.button, name);
@@ -456,7 +444,7 @@ export class DropletButton extends DropletElement {
     }
   }
 
-  // The base class only sees the attribute; a disabled fieldset must leave the tab order too
+  // The base class sees only the attribute; a disabled fieldset leaves the tab order too
   override syncHostFocusTarget (): void {
     super.syncHostFocusTarget();
 
@@ -465,8 +453,7 @@ export class DropletButton extends DropletElement {
     }
   }
 
-  // A detached native button carrying the host's submission attributes, so the
-  // form* getters and the submitter share the platform's own parsing
+  // Detached, so the form* getters and the submitter share the platform's parsing
   nativeSubmitter (): HTMLButtonElement {
     const submitter = this.ownerDocument.createElement('button');
 
@@ -484,8 +471,7 @@ export class DropletButton extends DropletElement {
     return submitter;
   }
 
-  // Submit or reset the owner form as the host stands now. A form-associated custom element
-  // cannot be a submitter, so a native stand-in joins the form for the one synchronous call.
+  // A form-associated custom element can't be a submitter, so a native stand-in joins for the call
   driveForm (): void {
     const type = this.type;
     const form = this.internals.form;

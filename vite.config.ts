@@ -4,8 +4,7 @@ import { defineConfig } from 'vite';
 import type { EnvironmentOptions } from 'vite';
 import dts from 'vite-plugin-dts';
 
-// The single-file bundle for script tags and vendoring; the package entries resolve
-// to the module tree vite.esm.config.ts builds into dist/esm.
+// The single-file bundle for script tags; package entries use vite.esm.config.ts's dist/esm
 function libEnvironment (name: string, entry: string): EnvironmentOptions {
   return {
     consumer: 'client',
@@ -23,8 +22,7 @@ function libEnvironment (name: string, entry: string): EnvironmentOptions {
   };
 }
 
-// Jelly UI's bundle path keeps working as a re-export, so the code exists once;
-// a vendored lone jelly.js now needs droplet.js beside it (migration page)
+// jelly.js re-exports droplet.js, so a vendored jelly.js needs droplet.js beside it
 async function writeLegacyStub (): Promise<void> {
   const stub = "export * from './droplet.js';\n";
 
@@ -33,8 +31,7 @@ async function writeLegacyStub (): Promise<void> {
   await writeFile(resolve('dist/jelly.d.ts'), stub);
 }
 
-// Watch mode only feeds the docs site, and the declaration pass writes into dist/src,
-// which retriggers the watcher forever; npm run build still emits the types
+// Watch mode skips declarations: writing dist/src retriggers the watcher forever
 const watching = process.argv.includes('--watch') || process.argv.includes('-w');
 
 export default defineConfig({

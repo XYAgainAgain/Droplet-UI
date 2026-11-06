@@ -23,9 +23,7 @@ test('builds a tablist from panels and shows the active one', async () => {
 });
 
 test('switches panels when the markup is set through a connected innerHTML', async () => {
-  // The showcase sets innerHTML on a stage already in the document, so tabs connects
-  // before its panels upgrade. A cached per-panel value would be reset by the panels'
-  // class fields, every switch would match nothing, and all panels would hide.
+  // Tabs connects before its panels upgrade, which resets any cached panel value
   const stage = document.createElement('div');
   document.body.appendChild(stage);
 

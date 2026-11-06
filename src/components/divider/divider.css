@@ -1,8 +1,7 @@
 :host {
   display: block;
 
-  /* Inside a flex row a horizontal divider must still claim its
-     width, or the hairline collapses to nothing */
+  /* In a flex row the hairline collapses unless it claims a width */
   flex:       1 1 100%;
   align-self: center;
 

@@ -39,7 +39,8 @@
   --droplet-radio-font-size: 16.5px; --jelly-radio-font-size: var(--droplet-radio-font-size);
 }
 
-:host([disabled]) {
+:host([disabled]),
+:host(:disabled) {
   opacity:        0.5;
   pointer-events: none;
 }
@@ -61,8 +62,6 @@
   outline:  none;
 }
 
-/* The focus ring is painted on the canvas so it follows the jiggle;
-   this ::after is only for forced-colors mode, where canvas is ignored. */
 .control::after {
   content:        "";
   position:       absolute;
@@ -81,8 +80,6 @@
   border-radius: 50%;
   background:    var(--jelly-radio-dot-color, var(--droplet-radio-dot-color));
 
-  /* The dot plops in with a real overshoot (past full size, then settles)
-     so it lands like a drop rather than simply scaling up. */
   transform:  translate(-50%, -50%) scale(0.15);
   opacity:    0;
   transition: transform 0.36s cubic-bezier(0.3, 1.8, 0.45, 1), opacity 0.13s;
@@ -93,7 +90,6 @@
   opacity:   1;
 }
 
-/* --droplet-motion mirrors data-droplet-motion (or data-jelly-motion) on <html>; see src/theme/runtime.ts */
 @media (prefers-reduced-motion: reduce) {
   @container not style(--droplet-motion: no-preference) {
     .dot { transition: opacity 0.13s; }

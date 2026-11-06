@@ -1,5 +1,3 @@
-// Packs the built library, installs the tarball into a scratch consumer, and checks
-// every documented entry point from plain Node, strict TypeScript, and esbuild.
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -8,7 +6,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-// Inside node_modules, which every checkout ignores and nothing else writes to here
+// Ignored in every checkout, and nothing else writes here
 const WORK = join(ROOT, 'node_modules', '.cache', 'droplet-package-smoke');
 const APP = join(WORK, 'app');
 const PKG = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
@@ -28,9 +26,8 @@ before(() => {
 
 after(() => rmSync(WORK, { recursive: true, force: true }));
 
-// The four code entries, plus a sample of the per-component subpaths
 const ENTRIES = [
-  'droplet-ui', 'droplet-ui/core', 'droplet-ui/register', 'droplet-ui/compat',
+  'droplet-ui', 'droplet-ui/core', 'droplet-ui/register', 'droplet-ui/compat', 'droplet-ui/experimental',
   'droplet-ui/button', 'droplet-ui/select', 'droplet-ui/tabs',
 ];
 

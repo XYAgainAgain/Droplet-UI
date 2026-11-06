@@ -1,8 +1,4 @@
-/*
- * Assemble the GitHub Pages site into _site/ (`npm run build:site`). The docs are buildless
- * ES modules and each page is authored for its final URL depth, so this builds the library,
- * regenerates the docs data, and copies only what the site needs, with no path rewriting.
- */
+// Builds _site/ for Pages: each page is authored for its final URL depth, so files copy unrewritten
 
 import { execSync }  from 'node:child_process';
 import { rmSync }    from 'node:fs';
@@ -34,8 +30,7 @@ for (const file of ['droplet.js', 'droplet.js.map', 'jelly.js']) {
 }
 copyFileSync(join(root, 'package.js'), join(site, 'package.js'));
 
-// Skip the README and the build-time content source; the three page sources are
-// copied to their public URLs below
+// The three pages copy to their public URLs below
 const skip = new Set([
   join(root, 'docs', 'README.md'),
   join(root, 'docs', 'content', 'content.js'),
@@ -55,13 +50,13 @@ copyFileSync(join(root, 'docs', 'api', 'index.html'), join(site, 'api', 'index.h
 mkdirSync(join(site, 'migration'), { recursive: true });
 copyFileSync(join(root, 'docs', 'migration', 'index.html'), join(site, 'migration', 'index.html'));
 
-// The Lottie player, sourced from the lottie-web dependency (never vendored)
+// From the lottie-web dependency, never vendored
 copyFileSync(
   join(root, 'node_modules', 'lottie-web', 'build', 'player', 'lottie_light.min.js'),
   join(site, 'docs', 'lottie', 'lottie_light.min.js'),
 );
 
-// The custom-domain marker, when present, so Pages keeps the domain across deploys
+// Pages keeps a custom domain only while CNAME ships
 if (existsSync(join(root, 'CNAME'))) {
   copyFileSync(join(root, 'CNAME'), join(site, 'CNAME'));
 }

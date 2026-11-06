@@ -1,8 +1,3 @@
-/*
- * The painter frame: the frozen, versioned record a DropletElement hands to
- * paintSurface() once per body per paint. See .dev/docs/contracts/painter.md.
- */
-
 import { traceSmoothPath }   from '../core/index.js';
 import type { SurfacePoint } from '../core/index.js';
 
@@ -26,10 +21,7 @@ export interface FrameInput {
   height: number;
 }
 
-/*
- * Trace the already-projected points into a Path2D once per paint; the
- * surface fill and the border stroke share it.
- */
+// The surface fill and the border stroke share one Path2D
 export function buildFrame ({ ctx, points, resting, dpr, width, height }: FrameInput): PainterFrame {
   const path = new Path2D();
 
@@ -38,7 +30,7 @@ export function buildFrame ({ ctx, points, resting, dpr, width, height }: FrameI
   const frame: PainterFrame = {
     ctx,
     path,
-    // A copy, so freezing it never locks a buffer the caller still writes to
+    // Copied so freezing never locks a buffer the caller still writes to
     points: Object.freeze(points.slice()),
     resting,
     dpr,

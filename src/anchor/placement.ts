@@ -2,12 +2,10 @@ import { isRTL } from '../utilities/index.js';
 
 export type Placement = 'top' | 'bottom' | 'left' | 'right' | 'start' | 'end';
 
-// Placement after start/end have been mapped to left/right
 export type PhysicalPlacement = 'top' | 'bottom' | 'left' | 'right';
 
 const VIEWPORT_MARGIN = 8;
 
-// 'start' and 'end' follow the anchor's reading direction; physical placements pass through
 export function resolvePlacement (placement: Placement, anchorEl: HTMLElement): PhysicalPlacement {
   if (placement !== 'start' && placement !== 'end') {
     return placement;
@@ -22,10 +20,7 @@ export function resolvePlacement (placement: Placement, anchorEl: HTMLElement): 
   return rtl ? 'left' : 'right';
 }
 
-/*
- * Position a `position: fixed` float beside its anchor. Flips to the opposite side
- * when the preferred side would clip, then clamps inside the viewport.
- */
+// Places a `position: fixed` float, flipping sides when the preferred one clips, then clamps to the viewport
 export function placeAnchored (
   anchorEl: HTMLElement,
   floatEl: HTMLElement,
@@ -39,7 +34,6 @@ export function placeAnchored (
   const vw = window.innerWidth;
   const vh = window.innerHeight;
 
-  // Flip to the roomier side when the preferred side can't fit the float
   let resolved: PhysicalPlacement = side;
 
   if (side === 'top' && a.top - f.height - gap < VIEWPORT_MARGIN && a.bottom + f.height + gap < vh) {
@@ -69,9 +63,7 @@ export function placeAnchored (
   floatEl.style.left = `${Math.round(left)}px`;
   floatEl.style.top  = `${Math.round(top)}px`;
 
-  // A transform, filter, or will-change on an ancestor becomes the containing block
-  // for position:fixed (a card lifting on hover). Measure where the float landed and
-  // add the difference back so it stays pinned to the trigger.
+  // A transformed, filtered, or will-change ancestor contains position:fixed; correct by the landing offset
   const landed = floatEl.getBoundingClientRect();
   const dx     = left - landed.left;
   const dy     = top - landed.top;
@@ -84,11 +76,8 @@ export function placeAnchored (
   return resolved;
 }
 
-/*
- * Keep a fixed float pinned to its anchor on scroll and resize. `onHidden` fires once
- * the anchor has scrolled fully out of view so the overlay can dismiss itself.
- * Returns a cleanup function.
- */
+// Repins on scroll and resize; returns a cleanup. `onHidden` fires while the anchor is
+// out of view, where returning focus to the trigger would scroll it back
 export function trackAnchor (
   anchorEl: HTMLElement,
   floatEl: HTMLElement,

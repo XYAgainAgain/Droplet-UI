@@ -1,10 +1,7 @@
-/*
- * A capsule switch whose thumb stretches along its travel and squishes as it
- * lands while the track crossfades between off and on. Tap or drag the thumb;
- * "on" always sits at the inline end, so right-to-left pages mirror correctly
- */
-
-import { DropletElement }    from '../../element/index.js';
+import { DropletElement }     from '../../element/index.js';
+import { FORM_ATTRIBUTES }    from '../../element/form-control.js';
+import { FormControl }        from '../../element/form-control.js';
+import type { RestoreState }  from '../../element/form-control.js';
 import type { Shape }      from '../../element/index.js';
 
 import { DropletBody }       from '../../core/index.js';
@@ -49,10 +46,21 @@ const SWITCH_SIZES: Record<Size, SwitchSize> = {
  * @attr {string} label - Accessible name when there is no slotted label.
  * @attr {string} value - Form value submitted while on (defaults to "on").
  * @attr {string} name - Form field name submitted with the value.
+ * @attr {boolean} required - Invalid (valueMissing) while off; blocks form submission.
  * @attr {"small"|"medium"|"large"} size - Control size.
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - On-state track hue.
+ * @attr {string} color - Any CSS color for the fill or accent (beats intent and variant); text or a mark on it turns white or near-black, whichever reads better.
+ * @attr {"accent"|"neutral"|"info"|"success"|"warning"|"danger"|"highlight"} intent - Semantic color role (never an ARIA role); beats variant.
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
  * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
+ * @attr {string} material - Registered material preset: "matte" (the default) or "gloss" (Experimental); inherits from a `data-droplet-material` scope.
+ * @attr {number} gloss - Sheen sharpness 0–1 for a lit material (Experimental); defaults to the material's sharpness.
+ * @attr {number} softness - Feel knob 0–1: how far the surface gives under a press; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} bounce - Feel knob 0–1: how long it keeps wobbling before it settles; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} viscosity - Feel knob 0–1: how thick and slow it moves; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} spread - Feel knob 0–1: how far a dent travels around the edge; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} depth - Feel knob 0–1: how far it presses in and tilts; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} intensity - Feel knob 0–1: master gain on every push the surface takes; unset keeps the feel preset's setting, and 0.5 is neutral.
  *
  * @fires change - When the on/off state changes through user interaction.
  *
@@ -64,7 +72,7 @@ const SWITCH_SIZES: Record<Size, SwitchSize> = {
  * @cssprop [--droplet-off] - Off-state track color.
  * @cssprop [--droplet-switch-thumb-on] - Thumb color when on.
  */
-export class DropletSwitch extends DropletElement {
+export class DropletSwitch extends FormControl(DropletElement) {
 
   static define (options?: DefineOptions): DefineResult {
     return defineSwitch(options);
@@ -72,17 +80,16 @@ export class DropletSwitch extends DropletElement {
 
   static override usesResolver = true;
 
-  // Participate in native <form> submission through ElementInternals
+  static override textOnFill = false;
+
   static formAssociated = true;
 
-  internals: ElementInternals;
+  override internals: ElementInternals;
 
-  // Populated in onBuilt() or onShape()
   input!: HTMLInputElement;
   track!: HTMLElement;
   thumbBody: DropletBody | null = null;
 
-  // Thumb slide spring (position, velocity, target) plus drag bookkeeping
   thumbX = 0;
   thumbXVelocity = 0;
   thumbTarget = 0;
@@ -91,7 +98,7 @@ export class DropletSwitch extends DropletElement {
   downX = 0;
 
   static get observedAttributes (): string[] {
-    return ['checked', 'disabled', 'label', 'size', 'value', ...DropletElement.AXIS_ATTRIBUTES];
+    return ['checked', 'disabled', 'label', 'size', 'value', ...DropletElement.AXIS_ATTRIBUTES, ...FORM_ATTRIBUTES];
   }
 
   constructor () {
@@ -113,12 +120,11 @@ export class DropletSwitch extends DropletElement {
       </label>`;
   }
 
-  // The capsule the physics body takes: the track region, not the label
+  // The track only, not the label
   override shape (width: number = this.sizeConfig.width, height: number = this.sizeConfig.height): Shape {
     return { width, height, radius: height / 2 };
   }
 
-  // The canonical size name, accepting the sm/md/lg aliases
   get sizeKey (): Size {
     return sizeName(this);
   }
@@ -127,7 +133,6 @@ export class DropletSwitch extends DropletElement {
     return SWITCH_SIZES[this.sizeKey];
   }
 
-  // The live track dimensions (physics body if built, size table otherwise)
   get trackSize (): { width: number; height: number } {
     return {
       width:  this.body?.width || this.sizeConfig.width,
@@ -135,21 +140,20 @@ export class DropletSwitch extends DropletElement {
     };
   }
 
-  // How far the thumb center travels between its two resting points
   get travel (): number {
     const { width, height } = this.trackSize;
 
     return width - height;
   }
 
-  // The thumb's resting offset for a checked state; "on" sits at the inline end
+  // "On" sits at the inline end
   targetFor (checked: boolean): number {
     const sign = isRTL(this) ? -1 : 1;
 
     return (checked ? 1 : -1) * sign * (this.travel / 2);
   }
 
-  // Normalized travel from the visual off edge (0) to the on edge (1)
+  // 0 at the off edge, 1 at the on edge
   slideProgress (): number {
     const half = Math.max(this.travel / 2, 1);
     const sign = isRTL(this) ? -1 : 1;
@@ -157,8 +161,6 @@ export class DropletSwitch extends DropletElement {
     return clamp(((this.thumbX * sign) / half + 1) / 2, 0, 1);
   }
 
-  // The off/on endpoints re-resolve from live tokens every paint, so theme flips,
-  // variants, and overrides recolor the track mid-slide; slide progress blends them
   trackFill (): string {
     return this.mixColor(
       'var(--jelly-off, var(--droplet-off))',
@@ -167,8 +169,6 @@ export class DropletSwitch extends DropletElement {
     );
   }
 
-  // Both ends default to white so the thumb reads like a physical knob across
-  // themes and accents; variants can override --droplet-switch-thumb-on for contrast
   thumbFill (): string {
     return this.mixColor(
       'var(--jelly-switch-thumb-off, var(--droplet-switch-thumb-off))',
@@ -188,10 +188,9 @@ export class DropletSwitch extends DropletElement {
     this.useHostFocusTarget(this.input);
     this.trackFocus(this.input);
 
-    // The pointer handlers below own the toggle; the native click must not flip it
+    // The pointer handlers own the toggle, so the native click must not flip it
     this.input.addEventListener('click', (event) => event.preventDefault());
 
-    // Clicking the label text toggles too, like a native checkbox label
     this.shadowRoot!.querySelector('.label')!.addEventListener('click', () => {
       if (!this.hasAttribute('disabled')) {
         this.setChecked(!this.checked, true);
@@ -241,14 +240,13 @@ export class DropletSwitch extends DropletElement {
     try {
       this.track.setPointerCapture(event.pointerId);
     } catch {
-      // Capture can fail if the pointer is already gone; the press still works
+      // Pointer already gone
     }
 
     this.pressAt(event.clientX, event.clientY, 0.8);
     this.requestFrame();
   }
 
-  // Drag: after a small slop the thumb follows the finger along the track
   onMove (event: PointerEvent): void {
     if (this.pointerId !== event.pointerId) {
       return;
@@ -270,7 +268,6 @@ export class DropletSwitch extends DropletElement {
     this.requestFrame();
   }
 
-  // Release: a drag settles to whichever side the thumb is on; a tap toggles
   onUp (event: PointerEvent): void {
     if (this.pointerId !== event.pointerId) {
       return;
@@ -281,12 +278,11 @@ export class DropletSwitch extends DropletElement {
     try {
       this.track.releasePointerCapture(event.pointerId);
     } catch {
-      // The capture may already be gone; the release still applies
+      // Capture already gone
     }
 
     this.releaseBody();
 
-    // The "on" side is the inline end, so the decision mirrors on RTL pages
     const onSide = isRTL(this) ? this.thumbX < 0 : this.thumbX > 0;
     const next   = this.dragging ? onSide : !this.checked;
 
@@ -295,7 +291,6 @@ export class DropletSwitch extends DropletElement {
     this.dragging = false;
   }
 
-  // Move to a checked state, animating and emitting only on real user changes
   setChecked (value: boolean, fromUser = false): void {
     const changed = value !== this.checked;
 
@@ -304,7 +299,6 @@ export class DropletSwitch extends DropletElement {
 
     if (fromUser && changed) {
       if (!this.reducedMotion && this.thumbBody) {
-        // Stretch toward the direction of travel (the inline end when turning on)
         const sign = isRTL(this) ? -1 : 1;
 
         this.thumbBody.stretchAlong((value ? 1 : -1) * sign, 0, 0.9);
@@ -334,8 +328,6 @@ export class DropletSwitch extends DropletElement {
       [this.thumbX, this.thumbXVelocity] = integrateSpring(this.thumbX, this.thumbXVelocity, this.thumbTarget, 300, 26, dt);
     }
 
-    // Organic lean: the thumb bulges toward its direction of travel and tucks the
-    // trailing side in (a teardrop), relaxing to round as it lands, never a flat oval
     const speed = Math.abs(this.thumbXVelocity);
 
     if (speed > 6) {
@@ -365,7 +357,7 @@ export class DropletSwitch extends DropletElement {
   }
 
   attributeChangedCallback (name: string): void {
-    if (this.axisAttributeChanged(name)) {
+    if (this.axisAttributeChanged(name) || this.formAttributeChanged(name)) {
       return;
     }
 
@@ -387,6 +379,7 @@ export class DropletSwitch extends DropletElement {
         this.input.checked = this.checked;
         this.input.setAttribute('aria-checked', String(this.checked));
         this.internals.setFormValue(this.checked ? this.value : null);
+        this.updateValidity();
         this.thumbTarget = this.targetFor(this.checked);
         this.requestFrame();
         break;
@@ -396,8 +389,8 @@ export class DropletSwitch extends DropletElement {
         break;
 
       case 'disabled':
-        this.input.disabled = this.hasAttribute('disabled');
-        this.syncHostFocusTarget();
+        this.syncDisabled();
+        this.updateValidity();
         break;
 
       case 'label': {
@@ -421,7 +414,6 @@ export class DropletSwitch extends DropletElement {
     this.toggleAttribute('checked', Boolean(value));
   }
 
-  // The form value submitted while on (defaults to "on", like native)
   get value (): string {
     return this.getAttribute('value') || 'on';
   }
@@ -430,9 +422,59 @@ export class DropletSwitch extends DropletElement {
     this.setAttribute('value', String(value));
   }
 
-  // Route programmatic host focus into the hidden native input
   override focus (options?: FocusOptions): void {
     this.input?.focus(options);
+  }
+
+  defaultCheckedValue: boolean | null = null;
+
+  get defaultChecked (): boolean {
+    return this.defaultCheckedValue ?? this.hasAttribute('checked');
+  }
+
+  set defaultChecked (value: boolean) {
+    this.defaultCheckedValue = Boolean(value);
+  }
+
+  override connectedCallback (): void {
+    this.defaultCheckedValue ??= this.hasAttribute('checked');
+
+    super.connectedCallback();
+  }
+
+  override formAnchor (): HTMLElement | null {
+    return this.input ?? null;
+  }
+
+  override formValueMissing (): boolean {
+    return !this.checked;
+  }
+
+  override formOwnLabels (): Element[] {
+    const label = this.shadowRoot?.querySelector('.label');
+
+    return label ? [label] : [];
+  }
+
+  override formActivate (): void {
+    this.setChecked(!this.checked, true);
+  }
+
+  override formReset (): void {
+    this.checked = this.defaultChecked;
+  }
+
+  override formRestore (state: RestoreState): void {
+    this.checked = state !== null && state !== '';
+  }
+
+  override syncDisabled (): void {
+    if (!this.input) {
+      return;
+    }
+
+    this.input.disabled = this.isDisabled;
+    this.syncHostFocusTarget();
   }
 
 }

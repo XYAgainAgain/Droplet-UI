@@ -13,8 +13,7 @@ function tokenDeclarations (tokens: TokenMap): string {
     .join('\n');
 }
 
-// The legacy names point at the canonical ones once, on :root, so a page reading
-// var(--jelly-color-…) gets the live theme and a --jelly-* override still wins
+// Linked once on :root, so var(--jelly-*) reads the live theme and a --jelly-* override still wins
 function legacyLinks (): string {
   const names = [
     'font-display', 'font-text', 'font-mono', 'ring-width', 'ring-gap', 'ring-color', 'shadow-raised', 'shadow-overlay',
@@ -24,12 +23,8 @@ function legacyLinks (): string {
   return names.map((name) => `    --jelly-${name}: var(--droplet-${name});`).join('\n');
 }
 
-/*
- * Everything sits in @layer droplet, so any un-layered consumer rule wins the cascade whatever
- * its specificity; inside the layer the dark selectors still out-specify the base :root.
- * --droplet-motion mirrors the motion attribute because shadow styles read it through
- * @container style() (:host-context() is Chromium-only).
- */
+// @layer droplet lets any un-layered consumer rule win. --droplet-motion mirrors the motion
+// attribute for shadow styles' @container style(), since :host-context() is Chromium-only.
 export function themeTokenCSS (): string {
   return `
 @layer droplet {
@@ -69,11 +64,9 @@ ${tokenDeclarations(DARK_TOKENS)}
 `;
 }
 
-// Documents already fitted with the sheet and the theme watchers
 const themedDocuments = new WeakSet<Document>();
 
-// Each pair is one setting under two names; a page writing either spelling moves
-// both, so page CSS and the library never disagree about the mode or motion
+// Writing either spelling moves both, so page CSS and the library agree
 const ATTRIBUTE_PAIRS: ReadonlyArray<readonly [canonical: string, legacy: string]> = [
   ['data-droplet-mode', 'data-jelly-mode'],
   ['data-droplet-motion', 'data-jelly-motion'],
@@ -141,8 +134,7 @@ function ensureEventBridge (view: Window): void {
   }
 }
 
-// Repaint on the two signals that change computed tokens without resizing anything:
-// the OS color scheme in auto mode and the document's reading direction
+// The OS scheme and dir change computed tokens without a resize
 function installThemeWatchers (doc: Document): void {
   const view = doc.defaultView;
 
@@ -176,17 +168,14 @@ function installThemeWatchers (doc: Document): void {
 
     observeBody();
 
-    // The body may be missing at install time or replaced later, and an observer
-    // only watches nodes handed to it, so re-attach on documentElement's children.
+    // The body may be missing at install or replaced later, so re-attach on child changes
     new view.MutationObserver(observeBody).observe(doc.documentElement, { childList: true });
   }
 }
 
-// Installs once per document, from connectedCallback with ownerDocument, so the
-// module import stays pure and an adopted element is themed in its new document.
+// Called from connectedCallback with ownerDocument, so imports stay pure and adopted elements get themed
 export function ensureThemeTokens (doc: Document = globalThis.document): void {
-  // A headless document is left unmarked so a later call, once it has a head,
-  // still installs the sheet instead of no-opping forever.
+  // A headless document stays unmarked so a later call still installs
   if (!doc?.head || themedDocuments.has(doc)) {
     return;
   }
@@ -205,22 +194,16 @@ export function ensureThemeTokens (doc: Document = globalThis.document): void {
   themedDocuments.add(doc);
 }
 
-// The forced mode on the root: the canonical attribute, else the legacy one
 function forcedMode (): string | null {
   const root = document.documentElement;
 
   return root.getAttribute('data-droplet-mode') ?? root.getAttribute('data-jelly-mode');
 }
 
-/*
- * Force the document-wide theme mode: 'light', 'dark', or 'auto' (follow
- * the operating system). Fires droplet-theme-change so canvas-painted
- * components repaint with the new computed colors.
- */
+// Fires droplet-theme-change
 export function setThemeMode (mode: ThemeMode = 'auto'): void {
   ensureThemeTokens();
 
-  // Both names, so page CSS written against either attribute keeps matching
   for (const name of ['data-droplet-mode', 'data-jelly-mode']) {
     if (mode === 'light' || mode === 'dark') {
       document.documentElement.setAttribute(name, mode);
@@ -232,14 +215,12 @@ export function setThemeMode (mode: ThemeMode = 'auto'): void {
   notifyThemeChange();
 }
 
-// The forced mode, whether setThemeMode or the page wrote it, else 'auto'
 export function getThemeMode (): ThemeMode {
   const mode = forcedMode();
 
   return mode === 'light' || mode === 'dark' ? mode : 'auto';
 }
 
-// True when dark tokens are currently in effect for the document
 export function isDarkMode (): boolean {
   const forced = forcedMode();
 
@@ -254,14 +235,11 @@ export function isDarkMode (): boolean {
   return typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
-// Announce that theme colors changed so live canvases repaint themselves; the
-// bridge relays the legacy event for listeners written against Jelly UI
 export function notifyThemeChange (): void {
   ensureEventBridge(window);
   window.dispatchEvent(new CustomEvent('droplet-theme-change'));
 }
 
-// Run a callback on every theme change; returns an unsubscribe function
 export function onThemeChange (callback: () => void): () => void {
   window.addEventListener('droplet-theme-change', callback);
 

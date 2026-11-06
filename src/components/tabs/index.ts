@@ -1,9 +1,3 @@
-/*
- * Tabbed views. The bar is a <droplet-segmented> in tablist mode (a sliding
- * soft-body pill with real tab semantics) over light-DOM <droplet-tab-panel>
- * children; the active panel comes from `value` or a panel's `active` flag
- */
-
 import { emit }                 from '../../utilities/index.js';
 import { escapeHTML }           from '../../utilities/index.js';
 import { prefersReducedMotion } from '../../utilities/index.js';
@@ -19,7 +13,6 @@ import { DropletSegmented }       from '../segmented/index.js';
 
 import tabsStyles               from './tabs.css?inline';
 
-// The tab-bar surface tabs drives; droplet-segmented satisfies this structurally
 interface TabBar extends HTMLElement {
   value: string;
 }
@@ -84,7 +77,6 @@ export class DropletTabs extends HTMLElementBase {
 
   built = false;
 
-  // Populated in connectedCallback()
   segmented: TabBar | null = null;
   current: string | null = null;
 
@@ -103,7 +95,6 @@ export class DropletTabs extends HTMLElementBase {
 
     const panels = [...this.querySelectorAll<DropletTabPanel>(anyTag('tabPanel'))];
 
-    // A host value attribute wins; otherwise the panel marked `active` leads
     const activeIndex = Math.max(0, panels.findIndex((panel) => panel.hasAttribute('active')));
     const activePanel = panels[activeIndex];
     const activeValue = this.getAttribute('value') ?? (activePanel ? this.panelValue(activePanel, activeIndex) : '0');
@@ -129,8 +120,7 @@ export class DropletTabs extends HTMLElementBase {
 
     this.syncSize();
 
-    // Contain the inner segmented's own (composed) change so it doesn't escape
-    // the shadow root and reach host listeners alongside our own single change
+    // Stops the segmented's composed change so hosts see only the tabs' change
     this.segmented!.addEventListener('change', (event) => {
       event.stopPropagation();
       this.activate(this.segmented!.value, true);
@@ -149,8 +139,6 @@ export class DropletTabs extends HTMLElementBase {
     }
   }
 
-  // Reflect a host value attribute into the tab bar (a no-op when it already
-  // matches, so the change event only fires for real switches)
   syncValue (): void {
     const value = this.getAttribute('value');
 
@@ -176,9 +164,7 @@ export class DropletTabs extends HTMLElementBase {
     }
   }
 
-  // A panel's `value` attribute, else its index. Derived rather than cached: a panel
-  // that upgrades after this controller (innerHTML set on a connected element) would
-  // reset any stamped field to its class default.
+  // Derived, not cached: a panel upgrading after this controller resets stamped fields
   panelValue (panel: DropletTabPanel, index: number): string {
     return panel.getAttribute('value') || String(index);
   }
@@ -203,8 +189,7 @@ export class DropletTabs extends HTMLElementBase {
 
       panel.hidden = !on;
       panel.toggleAttribute('active', on);
-      // The active panel is focusable so keyboard users can reach and scroll
-      // it even when it holds no focusable content (APG tabs pattern)
+      // Focusable even without focusable content (APG tabs pattern)
       panel.tabIndex = on ? 0 : -1;
 
       if (on && animate && !prefersReducedMotion()) {
@@ -218,14 +203,12 @@ export class DropletTabs extends HTMLElementBase {
       }
     });
 
-    // change fires only when the active tab actually changes; the initial
-    // mount selection is state, not an event
+    // No change event for the initial mount selection
     const previous = this.current;
 
     this.current = String(value);
 
-    // Reflect onto the host value attribute so it never goes stale after a tab
-    // click (syncValue short-circuits the re-entry since it already matches)
+    // Set after `current` so the re-entrant syncValue sees a match and skips
     if (this.getAttribute('value') !== this.current) {
       this.setAttribute('value', this.current);
     }
@@ -244,7 +227,6 @@ export class DropletTabs extends HTMLElementBase {
     this.activate(value, true);
   }
 
-  // Route programmatic host focus onto the active tab
   override focus (options?: FocusOptions): void {
     this.segmented?.focus(options);
   }

@@ -1,10 +1,9 @@
-/*
- * Native grouping can't see controls in separate shadow trees, so radios
- * sharing a `name` under one root (document or shadow root) coordinate their
- * selection, roving tabindex, and direction-aware arrow keys here.
- */
+// Native grouping can't cross shadow trees, so same-name radios under one root coordinate here
 
 import { DropletElement }     from '../../element/index.js';
+import { FORM_ATTRIBUTES }    from '../../element/form-control.js';
+import { FormControl }        from '../../element/form-control.js';
+import type { RestoreState }  from '../../element/form-control.js';
 import type { Shape }       from '../../element/index.js';
 
 import { canonicalizeSize } from '../../utilities/index.js';
@@ -32,13 +31,24 @@ import radioStyles          from './radio.css?inline';
  *
  * @attr {boolean} checked - Whether this radio is selected.
  * @attr {boolean} disabled - Disable the control and remove it from the group's tab order.
+ * @attr {boolean} required - Makes the whole group invalid (valueMissing) until one radio in it is selected.
  * @attr {string} name - Groups radios that share the same value under one root.
  * @attr {string} label - Accessible name when there is no slotted label.
  * @attr {string} value - Form value submitted while selected (defaults to "on").
  * @attr {"small"|"medium"|"large"} size - Control size.
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Selected fill hue.
+ * @attr {string} color - Any CSS color for the fill or accent (beats intent and variant); text or a mark on it turns white or near-black, whichever reads better.
+ * @attr {"accent"|"neutral"|"info"|"success"|"warning"|"danger"|"highlight"} intent - Semantic color role (never an ARIA role); beats variant.
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
  * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
+ * @attr {string} material - Registered material preset: "matte" (the default) or "gloss" (Experimental); inherits from a `data-droplet-material` scope.
+ * @attr {number} gloss - Sheen sharpness 0–1 for a lit material (Experimental); defaults to the material's sharpness.
+ * @attr {number} softness - Feel knob 0–1: how far the surface gives under a press; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} bounce - Feel knob 0–1: how long it keeps wobbling before it settles; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} viscosity - Feel knob 0–1: how thick and slow it moves; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} spread - Feel knob 0–1: how far a dent travels around the edge; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} depth - Feel knob 0–1: how far it presses in and tilts; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} intensity - Feel knob 0–1: master gain on every push the surface takes; unset keeps the feel preset's setting, and 0.5 is neutral.
  *
  * @fires change - When selection changes through user interaction.
  *
@@ -49,7 +59,7 @@ import radioStyles          from './radio.css?inline';
  * @cssprop [--droplet-on] - Selected fill color.
  * @cssprop [--droplet-radio-dot-color] - Center dot color.
  */
-export class DropletRadio extends DropletElement {
+export class DropletRadio extends FormControl(DropletElement) {
 
   static define (options?: DefineOptions): DefineResult {
     return defineRadio(options);
@@ -57,21 +67,20 @@ export class DropletRadio extends DropletElement {
 
   static override usesResolver = true;
 
-  // Participate in native <form> submission through ElementInternals
+  static override textOnFill = false;
+
   static formAssociated = true;
 
-  internals: ElementInternals;
+  override internals: ElementInternals;
 
-  // Populated in onBuilt()
   control!: HTMLElement;
   wrap!: HTMLElement;
 
-  // Uniform scale spring driven by frame(): the control pops, never wiggles
   scale = 1;
   scaleVelocity = 0;
 
   static get observedAttributes (): string[] {
-    return ['checked', 'disabled', 'label', 'size', 'value', ...DropletElement.AXIS_ATTRIBUTES];
+    return ['checked', 'disabled', 'label', 'size', 'value', 'name', 'form', ...DropletElement.AXIS_ATTRIBUTES, ...FORM_ATTRIBUTES];
   }
 
   constructor () {
@@ -124,7 +133,7 @@ export class DropletRadio extends DropletElement {
     queueMicrotask(() => this.ensureTabbable());
   }
 
-  // Kick the scale spring: +v expands (select), -v collapses (deselect)
+  // +v expands, -v collapses
   pop (v: number): void {
     if (this.reducedMotion) {
       return;
@@ -149,7 +158,6 @@ export class DropletRadio extends DropletElement {
     return Math.abs(1 - this.scale) > 0.0015 || Math.abs(this.scaleVelocity) > 0.0015;
   }
 
-  // Every radio sharing this name under the same root (document or shadow root)
   group (): DropletRadio[] {
     const name = this.getAttribute('name');
 
@@ -159,26 +167,55 @@ export class DropletRadio extends DropletElement {
 
     const root = this.getRootNode() as Document | ShadowRoot;
 
-    return [...root.querySelectorAll<DropletRadio>(`:is(${anyTag('radio')})[name="${CSS.escape(name)}"]`)];
+    return DropletRadio.peers(root, name, this.internals?.form ?? null);
   }
 
-  // With no selection yet, the first enabled radio becomes the group's tab stop
-  ensureTabbable (): void {
-    const group = this.group();
-
-    if (group.some((radio) => radio.checked && !radio.hasAttribute('disabled'))) {
-      return;
+  // Tree, name, and form owner, as natively: two forms never share a group
+  static peers (root: Document | ShadowRoot | Node, name: string, form: HTMLFormElement | null): DropletRadio[] {
+    if (!('querySelectorAll' in root)) {
+      return [];
     }
 
-    const first = group.find((radio) => !radio.hasAttribute('disabled'));
+    return [...(root as ParentNode).querySelectorAll<DropletRadio>(`:is(${anyTag('radio')})[name="${CSS.escape(name)}"]`)]
+      .filter((radio) => (radio.internals?.form ?? null) === form);
+  }
 
-    if (first && first.control) {
-      first.control.tabIndex = 0;
+  // Validity is group-wide, so every peer refreshes
+  refreshGroup (radios: DropletRadio[] = this.group()): void {
+    for (const radio of radios) {
+      if (typeof radio.updateValidity === 'function') radio.updateValidity();
+    }
+  }
+
+  // Where it last grouped, so leaving can still refresh the peers left behind
+  lastGroup: { root: Node; name: string; form: HTMLFormElement | null } | null = null;
+
+  rememberGroup (): void {
+    const name = this.getAttribute('name');
+
+    this.lastGroup = name ? { root: this.getRootNode(), name, form: this.internals?.form ?? null } : null;
+  }
+
+  refreshLastGroup (): void {
+    const last = this.lastGroup;
+
+    if (last) {
+      this.refreshGroup(DropletRadio.peers(last.root, last.name, last.form));
+    }
+  }
+
+  // One tab stop per group, as natively
+  ensureTabbable (): void {
+    const group = this.group();
+    const stop  = group.find((radio) => radio.checked && !radio.isDisabled) ?? group.find((radio) => !radio.isDisabled);
+
+    for (const radio of group) {
+      if (radio.control) radio.control.tabIndex = radio === stop ? 0 : -1;
     }
   }
 
   select (fromUser = false): void {
-    if (this.hasAttribute('disabled')) {
+    if (this.isDisabled) {
       return;
     }
 
@@ -210,14 +247,13 @@ export class DropletRadio extends DropletElement {
       return;
     }
 
-    const group = this.group().filter((radio) => !radio.hasAttribute('disabled'));
+    const group = this.group().filter((radio) => !radio.isDisabled);
     const index = group.indexOf(this);
 
     if (index === -1) {
       return;
     }
 
-    // Direction-aware navigation: horizontal arrows flip on RTL pages
     const next = listNavigate(event.key, index, group.length, { rtl: isRTL(this) });
 
     if (next === -1) {
@@ -238,7 +274,7 @@ export class DropletRadio extends DropletElement {
 
   reflect (): void {
     const checked  = this.checked;
-    const disabled = this.hasAttribute('disabled');
+    const disabled = this.isDisabled;
 
     this.control.setAttribute('aria-checked', String(checked));
     this.control.setAttribute('aria-disabled', String(disabled));
@@ -249,7 +285,15 @@ export class DropletRadio extends DropletElement {
   }
 
   attributeChangedCallback (name: string): void {
-    if (this.axisAttributeChanged(name)) {
+    // Required is group-wide; a new name or form moves the radio between groups
+    if (name === 'required' || name === 'name' || name === 'form') {
+      this.refreshLastGroup();
+      this.rememberGroup();
+      this.refreshGroup();
+      return;
+    }
+
+    if (this.axisAttributeChanged(name) || this.formAttributeChanged(name)) {
       return;
     }
 
@@ -261,15 +305,19 @@ export class DropletRadio extends DropletElement {
   sync (name: string): void {
     switch (name) {
       case 'checked':
+        this.reflect();
+        this.refreshGroup();
+        this.requestFrame();
+        queueMicrotask(() => this.ensureTabbable());
+        break;
+
       case 'value':
         this.reflect();
         this.requestFrame();
         break;
 
       case 'disabled':
-        this.reflect();
-        queueMicrotask(() => this.ensureTabbable());
-        this.requestFrame();
+        this.syncDisabled();
         break;
 
       case 'size':
@@ -277,7 +325,6 @@ export class DropletRadio extends DropletElement {
         break;
 
       case 'label': {
-        // An explicit label wins over the slotted text for the accessible name
         const label = this.getAttribute('label');
 
         if (label) {
@@ -298,7 +345,6 @@ export class DropletRadio extends DropletElement {
     this.toggleAttribute('checked', Boolean(value));
   }
 
-  // The form value submitted while selected (defaults to "on", like native)
   get value (): string {
     return this.getAttribute('value') || 'on';
   }
@@ -309,6 +355,82 @@ export class DropletRadio extends DropletElement {
 
   override focus (options?: FocusOptions): void {
     this.control?.focus(options);
+  }
+
+  defaultCheckedValue: boolean | null = null;
+
+  // What a form reset returns to: the markup's checked attribute at first connect
+  get defaultChecked (): boolean {
+    return this.defaultCheckedValue ?? this.hasAttribute('checked');
+  }
+
+  set defaultChecked (value: boolean) {
+    this.defaultCheckedValue = Boolean(value);
+  }
+
+  override connectedCallback (): void {
+    this.defaultCheckedValue ??= this.hasAttribute('checked');
+
+    super.connectedCallback();
+
+    this.rememberGroup();
+    this.refreshGroup();
+  }
+
+  override disconnectedCallback (): void {
+    super.disconnectedCallback();
+
+    this.refreshLastGroup();
+  }
+
+  formAssociatedCallback (): void {
+    this.refreshLastGroup();
+    this.rememberGroup();
+    this.refreshGroup();
+  }
+
+  override formAnchor (): HTMLElement | null {
+    return this.control ?? null;
+  }
+
+  override formRequired (): boolean {
+    return this.group().some((radio) => radio.hasAttribute('required'));
+  }
+
+  override formValueMissing (): boolean {
+    return !this.group().some((radio) => radio.checked);
+  }
+
+  override formOwnLabels (): Element[] {
+    const label = this.shadowRoot?.querySelector('.label');
+
+    return label ? [label] : [];
+  }
+
+  override formActivate (): void {
+    this.control?.focus();
+    this.select(true);
+  }
+
+  override formReset (): void {
+    this.checked = this.defaultChecked;
+  }
+
+  override formRestore (state: RestoreState): void {
+    if (state !== null && state !== '') {
+      this.select(false);
+    }
+  }
+
+  override syncDisabled (): void {
+    if (!this.control) {
+      return;
+    }
+
+    this.reflect();
+    queueMicrotask(() => this.ensureTabbable());
+    this.updateValidity();
+    this.requestFrame();
   }
 
 }

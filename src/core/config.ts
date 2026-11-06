@@ -1,9 +1,4 @@
-/*
- * Physics tuning for the soft-body core. Values in "index units" are
- * independent of shape size (the ring is always the same sample count); values
- * in pixels scale with the shape. Components pass a Partial<DropletConfig> to
- * override a few.
- */
+// "Index units" are independent of shape size (the ring always has the same sample count); pixel values scale with it
 
 export const DEFAULT_CONFIG = {
   clickDepthSpring:            115,

@@ -1,10 +1,7 @@
-/*
- * A squishy checkbox with an optional slotted label and a mixed state.
- * A visually hidden native checkbox carries focus, keyboard, and the form
- * value while the soft-body square is painted behind it and pops on toggle.
- */
-
 import { DropletElement }     from '../../element/index.js';
+import { FORM_ATTRIBUTES }    from '../../element/form-control.js';
+import { FormControl }        from '../../element/form-control.js';
+import type { RestoreState }  from '../../element/form-control.js';
 import type { Shape }       from '../../element/index.js';
 
 import { canonicalizeSize } from '../../utilities/index.js';
@@ -32,10 +29,21 @@ import checkboxStyles       from './checkbox.css?inline';
  * @attr {string} label - Accessible name when there is no slotted label.
  * @attr {string} value - Form value submitted while checked (defaults to "on").
  * @attr {string} name - Form field name submitted with the control's value.
+ * @attr {boolean} required - Invalid (valueMissing) while unchecked; blocks form submission.
  * @attr {"small"|"medium"|"large"} size - Control size.
  * @attr {"white"|"rose"|"amber"|"azure"|"mint"|"platinum"|"graphite"} variant - Checked fill hue.
+ * @attr {string} color - Any CSS color for the fill or accent (beats intent and variant); text or a mark on it turns white or near-black, whichever reads better.
+ * @attr {"accent"|"neutral"|"info"|"success"|"warning"|"danger"|"highlight"} intent - Semantic color role (never an ARIA role); beats variant.
  * @attr {string} feel - Registered feel preset driving the physics; inherits from a `data-droplet-feel` scope.
  * @attr {"low"|"medium"|"high"} quality - Caps physics cost (med/lo/hi aliases accepted); inherits from a `data-droplet-quality` scope.
+ * @attr {string} material - Registered material preset: "matte" (the default) or "gloss" (Experimental); inherits from a `data-droplet-material` scope.
+ * @attr {number} gloss - Sheen sharpness 0–1 for a lit material (Experimental); defaults to the material's sharpness.
+ * @attr {number} softness - Feel knob 0–1: how far the surface gives under a press; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} bounce - Feel knob 0–1: how long it keeps wobbling before it settles; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} viscosity - Feel knob 0–1: how thick and slow it moves; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} spread - Feel knob 0–1: how far a dent travels around the edge; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} depth - Feel knob 0–1: how far it presses in and tilts; unset keeps the feel preset's setting, and 0.5 is neutral.
+ * @attr {number} intensity - Feel knob 0–1: master gain on every push the surface takes; unset keeps the feel preset's setting, and 0.5 is neutral.
  *
  * @fires change - When the checked state changes through user interaction.
  *
@@ -46,7 +54,7 @@ import checkboxStyles       from './checkbox.css?inline';
  * @cssprop [--droplet-on] - Checked fill color.
  * @cssprop [--droplet-checkbox-mark] - Check-mark color.
  */
-export class DropletCheckbox extends DropletElement {
+export class DropletCheckbox extends FormControl(DropletElement) {
 
   static define (options?: DefineOptions): DefineResult {
     return defineCheckbox(options);
@@ -54,20 +62,20 @@ export class DropletCheckbox extends DropletElement {
 
   static override usesResolver = true;
 
-  // Participate in native <form> submission through ElementInternals
+  static override textOnFill = false;
+
   static formAssociated = true;
 
-  internals: ElementInternals;
+  override internals: ElementInternals;
 
-  // Populated in onBuilt()
   input!: HTMLInputElement;
 
-  // Uniform scale spring driven by frame(): the box pops, never wiggles
+  // A uniform scale spring: the box pops, never wiggles
   scale = 1;
   scaleVelocity = 0;
 
   static get observedAttributes (): string[] {
-    return ['checked', 'disabled', 'indeterminate', 'label', 'size', 'value', ...DropletElement.AXIS_ATTRIBUTES];
+    return ['checked', 'disabled', 'indeterminate', 'label', 'size', 'value', ...DropletElement.AXIS_ATTRIBUTES, ...FORM_ATTRIBUTES];
   }
 
   constructor () {
@@ -92,14 +100,13 @@ export class DropletCheckbox extends DropletElement {
       </label>`;
   }
 
-  // The square the physics body takes: the box region, not the label
+  // The box only, not the label
   override shape (width: number, height: number): Shape {
     const size = Math.min(width, height);
 
     return { width: size, height: size, radius: size * 0.32 };
   }
 
-  // Resolve the box fill for the current state through the live theme tokens
   override fill (): string {
     return this.checked || this.indeterminate
       ? this.resolveColor(`var(--jelly-on, var(--droplet-on, ${PALETTE['background-accent']}))`)
@@ -118,13 +125,11 @@ export class DropletCheckbox extends DropletElement {
     this.trackFocus(this.input);
 
     this.input.addEventListener('change', () => {
-      // A user toggle resolves a mixed state, so indeterminate always clears
       this.indeterminate = false;
 
       this.toggleAttribute('checked', this.input.checked);
       this.syncFormValue();
 
-      // Clean expand on check, collapse on uncheck; no membrane wiggle
       this.pop(this.input.checked ? 4 : -3);
       triggerHaptic();
 
@@ -132,7 +137,6 @@ export class DropletCheckbox extends DropletElement {
     });
   }
 
-  // Kick the scale spring: +v expands (check), -v collapses (uncheck)
   pop (v: number): void {
     if (this.reducedMotion) {
       return;
@@ -142,7 +146,6 @@ export class DropletCheckbox extends DropletElement {
     this.requestFrame();
   }
 
-  // One animation step: advance the scale spring and repaint. True keeps animating.
   override frame (dt: number): boolean {
     const body = this.body;
 
@@ -163,7 +166,7 @@ export class DropletCheckbox extends DropletElement {
   }
 
   attributeChangedCallback (name: string): void {
-    if (this.axisAttributeChanged(name)) {
+    if (this.axisAttributeChanged(name) || this.formAttributeChanged(name)) {
       return;
     }
 
@@ -172,12 +175,12 @@ export class DropletCheckbox extends DropletElement {
     }
   }
 
-  // Push one observed attribute into the hidden native input
   sync (name: string): void {
     switch (name) {
       case 'checked':
         this.input.checked = this.checked;
         this.syncFormValue();
+        this.updateValidity();
         this.requestFrame();
         break;
 
@@ -192,8 +195,8 @@ export class DropletCheckbox extends DropletElement {
         break;
 
       case 'disabled':
-        this.input.disabled = this.hasAttribute('disabled');
-        this.syncHostFocusTarget();
+        this.syncDisabled();
+        this.updateValidity();
         break;
 
       case 'size':
@@ -229,7 +232,6 @@ export class DropletCheckbox extends DropletElement {
     this.toggleAttribute('indeterminate', Boolean(value));
   }
 
-  // The form value submitted while checked (defaults to "on", like native)
   get value (): string {
     return this.getAttribute('value') || 'on';
   }
@@ -240,6 +242,58 @@ export class DropletCheckbox extends DropletElement {
 
   override focus (options?: FocusOptions): void {
     this.input?.focus(options);
+  }
+
+  defaultCheckedValue: boolean | null = null;
+
+  // Captured at first connect, since checked is the live attribute
+  get defaultChecked (): boolean {
+    return this.defaultCheckedValue ?? this.hasAttribute('checked');
+  }
+
+  set defaultChecked (value: boolean) {
+    this.defaultCheckedValue = Boolean(value);
+  }
+
+  override connectedCallback (): void {
+    this.defaultCheckedValue ??= this.hasAttribute('checked');
+
+    super.connectedCallback();
+  }
+
+  override formAnchor (): HTMLElement | null {
+    return this.input ?? null;
+  }
+
+  override formValueMissing (): boolean {
+    return !this.checked;
+  }
+
+  override formOwnLabels (): Element[] {
+    const label = this.shadowRoot?.querySelector('.label');
+
+    return label ? [label] : [];
+  }
+
+  override formActivate (): void {
+    this.input?.click();
+  }
+
+  override formReset (): void {
+    this.checked = this.defaultChecked;
+  }
+
+  override formRestore (state: RestoreState): void {
+    this.checked = state !== null && state !== '';
+  }
+
+  override syncDisabled (): void {
+    if (!this.input) {
+      return;
+    }
+
+    this.input.disabled = this.isDisabled;
+    this.syncHostFocusTarget();
   }
 
 }

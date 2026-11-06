@@ -1,16 +1,3 @@
-/*
- * A dropdown action menu with real roving focus: arrows move between
- * items, Home/End jump, Enter/Space picks, Escape closes and returns
- * focus to the trigger. Items are declarative light-DOM children and can
- * be added or removed at any time.
- *
- *   <droplet-menu>
- *     <droplet-button slot="trigger">Actions</droplet-button>
- *     <droplet-menu-item value="edit">Edit</droplet-menu-item>
- *     <droplet-menu-item value="del" danger>Delete</droplet-menu-item>
- *   </droplet-menu>
- */
-
 import { placeAnchored }     from '../../anchor/index.js';
 import { trackAnchor }       from '../../anchor/index.js';
 import { springIn }          from '../../anchor/index.js';
@@ -86,7 +73,6 @@ export class DropletMenu extends HTMLElementBase {
 
   untrack: (() => void) | null = null;
 
-  // Document-level dismissal, attached only while open
   onDocumentPointer = (event: PointerEvent): void => {
     if (this.isOpen && !event.composedPath().includes(this)) {
       this.close();
@@ -124,7 +110,6 @@ export class DropletMenu extends HTMLElementBase {
     const triggerSlot = this.shadowRoot!.querySelector('slot[name="trigger"]')!;
 
     triggerSlot.addEventListener('click', () => this.toggle());
-    // Keep the trigger's menu-button ARIA correct as it (re)assigns
     triggerSlot.addEventListener('slotchange', () => this.reflectTrigger());
     this.reflectTrigger();
 
@@ -159,15 +144,12 @@ export class DropletMenu extends HTMLElementBase {
     return (event.target as HTMLElement).closest('.item');
   }
 
-  // The current trigger, resolved live from the slot
   get trigger (): HTMLElement {
     const slot = this.shadowRoot?.querySelector('slot[name="trigger"]') as HTMLSlotElement | null;
 
     return (slot?.assignedElements()[0] as HTMLElement | undefined) || this;
   }
 
-  // Mark the trigger as a menu button and mirror the open state onto it, so
-  // screen readers announce that it opens a menu and whether it is expanded
   reflectTrigger (): void {
     const trigger = this.trigger;
 
@@ -191,7 +173,7 @@ export class DropletMenu extends HTMLElementBase {
     }
   }
 
-  // Re-reads the live light-DOM items on every open so dynamically added entries appear
+  // Re-reads items each open so added or removed entries show
   open (): void {
     if (this.isOpen) {
       return;
@@ -223,7 +205,6 @@ export class DropletMenu extends HTMLElementBase {
     emit(this, 'open');
   }
 
-  // Anchor the menu to the trigger and keep it pinned on scroll
   place (): void {
     if (!this.menu) {
       return;
@@ -235,8 +216,6 @@ export class DropletMenu extends HTMLElementBase {
     placeAnchored(anchor, this.menu, placement, 8);
 
     this.untrack?.();
-    // Close on scroll-out without returning focus: focusing the trigger would
-    // scroll it back into view and undo the dismissal
     this.untrack = trackAnchor(anchor, this.menu, placement, 8, () => this.close({ returnFocus: false }));
   }
 
@@ -288,7 +267,6 @@ export class DropletMenu extends HTMLElementBase {
     this.close();
   }
 
-  // Menu keyboard: arrows rove, Home/End jump, Enter/Space picks, Escape/Tab close
   onKey (event: KeyboardEvent): void {
     const rows = this.rows();
 
@@ -330,7 +308,6 @@ export class DropletMenu extends HTMLElementBase {
     }
   }
 
-  // Move the roving focus by delta (skipping disabled rows), wrapping around
   step (delta: number, from = this.active): void {
     const rows = this.rows();
 
